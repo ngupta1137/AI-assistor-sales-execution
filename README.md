@@ -6,6 +6,8 @@ An AI field sales app that tells every field rep which customers to visit, what 
 - Build brief: [prompts/build-prototype-v1.md](prompts/build-prototype-v1.md)
 - Standing rules for AI coding sessions: [CLAUDE.md](CLAUDE.md)
 
+**Live demo:** https://ai-assistor-sales-execution.vercel.app (Vercel, deploys from `main`).
+
 **All data is fictional sample data.** Names, places, products and numbers are generated. Nothing in the prototype describes a real company or a real result.
 
 ## Status
