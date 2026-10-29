@@ -59,6 +59,11 @@ export function render(ctx) {
     <h2>${esc(industry.name)} guardrails</h2>
     <ul class="guards">${industry.guardrails.map((g) => `<li>${icon('shield', 16)} ${esc(t(g.text))}</li>`).join('')}</ul>
   </section>
+  <section class="card" id="audit">
+    <h2>Audit log</h2>
+    <p class="small muted">Every approval, override, outcome and agent stop in this session.</p>
+    ${m.audit().length ? `<ul class="audit">${m.audit().slice(0, 30).map((x) => `<li><time>${esc(ctx.fmt.time(x.at))}</time><span><b>${esc(x.actor)}</b> ${esc(x.text)}</span></li>`).join('')}</ul>` : '<p class="empty">Nothing yet in this session.</p>'}
+  </section>
   <p class="foot-note">Sample data. Agents in this demo are rule-based.</p>`;
 }
 

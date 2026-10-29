@@ -10,7 +10,9 @@ import * as manager from './manager.js';
 import * as agents from './agents.js';
 import * as config from './config.js';
 import * as problems from './problems.js';
+import * as route from './route.js';
+import * as ask from './ask.js';
 
-export const SCREENS = { setup, today, brief, account, action, order, complete, manager, agents, config, problems };
+export const SCREENS = { setup, today, brief, account, action, order, complete, manager, agents, config, problems, route, ask };
 
 export const ACTIONS = Object.assign({}, ...Object.values(SCREENS).map((s) => s.actions || {}));

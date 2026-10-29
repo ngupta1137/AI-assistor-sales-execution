@@ -184,6 +184,27 @@ async function repFlow(browser, ind, c) {
     await go(page, '#/today');
     ok((await page.innerText(`[data-account="${first}"]`)).includes('Done'), `${label}: Today should mark the visit done`);
 
+    // P1 Route plan: closing an account re-plans the rest.
+    await go(page, '#/route');
+    await checkText(page, ind, `${label} route`);
+    const stops0 = Number(await page.innerText('[data-route="stops"]'));
+    const closeBtn = await page.$('[data-act="close-account"]');
+    if (closeBtn) {
+      await closeBtn.click();
+      ok(!!(await page.$('#replanned')), `${label}: route did not re-plan after closing an account`);
+      ok(Number(await page.innerText('[data-route="stops"]')) < stops0, `${label}: closed account still on the route`);
+      await checkText(page, ind, `${label} route re-planned`);
+    }
+
+    // P1 Ask AI: prepared question and free text answered from data.
+    await go(page, '#/ask');
+    await page.click('[data-act="ask-q"] >> nth=0');
+    await page.fill('#ask-input', 'Which account should I start with first?');
+    await page.click('#ask-send');
+    const answers = await page.$$eval('[data-answer]', (e) => e.map((x) => x.innerText));
+    ok(answers.length === 2 && answers[1].includes(' is first'), `${label}: Ask AI free text should name the first account`);
+    await checkText(page, ind, `${label} ask`);
+
     // Presenter menu: switch persona to manager in the same session.
     await page.keyboard.press('Shift+D');
     ok(!!(await page.$('[data-region="presenter"]')), `${label}: Shift+D did not open the presenter menu`);
@@ -195,6 +216,8 @@ async function repFlow(browser, ind, c) {
     ok(live.some((x) => x.kind === 'override' && x.text.includes('Demo note from the e2e test')), `${label}: override with its note is not in the exception queue`);
     ok(mgr.includes('Routed to'), `${label}: exceptions must show routing`);
     ok((await page.$$('.rep-row')).length === 4, `${label}: manager needs 4 reps`);
+    ok((await page.$$('#coaching .coach')).length >= 1, `${label}: coaching prompts missing`);
+    ok(!!(await page.$('#coverage')), `${label}: coverage section missing`);
     await page.click('.exception [data-act="ack"]');
     ok((await page.innerText('#exceptions')).includes('Acknowledged'), `${label}: acknowledge failed`);
 
@@ -212,6 +235,8 @@ async function repFlow(browser, ind, c) {
     await go(page, '#/agents');
     await page.click('#toggle-order');
     ok((await page.innerText('[data-agent="order"]')).includes('Running'), `${label}: resume failed`);
+    const audit = await page.innerText('#audit');
+    ok(/Approved/.test(audit) && /Overrode/.test(audit) && /Stopped the Order agent/.test(audit), `${label}: audit log should record approvals, overrides and agent stops`);
 
     // Configuration and problems.
     await go(page, '#/config');

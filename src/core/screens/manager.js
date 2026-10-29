@@ -34,6 +34,27 @@ export function render(ctx) {
     </li>`;
   }).join('') : '<li class="empty">Nothing here.</li>';
 
+  // M4 Coverage: high-potential accounts not visited in N days.
+  const N = 21;
+  const uncovered = data.accounts.filter((a) => a.tier === 'A' && a.lastVisitDays > N).sort((a, b) => b.potential - a.potential);
+  const coverage = uncovered.length ? uncovered.slice(0, 5).map((a) => `<li class="row static"><span class="row-main"><b>${esc(a.name)}</b>
+      <small>${esc(t(a.type))} · ${esc(a.area)} · last ${esc(t('{visit}'))} ${a.lastVisitDays} days ago</small></span>
+      <span class="row-end"><b class="money">${esc(fmt.moneyShort(a.whiteSpace))}</b><small class="muted">white space</small></span></li>`).join('')
+    : `<li class="empty">${esc(t(`Every tier A {account} was visited in the last ${N} days.`))}</li>`;
+
+  // M3 Coaching prompts from patterns in overrides and blocked actions. Coaching, not policing.
+  const byReason = {};
+  for (const e of all) { const k = e.reason; (byReason[k] ||= []).push(e); }
+  const prompts = Object.entries(byReason).sort((a, b) => b[1].length - a[1].length).slice(0, 3).map(([reason, list]) => {
+    const reps = [...new Set(list.map((e) => e.rep))];
+    const r = t(reason, { limit: list[0].ruleVars?.limit != null ? fmt.money(list[0].ruleVars.limit) : '', max: '', lines: '' });
+    const ask = /data looks wrong/i.test(reason) ? 'Check the data source with sales ops before the next brief.'
+      : list[0].kind === 'blocked' ? 'Remove the blocker or reset expectations with the {rep}.'
+        : list[0].kind === 'approval' ? 'Decide quickly so the {rep} can confirm with the {contact}.'
+          : 'Ask what the agent is missing. The override may be right.';
+    return `<li class="coach">${icon('bulb', 18)}<span><b>${list.length} × "${esc(r)}"</b> from ${esc(reps.join(', '))}. ${esc(t(ask))}</span></li>`;
+  }).join('');
+
   return `
   <section class="hello">
     <h1>Team today</h1>
@@ -48,6 +69,12 @@ export function render(ctx) {
     </div>
     <ul class="exceptions">${queue}</ul>
   </section>
+  <section id="coaching"><h2>Coaching prompts</h2>
+    <p class="small muted">From patterns in overrides and blocked actions. For conversations, not a leaderboard.</p>
+    <ul class="list">${prompts}</ul></section>
+  <section id="coverage"><div class="section-head"><h2>Coverage gaps</h2>${pill(`${uncovered.length} tier A`, uncovered.length ? 'warn' : 'good')}</div>
+    <p class="small muted">${esc(t(`High-potential {accounts} not visited in ${N} days. The Visit Planner adds them to the next routes.`))}</p>
+    <ul class="list">${coverage}</ul></section>
   <p class="foot-note">Sample data. Other reps' figures are generated.</p>`;
 }
 

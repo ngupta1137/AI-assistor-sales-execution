@@ -157,7 +157,7 @@ function shell(ctx, name, out) {
   const nav = NAV[ctx.persona].map(([id, label, ic]) => {
     const firstBrief = ctx.m.nextAccount(null)?.accountId || data.planned[0].accountId;
     const href = id === 'brief' ? `#/brief/${firstBrief}` : `#/${id}`;
-    const active = name === id || (id === 'brief' && ['brief', 'action', 'order', 'complete'].includes(name)) || (id === 'today' && name === 'account');
+    const active = name === id || (id === 'brief' && ['brief', 'action', 'order', 'complete'].includes(name)) || (id === 'today' && ['account', 'route', 'ask'].includes(name));
     return `<a class="tab${active ? ' on' : ''}" href="${href}" data-nav="${id}">${icon(ic, 22)}<span>${esc(label)}</span></a>`;
   }).join('');
   const prepared = app.config.prepared ? `<div class="prepared-band" id="prepared">Prepared for ${esc(app.config.prepared)}</div>` : '';

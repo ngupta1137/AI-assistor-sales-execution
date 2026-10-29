@@ -61,6 +61,40 @@ export function localPrice(ref, country) {
   return Math.round(v / step) * step;
 }
 
+/**
+ * Visit Planner: orders visits by opening hours and travel, not by value rank.
+ * Earliest deadline first: among accounts open on arrival, take the one whose latest
+ * feasible start comes soonest. Never schedules a visit that ends after closing.
+ * Pure: returns stops and the ids that do not fit today.
+ */
+export function scheduleVisits(ids, byId, city, country, startClock = DAY_START) {
+  const speed = country.speedKmh || 25;
+  let pos = { lat: city.lat, lng: city.lng };
+  let clock = startClock;
+  const remaining = ids.slice();
+  const stops = [];
+  while (remaining.length) {
+    const options = remaining.map((id) => {
+      const acc = byId[id];
+      const km = haversineKm(pos, acc.geo) * 1.3;
+      const travel = (km / speed) * 60;
+      const start = Math.ceil(Math.max(clock + travel, acc.hours[0]) / 5) * 5;
+      return { id, acc, km, travel, start, latest: acc.hours[1] - acc.visitMinutes, openNow: clock + travel >= acc.hours[0] };
+    });
+    const feasible = options.filter((o) => o.start <= o.latest);
+    if (!feasible.length) break;
+    const open = feasible.filter((o) => o.openNow);
+    const pool = open.length ? open : feasible;
+    pool.sort((x, y) => (open.length ? x.latest - y.latest || x.km - y.km : x.start - y.start || x.latest - y.latest));
+    const best = pool[0];
+    stops.push({ accountId: best.id, seq: stops.length + 1, km: best.km, travelMin: Math.max(4, Math.round(best.travel)), start: best.start, end: best.start + best.acc.visitMinutes });
+    clock = best.start + best.acc.visitMinutes;
+    pos = best.acc.geo;
+    remaining.splice(remaining.indexOf(best.id), 1);
+  }
+  return { stops, dropped: remaining };
+}
+
 const PREFERENCES = [
   'Prefers mornings', 'Prefers short {visits}', 'Likes figures on one page', 'Replies faster by phone',
   'Busy at month end', 'Wants notice before a {visit}', 'Asks for the reason behind each suggestion',
@@ -269,39 +303,10 @@ export function generate(industry, country, { today = new Date(), fmt } = {}) {
   planned.sort((x, y) => y.opportunity - x.opportunity);
   planned.forEach((p, i) => { p.rank = i + 1; });
 
-  // Visit Planner: schedules by opening hours and travel, not by rank. Earliest deadline first:
-  // among accounts open on arrival, pick the one whose latest feasible start comes soonest.
-  // An account that cannot fit before it closes moves off today's plan (never scheduled after closing).
+  // Visit Planner (see scheduleVisits). Accounts that cannot fit before closing move off today's plan.
   const byId = Object.fromEntries(accounts.map((a) => [a.id, a]));
-  const speed = country.speedKmh || 25;
-  const schedule = (list) => {
-    let pos = { lat: city.lat, lng: city.lng };
-    let clock = DAY_START;
-    const remaining = list.slice();
-    const dropped = [];
-    let seq = 1;
-    while (remaining.length) {
-      const options = remaining.map((p) => {
-        const acc = byId[p.accountId];
-        const km = haversineKm(pos, acc.geo) * 1.3;
-        const travel = (km / speed) * 60;
-        const start = Math.ceil(Math.max(clock + travel, acc.hours[0]) / 5) * 5;
-        return { p, acc, km, travel, start, latest: acc.hours[1] - acc.visitMinutes, openNow: clock + travel >= acc.hours[0] };
-      });
-      const feasible = options.filter((o) => o.start <= o.latest);
-      if (!feasible.length) { dropped.push(...remaining.map((p) => p.accountId)); break; }
-      const open = feasible.filter((o) => o.openNow);
-      const pool = open.length ? open : feasible;
-      pool.sort((x, y) => (open.length ? x.latest - y.latest || x.km - y.km : x.start - y.start || x.latest - y.latest));
-      const best = pool[0];
-      Object.assign(best.p, { seq: seq++, km: best.km, travelMin: Math.max(4, Math.round(best.travel)), start: best.start });
-      clock = best.start + best.acc.visitMinutes;
-      pos = best.acc.geo;
-      remaining.splice(remaining.indexOf(best.p), 1);
-    }
-    return dropped;
-  };
-  const dropped = schedule(planned);
+  const { stops, dropped } = scheduleVisits(planned.map((p) => p.accountId), byId, city, country);
+  for (const st of stops) Object.assign(planned.find((p) => p.accountId === st.accountId), st);
   if (dropped.length) {
     for (const id of dropped) planned.splice(planned.findIndex((p) => p.accountId === id), 1);
     planned.sort((x, y) => y.opportunity - x.opportunity);

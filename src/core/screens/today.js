@@ -54,6 +54,11 @@ export function render(ctx) {
     ${icon('chevron', 18)}
   </a>
 
+  <div class="quick">
+    <a class="btn ghost" href="#/route" id="open-route">${icon('route', 18)}Route plan</a>
+    <a class="btn ghost" href="#/ask" id="open-ask">${icon('ask', 18)}Ask AI</a>
+  </div>
+
   <section class="cards2">
     <div class="card stat">
       <small>Target this month</small>

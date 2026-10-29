@@ -17,6 +17,8 @@ function newSession() {
     stopped: {},       // agentId -> true
     exceptions: [],    // live exceptions raised in this session
     acknowledged: {},  // exceptionId -> true
+    closed: {},        // accountId -> true when the account is closed today (route re-plan)
+    audit: [],         // { at, actor, text } newest first
     seq: 0,
   };
 }
@@ -34,6 +36,10 @@ export function createModel(ctx) {
   const s = getSession(data.seedKey);
 
   const plannedFor = (accountId) => data.planned.find((p) => p.accountId === accountId);
+  const AGENT_NAME = { planner: 'Visit Planner', gap: 'Gap agent', order: 'Order agent' };
+  /** Audit trail (G3): who did what, in plain words. */
+  const log = (actor, text) => { s.audit.unshift({ at: nowMinutes(), actor, text }); if (s.audit.length > 200) s.audit.pop(); };
+  const itemText = (item) => `"${ctx.t(item.title, item.vars)}" at ${data.byId[item.accountId].name}`;
   const agentStopped = (agentId) => !!s.stopped[agentId];
 
   /** All brief items: planner slot, ranked actions, order draft. */
@@ -44,6 +50,8 @@ export function createModel(ctx) {
   const decision = (id) => s.decisions[id];
   const decide = (id, d) => {
     s.decisions[id] = { ...d, at: nowMinutes() };
+    const it = findAction(id);
+    log(data.rep.name, d.status === 'approved' ? `Approved ${itemText(it)}` : d.status === 'adjusted' ? `Adjusted ${itemText(it)}: ${ctx.t(d.choice)}` : `Overrode ${itemText(it)}. Reason: ${ctx.t(d.reason)}`);
     if (d.status === 'overridden') {
       const item = findAction(id);
       const acc = data.byId[item.accountId];
@@ -58,7 +66,7 @@ export function createModel(ctx) {
       s.exceptions = s.exceptions.filter((e) => e.sourceId !== id);
     }
   };
-  const undo = (id) => { delete s.decisions[id]; s.exceptions = s.exceptions.filter((e) => e.sourceId !== id); };
+  const undo = (id) => { log(data.rep.name, `Undid the decision on ${itemText(findAction(id))}`); delete s.decisions[id]; s.exceptions = s.exceptions.filter((e) => e.sourceId !== id); };
 
   function findAction(id) {
     for (const p of data.planned) { const x = p.brief.find((a) => a.id === id); if (x) return x; }
@@ -80,6 +88,7 @@ export function createModel(ctx) {
   const recordOutcome = (id, o) => {
     s.outcomes[id] = { ...(s.outcomes[id] || {}), ...o };
     const item = findAction(id);
+    if (o.status) log(data.rep.name, o.status === 'done' ? `Marked done: ${itemText(item)}` : `Not done: ${itemText(item)}. Reason: ${ctx.t(o.reason)}`);
     s.exceptions = s.exceptions.filter((e) => e.sourceId !== `${id}#blocked`);
     if (o.status === 'not_done') {
       const r = industry.outcomeReasons.find((x) => x.label === o.reason);
@@ -93,7 +102,10 @@ export function createModel(ctx) {
       }
     }
   };
-  const setEvidence = (id, ev) => { s.outcomes[id] = { ...(s.outcomes[id] || {}), evidence: ev }; };
+  const setEvidence = (id, ev) => {
+    s.outcomes[id] = { ...(s.outcomes[id] || {}), evidence: ev };
+    log(data.rep.name, `Added ${ev.type} evidence to ${itemText(findAction(id))}`);
+  };
 
   // ---- Orders ----
   const orderState = (accountId) => {
@@ -140,6 +152,7 @@ export function createModel(ctx) {
     const rules = orderRules(accountId).filter((r) => r.triggered && (r.kind === 'totalAbove' || r.kind === 'humanPrice'));
     st.submitted = true;
     st.needsApproval = rules.length > 0;
+    log(data.rep.name, ctx.t(`${st.needsApproval ? 'Sent for approval' : 'Submitted'}: {order} for ${data.byId[accountId].name}`));
     s.exceptions = s.exceptions.filter((e) => e.sourceId !== `order:${accountId}`);
     if (st.needsApproval) {
       const acc = data.byId[accountId];
@@ -153,7 +166,12 @@ export function createModel(ctx) {
 
   // ---- Visits ----
   const visitDone = (accountId) => !!s.visits[accountId];
-  const completeVisit = (accountId) => { s.visits[accountId] = { done: true, at: nowMinutes() }; };
+  const completeVisit = (accountId) => { s.visits[accountId] = { done: true, at: nowMinutes() }; log(data.rep.name, ctx.t(`Closed the {visit} at ${data.byId[accountId].name}`)); };
+  const closedToday = (accountId) => !!s.closed[accountId];
+  const toggleClosed = (accountId) => {
+    s.closed[accountId] = !s.closed[accountId];
+    log(data.rep.name, ctx.t(`${s.closed[accountId] ? 'Marked closed today' : 'Reopened'}: ${data.byId[accountId].name}. The Visit Planner re-planned the route.`));
+  };
   const visitSummary = (accountId) => {
     const items = actionsOf(accountId);
     const done = items.filter((x) => s.outcomes[x.id]?.status === 'done');
@@ -166,7 +184,7 @@ export function createModel(ctx) {
 
   const nextAccount = (afterId) => {
     const order = data.planned.slice().sort((a, b) => a.rank - b.rank);
-    return order.find((p) => p.accountId !== afterId && !visitDone(p.accountId));
+    return order.find((p) => p.accountId !== afterId && !visitDone(p.accountId) && !s.closed[p.accountId]);
   };
 
   const selfStats = () => {
@@ -182,13 +200,16 @@ export function createModel(ctx) {
   };
 
   const exceptions = () => [...s.exceptions, ...data.exceptions].map((e) => ({ ...e, acknowledged: !!s.acknowledged[e.id] }));
-  const acknowledge = (id) => { s.acknowledged[id] = true; };
+  const acknowledge = (id) => { s.acknowledged[id] = true; log(data.manager.name, `Acknowledged an exception`); };
 
-  const toggleAgent = (id) => { s.stopped[id] = !s.stopped[id]; };
+  const toggleAgent = (id) => {
+    s.stopped[id] = !s.stopped[id];
+    log(ctx.persona === 'manager' ? data.manager.name : ctx.persona === 'admin' ? data.admin.name : data.rep.name, `${s.stopped[id] ? 'Stopped' : 'Resumed'} the ${AGENT_NAME[id]}`);
+  };
 
   return {
     session: s, plannedFor, briefItems, actionsOf, findAction, decision, decide, undo, counts, outcome, recordOutcome, setEvidence,
     orderLines, orderRules, orderState, setQty, submitOrder, visitDone, completeVisit, visitSummary, nextAccount,
-    selfStats, exceptions, acknowledge, agentStopped, toggleAgent,
+    selfStats, exceptions, acknowledge, agentStopped, toggleAgent, closedToday, toggleClosed, audit: () => s.audit,
   };
 }
