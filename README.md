@@ -169,7 +169,7 @@ Update the count check in `tests/static.mjs` (`expected 10 industries`) when you
 
 ## Tests
 
-`npm test` runs three steps and fails on the first failure.
+`npm test` runs five steps and fails on the first failure: build, static checks, assistant engine checks, the browser suite, and the assistant browser suite.
 
 1. **Build** of `docs/index.html`.
 2. **Static checks** (`tests/static.mjs`, about 61,000 checks, a few seconds):
@@ -197,7 +197,9 @@ Any console error, leftover `{token}`, `undefined` or `NaN`, or one of the pack'
 
 Regression checks from the October 2026 functional review are part of the suite: proposals blocked until the needs review has signed consent (F01), sample requests never shown as signed drops (F02), month actuals unchanged by estimates (F03), override notes kept through save (F04), closed visits leaving coverage gaps (F05), the stored approver named everywhere (F06), honest stopped-agent copy (F07) and done actions leaving open gaps (F08). Layout checks open every screen at 320 and 390 px wide and fail on sideways scroll or any tap target under 44 px.
 
-Last full run: 80 combinations, 3 personas, 5,834 screens checked, 22,697 assertions, all passing.
+**Assistant checks.** `tests/assistant-unit.mjs` answers every suggested question on every screen for every persona, industry and country without a browser (249,720 checks). `tests/assistant.mjs` (about 10 minutes with 4 workers; it uses Playwright's controlled clock for the 400 to 700 ms typing delay) opens every screen in all 80 combinations for the rep and the manager, clicks every suggested question and checks for an answer, a "Based on" line, no leftover token, no wrong-industry word and no console error. It also covers the guardrail refusals and audit entries, an answer that reflects an override, the focus trap, Escape and tap targets, navigation that never submits, the shared conversation, the presenter toggle, `?assistant=off`, the Setup questions, and that the live provider is absent from the build.
+
+Last full run: static 100,134 checks; assistant engine 249,720 checks; browser suite 80 combinations, 3 personas, 5,834 screens, 22,697 assertions; assistant suite 80 combinations, 8,160 questions answered, 157,346 assertions. All passing.
 
 ## Publish on GitHub Pages
 
