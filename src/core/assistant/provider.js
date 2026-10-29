@@ -45,6 +45,7 @@ function live(endpoint) {
 }
 
 export function getProvider(app) {
-  if (LIVE_ENABLED && app.liveEndpoint) return live(app.liveEndpoint);
+  // The condition is written out here so the bundler folds it to false and drops live() from the shipped build.
+  if (typeof __ASSISTANT_LIVE__ !== 'undefined' && __ASSISTANT_LIVE__ === true && app.liveEndpoint) return live(app.liveEndpoint);
   return rule;
 }

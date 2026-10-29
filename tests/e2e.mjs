@@ -233,10 +233,12 @@ async function repFlow(browser, ind, c) {
     // P1 Ask AI: prepared question and free text answered from data.
     await go(page, '#/ask');
     await page.click('[data-act="ask-q"] >> nth=0');
+    await page.waitForSelector('[data-answer]');
     await page.fill('#ask-input', 'Which account should I start with first?');
     await page.click('#ask-send');
+    await page.waitForFunction(() => document.querySelectorAll('[data-answer]').length === 2);
     const answers = await page.$$eval('[data-answer]', (e) => e.map((x) => x.innerText));
-    ok(answers.length === 2 && answers[1].includes(' is first'), `${label}: Ask AI free text should name the first account`);
+    ok(answers[1].includes(' is first'), `${label}: Ask AI free text should name the first account`);
     await checkText(page, ind, `${label} ask`);
 
     // Presenter menu: switch persona to manager in the same session.
