@@ -269,29 +269,43 @@ export function generate(industry, country, { today = new Date(), fmt } = {}) {
   planned.sort((x, y) => y.opportunity - x.opportunity);
   planned.forEach((p, i) => { p.rank = i + 1; });
 
-  // Visit Planner: route by opening hours and distance (greedy), not by rank.
+  // Visit Planner: schedules by opening hours and travel, not by rank. Earliest deadline first:
+  // among accounts open on arrival, pick the one whose latest feasible start comes soonest.
+  // An account that cannot fit before it closes moves off today's plan (never scheduled after closing).
   const byId = Object.fromEntries(accounts.map((a) => [a.id, a]));
   const speed = country.speedKmh || 25;
-  let pos = { lat: city.lat, lng: city.lng };
-  let clock = DAY_START;
-  const remaining = planned.slice();
-  let seq = 1;
-  while (remaining.length) {
-    const options = remaining.map((p) => {
-      const acc = byId[p.accountId];
-      const km = haversineKm(pos, acc.geo) * 1.3;
-      const arrive = clock + (km / speed) * 60;
-      return { p, acc, km, travel: (km / speed) * 60, start: Math.max(arrive, acc.hours[0]) };
-    });
-    options.sort((x, y) => x.start - y.start || x.km - y.km);
-    const best = options[0];
-    best.p.seq = seq++;
-    best.p.km = best.km;
-    best.p.travelMin = Math.max(4, Math.round(best.travel));
-    best.p.start = Math.round(best.start / 5) * 5;
-    clock = best.p.start + best.acc.visitMinutes;
-    pos = best.acc.geo;
-    remaining.splice(remaining.indexOf(best.p), 1);
+  const schedule = (list) => {
+    let pos = { lat: city.lat, lng: city.lng };
+    let clock = DAY_START;
+    const remaining = list.slice();
+    const dropped = [];
+    let seq = 1;
+    while (remaining.length) {
+      const options = remaining.map((p) => {
+        const acc = byId[p.accountId];
+        const km = haversineKm(pos, acc.geo) * 1.3;
+        const travel = (km / speed) * 60;
+        const start = Math.ceil(Math.max(clock + travel, acc.hours[0]) / 5) * 5;
+        return { p, acc, km, travel, start, latest: acc.hours[1] - acc.visitMinutes, openNow: clock + travel >= acc.hours[0] };
+      });
+      const feasible = options.filter((o) => o.start <= o.latest);
+      if (!feasible.length) { dropped.push(...remaining.map((p) => p.accountId)); break; }
+      const open = feasible.filter((o) => o.openNow);
+      const pool = open.length ? open : feasible;
+      pool.sort((x, y) => (open.length ? x.latest - y.latest || x.km - y.km : x.start - y.start || x.latest - y.latest));
+      const best = pool[0];
+      Object.assign(best.p, { seq: seq++, km: best.km, travelMin: Math.max(4, Math.round(best.travel)), start: best.start });
+      clock = best.start + best.acc.visitMinutes;
+      pos = best.acc.geo;
+      remaining.splice(remaining.indexOf(best.p), 1);
+    }
+    return dropped;
+  };
+  const dropped = schedule(planned);
+  if (dropped.length) {
+    for (const id of dropped) planned.splice(planned.findIndex((p) => p.accountId === id), 1);
+    planned.sort((x, y) => y.opportunity - x.opportunity);
+    planned.forEach((p, i) => { p.rank = i + 1; });
   }
 
   // Each brief: the planner's slot, the gap agent's ranked actions, the order agent's draft.

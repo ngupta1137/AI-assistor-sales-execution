@@ -5,7 +5,7 @@
   --surface: #ffffff;
   --ink: #0f172a;
   --ink-2: #334155;
-  --muted: #64748b;
+  --muted: #526175;
   --line: #e2e8f0;
   --good: #15803d; --good-bg: #dcfce7;
   --warn: #a16207; --warn-bg: #fef3c7;
@@ -100,7 +100,7 @@ small { font-size: 12.5px; }
 .btn.danger { background: var(--bad); color: #fff; }
 .btn.danger-text { color: var(--bad); }
 .btn.block { width: 100%; }
-.btn.sm { min-height: 38px; padding: 0 12px; font-size: 13px; }
+.btn.sm { min-height: var(--tap); padding: 0 12px; font-size: 13px; }
 .btn:disabled { opacity: .45; cursor: not-allowed; }
 .btn:focus-visible, .tab:focus-visible, .row:focus-visible, .tile:focus-visible, .chip:focus-visible { outline: 3px solid color-mix(in srgb, var(--accent) 45%, white); outline-offset: 2px; }
 .icon-btn { display: grid; place-items: center; width: var(--tap); height: var(--tap); border: 0; background: none; cursor: pointer; color: var(--ink); border-radius: 10px; }
@@ -197,7 +197,7 @@ textarea.input { resize: vertical; margin-top: 8px; }
 
 /* Manager */
 .seg-ctl { display: flex; gap: 6px; margin-bottom: 10px; overflow-x: auto; }
-.seg { min-height: 38px; padding: 0 12px; border-radius: 999px; border: 1px solid var(--line); background: var(--surface); font: inherit; font-size: 13px; cursor: pointer; white-space: nowrap; }
+.seg { min-height: var(--tap); padding: 0 12px; border-radius: 999px; border: 1px solid var(--line); background: var(--surface); font: inherit; font-size: 13px; cursor: pointer; white-space: nowrap; }
 .seg.on { background: var(--ink); color: #fff; border-color: var(--ink); }
 .exceptions { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 10px; }
 .exception { background: var(--surface); border-radius: 12px; padding: 12px; box-shadow: var(--shadow); display: flex; flex-direction: column; gap: 4px; }

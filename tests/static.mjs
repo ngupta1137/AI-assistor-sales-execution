@@ -109,6 +109,8 @@ for (const ind of INDUSTRIES) {
           check(!/undefined|NaN|null/.test(out), `${tag}: bad value in "${out}"`);
         }
       }
+      const acc = a.byId[p.accountId];
+      check(p.start >= acc.hours[0] && p.start + acc.visitMinutes <= acc.hours[1], `${tag}: ${acc.name} planned at ${p.start} min outside opening hours ${acc.hours}`);
       for (const l of p.order) check(!/\{[A-Za-z]+\}/.test(t(l.reason, l.vars)), `${tag}: unresolved order reason "${t(l.reason, l.vars)}"`);
     }
     for (const acc of a.accounts) check(!/\{|undefined/.test(acc.address + acc.name + acc.contacts.map((x) => x.phone).join()), `${tag}: bad account fields ${acc.name} ${acc.address}`);
