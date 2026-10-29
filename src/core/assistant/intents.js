@@ -5,7 +5,7 @@
 // The question is normalised first: the pack's own words (clinic, HCP, call, proposal) become the
 // generic ones used here (account, contact, visit, order), so one catalogue serves every industry.
 
-export const SCREEN_IDS = ['today', 'brief', 'account', 'action', 'order', 'complete', 'route', 'manager', 'agents', 'config', 'problems'];
+export const SCREEN_IDS = ['today', 'brief', 'account', 'action', 'order', 'complete', 'route', 'manager', 'agents', 'config', 'problems', 'companion'];
 
 export const INTENTS = [
   // Today

@@ -2,10 +2,12 @@
 // All product and store names are fictional.
 
 import assistant from './cpg.assistant.js';
+import companion from './cpg.companion.js';
 
 /** @type {import('../schema.js').IndustryPack} */
 export default {
   ...assistant,
+  ...companion,
   id: 'cpg',
   name: 'Consumer goods',
   tagline: 'Supermarkets, convenience stores and independent shops',

@@ -420,3 +420,13 @@ details[open] > summary::after { transform: rotate(-135deg); }
 .dots i:nth-child(2) { animation-delay: .15s; } .dots i:nth-child(3) { animation-delay: .3s; }
 @keyframes dot { 0%, 80%, 100% { opacity: .3; } 40% { opacity: 1; } }
 .screen { scroll-padding-bottom: 80px; }
+
+/* ---- Sales Companion ---- */
+.concept-tag { display: inline-flex; align-items: center; min-height: 24px; padding: 2px var(--s2); margin-left: var(--s2); border-radius: var(--radius-xs); background: var(--info-bg); color: var(--info); font-size: var(--text-xs); line-height: 18px; font-weight: 700; }
+.tags { margin-top: var(--s2); }
+.powered { display: flex; flex-wrap: wrap; align-items: center; gap: var(--s1) var(--s2); margin-top: var(--s2); }
+.powered small { font-size: var(--text-xs); }
+.row .tile-ic { display: grid; place-items: center; width: 36px; height: 36px; border-radius: var(--radius-sm); background: var(--accent-soft); color: var(--accent); flex: none; }
+.picker select { min-height: 48px; }
+.row-chev { align-self: center; flex: none; color: var(--muted); }
+.bullets { margin: 0; padding-left: 20px; display: flex; flex-direction: column; gap: var(--s2); }

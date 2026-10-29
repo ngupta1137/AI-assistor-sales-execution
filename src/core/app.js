@@ -5,6 +5,8 @@ import { generate } from '../data/generate.js';
 import { createText, esc } from './text.js';
 import { createFormat } from './format.js';
 import { createModel, resetSessions } from './state.js';
+import { generateCompanion } from './companion/data.js';
+import { createCompanionModel } from './companion/model.js';
 import { icon } from './icons.js';
 import { initials } from './ui.js';
 import { SCREENS, ACTIONS } from './screens/index.js';
@@ -15,8 +17,8 @@ import { LIVE_ENABLED } from './assistant/provider.js';
 export const PERSONAS = ['rep', 'manager', 'admin'];
 export const HOME = { rep: 'today', manager: 'manager', admin: 'config' };
 const NAV = {
-  rep: [['today', 'Today', 'home'], ['brief', 'Brief', 'brief'], ['agents', 'Agents', 'agent'], ['config', 'Config', 'config'], ['problems', 'Problems', 'bulb']],
-  manager: [['manager', 'Team', 'team'], ['agents', 'Agents', 'agent'], ['config', 'Config', 'config'], ['problems', 'Problems', 'bulb']],
+  rep: [['today', 'Today', 'home'], ['brief', 'Brief', 'brief'], ['companion', 'Companion', 'companion'], ['agents', 'Agents', 'agent'], ['config', 'Config', 'config']],
+  manager: [['manager', 'Team', 'team'], ['companion', 'Companion', 'companion'], ['agents', 'Agents', 'agent'], ['config', 'Config', 'config']],
   admin: [['config', 'Config', 'config'], ['agents', 'Agents', 'agent'], ['problems', 'Problems', 'bulb'], ['manager', 'Team', 'team']],
 };
 
@@ -85,6 +87,9 @@ export function buildContext(industryId, countryId) {
   const data = generate(industry, country, { fmt });
   const ctx = { industry, country, t, fmt, data };
   ctx.m = createModel(ctx);
+  // Companion data exists only for packs (and countries) that define Companion content.
+  ctx.comp = industry.companion && country.publicHolidays ? generateCompanion(ctx) : null;
+  ctx.cm = ctx.comp ? createCompanionModel(ctx) : null;
   app.cache.set(key, ctx);
   return ctx;
 }
@@ -200,7 +205,7 @@ function shell(ctx, name, result) {
   const nav = NAV[ctx.persona].map(([id, label, ic]) => {
     const firstBrief = ctx.m.nextAccount(null)?.accountId || data.planned[0].accountId;
     const href = id === 'brief' ? `#/brief/${firstBrief}` : `#/${id}`;
-    const active = name === id || (id === 'brief' && ['brief', 'action', 'order', 'complete'].includes(name)) || (id === 'today' && ['account', 'route', 'ask'].includes(name));
+    const active = name === id || (id === 'brief' && ['brief', 'action', 'order', 'complete'].includes(name)) || (id === 'today' && ['account', 'route', 'ask'].includes(name)) || (id === 'config' && name === 'problems');
     return `<a class="tab${active ? ' on' : ''}" href="${href}" data-nav="${id}"${active ? ' aria-current="page"' : ''}><span class="tab-ic">${icon(ic, 22)}</span><span>${esc(label)}</span></a>`;
   }).join('');
   const prepared = app.config.prepared ? `<div class="prepared-band" id="prepared">Prepared for ${esc(app.config.prepared)}</div>` : '';

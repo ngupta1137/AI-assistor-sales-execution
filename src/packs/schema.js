@@ -75,6 +75,21 @@
  * @property {string[]} storyline           8 steps, PRD section 14.
  * @property {string[]} forbidden           Words that must never render for this industry.
  *
+ * @typedef {Object} CompanionContent  (added to IndustryPack as `companion`)
+ * @property {{rep: string, manager: string}} roles                 Role titles in this industry's words.
+ * @property {{id: string, label: string, limitClass: 'meals'|'travel'|'lodging'|'other'}[]} expenseCategories  5 to 6. limitClass picks the country's sample limit.
+ * @property {{id: string, label: string, cycleMonths: number}[]} certifications  4 to 6 required trainings or accreditations.
+ * @property {{id: string, title: string, minutes: number, summary: string}[]} learningModules  8 to 10.
+ * @property {{id: string, title: string, text: string}[]} knowledge  10 to 12 how-to entries and FAQs.
+ * @property {{id: string, uses: ('kpi'|'offer'|'trend'|'event')[], text: string}[]} pitchTemplates  Exactly 3. One talking point each. Vars: {name} {person} {kpi} {kpiValue} {kpiTarget} {offer} {trend} {event} {eventDays}. uses lists the data each point reads, shown as its source.
+ * @property {{id: string, title: string, text: string, uses: ('share'|'potential'|'trend'|'offer'|'orders')[]}[]} valueStoryTemplates  Exactly 3. Vars: {name} {person} {share} {potential} {current} {whitespace} {orders} {trend} {offer}.
+ * @property {{id: string, name: string, startWeek: number, weeks: number, perWeek: number}[]} resourcePlans  Exactly 2 sample activations. perWeek is rep-days needed each week.
+ * @property {{id: string, text: string, blocked: string[]}[]} guardrails  How regulated limits apply to the Companion. blocked: lowercase patterns no pitch, story, knowledge entry or chatbot answer may contain; asking for one is refused.
+ *
+ * Country pack additions: publicHolidays (6 to 8 {name, monthDay}), leaveTypes (3 to 4 {id, label, days}),
+ * expenseLimits ({meals, travel, lodging, other}, sample amounts in local currency), mileageUnit ('mi'|'km'),
+ * payslipLabel (generic wording), tempUnit ('C'|'F').
+ *
  * @typedef {Object} AssistantQuestion
  * @property {string} q        Question text with vocabulary tokens.
  * @property {string} intent   An id from src/core/assistant/intents.js, answer:<key> (a key of assistantAnswers) or qa:<n>.
@@ -135,6 +150,8 @@
 import { isKnownIntent } from '../core/assistant/intents.js';
 import { REQUIRED } from './assistant-base.js';
 
+export const PITCH_VARS = ['name', 'person', 'kpi', 'kpiValue', 'kpiTarget', 'offer', 'trend', 'event', 'eventDays'];
+export const STORY_VARS = ['name', 'person', 'share', 'potential', 'current', 'whitespace', 'orders', 'trend', 'offer'];
 const ANSWER_VARS = ['name', 'person', 'area', 'city'];
 const VOCAB_KEYS = ['account', 'accounts', 'contact', 'contacts', 'rep', 'reps', 'manager', 'kam', 'offering', 'offerings', 'order', 'orders', 'visit', 'visits', 'territory'];
 export const ACTION_VARS = ['product', 'days', 'pct', 'qty', 'peers', 'n', 'weeks', 'area', 'city', 'person', 'role', 'event', 'eventDays', 'type', 'segment', 'amount'];
@@ -265,6 +282,7 @@ export function validateIndustry(p, iconKeys = []) {
   (p.guardrails || []).forEach((g) => req(['all', 'planner', 'gap', 'order'].includes(g.agent) && g.text && /^[a-z]+\d+$/.test(g.id || ''), `guardrail needs agent, text and an id like all1: ${g.text}`));
   req(new Set((p.guardrails || []).map((g) => g.id)).size === (p.guardrails || []).length, 'guardrail ids must be unique');
   if (p.assistantContext || p.assistantAnswers || p.assistantRefusals) validateAssistant(p, vocab, e, req);
+  if (p.companion) validateCompanion(p, vocab, e, req);
   req(p.problems?.length === 6, 'needs exactly 6 problems');
   (p.problems || []).forEach((x) => req(x.title && x.text && CAPS.includes(x.capability), `problem "${x.title}" capability`));
   range(p.assistant, 8, 10, 'assistant');
@@ -347,4 +365,50 @@ function validateAssistant(p, vocab, e, req) {
     req(r.refusal && r.allowed, `refusal ${r.id} needs refusal and allowed text`);
     checkTokens(e, `${p.id}.assistantRefusals.${r.id}`, `${r.refusal} ${r.allowed}`, vocab, []);
   }
+}
+
+const LIMIT_CLASSES = ['meals', 'travel', 'lodging', 'other'];
+
+/** Companion content for an industry (roles, expenses, certifications, learning, pitch, story, resources, guardrails). */
+function validateCompanion(p, vocab, e, req) {
+  const c = p.companion;
+  const n = (arr, lo, hi, what) => req(Array.isArray(arr) && arr.length >= lo && arr.length <= hi, `companion.${what} needs ${lo} to ${hi} entries (has ${arr?.length ?? 0})`);
+  req(c.roles?.rep && c.roles?.manager, 'companion.roles needs rep and manager');
+  n(c.expenseCategories, 5, 6, 'expenseCategories');
+  (c.expenseCategories || []).forEach((x) => req(x.id && x.label && LIMIT_CLASSES.includes(x.limitClass), `expense category ${x.id} needs id, label and a limitClass`));
+  n(c.certifications, 4, 6, 'certifications');
+  (c.certifications || []).forEach((x) => req(x.id && x.label && x.cycleMonths >= 3 && x.cycleMonths <= 36, `certification ${x.id} needs id, label and cycleMonths 3 to 36`));
+  n(c.learningModules, 8, 10, 'learningModules');
+  (c.learningModules || []).forEach((x) => req(x.id && x.title && x.minutes >= 5 && x.minutes <= 120 && x.summary, `learning module ${x.id} needs id, title, minutes and summary`));
+  n(c.knowledge, 10, 12, 'knowledge');
+  (c.knowledge || []).forEach((x) => req(x.id && x.title && x.text && x.text.length >= 60, `knowledge entry ${x.id} needs id, title and at least 60 characters of text`));
+  req((c.pitchTemplates || []).length === 3, 'companion.pitchTemplates needs exactly 3');
+  (c.pitchTemplates || []).forEach((x) => { req(x.id && x.text && x.uses?.length, `pitch template ${x.id} needs id, text and uses`); checkTokens(e, `${p.id}.companion.pitch.${x.id}`, x.text, vocab, PITCH_VARS); });
+  req((c.valueStoryTemplates || []).length === 3, 'companion.valueStoryTemplates needs exactly 3');
+  (c.valueStoryTemplates || []).forEach((x) => { req(x.id && x.title && x.text && x.uses?.length, `value story ${x.id} needs id, title, text and uses`); checkTokens(e, `${p.id}.companion.story.${x.id}`, x.text, vocab, STORY_VARS); });
+  req((c.resourcePlans || []).length === 2, 'companion.resourcePlans needs exactly 2');
+  (c.resourcePlans || []).forEach((x) => req(x.id && x.name && x.startWeek >= 0 && x.startWeek <= 4 && x.weeks >= 2 && x.weeks <= 5 && x.perWeek >= 1, `resource plan ${x.id} needs name, startWeek 0 to 4, weeks 2 to 5, perWeek`));
+  n(c.guardrails, 2, 5, 'guardrails');
+  (c.guardrails || []).forEach((g) => {
+    req(g.id && g.text && Array.isArray(g.blocked) && g.blocked.length >= 3, `companion guardrail ${g.id} needs text and 3+ blocked patterns`);
+    (g.blocked || []).forEach((b) => req(b === b.toLowerCase() && b.length >= 4, `companion guardrail ${g.id}: pattern "${b}" must be lowercase and 4+ characters`));
+    checkTokens(e, `${p.id}.companion.guardrail.${g.id}`, g.text, vocab, []);
+  });
+  [...(c.expenseCategories || []).map((x) => x.label), ...(c.certifications || []).map((x) => x.label), ...(c.learningModules || []).flatMap((x) => [x.title, x.summary]), ...(c.knowledge || []).flatMap((x) => [x.title, x.text]), c.roles?.rep, c.roles?.manager]
+    .filter(Boolean).forEach((s) => checkTokens(e, `${p.id}.companion`, s, vocab, []));
+}
+
+/** Companion fields for a country pack. */
+export function validateCountryCompanion(c) {
+  const e = [];
+  const req = (cond, msg) => { if (!cond) e.push(`${c.id || '?'}: ${msg}`); };
+  req(Array.isArray(c.publicHolidays) && c.publicHolidays.length >= 6 && c.publicHolidays.length <= 8, 'publicHolidays needs 6 to 8');
+  (c.publicHolidays || []).forEach((h) => req(h.name && /^\d{2}-\d{2}$/.test(h.monthDay || ''), `holiday ${h.name} needs name and monthDay MM-DD`));
+  req(Array.isArray(c.leaveTypes) && c.leaveTypes.length >= 3 && c.leaveTypes.length <= 4, 'leaveTypes needs 3 to 4');
+  (c.leaveTypes || []).forEach((t) => req(t.id && t.label && t.days > 0, `leave type ${t.id} needs id, label and days`));
+  req(c.expenseLimits && LIMIT_CLASSES.every((k) => c.expenseLimits[k] > 0), 'expenseLimits needs meals, travel, lodging and other');
+  req(['mi', 'km'].includes(c.mileageUnit), 'mileageUnit must be mi or km');
+  req(c.payslipLabel, 'payslipLabel missing');
+  req(['C', 'F'].includes(c.tempUnit), 'tempUnit must be C or F');
+  return e;
 }

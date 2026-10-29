@@ -37,7 +37,7 @@ export function nextEvent(country, today) {
   return upcomingEvents(country, today)[0] || { name: country.events[0].name, days: 30, note: country.events[0].note };
 }
 
-function haversineKm(a, b) {
+export function haversineKm(a, b) {
   const R = 6371;
   const toRad = (x) => (x * Math.PI) / 180;
   const dLat = toRad(b.lat - a.lat);
