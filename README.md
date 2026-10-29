@@ -174,6 +174,16 @@ Last full run: 80 combinations, 3 personas, 5,768 screens checked, 21,717 assert
 
 If the repository is private, GitHub Pages needs a paid plan, and the published site is public unless your organisation has Enterprise access control. Check this before sending links. `docs/.nojekyll` is already in place.
 
+## Publish on Vercel
+
+`vercel.json` sets the build for you: install with `npm install`, build with `npm run build`, serve the `docs` folder. Project settings in the dashboard are not needed and are overridden by this file.
+
+1. In Vercel, choose **Add New → Project** and import `ngupta1137/AI-assistor-sales-execution`. If the repo is not listed, give the Vercel GitHub app access to it under GitHub **Settings → Applications → Vercel → Configure**.
+2. Leave the Framework Preset as **Other** and click **Deploy**.
+3. Every merge to `main` deploys to production. Every pull request gets a preview link.
+
+If a build fails with "No Output Directory named public", the deployment ran without `vercel.json`. Redeploy the latest commit on `main`.
+
 ## Known gaps and risks
 
 - **Names are generated, not cleared.** Product and account names are coined from patterns and screened against a blocklist of about 120 real brands. A generated name can still match a small real business or a product somewhere. Screen the names for each country and industry you demo in, and check "AI Assistor" for trademark conflicts (PRD section 16) before any external use.
