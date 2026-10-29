@@ -16,6 +16,7 @@ An AI field sales app that tells every field rep which customers to visit, what 
 | 10 industry packs, 8 country packs, all 80 combinations | Built and tested |
 | Setup screen, URL parameters, presenter menu (Shift+D, long press), seeded data | Built and tested |
 | P1: route plan (R8), Ask AI (R9), coaching prompts (M3), coverage (M4), audit log (G3), prospect branding | Built and tested |
+| Assistant on every screen: context-aware, rule-based, grounded in live state, with guardrails and an audit trail (PRD R9) | Built and tested |
 | P2: offline sync, pack editor, translated UI, partner view | Not built |
 | Real integrations, real models, user accounts | Not built (out of scope for v1) |
 
@@ -66,6 +67,37 @@ This builds, then runs the static checks and the browser checks. The browser che
 - Any accent colour is darkened until white text on it reaches 4.5:1 contrast.
 
 **Presenter menu.** Press Shift+D, or long press the logo on a phone or tablet. From there you can switch industry, country or persona, set "Prepared for", copy the share link, show presenter notes beside the phone frame (desktop only) and reset the demo. Switching never logs you out. Decisions are kept per industry and country until you press Reset.
+
+## The assistant
+
+Every screen has an **Ask AI** button (bottom right, above the action bar). On Setup it is **About this demo** with three questions. It opens a bottom sheet that keeps its conversation as you move between screens. The Ask AI page is the full-page view of the same conversation.
+
+- **Context.** It receives `{screen, persona, accountId?, actionId?, visitId?, orderId?, filters?}` on every open, and its suggested questions change with the screen and the persona (4 to 6 each, from the pack's `assistantContext`).
+- **Grounded.** Every answer is built from the generated data and the live session, and carries a "Based on" line and links back into the app. If you approved, adjusted or overrode an item, the next answer reflects it. Numbers match what the screen shows.
+- **Honest.** It is rule-based, and the header says "Sample data. Answers come from configured rules and this scenario's data, not a live model." If it has no answer it says so and lists what it can answer on that screen. It never invents one.
+- **Guardrails.** Each pack lists out-of-scope question patterns (`assistantRefusals`) tied to its guardrails: clinical, dosing and claims in pharma and devices; price, rate and credit in financial services; label-only advice in agri; and so on. A refusal gives the allowed alternative and a "Why can't you answer that?" panel naming the guardrail. Refusals and overrides are written to the audit log with persona and screen. Promises of results are refused in every pack.
+- **Actions.** It can open a screen ("show me the customer with the biggest gap") or open the builder with the suggested lines ("draft the order for this customer"). It never approves, sends or overrides for you.
+- **Presenter.** Shift+D has "Assistant: on or off" and "Reset chat". `?assistant=off` hides it for a clean screenshot. Switching industry, country or persona starts a new conversation.
+
+Code is in `src/core/assistant/`: `engine.js` (guardrail check, normalise the question into generic words, score intents with the screen as context, run a handler, apply vocabulary and spelling), `intents.js` (the catalogue), `handlers.js` (one handler per intent), `router.js` (the context object), `guard.js` (refusals), `provider.js` (adapter) and `ui.js` (launcher, sheet, focus).
+
+### Add assistant content to a new pack
+
+1. Create `src/packs/industries/<id>.assistant.js` and spread it into the pack (`...assistant`), as the other packs do.
+2. `assistantContext`: build it with `withBase({...})` from `src/packs/assistant-base.js`. The shared questions use vocabulary tokens, so they read in your words. Add your own industry questions per screen. Each screen and persona needs 4 to 6 in total. Required: rep on today, brief, account, action, order, complete, route, agents, config and problems; manager on manager, agents, config and problems.
+3. Each question has an `intent`. Use an id from `src/core/assistant/intents.js` (for example `order.blocking`), or `answer:<key>` to answer with your own text from `assistantAnswers`.
+4. `assistantAnswers`: required keys `talkToContact`, `goodVisit` and `guardrailWhy`, plus one key for every `answer:<key>` you used. Tokens: the vocabulary tokens plus `{name}`, `{person}`, `{area}`, `{city}` of the account in focus.
+5. `assistantRefusals`: 4 to 6 entries `{id, guardrail, patterns, refusal, allowed}`. `guardrail` is the id of one of your pack's guardrails (`all1`, `gap1`, `order1`, `planner1`). Patterns are lowercase words or phrases of 4 or more characters, matched from the start of a word, so `licen` covers licence and license. Write patterns that do not appear in your own suggested questions: the tests fail if a suggestion trips a refusal.
+6. Run `npm test`. The validator names anything missing. The engine test answers every suggested question on every screen for every persona and country and fails on an empty answer, a missing "Based on" line, a leftover token or a wrong-industry word.
+
+### Turning on a live model (off by default)
+
+Not recommended for a public demo. The adapter exists for private experiments only.
+
+- The live provider is **compiled out** of the shipped build. `docs/index.html` contains none of its code (the tests check this).
+- To try it: build with `ASSISTANT_LIVE=1 npm run build`, then open the page with `?live=https://your-endpoint`. Only `https://` endpoints are accepted.
+- The page sends only the question, the screen, persona, industry and country, and the rule-based answer built from generated sample data. It sends no API key. The endpoint holds the key, so keep the key on a server you control, never in this repository or the page.
+- Guardrail refusals run before the call and on the reply, and the reply is shown as a model answer. If the endpoint fails, the rule-based answer is shown instead.
 
 ## Demo script (PRD section 14)
 
@@ -192,7 +224,10 @@ If a build fails with "No Output Directory named public", the deployment ran wit
 - **Names are generated, not cleared.** Product and account names are coined from patterns and screened against a blocklist of about 120 real brands. A generated name can still match a small real business or a product somewhere. Screen the names for each country and industry you demo in, and check "AI Assistor" for trademark conflicts (PRD section 16) before any external use.
 - **Regulated content is guardrail text only.** The pharma, devices, financial services and agri packs state the rules, but they have not been reviewed by a compliance or regulatory practitioner. PRD section 16 recommends one practitioner review per pack.
 - **Numbers are illustrative.** Price factors are rough local price levels, not exchange rates. Event dates for moving holidays are approximate. Travel time is a straight-line estimate.
-- **The Ask AI box is rule-based.** It matches keywords to the pack's questions and answers three data questions (first account, coverage gaps, target). It is not a language model, and the screen says so.
+- **The assistant is rule-based, not a language model.** It scores a question against a catalogue of 52 intents, so a phrasing it was not written for falls back to "I do not have an answer for that" and the list of questions it can answer. The suggested questions always work, free text may not, and a prospect will find the edge of it. The screen says it is rule-based.
+- **Refusal patterns are keyword lists.** A rephrased clinical, credit or label question can slip past a pattern and then falls back to "no answer", which is safe but is not a refusal. Patterns need review by a compliance practitioner for each regulated pack before external use.
+- **Assistant answers are guidance plus data, not advice.** Industry answers (`assistantAnswers`) are short practitioner-style guidance written for the demo. They have not been reviewed by an industry specialist.
+- **The assistant is not on the Ask page's launcher.** The full-page Ask view replaces the floating button on that one screen.
 - **State lives in memory.** A page reload resets the demo, by design, so every demo starts clean. Decisions survive switching packs and personas through the presenter menu.
 - **English UI only.** Names, places, currency and events are local. Right-to-left Arabic and translated UI are P2.
 - **Accessibility is partly verified.** Tap targets are at least 44 px and accent colours pass 4.5:1. A full screen-reader audit has not been done.

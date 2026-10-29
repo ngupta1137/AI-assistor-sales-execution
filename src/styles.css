@@ -172,7 +172,7 @@ a.row:active { background: var(--surface-inset); }
 .btn.block { width: 100%; }
 .btn.sm { min-height: var(--tap); padding: var(--s2) var(--s3); font-size: var(--text-sm); }
 .btn:disabled, .btn[aria-disabled="true"] { background: var(--disabled-bg); color: var(--disabled-ink); border-color: transparent; cursor: not-allowed; }
-.icon-btn { display: grid; place-items: center; width: var(--tap); height: var(--tap); border: 0; background: none; cursor: pointer; color: var(--ink); border-radius: var(--radius-sm); }
+.icon-btn { flex: none; display: grid; place-items: center; width: var(--tap); height: var(--tap); border: 0; background: none; cursor: pointer; color: var(--ink); border-radius: var(--radius-sm); }
 .btn-row { display: flex; gap: var(--s2); flex-wrap: wrap; }
 .decide-row { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: var(--s2); }
 .decide-row .btn { padding: 10px var(--s2); }
