@@ -54,7 +54,10 @@ small { font-size: 12.5px; }
 .mark { display: grid; place-items: center; width: 32px; height: 32px; border-radius: 10px; background: var(--accent); color: #fff; }
 .brand { font-weight: 700; letter-spacing: -.01em; }
 .appbar-right { display: flex; align-items: center; gap: 8px; min-width: 0; }
-.prepared { font-size: 11px; color: var(--muted); max-width: 110px; text-align: right; line-height: 1.2; }
+.prepared-band { flex: none; padding: 4px 14px; font-size: 12px; font-weight: 600; color: var(--accent); background: color-mix(in srgb, var(--accent) 8%, white); border-bottom: 1px solid var(--line); text-align: center; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.brand { white-space: nowrap; }
+.color-row { display: flex; align-items: center; gap: 10px; margin-top: 10px; font-size: 14px; color: var(--ink-2); flex-wrap: wrap; }
+.color-row input[type="color"] { width: 48px; height: 36px; border: 1px solid var(--line); border-radius: 8px; padding: 2px; background: var(--surface); }
 .who { display: flex; align-items: center; gap: 8px; min-width: 0; }
 .who-text { display: flex; flex-direction: column; text-align: right; min-width: 0; }
 .who-text b { font-size: 13px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 130px; }

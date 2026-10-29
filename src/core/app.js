@@ -107,8 +107,20 @@ export function resetDemo() {
 
 export function getApp() { return app; }
 
+/** Darkens a colour until white text on it reaches 4.5:1 (WCAG AA), so any prospect colour stays readable. */
+export function readableAccent(hex) {
+  let rgb = hex.replace('#', '').match(/../g).map((x) => parseInt(x, 16));
+  const lum = (c) => {
+    const [r, g, b] = c.map((v) => v / 255).map((v) => (v <= 0.03928 ? v / 12.92 : ((v + 0.055) / 1.055) ** 2.4));
+    return 0.2126 * r + 0.7152 * g + 0.0722 * b;
+  };
+  for (let i = 0; i < 40 && 1.05 / (lum(rgb) + 0.05) < 4.5; i++) rgb = rgb.map((v) => Math.floor(v * 0.92));
+  return `#${rgb.map((v) => v.toString(16).padStart(2, '0')).join('')}`;
+}
+
 function applyTheme(ctx) {
-  const accent = app.config?.color || ctx?.industry.accent || '#334155';
+  const pick = app.ui.setup?.industry && !ctx ? findIndustry(app.ui.setup.industry)?.accent : null;
+  const accent = app.config?.color && ctx ? readableAccent(app.config.color) : ctx?.industry.accent || pick || '#334155';
   document.documentElement.style.setProperty('--accent', accent);
 }
 
@@ -148,17 +160,17 @@ function shell(ctx, name, out) {
     const active = name === id || (id === 'brief' && ['brief', 'action', 'order', 'complete'].includes(name)) || (id === 'today' && name === 'account');
     return `<a class="tab${active ? ' on' : ''}" href="${href}" data-nav="${id}">${icon(ic, 22)}<span>${esc(label)}</span></a>`;
   }).join('');
-  const prepared = app.config.prepared ? `<div class="prepared">Prepared for ${esc(app.config.prepared)}</div>` : '';
+  const prepared = app.config.prepared ? `<div class="prepared-band" id="prepared">Prepared for ${esc(app.config.prepared)}</div>` : '';
   return `
   <div class="app" data-region="app" data-screen="${name}">
     <header class="appbar">
       <button class="logo" id="logo" aria-label="AI Assistor home. Long press for presenter menu">
         <span class="mark">${icon(ctx.industry.icon, 18)}</span><span class="brand">AI Assistor</span>
       </button>
-      <div class="appbar-right">${prepared}
+      <div class="appbar-right">
         <div class="who" title="${esc(user.name)}"><span class="who-text"><b>${esc(user.name)}</b><small>${esc(t(user.title))}</small></span><span class="avatar">${esc(initials(user.name))}</span></div>
       </div>
-    </header>
+    </header>${prepared}
     <main class="screen" id="screen" data-region="screen">${out}</main>
     <nav class="tabs" aria-label="Main">${nav}</nav>
   </div>`;

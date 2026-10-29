@@ -10,7 +10,7 @@ const PERSONA_INFO = {
 
 export function render({ app, INDUSTRIES, COUNTRIES, buildContext }) {
   const s = app.ui.setup || (app.ui.setup = {
-    industry: app.config?.industryId || '', country: app.config?.countryId || '', persona: app.config?.persona || 'rep', prepared: app.config?.prepared || '',
+    industry: app.config?.industryId || '', country: app.config?.countryId || '', persona: app.config?.persona || 'rep', prepared: app.config?.prepared || '', color: app.config?.color || '',
   });
   const ready = s.industry && s.country;
   let preview = '<p class="muted small">Pick an industry and a country to see who you sign in as.</p>';
@@ -51,6 +51,11 @@ export function render({ app, INDUSTRIES, COUNTRIES, buildContext }) {
     <section><h2 class="setup-step">3. Persona</h2><div class="personas">${personas}</div></section>
     <section><h2 class="setup-step">4. Prepared for <span class="muted small">(optional)</span></h2>
       <input class="input" type="text" maxlength="40" placeholder="Prospect name, shown as Prepared for" value="${esc(s.prepared)}" data-change="setup-prepared" id="setup-prepared">
+      <label class="color-row"><span>Accent</span>
+        <input type="color" value="${esc(s.color || (INDUSTRIES.find((i) => i.id === s.industry)?.accent || '#334155'))}" data-change="setup-color" id="setup-color">
+        ${s.color ? '<button class="btn ghost sm" data-act="setup-color-reset">Use industry default</button>' : ''}
+      </label>
+      <p class="small muted">Name and accent only. Never use a real company's logo.</p>
     </section>
     <div class="setup-foot">
       ${preview}
@@ -64,11 +69,13 @@ export const actions = {
   'setup-country': ({ app, data }) => { app.ui.setup.country = data.id; },
   'setup-persona': ({ app, data }) => { app.ui.setup.persona = data.id; },
   'setup-prepared': ({ app, value }) => { app.ui.setup.prepared = value.trim().slice(0, 40); },
+  'setup-color': ({ app, value }) => { if (/^#[0-9a-fA-F]{6}$/.test(value)) app.ui.setup.color = value; },
+  'setup-color-reset': ({ app }) => { app.ui.setup.color = ''; },
   'setup-start': ({ app, api }) => {
     const s = app.ui.setup;
     if (!s.industry || !s.country) return false;
     app.notice = '';
-    api.configure({ industryId: s.industry, countryId: s.country, persona: s.persona, prepared: s.prepared }, { home: true });
+    api.configure({ industryId: s.industry, countryId: s.country, persona: s.persona, prepared: s.prepared, color: s.color }, { home: true });
     return 'nav';
   },
 };
