@@ -1,8 +1,13 @@
 // Agri inputs: agri dealers, cooperatives and farmers. Product names are coined.
 // Crop protection advice follows the product label. Credit decisions stay with people.
 
+import assistant from './agri.assistant.js';
+import companion from './agri.companion.js';
+
 /** @type {import('../schema.js').IndustryPack} */
 export default {
+  ...assistant,
+  ...companion,
   id: 'agri',
   name: 'Agri inputs',
   tagline: 'Agri dealers, cooperatives and farmers',
@@ -248,10 +253,10 @@ export default {
     { id: 'label', label: 'Advice logged with label reference', format: 'pct', range: [80, 100], target: 100 },
   ],
   guardrails: [
-    { agent: 'all', text: 'Crop protection advice follows the product label. Never off-label use, dose or crop.' },
-    { agent: 'all', text: 'Credit decisions stay with people.' },
-    { agent: 'gap', text: 'Demo results are shown as observations, never as a yield promise.' },
-    { agent: 'order', text: 'Never plans a season stock above expected demand.' },
+    { id: 'all1', agent: 'all', text: 'Crop protection advice follows the product label. Never off-label use, dose or crop.' },
+    { id: 'all2', agent: 'all', text: 'Credit decisions stay with people.' },
+    { id: 'gap1', agent: 'gap', text: 'Demo results are shown as observations, never as a yield promise.' },
+    { id: 'order1', agent: 'order', text: 'Never plans a season stock above expected demand.' },
   ],
   problems: [
     { title: 'Big dealers and progressive farmers get the same time as everyone', text: 'Visit plans ignore which customers move the season.', capability: 'potential' },

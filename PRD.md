@@ -36,7 +36,7 @@ These are the same in consumer goods, pharma, medical devices, building material
 2. The presenter can switch industry and country in under 10 seconds, without the prospect seeing a "demo dropdown".
 3. The same core workflow is shown in every industry, so the product reads as one platform.
 
-**Non-goals for v1:** real integrations (CRM, ERP, DMS), real ML models, user accounts, payments, real company or brand names, regulated advice content (for example clinical claims).
+**Non-goals for v1:** real integrations (CRM, ERP, DMS), real ML models, user accounts, payments, real company or brand names, regulated advice content (for example clinical claims). The Sales Companion (section 9.6) shows leave, expense and pay slip screens as sample-data concepts. They are not HR, payroll or payment features.
 
 ## 3. Success measures
 
@@ -60,7 +60,7 @@ Demo success: prospect asks for a pilot or a second meeting; prospect correctly 
 | Key account manager | Compliance and blockers across a chain or group, evidence for business reviews | Account group view |
 | Partner or distributor | Proposed routes or beats to confirm, expected orders | Partner view (P2) |
 | Sales ops / admin | Configure packs, rules, action catalogue, agent authority; read value vs control | Configuration, Agent controls |
-| Customer (self-service) | Suggested reorder between visits (eB2B) | Out of scope for v1 UI; shown as a touchpoint |
+| Customer (self-service) | Suggested reorder between visits (eB2B) | Out of scope for v1 UI; shown as a touchpoint. The Sales Companion includes a clearly labelled mock-up of the customer's view (section 9.6) |
 
 Each industry pack renames these personas (section 6).
 
@@ -156,7 +156,7 @@ Priority: P0 = in prototype v1, P1 = next iteration, P2 = later.
 | R6 | Evidence capture: photo or note placeholder per action, typed per pack (signature for pharma samples, photo for displays) | P0 |
 | R7 | Visit complete: actions done, value captured, next best account | P0 |
 | R8 | Route plan: map or list of today's visits in order with travel time and time budget, re-plan when an account closes | P1 |
-| R9 | Ask AI: assistant with 8 to 10 pack-specific questions and canned answers, plus a free-text box that answers from the pack's data | P1 |
+| R9 | Assistant on every screen (launcher and bottom sheet; on Setup, "About this demo"). It knows the screen, persona and record in view, offers 4 to 6 suggested questions for them, and answers from live app state and generated data, with a "Based on" line and links. The Ask AI page is the full-page view of the same conversation. Rule-based. See section 9.5 | P1 |
 | R10 | Offline indicator and queued sync | P2 |
 
 ### 9.2 Manager experience
@@ -184,12 +184,56 @@ Priority: P0 = in prototype v1, P1 = next iteration, P2 = later.
 | C2 | Problems we solve: six problem statements in the prospect's language, each linked to the capability that solves it | P0 |
 | C3 | Pack editor (edit action catalogue, weights) | P2 |
 
+### 9.5 Assistant (R9 detail)
+
+The assistant receives a context object on every open: `{screen, persona, accountId?, actionId?, visitId?, orderId?, filters?}`. Each pack supplies 4 to 6 suggested questions per screen and persona (`assistantContext`), industry phrasing (`assistantAnswers`) and out-of-scope patterns tied to its guardrails (`assistantRefusals`).
+
+| Screen | Persona | What the suggested questions cover |
+|---|---|---|
+| Today | Rep | What to do first, why this order, what can wait, how the time budget was used |
+| Visit brief | Rep | Why an action ranks first, what it was compared against, how sure it is, what an override does, what evidence is missing |
+| Account 360 | Rep | Summary, what changed since the last visit, which offerings are gaps, who the contact is |
+| Action detail | Rep | How the value was estimated, what evidence supports it, effort, the guardrail on this action |
+| Order or proposal builder | Rep | Why these lines, what blocks sending, which rule applies, what changes if a line is edited |
+| Visit complete | Rep | What to log, what carries to next time, what the manager will see |
+| Route plan | Rep | Why this sequence, what if one stop is skipped, what if the rep runs late |
+| Manager home and exception queue | Manager | Which overrides need attention, which reps are drifting, what to coach, patterns in override reasons |
+| Agent controls | Rep, manager | What each agent does, what it cannot do, what happens on stop |
+| How this is configured, Problems we solve | Rep, manager | How the pack is configured, which words change, what changes by country, how to add an industry, which problem maps to which capability, how a pilot would measure it |
+| Setup | None yet | What the product is, whether the data is real, how it changes by industry |
+
+Behaviour:
+- Answers are built from generated data and live session state, are deterministic for a given seed, and always say what they are based on. If there is no answer the assistant says so and lists what it can answer. It never invents one.
+- Questions outside the pack's guardrails get a plain refusal, the allowed alternative, and a "Why can't you answer that?" explanation naming the guardrail. Promises or predictions of results are refused in every pack.
+- Refusals and overrides are logged to the audit log (G3) with persona and screen.
+- The assistant may open a screen or the builder with suggested lines. It never approves, sends or overrides for the user.
+- A live model is optional and off. It is compiled out of the shipped build, never holds an API key in the repository, and receives only the question, the screen context and sample data.
+
+### 9.6 Sales Companion (concept)
+
+The Companion is the field enabler: one place where a rep and a manager meet the five capabilities with the admin and learning tools they use every day. It consumes outputs of the existing capabilities and links to their screens. It does not build a second route plan, visit brief or order builder. Every label uses vocabulary tokens and every number, date and distance uses the country pack. All of it is sample data and is labelled "Sample data" and "Concept".
+
+| ID | Requirement | Priority |
+|---|---|---|
+| S1 | Companion hub in the main navigation for rep and manager, with three pillars (Growth, Productivity, Learning) and a "Powered by" row on features that use a capability output | P0 |
+| S2 | Growth, plan: journey planning from the Visit Planner route with a safety strip (weather, traffic, fatigue prompt after a set drive time); pre-call brief card linking to the visit brief, with last actions, open issues and a sentiment tag | P0 |
+| S3 | Growth, plan: voice debrief using the Web Speech API where supported, with a typed fallback and a sample dictation. A rule-based parser produces outcome, issues, follow-ups and order intent for the rep to confirm. Labelled as a simulation | P0 |
+| S4 | Growth, plan: live resource planning for managers, comparing sample activations with team availability by week, highlighting gaps and suggesting internal or third-party cover | P0 |
+| S5 | Growth, sell: call plan per account; dynamic pitch with the source of each point shown; local overlay of nearby accounts; customer value story with the data used shown; customer self-service mock-up | P0 |
+| S6 | Productivity: leave (apply, track, manager approval), expense claims (receipt photo mock, category, local currency, automatic policy check, manager approval), HR and pay (sample pay slips and documents, no real pay information) | P0 |
+| S7 | Learning: learning chatbot (rule-based, reusing the assistant's guard and normaliser), knowledge base search, certification tracker with renewals due within 30 days flagged | P0 |
+| S8 | Pitch, value story and chatbot never produce a restricted claim for the pack, and a request for one is refused with the guardrail named and an audit entry | P0 |
+| S9 | Wellbeing hub, complaint and feedback portal, travel planner with mileage log, onboarding checklist with e-signature, call fundamentals library, manager view of team learning progress | P1 |
+
+Pack content: each industry pack supplies `companion` (roles, expense categories, certifications, learning modules, knowledge entries, pitch and value story templates, sample activations, guardrails with blocked claim patterns). Each country pack supplies public holidays, leave types, sample expense limits, mileage unit, pay slip label and temperature unit.
+
 ## 10. AI behaviour and guardrails
 
 - Every recommendation carries a reason, a value estimate, an effort estimate and a confidence level. Low confidence is said plainly.
 - The rep can override any recommendation in one tap; overrides with reasons are feedback, never penalised.
 - Agents start at a narrow authority level and earn wider scope on evidence; authority can be withdrawn.
 - Prices, credit, contract terms, clinical or agronomic advice and regulated claims are never decided by an agent.
+- The assistant follows the same limits: it never decides price, credit, clinical or agronomic questions, and it refuses them in plain language (section 9.5).
 - The prototype uses rule-based scoring on generated data. It must say "sample data" on the setup screen and in the presenter menu. It must not claim real results.
 
 ## 11. Data generation (prototype)

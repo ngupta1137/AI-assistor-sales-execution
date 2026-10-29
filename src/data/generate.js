@@ -37,7 +37,7 @@ export function nextEvent(country, today) {
   return upcomingEvents(country, today)[0] || { name: country.events[0].name, days: 30, note: country.events[0].note };
 }
 
-function haversineKm(a, b) {
+export function haversineKm(a, b) {
   const R = 6371;
   const toRad = (x) => (x * Math.PI) / 180;
   const dLat = toRad(b.lat - a.lat);
@@ -404,7 +404,7 @@ export function generate(industry, country, { today = new Date(), fmt } = {}) {
     const reason = blocked ? rng.pick(industry.outcomeReasons.filter((x) => x.blocked)) : rng.pick(industry.overrideReasons.filter((x) => x.label !== 'Other'));
     exceptions.push({
       id: `X${i + 1}`, live: false, kind: blocked ? 'blocked' : 'override', rep: r.name, account: accountName(type, area, city.name),
-      key: !!seg.key, title: def.title, vars: { amount: fmt.money(nice(def.value[1] * country.priceFactor)), product: product ? product.name : '', person: '', area, city: city.name, event: event.name, eventDays: event.days, days: rng.int(3, 12), weeks: rng.int(3, 8), n: rng.int(2, 4), qty: rng.int(3, 12), pct: rng.int(12, 38), peers: rng.int(6, 18), type: type.type, segment: seg.name },
+      key: !!seg.key, title: def.title, vars: { amount: fmt.money(nice(def.value[1] * country.priceFactor)), product: product ? product.name : '', person: 'the {contact}', area, city: city.name, event: event.name, eventDays: event.days, days: rng.int(3, 12), weeks: rng.int(3, 8), n: rng.int(2, 4), qty: rng.int(3, 12), pct: rng.int(12, 38), peers: rng.int(6, 18), type: type.type, segment: seg.name },
       reason: reason.label, note: '', route: reason.route === 'kam' || (seg.key && i === 0) ? 'kam' : 'manager', at: DAY_START + 40 + i * 47,
     });
   }

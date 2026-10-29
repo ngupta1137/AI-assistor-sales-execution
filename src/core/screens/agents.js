@@ -3,7 +3,7 @@
 
 import { esc, icon, pill, LEVELS } from '../ui.js';
 
-const SCOPE = {
+export const SCOPE = {
   planner: {
     scope: 'Which {accounts} to visit today, in what order, and how long to spend at each.',
     alone: ['Orders the day by value, opening hours and travel time', 'Re-plans the day when a {visit} runs long'],

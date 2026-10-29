@@ -1,8 +1,13 @@
 // Beverages and alcohol: bars, restaurants and hotels (on-trade) and stores (off-trade).
 // Brand names are coined. Responsible marketing, licensing and age rules come first.
 
+import assistant from './beverages.assistant.js';
+import companion from './beverages.companion.js';
+
 /** @type {import('../schema.js').IndustryPack} */
 export default {
+  ...assistant,
+  ...companion,
   id: 'beverages',
   name: 'Beverages and alcohol',
   tagline: 'Bars, restaurants, hotels and liquor stores',
@@ -255,10 +260,10 @@ export default {
     { id: 'strike', label: 'Visits with an order', format: 'pct', range: [55, 92], target: 85 },
   ],
   guardrails: [
-    { agent: 'all', text: 'Responsible marketing only. Never targets people under the legal drinking age.' },
-    { agent: 'all', text: 'Local licensing rules come before any suggestion.' },
-    { agent: 'gap', text: 'Never suggests free drinks or volume incentives to an outlet.' },
-    { agent: 'order', text: 'Never loads an outlet beyond two weekends of expected sales.' },
+    { id: 'all1', agent: 'all', text: 'Responsible marketing only. Never targets people under the legal drinking age.' },
+    { id: 'all2', agent: 'all', text: 'Local licensing rules come before any suggestion.' },
+    { id: 'gap1', agent: 'gap', text: 'Never suggests free drinks or volume incentives to an outlet.' },
+    { id: 'order1', agent: 'order', text: 'Never loads an outlet beyond two weekends of expected sales.' },
   ],
   problems: [
     { title: 'Our best bars get the same visit as a quiet corner shop', text: 'Routes follow geography. The outlets that build the brand do not get more time.', capability: 'potential' },

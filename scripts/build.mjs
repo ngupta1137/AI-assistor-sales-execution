@@ -18,6 +18,8 @@ const result = await build({
   legalComments: 'none',
   write: false,
   charset: 'utf8',
+  // The live assistant provider is compiled out unless you build with ASSISTANT_LIVE=1.
+  define: { __ASSISTANT_LIVE__: process.env.ASSISTANT_LIVE === '1' ? 'true' : 'false' },
 });
 const js = result.outputFiles[0].text.replace(/<\/script/gi, '<\\/script');
 const css = (await readFile(path.join(root, 'src', 'styles.css'), 'utf8')).replace(/<\/style/gi, '<\\/style');

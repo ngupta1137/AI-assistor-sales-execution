@@ -162,7 +162,7 @@ export const actions = {
   'save-override': ({ ctx, data }) => {
     const p = ctx.ui.panel;
     if (!p || !p.reason) return false;
-    ctx.m.decide(data.id, { status: 'overridden', reason: p.reason, note: currentNote(ctx, data.id) });
+    ctx.m.decide(data.id, { status: 'overridden', reason: p.reason, note: currentNote(ctx, data.id) }, { persona: ctx.persona, screen: 'brief' });
     ctx.ui.panel = null;
   },
   'save-adjust': ({ ctx, data }) => {

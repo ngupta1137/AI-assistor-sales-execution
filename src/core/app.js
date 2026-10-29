@@ -5,16 +5,20 @@ import { generate } from '../data/generate.js';
 import { createText, esc } from './text.js';
 import { createFormat } from './format.js';
 import { createModel, resetSessions } from './state.js';
+import { generateCompanion } from './companion/data.js';
+import { createCompanionModel } from './companion/model.js';
 import { icon } from './icons.js';
 import { initials } from './ui.js';
 import { SCREENS, ACTIONS } from './screens/index.js';
 import { renderPresenter, renderNotes, presenterActions } from './presenter.js';
+import { renderAssistant, syncContext, afterRender, onKeydown, newAssistantState } from './assistant/ui.js';
+import { LIVE_ENABLED } from './assistant/provider.js';
 
 export const PERSONAS = ['rep', 'manager', 'admin'];
 export const HOME = { rep: 'today', manager: 'manager', admin: 'config' };
 const NAV = {
-  rep: [['today', 'Today', 'home'], ['brief', 'Brief', 'brief'], ['agents', 'Agents', 'agent'], ['config', 'Config', 'config'], ['problems', 'Problems', 'bulb']],
-  manager: [['manager', 'Team', 'team'], ['agents', 'Agents', 'agent'], ['config', 'Config', 'config'], ['problems', 'Problems', 'bulb']],
+  rep: [['today', 'Today', 'home'], ['brief', 'Brief', 'brief'], ['companion', 'Companion', 'companion'], ['agents', 'Agents', 'agent'], ['config', 'Config', 'config']],
+  manager: [['manager', 'Team', 'team'], ['companion', 'Companion', 'companion'], ['agents', 'Agents', 'agent'], ['config', 'Config', 'config']],
   admin: [['config', 'Config', 'config'], ['agents', 'Agents', 'agent'], ['problems', 'Problems', 'bulb'], ['manager', 'Team', 'team']],
 };
 
@@ -22,6 +26,9 @@ const app = {
   config: null,        // { industryId, countryId, persona, prepared, color }
   ui: {},              // transient UI state (open panels, setup picks)
   presenterOpen: false,
+  assistant: null,         // conversation state, see assistant/ui.js
+  assistantEnabled: true,
+  liveEndpoint: '',
   notesOpen: false,
   notice: '',
   cache: new Map(),
@@ -53,6 +60,7 @@ function writeUrl(hash) {
     if (c.prepared) q.set('prepared', c.prepared);
     if (c.color) q.set('color', c.color.replace('#', ''));
   }
+  if (app.assistantEnabled === false) q.set('assistant', 'off');
   const qs = q.toString();
   const url = `${location.pathname}${qs ? `?${qs}` : ''}${hash ?? location.hash}`;
   history.replaceState(null, '', url);
@@ -64,6 +72,7 @@ export function shareLink() {
   const q = new URLSearchParams({ industry: c.industryId, country: c.countryId, persona: c.persona });
   if (c.prepared) q.set('prepared', c.prepared);
   if (c.color) q.set('color', c.color.replace('#', ''));
+  if (app.assistantEnabled === false) q.set('assistant', 'off');
   return `${location.origin === 'null' ? 'file://' : location.origin}${location.pathname}?${q}`;
 }
 
@@ -78,6 +87,9 @@ export function buildContext(industryId, countryId) {
   const data = generate(industry, country, { fmt });
   const ctx = { industry, country, t, fmt, data };
   ctx.m = createModel(ctx);
+  // Companion data exists only for packs (and countries) that define Companion content.
+  ctx.comp = industry.companion && country.publicHolidays ? generateCompanion(ctx) : null;
+  ctx.cm = ctx.comp ? createCompanionModel(ctx) : null;
   app.cache.set(key, ctx);
   return ctx;
 }
@@ -95,6 +107,7 @@ export function navigate(hash) {
 export function configure(next, { home = false } = {}) {
   app.config = { ...(app.config || {}), ...next };
   app.ui = {};
+  app.assistant = newAssistantState();
   writeUrl(home ? `#/${HOME[app.config.persona]}` : undefined);
   if (home) navigate(`#/${HOME[app.config.persona]}`); else render();
 }
@@ -103,6 +116,7 @@ export function resetDemo() {
   resetSessions();
   app.cache.clear();
   app.ui = {};
+  app.assistant = newAssistantState();
 }
 
 export function getApp() { return app; }
@@ -158,6 +172,7 @@ export function render() {
   let ctx = null;
   if (!app.config || route.name === 'setup') {
     applyTheme(null);
+    syncContext(app, null, { name: 'setup', args: [] }, app.config?.persona || 'rep');
     html = SCREENS.setup.render({ app, INDUSTRIES, COUNTRIES, buildContext });
   } else {
     ctx = buildContext(app.config.industryId, app.config.countryId);
@@ -166,10 +181,11 @@ export function render() {
     ctx.app = app;
     applyTheme(ctx);
     const name = SCREENS[route.name] && route.name !== 'setup' ? route.name : HOME[ctx.persona];
+    syncContext(app, ctx, { name, args: route.args }, ctx.persona);
     const out = SCREENS[name].render(ctx, route.args);
     html = shell(ctx, name, out);
   }
-  root.innerHTML = html + renderPresenter(app, ctx, { INDUSTRIES, COUNTRIES, PERSONAS, shareLink: shareLink() });
+  root.innerHTML = html + renderAssistant(app, ctx, { name: ctx ? (SCREENS[route.name] && route.name !== 'setup' ? route.name : HOME[ctx.persona]) : 'setup' }) + renderPresenter(app, ctx, { INDUSTRIES, COUNTRIES, PERSONAS, shareLink: shareLink() });
   const side = document.getElementById('side');
   if (side) side.innerHTML = renderNotes(app, ctx);
   document.body.classList.toggle('notes-open', app.notesOpen && !!ctx);
@@ -178,6 +194,7 @@ export function render() {
   if (scroller && fresh) scroller.classList.add('enter');
   if (keep && !fresh) document.querySelector(keep)?.focus({ preventScroll: true });
   SCREENS[route.name]?.mounted?.(ctx, route.args);
+  afterRender(app);
 }
 
 function shell(ctx, name, result) {
@@ -188,7 +205,7 @@ function shell(ctx, name, result) {
   const nav = NAV[ctx.persona].map(([id, label, ic]) => {
     const firstBrief = ctx.m.nextAccount(null)?.accountId || data.planned[0].accountId;
     const href = id === 'brief' ? `#/brief/${firstBrief}` : `#/${id}`;
-    const active = name === id || (id === 'brief' && ['brief', 'action', 'order', 'complete'].includes(name)) || (id === 'today' && ['account', 'route', 'ask'].includes(name));
+    const active = name === id || (id === 'brief' && ['brief', 'action', 'order', 'complete'].includes(name)) || (id === 'today' && ['account', 'route', 'ask'].includes(name)) || (id === 'config' && name === 'problems');
     return `<a class="tab${active ? ' on' : ''}" href="${href}" data-nav="${id}"${active ? ' aria-current="page"' : ''}><span class="tab-ic">${icon(ic, 22)}</span><span>${esc(label)}</span></a>`;
   }).join('');
   const prepared = app.config.prepared ? `<div class="prepared-band" id="prepared">Prepared for ${esc(app.config.prepared)}</div>` : '';
@@ -218,7 +235,7 @@ function handle(e, type) {
   const ctx = app.config ? buildContext(app.config.industryId, app.config.countryId) : null;
   if (ctx) { ctx.ui = app.ui; ctx.persona = app.config.persona; ctx.app = app; }
   const keepScroll = document.getElementById('screen')?.scrollTop;
-  const result = fn({ ctx, app, el, value: el.value, data: el.dataset, event: e, api: { navigate, configure, resetDemo, render } });
+  const result = fn({ ctx, app, el, value: el.value, data: el.dataset, event: e, api: { navigate, configure, resetDemo, render, syncUrl: () => writeUrl() } });
   if (result !== false) {
     if (result !== 'nav') app.scrollTop = keepScroll;
     render();
@@ -227,6 +244,9 @@ function handle(e, type) {
 
 export function start() {
   app.config = readConfig();
+  const qs = new URLSearchParams(location.search);
+  app.assistantEnabled = qs.get('assistant') !== 'off';
+  if (LIVE_ENABLED && /^https:\/\//.test(qs.get('live') || '')) app.liveEndpoint = qs.get('live');
   if (app.config && !location.hash) writeUrl(`#/${HOME[app.config.persona]}`);
   window.addEventListener('hashchange', () => { app.ui = { ...app.ui, panel: null }; render(); document.getElementById('screen')?.scrollTo(0, 0); });
   document.addEventListener('click', (e) => handle(e, 'act'));
@@ -235,6 +255,7 @@ export function start() {
   document.addEventListener('input', (e) => handle(e, 'input'));
 
   document.addEventListener('keydown', (e) => {
+    if (onKeydown(app, e, { render })) return;
     if (e.shiftKey && (e.key === 'D' || e.key === 'd') && !/INPUT|TEXTAREA|SELECT/.test(e.target.tagName)) {
       e.preventDefault();
       app.presenterOpen = !app.presenterOpen;
@@ -247,9 +268,9 @@ export function start() {
       app.ui.panel = null;
       render();
       document.querySelector(`#item-${CSS.escape(id)} [data-act="panel"]`)?.focus();
-    } else if (e.key === 'Enter' && e.target.id === 'ask-input') {
+    } else if (e.key === 'Enter' && (e.target.id === 'ask-input' || e.target.id === 'as-input')) {
       e.preventDefault();
-      document.getElementById('ask-send')?.click();
+      document.getElementById(e.target.id === 'as-input' ? 'as-send' : 'ask-send')?.click();
     }
   });
 

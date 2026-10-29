@@ -12,7 +12,8 @@ import * as config from './config.js';
 import * as problems from './problems.js';
 import * as route from './route.js';
 import * as ask from './ask.js';
+import * as companion from './companion.js';
 
-export const SCREENS = { setup, today, brief, account, action, order, complete, manager, agents, config, problems, route, ask };
+export const SCREENS = { setup, today, brief, account, action, order, complete, manager, agents, config, problems, route, ask, companion };
 
 export const ACTIONS = Object.assign({}, ...Object.values(SCREENS).map((s) => s.actions || {}));

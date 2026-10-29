@@ -44,5 +44,14 @@ export default {
     { name: 'Independence Day', monthDay: '07-04', note: 'Summer holiday weekend' },
     { name: 'Back to school', monthDay: '08-10', note: 'Family spending season' },
   ],
+  publicHolidays: [
+    { name: 'New Year\'s Day', monthDay: '01-01' }, { name: 'Memorial Day', monthDay: '05-25' }, { name: 'Independence Day', monthDay: '07-04' },
+    { name: 'Labor Day', monthDay: '09-07' }, { name: 'Thanksgiving', monthDay: '11-26' }, { name: 'Christmas Day', monthDay: '12-25' },
+  ],
+  leaveTypes: [{ id: 'vacation', label: 'Vacation', days: 15 }, { id: 'sick', label: 'Sick leave', days: 8 }, { id: 'personal', label: 'Personal day', days: 3 }],
+  expenseLimits: { meals: 45, travel: 120, lodging: 180, other: 75 },
+  mileageUnit: 'mi',
+  payslipLabel: 'Pay stub',
+  tempUnit: 'F',
   notes: ['US dollars with cents', 'Miles for distance', 'MM/DD/YYYY dates and 12-hour clock', 'US spelling'],
 };

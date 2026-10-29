@@ -1,8 +1,13 @@
 // Financial services field sales: merchants, small businesses and banking agent outlets.
 // Agents never set a price, approve credit or offer a product without suitability and consent.
 
+import assistant from './finserv.assistant.js';
+import companion from './finserv.companion.js';
+
 /** @type {import('../schema.js').IndustryPack} */
 export default {
+  ...assistant,
+  ...companion,
   id: 'finserv',
   name: 'Financial services',
   tagline: 'Merchants, small businesses and agent outlets',
@@ -249,10 +254,10 @@ export default {
     { id: 'suit', label: 'Proposals with documented suitability', format: 'pct', range: [90, 100], target: 100 },
   ],
   guardrails: [
-    { agent: 'all', text: 'Never sets a price or a rate, and never approves credit.' },
-    { agent: 'all', text: 'Suitability and consent come before any product. No mis-selling.' },
-    { agent: 'gap', text: 'Collections follow the fair treatment policy. Relief is decided by people.' },
-    { agent: 'order', text: 'Proposals record interest and consent only. Decisions belong to credit and underwriting.' },
+    { id: 'all1', agent: 'all', text: 'Never sets a price or a rate, and never approves credit.' },
+    { id: 'all2', agent: 'all', text: 'Suitability and consent come before any product. No mis-selling.' },
+    { id: 'gap1', agent: 'gap', text: 'Collections follow the fair treatment policy. Relief is decided by people.' },
+    { id: 'order1', agent: 'order', text: 'Proposals record interest and consent only. Decisions belong to credit and underwriting.' },
   ],
   problems: [
     { title: 'Officers visit the merchants they know', text: 'Portfolio value and risk do not decide who gets a visit.', capability: 'potential' },
