@@ -2,10 +2,12 @@
 // Product names are coined. Quotes above a threshold need approval; credit stays with finance.
 
 import assistant from './building.assistant.js';
+import companion from './building.companion.js';
 
 /** @type {import('../schema.js').IndustryPack} */
 export default {
   ...assistant,
+  ...companion,
   id: 'building',
   name: 'Building materials and paints',
   tagline: 'Dealers, hardware stores, contractors and projects',

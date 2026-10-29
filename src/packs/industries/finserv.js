@@ -2,10 +2,12 @@
 // Agents never set a price, approve credit or offer a product without suitability and consent.
 
 import assistant from './finserv.assistant.js';
+import companion from './finserv.companion.js';
 
 /** @type {import('../schema.js').IndustryPack} */
 export default {
   ...assistant,
+  ...companion,
   id: 'finserv',
   name: 'Financial services',
   tagline: 'Merchants, small businesses and agent outlets',

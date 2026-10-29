@@ -45,5 +45,18 @@ export default {
     { name: 'Eid al-Adha', dates: { 2026: '05-27', 2027: '05-17' }, note: 'Holiday and family gatherings' },
     { name: 'Back to school', monthDay: '08-25', note: 'Family spending season' },
   ],
+  publicHolidays: [
+    { name: "New Year's Day", monthDay: '01-01' },
+    { name: "Eid al-Fitr", monthDay: '03-20' },
+    { name: "Eid al-Adha", monthDay: '05-27' },
+    { name: "Islamic New Year", monthDay: '06-17' },
+    { name: "National Day", monthDay: '12-02' },
+    { name: "Commemoration Day", monthDay: '12-01' },
+  ],
+  leaveTypes: [{ id: 'annual', label: 'Annual leave', days: 30 }, { id: 'sick', label: 'Sick leave', days: 10 }, { id: 'personal', label: 'Personal day', days: 3 }],
+  expenseLimits: { meals: 150, travel: 400, lodging: 600, other: 250 },
+  mileageUnit: 'km',
+  payslipLabel: 'Pay slip',
+  tempUnit: 'C',
   notes: ['UAE dirham', 'Kilometres', 'DD/MM/YYYY dates', 'Weekend is Saturday and Sunday', 'Right-to-left Arabic UI is a later phase', 'Phone numbers are masked'],
 };

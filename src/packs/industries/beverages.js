@@ -2,10 +2,12 @@
 // Brand names are coined. Responsible marketing, licensing and age rules come first.
 
 import assistant from './beverages.assistant.js';
+import companion from './beverages.companion.js';
 
 /** @type {import('../schema.js').IndustryPack} */
 export default {
   ...assistant,
+  ...companion,
   id: 'beverages',
   name: 'Beverages and alcohol',
   tagline: 'Bars, restaurants, hotels and liquor stores',

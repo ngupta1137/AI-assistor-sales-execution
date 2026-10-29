@@ -44,5 +44,18 @@ export default {
     { name: 'Mother\'s Day', monthDay: '05-10', note: 'Major gifting date' },
     { name: 'Independence Day', monthDay: '09-16', note: 'National celebrations' },
   ],
+  publicHolidays: [
+    { name: "New Year's Day", monthDay: '01-01' },
+    { name: "Constitution Day", monthDay: '02-02' },
+    { name: "Labour Day", monthDay: '05-01' },
+    { name: "Independence Day", monthDay: '09-16' },
+    { name: "Revolution Day", monthDay: '11-16' },
+    { name: "Christmas Day", monthDay: '12-25' },
+  ],
+  leaveTypes: [{ id: 'annual', label: 'Vacation', days: 12 }, { id: 'sick', label: 'Sick leave', days: 6 }, { id: 'personal', label: 'Personal day', days: 3 }],
+  expenseLimits: { meals: 630, travel: 1700, lodging: 2500, other: 1050 },
+  mileageUnit: 'km',
+  payslipLabel: 'Pay slip',
+  tempUnit: 'C',
   notes: ['Mexican pesos', 'Kilometres', 'DD/MM/YYYY dates', 'El Buen Fin and the December holidays drive demand', 'Phone numbers are masked'],
 };

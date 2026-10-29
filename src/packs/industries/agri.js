@@ -2,10 +2,12 @@
 // Crop protection advice follows the product label. Credit decisions stay with people.
 
 import assistant from './agri.assistant.js';
+import companion from './agri.companion.js';
 
 /** @type {import('../schema.js').IndustryPack} */
 export default {
   ...assistant,
+  ...companion,
   id: 'agri',
   name: 'Agri inputs',
   tagline: 'Agri dealers, cooperatives and farmers',

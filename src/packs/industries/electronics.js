@@ -2,10 +2,12 @@
 // Price promises follow the retailer agreement; product claims use the approved feature sheet.
 
 import assistant from './electronics.assistant.js';
+import companion from './electronics.companion.js';
 
 /** @type {import('../schema.js').IndustryPack} */
 export default {
   ...assistant,
+  ...companion,
   id: 'electronics',
   name: 'Consumer electronics',
   tagline: 'Electronics stores and multi-brand outlets',

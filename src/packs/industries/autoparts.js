@@ -2,10 +2,12 @@
 // Counterfeit and warranty rules apply; warranty decisions stay with the warranty team.
 
 import assistant from './autoparts.assistant.js';
+import companion from './autoparts.companion.js';
 
 /** @type {import('../schema.js').IndustryPack} */
 export default {
   ...assistant,
+  ...companion,
   id: 'autoparts',
   name: 'Auto parts',
   tagline: 'Workshops, parts retailers and fleets',

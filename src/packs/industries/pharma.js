@@ -2,10 +2,12 @@
 // No clinical claims anywhere: content is "use the approved material", never what it says.
 
 import assistant from './pharma.assistant.js';
+import companion from './pharma.companion.js';
 
 /** @type {import('../schema.js').IndustryPack} */
 export default {
   ...assistant,
+  ...companion,
   id: 'pharma',
   name: 'Pharma',
   tagline: 'Hospitals, clinics and pharmacies',

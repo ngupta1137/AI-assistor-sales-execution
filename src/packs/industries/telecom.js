@@ -2,10 +2,12 @@
 // Device and plan names are coined. No activation without valid ID and complete KYC.
 
 import assistant from './telecom.assistant.js';
+import companion from './telecom.companion.js';
 
 /** @type {import('../schema.js').IndustryPack} */
 export default {
   ...assistant,
+  ...companion,
   id: 'telecom',
   name: 'Telecom retail',
   tagline: 'SIM and recharge outlets, franchise stores',
