@@ -14,7 +14,7 @@ export function render(ctx, [accountId]) {
   const approval = rules.filter((r) => r.triggered && !r.blocks && r.kind !== 'info');
   const stopped = m.agentStopped('order');
 
-  const rows = lines.map((l) => `<li class="line${l.changed ? ' changed' : ''}" data-line="${l.offeringId}">
+  const rows = lines.map((l) => `<li class="line${l.changed ? ' changed' : ''}" data-line="${l.offeringId}" data-unit="${l.unitPrice ?? ''}">
     <div class="line-main">
       <b>${esc(t(l.offering.name))}</b>
       <small>${esc(t(l.offering.category))} · ${l.unitPrice == null ? esc(t('Priced by people, not the agent')) : l.unitPrice === 0 ? 'No charge' : `${esc(fmt.price(l.unitPrice))} per ${esc(t(l.offering.unit))}`}</small>
@@ -27,7 +27,7 @@ export function render(ctx, [accountId]) {
         <span class="qty" data-qty="${l.offeringId}">${l.qty}</span>
         <button class="step" data-act="qty" data-id="${a.id}" data-o="${l.offeringId}" data-d="1" aria-label="More" ${st.submitted ? 'disabled' : ''}>+</button>
       </div>
-      <b class="money">${l.unitPrice == null ? '' : esc(fmt.money(l.total))}</b>
+      <b class="money">${l.unitPrice ? esc(fmt.money(l.total)) : ''}</b>
     </div></li>`).join('');
 
   const ruleRows = rules.map((r) => {

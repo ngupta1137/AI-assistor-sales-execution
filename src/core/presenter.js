@@ -68,6 +68,7 @@ export const presenterActions = {
     const next = { industryId: value, persona: app.config?.persona || 'rep' };
     if (!app.config && !document.getElementById('p-country').value) { app.pendingIndustry = value; return false; }
     if (!app.config) next.countryId = document.getElementById('p-country').value;
+    app.presenterOpen = false;
     api.configure(next, { home: true });
     return 'nav';
   },
@@ -79,11 +80,13 @@ export const presenterActions = {
       if (!ind) return false;
       next.industryId = ind;
     }
+    app.presenterOpen = false;
     api.configure(next, { home: true });
     return 'nav';
   },
   'p-persona': ({ value, api, app }) => {
     if (!app.config) return false;
+    app.presenterOpen = false;
     api.configure({ persona: value }, { home: true });
     return 'nav';
   },
