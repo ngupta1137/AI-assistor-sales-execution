@@ -1,0 +1,48 @@
+// United Kingdom. Phone numbers use Ofcom ranges reserved for drama (0161 496 0xxx etc.).
+
+/** @type {import('../schema.js').CountryPack} */
+export default {
+  id: 'UK',
+  name: 'United Kingdom',
+  locale: 'en-GB',
+  currency: 'GBP',
+  decimals: 2,
+  priceFactor: 0.85,
+  compactUnits: [{ value: 1e9, suffix: 'bn' }, { value: 1e6, suffix: 'm' }, { value: 1e3, suffix: 'k', min: 1e4 }],
+  distance: 'mi',
+  dateOrder: 'dmy',
+  dateSep: '/',
+  clock: '24h',
+  spelling: 'uk',
+  weekend: [0, 6],
+  speedKmh: 26,
+  cities: [
+    { name: 'Manchester', region: 'Greater Manchester', lat: 53.4808, lng: -2.2426, postcode: 'M{d} {d}{L}{L}', phone: '0161 496 0{d}{d}{d}', areas: ['Ancoats', 'Didsbury', 'Chorlton', 'Salford Quays', 'Levenshulme', 'Northern Quarter'] },
+    { name: 'Birmingham', region: 'West Midlands', lat: 52.4862, lng: -1.8904, postcode: 'B{d}{d} {d}{L}{L}', phone: '0121 496 0{d}{d}{d}', areas: ['Digbeth', 'Edgbaston', 'Moseley', 'Erdington', 'Harborne', 'Kings Heath'] },
+    { name: 'Leeds', region: 'West Yorkshire', lat: 53.8008, lng: -1.5491, postcode: 'LS{d} {d}{L}{L}', phone: '0113 496 0{d}{d}{d}', areas: ['Headingley', 'Chapel Allerton', 'Armley', 'Roundhay', 'Holbeck', 'Kirkstall'] },
+    { name: 'Bristol', region: 'Bristol', lat: 51.4545, lng: -2.5879, postcode: 'BS{d} {d}{L}{L}', phone: '0117 496 0{d}{d}{d}', areas: ['Clifton', 'Bedminster', 'Stokes Croft', 'Southville', 'Redland', 'Easton'] },
+  ],
+  streets: ['High Street', 'Station Road', 'Church Lane', 'Victoria Road', 'Mill Lane', 'Park Road', 'Queen Street', 'King Street', 'London Road', 'Albert Road', 'Market Street', 'Chapel Street'],
+  firstNames: ['Oliver', 'Amelia', 'Harry', 'Isla', 'Jack', 'Sophie', 'George', 'Priya', 'Mohammed', 'Emily', 'Thomas', 'Chloe', 'James', 'Grace', 'Daniel', 'Aisha', 'Callum', 'Hannah', 'Ravi', 'Megan'],
+  lastNames: ['Smith', 'Jones', 'Taylor', 'Brown', 'Williams', 'Wilson', 'Davies', 'Evans', 'Thomas', 'Johnson', 'Roberts', 'Walker', 'Wright', 'Khan', 'Patel', 'Hughes', 'Edwards', 'Green', 'Hall', 'Clarke'],
+  nameLang: 'en',
+  prefixes: ['Riverside', 'Parkside', 'Kingsway', 'Meadow', 'Ashfield', 'Oakwood', 'Hillcrest', 'Westbrook', 'Greenway', 'Elmfield', 'Brookside', 'Moorland'],
+  patterns: {
+    business: ['{prefix} {type}', '{area} {type}', '{surname}\'s {type}'],
+    institution: ['{area} {type}', '{prefix} {type}'],
+    family: ['{surname} {type}', '{surname} & Sons {type}', '{surname} Bros {type}'],
+    person: ['{prefix} {type}', '{surname} {type}'],
+  },
+  address: '{number} {street}, {area}, {city} {postcode}',
+  phone: '0161 496 0{d}{d}{d}',
+  events: [
+    { name: 'Bonfire Night', monthDay: '11-05', note: 'Autumn evening events' },
+    { name: 'Black Friday', dates: { 2026: '11-27', 2027: '11-26' }, note: 'Peak promotion weekend' },
+    { name: 'Christmas', monthDay: '12-25', note: 'Gifting and party season' },
+    { name: 'Boxing Day', monthDay: '12-26', note: 'Sales and sport' },
+    { name: 'New Year', monthDay: '01-01', note: 'Year-start resets' },
+    { name: 'Easter', dates: { 2026: '04-05', 2027: '03-28' }, note: 'Spring bank holiday weekend' },
+    { name: 'Summer bank holiday', dates: { 2026: '08-31', 2027: '08-30' }, note: 'Late summer long weekend' },
+  ],
+  notes: ['Pounds sterling', 'Miles for distance', 'DD/MM/YYYY dates and 24-hour clock', 'UK spelling (colour, centre, catalogue)', 'Phone numbers use Ofcom ranges reserved for fiction'],
+};

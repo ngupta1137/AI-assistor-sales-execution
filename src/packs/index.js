@@ -13,12 +13,19 @@ import autoparts from './industries/autoparts.js';
 import finserv from './industries/finserv.js';
 
 import US from './countries/US.js';
+import UK from './countries/UK.js';
+import DE from './countries/DE.js';
+import IN from './countries/IN.js';
+import BR from './countries/BR.js';
+import ID from './countries/ID.js';
+import MX from './countries/MX.js';
+import AE from './countries/AE.js';
 
 /** Vocabulary every pack gets unless it overrides the word. */
 const DEFAULT_VOCAB = { territory: 'territory' };
 
 export const INDUSTRIES = [cpg, pharma, meddevices, beverages, building, agri, telecom, electronics, autoparts, finserv].map((p) => ({ ...p, vocab: { ...DEFAULT_VOCAB, ...p.vocab } }));
-export const COUNTRIES = [US];
+export const COUNTRIES = [US, UK, DE, IN, BR, ID, MX, AE];
 
 /** Accepts common aliases so shared links are forgiving (GB for UK, case-insensitive). */
 const COUNTRY_ALIASES = { GB: 'UK', UAE: 'AE' };

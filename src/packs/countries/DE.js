@@ -1,0 +1,48 @@
+// Germany. UI is English; numbers, dates and names are German. Phone numbers are masked.
+
+/** @type {import('../schema.js').CountryPack} */
+export default {
+  id: 'DE',
+  name: 'Germany',
+  locale: 'de-DE',
+  currency: 'EUR',
+  decimals: 2,
+  priceFactor: 0.95,
+  compactUnits: [{ value: 1e9, suffix: ' Mrd.' }, { value: 1e6, suffix: ' Mio.' }, { value: 1e3, suffix: ' Tsd.', min: 1e4 }],
+  distance: 'km',
+  dateOrder: 'dmy',
+  dateSep: '.',
+  clock: '24h',
+  spelling: 'uk',
+  weekend: [0, 6],
+  speedKmh: 24,
+  cities: [
+    { name: 'Munich', region: 'Bavaria', lat: 48.1351, lng: 11.582, postcode: '80{d}{d}{d}', phone: '+49 89 {d}{d}{d} ••{d}{d}', areas: ['Schwabing', 'Maxvorstadt', 'Sendling', 'Haidhausen', 'Giesing', 'Pasing'] },
+    { name: 'Hamburg', region: 'Hamburg', lat: 53.5511, lng: 9.9937, postcode: '22{d}{d}{d}', phone: '+49 40 {d}{d}{d} ••{d}{d}', areas: ['Altona', 'Eimsbüttel', 'Barmbek', 'Ottensen', 'Wandsbek', 'Harburg'] },
+    { name: 'Cologne', region: 'North Rhine-Westphalia', lat: 50.9375, lng: 6.9603, postcode: '50{d}{d}{d}', phone: '+49 221 {d}{d}{d} ••{d}{d}', areas: ['Ehrenfeld', 'Nippes', 'Sülz', 'Deutz', 'Kalk', 'Lindenthal'] },
+    { name: 'Frankfurt', region: 'Hesse', lat: 50.1109, lng: 8.6821, postcode: '60{d}{d}{d}', phone: '+49 69 {d}{d}{d} ••{d}{d}', areas: ['Sachsenhausen', 'Bornheim', 'Nordend', 'Bockenheim', 'Gallus', 'Höchst'] },
+  ],
+  streets: ['Hauptstraße', 'Bahnhofstraße', 'Schillerstraße', 'Goethestraße', 'Gartenstraße', 'Lindenstraße', 'Kirchstraße', 'Marktplatz', 'Bergstraße', 'Ringstraße', 'Mühlweg', 'Rosenstraße'],
+  firstNames: ['Lukas', 'Anna', 'Felix', 'Lena', 'Jonas', 'Marie', 'Leon', 'Sophie', 'Paul', 'Laura', 'Maximilian', 'Julia', 'Elias', 'Hannah', 'Tim', 'Lea', 'Murat', 'Elif', 'Niklas', 'Katharina'],
+  lastNames: ['Müller', 'Schmidt', 'Schneider', 'Fischer', 'Weber', 'Meyer', 'Wagner', 'Becker', 'Schulz', 'Hoffmann', 'Koch', 'Richter', 'Klein', 'Wolf', 'Schröder', 'Neumann', 'Yilmaz', 'Braun', 'Zimmermann', 'Krüger'],
+  nameLang: 'de',
+  prefixes: ['Linden', 'Sonnen', 'Rosen', 'Stern', 'Brunnen', 'Rathaus', 'Park', 'Kloster', 'Löwen', 'Eichen', 'Markt', 'Tor'],
+  patterns: {
+    business: ['{prefix}-{type}', '{type} {area}', '{type} {surname}'],
+    institution: ['{type} {area}', '{prefix}-{type}'],
+    family: ['{type} {surname}', '{surname} {type}'],
+    person: ['{type} {surname}'],
+  },
+  address: '{street} {number}, {postcode} {city}',
+  phone: '+49 30 {d}{d}{d} ••{d}{d}',
+  events: [
+    { name: 'Christmas markets', dates: { 2026: '11-23', 2027: '11-22' }, note: 'Four weeks of seasonal footfall' },
+    { name: 'Black Friday', dates: { 2026: '11-27', 2027: '11-26' }, note: 'Promotion weekend' },
+    { name: 'Christmas', monthDay: '12-24', note: 'Gifting and family gatherings' },
+    { name: 'New Year', monthDay: '01-01', note: 'Year-start resets' },
+    { name: 'Carnival (Rose Monday)', dates: { 2027: '02-08' }, note: 'Peak in the Rhineland' },
+    { name: 'Easter', dates: { 2026: '04-05', 2027: '03-28' }, note: 'Spring holidays' },
+    { name: 'Oktoberfest season', dates: { 2026: '09-19', 2027: '09-18' }, note: 'Autumn festival season in Bavaria' },
+  ],
+  notes: ['Euro with comma decimals', 'Kilometres', 'DD.MM.YYYY dates and 24-hour clock', 'Works council note: data about reps is used for planning only. Any use for performance review needs a works council agreement.', 'Phone numbers are masked'],
+};
