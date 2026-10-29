@@ -1,4 +1,19 @@
+# Dependencies
 node_modules/
+
+# Test output
 test-results/
 playwright-report/
+tests/screenshots/
+
+# OS and editor files
 .DS_Store
+Thumbs.db
+desktop.ini
+*.swp
+.idea/
+.vscode/
+
+# Logs
+*.log
+npm-debug.log*
