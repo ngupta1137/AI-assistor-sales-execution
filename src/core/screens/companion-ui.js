@@ -35,4 +35,3 @@ export function powered(ctx, keys) {
   return `<div class="powered"><small>Powered by</small>${keys.map((k) => pill(ctx.t(CAPABILITIES[k].name), 'accent')).join('')}</div>`;
 }
 
-export const dash = '-';

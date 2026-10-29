@@ -82,7 +82,7 @@
  * @property {{id: string, title: string, minutes: number, summary: string}[]} learningModules  8 to 10.
  * @property {{id: string, title: string, text: string}[]} knowledge  10 to 12 how-to entries and FAQs.
  * @property {{id: string, uses: ('kpi'|'offer'|'trend'|'event')[], text: string}[]} pitchTemplates  Exactly 3. One talking point each. Vars: {name} {person} {kpi} {kpiValue} {kpiTarget} {offer} {trend} {event} {eventDays}. uses lists the data each point reads, shown as its source.
- * @property {{id: string, title: string, text: string, uses: ('share'|'potential'|'trend'|'offer'|'orders')[]}[]} valueStoryTemplates  Exactly 3. Vars: {name} {person} {share} {potential} {current} {whitespace} {orders} {trend} {offer}.
+ * @property {{id: string, title: string, text: string, uses: ('share'|'potential'|'trend'|'offer'|'orderCount')[]}[]} valueStoryTemplates  Exactly 3. Vars: {name} {person} {share} {potential} {current} {whitespace} {orderCount} {trend} {offer}. ({orders} stays the vocabulary word.)
  * @property {{id: string, name: string, startWeek: number, weeks: number, perWeek: number}[]} resourcePlans  Exactly 2 sample activations. perWeek is rep-days needed each week.
  * @property {{id: string, text: string, blocked: string[]}[]} guardrails  How regulated limits apply to the Companion. blocked: lowercase patterns no pitch, story, knowledge entry or chatbot answer may contain; asking for one is refused.
  *
@@ -151,7 +151,7 @@ import { isKnownIntent } from '../core/assistant/intents.js';
 import { REQUIRED } from './assistant-base.js';
 
 export const PITCH_VARS = ['name', 'person', 'kpi', 'kpiValue', 'kpiTarget', 'offer', 'trend', 'event', 'eventDays'];
-export const STORY_VARS = ['name', 'person', 'share', 'potential', 'current', 'whitespace', 'orders', 'trend', 'offer'];
+export const STORY_VARS = ['name', 'person', 'share', 'potential', 'current', 'whitespace', 'orderCount', 'trend', 'offer'];
 const ANSWER_VARS = ['name', 'person', 'area', 'city'];
 const VOCAB_KEYS = ['account', 'accounts', 'contact', 'contacts', 'rep', 'reps', 'manager', 'kam', 'offering', 'offerings', 'order', 'orders', 'visit', 'visits', 'territory'];
 export const ACTION_VARS = ['product', 'days', 'pct', 'qty', 'peers', 'n', 'weeks', 'area', 'city', 'person', 'role', 'event', 'eventDays', 'type', 'segment', 'amount'];

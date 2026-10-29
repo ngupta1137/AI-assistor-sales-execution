@@ -430,3 +430,12 @@ details[open] > summary::after { transform: rotate(-135deg); }
 .picker select { min-height: 48px; }
 .row-chev { align-self: center; flex: none; color: var(--muted); }
 .bullets { margin: 0; padding-left: 20px; display: flex; flex-direction: column; gap: var(--s2); }
+.mini-map { width: 100%; height: auto; display: block; }
+.mock-frame { border: 2px dashed var(--control-line); border-radius: var(--radius-lg); overflow: hidden; background: var(--surface); }
+.mock-banner { display: flex; align-items: center; gap: var(--s2); padding: var(--s2) var(--s4); background: var(--warn-bg); color: var(--warn); font-size: var(--text-sm); font-weight: 600; }
+.mock-body { padding: var(--s4); }
+.track { list-style: none; margin: var(--s4) 0 var(--s3); padding: 0; display: flex; flex-direction: column; gap: var(--s2); }
+.track li { display: flex; align-items: center; gap: var(--s3); font-size: var(--text-sm); color: var(--muted); }
+.track li span { display: grid; place-items: center; width: 24px; height: 24px; border-radius: 50%; background: var(--surface-inset); font-size: 12px; font-weight: 700; }
+.track li.on { color: var(--ink); font-weight: 600; }
+.track li.on span { background: var(--accent); color: #fff; }

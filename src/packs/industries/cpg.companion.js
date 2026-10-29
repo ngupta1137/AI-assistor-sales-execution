@@ -49,7 +49,7 @@ export default {
       { id: 'p3', uses: ['trend', 'event'], text: 'The last {order} was {trend}. {event} is {eventDays} days away, so agree stock and space for it now.' },
     ],
     valueStoryTemplates: [
-      { id: 's1', title: 'Shelf and sell-through', uses: ['share', 'orders'], text: '{name} has captured {share} of its estimated potential. Across the last {orders} {orders}, the shelf has kept the same core lines. The next step is to close the gaps we found together, one at a time, and look again at the next {visit}.' },
+      { id: 's1', title: 'Shelf and sell-through', uses: ['share', 'orderCount'], text: '{name} has captured {share} of its estimated potential. Across the last {orderCount} {orders}, the shelf has kept the same core lines. The next step is to close the gaps we found together, one at a time, and look again at the next {visit}.' },
       { id: 's2', title: 'A range that grows with the shelf', uses: ['offer', 'trend'], text: 'The last {order} was {trend}. Adding {offer} in a small trial gives {person} a new line to test without giving up space, and the next {order} will show how it sells.' },
       { id: 's3', title: 'Space for the season', uses: ['potential', 'share'], text: 'Estimated potential at {name} is {potential} a year and the current figure is {current}. The gap of {whitespace} is an estimate from sample data. It is the reason to plan the season display together.' },
     ],
