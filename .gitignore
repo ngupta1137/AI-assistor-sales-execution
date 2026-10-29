@@ -17,3 +17,6 @@ desktop.ini
 # Logs
 *.log
 npm-debug.log*
+
+# Local scratch scripts
+tests/_*

@@ -1,0 +1,706 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <!-- Built by scripts/build.mjs. Do not edit; edit src/ and run npm run build. Sample data only. -->
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="description" content="AI Assistor Sales Execution: configurable AI field sales demo. Sample data only.">
+  <meta name="theme-color" content="#0f172a">
+  <title>AI Assistor Sales Execution</title>
+  <style>
+/* AI Assistor: mobile-first. On desktop the app sits in a centred phone frame. */
+:root {
+  --accent: #0f766e;
+  --bg: #f1f5f9;
+  --surface: #ffffff;
+  --ink: #0f172a;
+  --ink-2: #334155;
+  --muted: #64748b;
+  --line: #e2e8f0;
+  --good: #15803d; --good-bg: #dcfce7;
+  --warn: #a16207; --warn-bg: #fef3c7;
+  --bad: #b91c1c; --bad-bg: #fee2e2;
+  --info: #1d4ed8; --info-bg: #dbeafe;
+  --radius: 14px;
+  --shadow: 0 1px 2px rgba(15, 23, 42, .06), 0 2px 8px rgba(15, 23, 42, .05);
+  --tap: 44px;
+  font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  color: var(--ink);
+  -webkit-font-smoothing: antialiased;
+}
+* { box-sizing: border-box; }
+html, body { margin: 0; height: 100%; background: var(--bg); }
+body { font-size: 15px; line-height: 1.45; }
+h1 { font-size: 22px; line-height: 1.25; margin: 0 0 4px; letter-spacing: -.01em; }
+h2 { font-size: 16px; margin: 0 0 8px; }
+h3 { font-size: 15px; margin: 4px 0 6px; }
+p { margin: 0 0 8px; }
+a { color: var(--accent); }
+small { font-size: 12.5px; }
+.muted { color: var(--muted); }
+.small { font-size: 13px; }
+.ok-text { color: var(--good); }
+.warn-text { color: var(--warn); }
+.info-text { color: var(--info); }
+.ic { flex: none; vertical-align: -0.2em; }
+
+/* ---- Frame ---- */
+.stage { min-height: 100%; }
+.phone, .phone-inner { height: 100dvh; }
+.phone-inner { display: flex; flex-direction: column; overflow: hidden; background: var(--bg); position: relative; }
+.side { display: none; }
+@media (min-width: 760px) {
+  body { background: radial-gradient(circle at 30% 20%, #e2e8f0, #cbd5e1); }
+  .stage { display: flex; align-items: center; justify-content: center; gap: 24px; min-height: 100vh; padding: 20px; }
+  .phone { width: 400px; height: min(860px, calc(100vh - 40px)); border-radius: 40px; border: 10px solid #0f172a; box-shadow: 0 30px 60px rgba(15, 23, 42, .25); overflow: hidden; background: #0f172a; flex: none; }
+  .phone-inner { height: 100%; border-radius: 30px; }
+  body.notes-open .side { display: block; width: 300px; max-height: min(860px, calc(100vh - 40px)); overflow: auto; background: var(--surface); border-radius: var(--radius); box-shadow: var(--shadow); padding: 16px; font-size: 14px; }
+}
+
+/* ---- App shell ---- */
+.app { display: flex; flex-direction: column; height: 100%; }
+.appbar { display: flex; align-items: center; justify-content: space-between; gap: 8px; padding: 10px 12px; background: var(--surface); border-bottom: 1px solid var(--line); flex: none; }
+.logo { display: flex; align-items: center; gap: 8px; background: none; border: 0; padding: 4px; min-height: var(--tap); cursor: pointer; color: var(--ink); font: inherit; -webkit-user-select: none; user-select: none; -webkit-touch-callout: none; touch-action: manipulation; }
+.mark { display: grid; place-items: center; width: 32px; height: 32px; border-radius: 10px; background: var(--accent); color: #fff; }
+.brand { font-weight: 700; letter-spacing: -.01em; }
+.appbar-right { display: flex; align-items: center; gap: 8px; min-width: 0; }
+.prepared { font-size: 11px; color: var(--muted); max-width: 110px; text-align: right; line-height: 1.2; }
+.who { display: flex; align-items: center; gap: 8px; min-width: 0; }
+.who-text { display: flex; flex-direction: column; text-align: right; min-width: 0; }
+.who-text b { font-size: 13px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 130px; }
+.who-text small { color: var(--muted); font-size: 11.5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 130px; }
+.avatar { display: grid; place-items: center; width: 34px; height: 34px; border-radius: 50%; background: color-mix(in srgb, var(--accent) 14%, white); color: var(--accent); font-weight: 700; font-size: 13px; flex: none; }
+.avatar.sm { width: 32px; height: 32px; font-size: 12px; }
+.screen { flex: 1; overflow-y: auto; padding: 14px 14px 24px; -webkit-overflow-scrolling: touch; }
+.screen > section, .screen > .card, .screen > .notice, .screen > .banner, .screen > .stack, .screen > .items, .screen > .lines, .screen > .total-row, .screen > .guardrail, .screen > .counts { margin-bottom: 14px; }
+.tabs { display: flex; background: var(--surface); border-top: 1px solid var(--line); flex: none; padding-bottom: env(safe-area-inset-bottom); }
+.tab { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; min-height: 56px; color: var(--muted); text-decoration: none; font-size: 11.5px; }
+.tab.on { color: var(--accent); font-weight: 600; }
+
+/* ---- Building blocks ---- */
+.card { background: var(--surface); border-radius: var(--radius); padding: 14px; box-shadow: var(--shadow); }
+.section-head { display: flex; align-items: baseline; justify-content: space-between; gap: 8px; margin-bottom: 8px; }
+.section-head h2 { margin: 0; }
+.eyebrow { color: var(--accent); font-weight: 600; text-transform: uppercase; letter-spacing: .04em; font-size: 11.5px; }
+.hello h1 { margin-top: 4px; }
+.back { display: inline-flex; align-items: center; gap: 4px; min-height: var(--tap); text-decoration: none; font-weight: 600; font-size: 14px; }
+.foot-note { color: var(--muted); font-size: 12px; text-align: center; margin-top: 18px; }
+.empty { color: var(--muted); padding: 14px; text-align: center; background: var(--surface); border-radius: var(--radius); }
+.pill { display: inline-flex; align-items: center; gap: 4px; padding: 3px 9px; border-radius: 999px; font-size: 12px; font-weight: 600; background: var(--line); color: var(--ink-2); white-space: nowrap; }
+.pill.good { background: var(--good-bg); color: var(--good); }
+.pill.warn, .pill.mid { background: var(--warn-bg); color: var(--warn); }
+.pill.bad, .pill.low { background: var(--bad-bg); color: var(--bad); }
+.pill.info { background: var(--info-bg); color: var(--info); }
+.pill.accent { background: color-mix(in srgb, var(--accent) 14%, white); color: var(--accent); }
+.pill.muted { background: #f1f5f9; color: var(--muted); }
+.sample-tag { display: inline-block; margin-left: 8px; padding: 2px 8px; border-radius: 6px; background: var(--warn-bg); color: var(--warn); font-size: 11.5px; font-weight: 700; }
+.notice { padding: 12px 14px; border-radius: 12px; background: var(--info-bg); color: #1e3a8a; font-size: 14px; display: flex; gap: 8px; align-items: flex-start; }
+.notice.warn { background: var(--warn-bg); color: #713f12; }
+.notice.good { background: var(--good-bg); color: #14532d; display: block; }
+.bar { height: 8px; background: var(--line); border-radius: 99px; overflow: hidden; margin-top: 8px; }
+.bar span { display: block; height: 100%; background: var(--accent); border-radius: 99px; }
+
+.btn { display: inline-flex; align-items: center; justify-content: center; gap: 6px; min-height: var(--tap); padding: 0 14px; border-radius: 12px; border: 1px solid transparent; font: inherit; font-weight: 600; font-size: 14px; cursor: pointer; text-decoration: none; background: var(--surface); color: var(--ink); }
+.btn.primary { background: var(--accent); color: #fff; }
+.btn.primary:hover { filter: brightness(1.06); }
+.btn.ghost { border-color: var(--line); background: var(--surface); color: var(--ink); }
+.btn.danger { background: var(--bad); color: #fff; }
+.btn.danger-text { color: var(--bad); }
+.btn.block { width: 100%; }
+.btn.sm { min-height: 38px; padding: 0 12px; font-size: 13px; }
+.btn:disabled { opacity: .45; cursor: not-allowed; }
+.btn:focus-visible, .tab:focus-visible, .row:focus-visible, .tile:focus-visible, .chip:focus-visible { outline: 3px solid color-mix(in srgb, var(--accent) 45%, white); outline-offset: 2px; }
+.icon-btn { display: grid; place-items: center; width: var(--tap); height: var(--tap); border: 0; background: none; cursor: pointer; color: var(--ink); border-radius: 10px; }
+.btn-row { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 10px; }
+.btn-row.three > .btn { flex: 1; padding: 0 8px; }
+.stack { display: flex; flex-direction: column; gap: 8px; }
+.input { width: 100%; min-height: var(--tap); padding: 10px 12px; border: 1px solid var(--line); border-radius: 10px; font: inherit; background: var(--surface); color: var(--ink); }
+textarea.input { resize: vertical; margin-top: 8px; }
+
+/* Lists and rows */
+.list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 8px; }
+.row { display: flex; align-items: center; gap: 12px; padding: 12px; background: var(--surface); border-radius: 12px; text-decoration: none; color: inherit; box-shadow: var(--shadow); min-height: 56px; }
+.row.done { opacity: .65; }
+.row-main { display: flex; flex-direction: column; min-width: 0; flex: 1; }
+.row-main b { font-size: 14.5px; }
+.row-main small { color: var(--muted); }
+.row-meta { display: flex; align-items: center; gap: 4px; }
+.row-end { display: flex; flex-direction: column; align-items: flex-end; gap: 4px; text-align: right; }
+.money { font-variant-numeric: tabular-nums; }
+.rank { display: grid; place-items: center; width: 30px; height: 30px; border-radius: 50%; background: var(--accent); color: #fff; font-weight: 700; font-size: 14px; flex: none; }
+.rank.sm { width: 26px; height: 26px; font-size: 12.5px; }
+
+/* Today */
+.banner { display: flex; align-items: center; gap: 12px; padding: 14px; border-radius: var(--radius); background: var(--ink); color: #fff; text-decoration: none; }
+.banner small { display: block; color: #cbd5e1; margin-top: 2px; }
+.banner-ic { display: grid; place-items: center; width: 40px; height: 40px; border-radius: 12px; background: var(--accent); flex: none; }
+.cards2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.cards2 .wide { grid-column: 1 / -1; }
+.stat { display: flex; flex-direction: column; gap: 2px; }
+.stat > small:first-child { color: var(--muted); }
+.big { font-size: 22px; letter-spacing: -.01em; font-variant-numeric: tabular-nums; }
+.cards3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+.cards3 > div { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.cards3 small { color: var(--muted); }
+.cards3 b { font-size: 15.5px; font-variant-numeric: tabular-nums; overflow-wrap: anywhere; }
+
+/* Brief */
+.brief-head { margin-bottom: 12px; }
+.counts { position: sticky; top: -14px; z-index: 2; display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; padding: 10px 6px; margin: 0 -4px 6px; background: color-mix(in srgb, var(--bg) 92%, transparent); backdrop-filter: blur(6px); }
+.counts span { display: flex; flex-direction: column; align-items: center; font-size: 11.5px; color: var(--muted); background: var(--surface); border-radius: 10px; padding: 6px 2px; box-shadow: var(--shadow); }
+.counts b { font-size: 18px; color: var(--ink); }
+.guard { display: flex; gap: 6px; align-items: center; }
+.items { display: flex; flex-direction: column; gap: 12px; }
+.item { background: var(--surface); border-radius: var(--radius); padding: 14px; box-shadow: var(--shadow); border-left: 4px solid var(--line); }
+.item.approved { border-left-color: var(--good); }
+.item.adjusted { border-left-color: var(--info); }
+.item.overridden { border-left-color: var(--bad); }
+.item.paused { opacity: .7; border-left-color: var(--muted); }
+.item-head { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.agent-tag { display: inline-flex; align-items: center; gap: 4px; font-size: 12px; font-weight: 600; color: var(--accent); }
+.metrics { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; font-size: 13px; color: var(--ink-2); margin: 4px 0 8px; }
+.metrics > span { display: inline-flex; align-items: center; gap: 4px; }
+.evidence { margin: 0; display: grid; grid-template-columns: 1fr; gap: 2px; font-size: 13.5px; }
+.evidence dt { font-size: 11.5px; font-weight: 700; text-transform: uppercase; letter-spacing: .04em; color: var(--muted); margin-top: 6px; }
+.evidence dd { margin: 0; color: var(--ink-2); }
+.panel { margin-top: 10px; padding: 12px; background: #f8fafc; border: 1px solid var(--line); border-radius: 12px; }
+.radios { display: flex; flex-direction: column; gap: 2px; margin-top: 8px; }
+.radio { display: flex; align-items: center; gap: 10px; min-height: var(--tap); padding: 0 6px; border-radius: 8px; cursor: pointer; font-size: 14px; }
+.radio:hover { background: #f1f5f9; }
+.radio input { width: 18px; height: 18px; accent-color: var(--accent); flex: none; }
+.decided { margin-top: 10px; display: flex; flex-direction: column; gap: 6px; align-items: flex-start; }
+.decided .btn-row { margin-top: 0; }
+.paused-note { margin-top: 10px; font-size: 13px; color: var(--muted); display: flex; gap: 6px; align-items: center; flex-wrap: wrap; }
+
+/* Account 360 */
+.kpis { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.kpi { background: var(--surface); border-radius: 12px; padding: 10px 12px; box-shadow: var(--shadow); display: flex; flex-direction: column; }
+.kpi small:first-child { color: var(--muted); }
+.kpi b { font-size: 18px; }
+.row.static { box-shadow: none; border: 1px solid var(--line); }
+
+/* Action */
+.why, .talk, .bullets { margin: 0; padding-left: 20px; display: flex; flex-direction: column; gap: 6px; }
+.guardrail { display: flex; gap: 10px; align-items: flex-start; padding: 12px 14px; border-radius: 12px; background: #f8fafc; border: 1px dashed var(--accent); font-size: 14px; color: var(--ink-2); }
+.guardrail .ic { color: var(--accent); }
+.photo-ph { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px; height: 120px; border-radius: 12px; background: repeating-linear-gradient(45deg, #f1f5f9, #f1f5f9 10px, #e2e8f0 10px, #e2e8f0 20px); color: var(--muted); }
+.sign { width: 100%; height: 120px; border: 1px dashed var(--muted); border-radius: 12px; background: #fff; touch-action: none; margin-top: 6px; }
+
+/* Order */
+.lines { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 8px; }
+.line { display: flex; gap: 10px; padding: 12px; background: var(--surface); border-radius: 12px; box-shadow: var(--shadow); }
+.line.changed { outline: 2px solid var(--info-bg); }
+.line-main { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
+.line-main small { color: var(--muted); }
+.line-main .reason { color: var(--ink-2); display: flex; gap: 4px; align-items: flex-start; }
+.line-end { display: flex; flex-direction: column; align-items: flex-end; gap: 6px; }
+.stepper { display: flex; align-items: center; border: 1px solid var(--line); border-radius: 12px; overflow: hidden; }
+.step { width: var(--tap); height: var(--tap); border: 0; background: var(--surface); font-size: 20px; cursor: pointer; color: var(--accent); }
+.step:disabled { color: var(--muted); cursor: not-allowed; }
+.qty { min-width: 32px; text-align: center; font-weight: 700; font-variant-numeric: tabular-nums; }
+.total-row { display: flex; justify-content: space-between; align-items: center; padding: 12px 14px; background: var(--ink); color: #fff; border-radius: 12px; font-size: 16px; }
+.rules { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 8px; }
+.rule { display: flex; gap: 10px; align-items: flex-start; padding: 10px 12px; border-radius: 12px; background: var(--surface); border: 1px solid var(--line); font-size: 13.5px; }
+
+/* Manager */
+.seg-ctl { display: flex; gap: 6px; margin-bottom: 10px; overflow-x: auto; }
+.seg { min-height: 38px; padding: 0 12px; border-radius: 999px; border: 1px solid var(--line); background: var(--surface); font: inherit; font-size: 13px; cursor: pointer; white-space: nowrap; }
+.seg.on { background: var(--ink); color: #fff; border-color: var(--ink); }
+.exceptions { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 10px; }
+.exception { background: var(--surface); border-radius: 12px; padding: 12px; box-shadow: var(--shadow); display: flex; flex-direction: column; gap: 4px; }
+.exception.live { border: 2px solid color-mix(in srgb, var(--accent) 45%, white); }
+.exception.ack { opacity: .65; }
+.exception small { color: var(--muted); }
+.ex-head { display: flex; gap: 6px; align-items: center; }
+.ex-head small { margin-left: auto; }
+.ex-reason { margin: 2px 0 0; font-size: 14px; }
+.ex-foot { display: flex; justify-content: space-between; align-items: center; gap: 8px; margin-top: 4px; }
+
+/* Agents */
+.agent { margin-bottom: 14px; }
+.agent.stopped { outline: 2px solid var(--bad-bg); }
+.agent-head { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; }
+.agent-ic { display: grid; place-items: center; width: 40px; height: 40px; border-radius: 12px; background: color-mix(in srgb, var(--accent) 14%, white); color: var(--accent); flex: none; }
+.level { margin: 8px 0; display: flex; flex-direction: column; gap: 4px; }
+.level-bar { display: grid; grid-template-columns: repeat(4, 1fr); gap: 4px; }
+.level-bar span { height: 6px; border-radius: 4px; background: var(--line); }
+.level-bar span.on { background: var(--accent); }
+.scope { margin: 0 0 12px; font-size: 13.5px; }
+.scope dt { font-weight: 700; font-size: 12px; text-transform: uppercase; color: var(--muted); letter-spacing: .04em; margin-top: 8px; }
+.scope dd { margin: 0; }
+.scope ul { margin: 4px 0 0; padding-left: 18px; }
+.guard-li { list-style: none; margin-left: -18px; display: flex; gap: 6px; align-items: flex-start; color: var(--ink-2); }
+.guards { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 8px; font-size: 14px; }
+.guards li { display: flex; gap: 8px; align-items: flex-start; }
+.guards .ic, .guard-li .ic { color: var(--accent); margin-top: 2px; }
+
+/* Config and problems */
+.tbl-wrap { overflow-x: auto; }
+.tbl { width: 100%; border-collapse: collapse; font-size: 13.5px; }
+.tbl th { text-align: left; font-size: 11.5px; text-transform: uppercase; letter-spacing: .04em; color: var(--muted); padding: 6px 6px 6px 0; border-bottom: 1px solid var(--line); }
+.tbl td { padding: 8px 6px 8px 0; border-bottom: 1px solid var(--line); vertical-align: top; }
+.problem { margin-bottom: 12px; display: flex; flex-direction: column; gap: 4px; align-items: flex-start; }
+.problem-foot { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin: 4px 0 6px; }
+
+/* Setup */
+.setup { overflow-y: auto; height: 100%; padding: 22px 16px 28px; }
+.setup-head { text-align: center; margin-bottom: 18px; }
+.setup-head h1 { font-size: 24px; }
+.setup-logo { display: inline-grid; place-items: center; width: 52px; height: 52px; border-radius: 16px; background: var(--ink); color: #fff; margin-bottom: 10px; }
+.setup section { margin-bottom: 18px; }
+.setup-step { font-size: 13px; text-transform: uppercase; letter-spacing: .05em; color: var(--muted); }
+.tiles { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.tile { display: flex; flex-direction: column; align-items: flex-start; gap: 4px; padding: 12px; border-radius: 12px; border: 2px solid var(--line); background: var(--surface); text-align: left; cursor: pointer; font: inherit; color: var(--ink); min-height: 96px; }
+.tile.on { border-color: var(--tile); background: color-mix(in srgb, var(--tile) 7%, white); }
+.tile-ic { display: grid; place-items: center; width: 36px; height: 36px; border-radius: 10px; background: var(--tile); color: #fff; }
+.tile-name { font-weight: 700; font-size: 14px; }
+.tile-sub { font-size: 11.5px; color: var(--muted); line-height: 1.3; }
+.chips { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.chip { display: flex; justify-content: space-between; align-items: center; gap: 6px; min-height: var(--tap); padding: 0 12px; border-radius: 12px; border: 2px solid var(--line); background: var(--surface); font: inherit; cursor: pointer; color: var(--ink); }
+.chip small { color: var(--muted); }
+.chip.on { border-color: var(--ink); }
+.personas { display: flex; flex-direction: column; gap: 8px; }
+.persona { display: flex; flex-direction: column; align-items: flex-start; padding: 10px 12px; border-radius: 12px; border: 2px solid var(--line); background: var(--surface); text-align: left; font: inherit; cursor: pointer; color: var(--ink); min-height: var(--tap); }
+.persona small { color: var(--muted); }
+.persona.on { border-color: var(--ink); }
+.setup-foot { position: sticky; bottom: -28px; background: var(--bg); padding: 12px 0 8px; }
+.signin { text-align: center; font-size: 14px; }
+
+/* Presenter menu and notes */
+.presenter-backdrop { position: fixed; inset: 0; background: rgba(15, 23, 42, .5); z-index: 40; }
+.presenter { position: fixed; z-index: 41; left: 50%; top: 50%; transform: translate(-50%, -50%); width: min(420px, 94vw); max-height: 92vh; overflow: auto; background: var(--surface); border-radius: 18px; box-shadow: 0 20px 50px rgba(15, 23, 42, .35); }
+.presenter-head { display: flex; justify-content: space-between; align-items: center; padding: 10px 10px 10px 16px; border-bottom: 1px solid var(--line); }
+.presenter-body { padding: 14px 16px 16px; display: flex; flex-direction: column; gap: 10px; }
+.field { display: flex; flex-direction: column; gap: 4px; font-size: 13px; color: var(--muted); }
+.field select, .field input { min-height: var(--tap); border: 1px solid var(--line); border-radius: 10px; padding: 0 10px; font: inherit; color: var(--ink); background: var(--surface); }
+.presenter-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.side-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
+.story { padding-left: 20px; display: flex; flex-direction: column; gap: 8px; }
+.story a { color: var(--ink); text-decoration: none; }
+.story a:hover { color: var(--accent); }
+.side-switch { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 12px; }
+.next { display: flex; flex-direction: column; gap: 4px; }
+</style>
+</head>
+<body>
+  <div class="stage">
+    <div class="phone"><div id="root" class="phone-inner"></div></div>
+    <aside id="side" class="side" aria-label="Presenter notes"></aside>
+  </div>
+  <noscript>This demo needs JavaScript.</noscript>
+  <script>
+(()=>{var yt=Object.defineProperty;var G=(t,e)=>{for(var s in e)yt(t,s,{get:e[s],enumerable:!0})};var We={id:"cpg",name:"Consumer goods",tagline:"Supermarkets, convenience stores and independent shops",icon:"cart",accent:"#0F766E",vocab:{account:"store",accounts:"stores",contact:"store manager",contacts:"store managers",rep:"sales rep",reps:"sales reps",manager:"area sales manager",kam:"key account manager",offering:"product",offerings:"products",order:"order",orders:"orders",visit:"visit",visits:"visits"},personas:{rep:"Sales rep",manager:"Area sales manager",admin:"Sales operations lead"},segments:[{id:"super",name:"Supermarkets",share:.28,key:!0,visitMinutes:[35,50],style:"Planned visit led by the retailer agreement: displays, facings and promotions.",annualValue:[6e4,21e4],hours:[420,1320],orderQty:[4,18],types:[{type:"Supermarket",words:{en:["Supermarket","Fresh Market","Foods"],pt:["Supermercado","Mercado"],es:["Supermercado","Súper"],de:["Markt","Frischmarkt"],id:["Swalayan","Pasar Segar"]}}],roles:["Store manager","Category lead","Receiving supervisor"]},{id:"conv",name:"Convenience stores",share:.34,visitMinutes:[15,25],style:"Short visit led by the order and the fast movers.",annualValue:[9e3,32e3],hours:[360,1380],orderQty:[1,6],types:[{type:"Convenience store",words:{en:["Mini Mart","Express","Corner Mart"],pt:["Minimercado","Conveniência"],es:["Minisúper","Express"],de:["Kiosk","Nahkauf"],id:["Minimarket","Mart"]}}],roles:["Store manager","Shift lead"]},{id:"indep",name:"Independent shops",share:.38,visitMinutes:[15,30],style:"Relationship visit with the owner. Often cash, often family-run.",annualValue:[3500,16e3],hours:[480,1260],orderQty:[1,4],types:[{type:"Independent shop",naming:"family",words:{en:["General Store","Provisions","Grocers"],pt:["Mercearia","Empório"],es:["Abarrotes","Tienda"],de:["Lebensmittel","Laden"],id:["Toko","Warung"]}}],roles:["Owner","Family member at the counter"]}],offerings:[{id:"tea",name:"Brightleaf Green Tea 500 ml",category:"Beverages",price:14.4,unit:"case",status:"core"},{id:"chips",name:"Crunchwell Potato Chips 150 g",category:"Snacks",price:18,unit:"case",status:"core"},{id:"oats",name:"Morningfield Oat Cereal 375 g",category:"Breakfast",price:22.8,unit:"case",status:"core"},{id:"shampoo",name:"Silkrinse Shampoo 400 ml",category:"Personal care",price:31.2,unit:"case",status:"core"},{id:"dish",name:"Pureshine Dish Liquid 750 ml",category:"Home care",price:19.2,unit:"case",status:"core"},{id:"pods",name:"Pureshine Laundry Pods 24s",category:"Home care",price:34.8,unit:"case",status:"core"},{id:"choc",name:"Velmora Dark Chocolate 90 g",category:"Confectionery",price:26.4,unit:"case",status:"focus"},{id:"paste",name:"Mintora Toothpaste 150 g",category:"Oral care",price:24,unit:"case",status:"focus"},{id:"bars",name:"Morningfield Granola Bars 6 pack",category:"Breakfast",price:20.4,unit:"case",status:"focus"},{id:"crisps",name:"Crunchwell Lentil Crisps 80 g",category:"Snacks",price:16.8,unit:"case",status:"new"},{id:"lemon",name:"Brightleaf Sparkling Lemon 330 ml",category:"Beverages",price:12.6,unit:"case",status:"new"}],actions:[{id:"oos",type:"Fix out-of-stock",agent:"gap",effort:10,evidence:"photo",value:[120,600],uses:"core",title:"Fix the out-of-stock on {product}",saw:"Shelf photos and retailer scan data show {product} missing on {days} of the last 14 days.",compared:"{peers} similar stores in {area} kept it on shelf on 13 or more of those days.",why:["Each empty day sends shoppers to the next brand on the shelf.","{product} is one of the five fastest lines in this store.","Back-room count at the last visit was zero, so the gap is in ordering, not shelf filling.","Estimated sales recovered this month: {amount}."],talk:["Show {person} the empty-day count and agree a minimum shelf quantity.","Fill the shelf from back stock today if any has arrived.","Link the fix to the suggested order so it does not come back."]},{id:"display",type:"Secure a display",agent:"gap",effort:15,evidence:"photo",value:[300,1500],uses:"focus",segments:["super","conv"],title:"Secure an aisle-end display for {product}",saw:"No secondary display for {product} in the last {weeks} weeks of visit photos.",compared:"Stores in this group with a display sold {pct}% more of the line in display weeks (sample data).",why:["{event} is {eventDays} days away and display space gets booked early.","The retailer agreement allows one supplier display per aisle end.","The display kit and price cards are already in the car.","Estimated value over the display period: {amount}."],talk:["Ask for the aisle end near the entrance for two weeks.","Offer to build the display yourself during this visit.","Check the promo price is already loaded in the store system."],guardrail:"Display terms follow the retailer agreement. The agent never offers extra money or free goods."},{id:"listnew",type:"List a new product",agent:"gap",effort:12,evidence:"note",value:[200,900],uses:"new",title:"Get {product} listed",saw:"{product} launched {weeks} weeks ago and is not in this store's range.",compared:"{pct}% of similar stores in {city} have listed it, most within six weeks.",why:["Launch support (price card and shelf strip) is available this month only.","Shoppers here buy the parent brand heavily.","Listing needs one facing. No current line has to go."],talk:["Share the sell-through from nearby stores as sample figures, not a promise.","Propose a trial of one case.","Agree where the facing goes before you order."]},{id:"promo",type:"Place promo material",agent:"gap",effort:8,evidence:"photo",value:[60,300],uses:"focus",title:"Put up promo material for {product}",saw:"The current promotion on {product} has no shelf strip or price card in the last photo.",compared:"Promotion weeks with material in place, across {peers} similar stores.",why:["The promotional price is live but shoppers cannot see it.","The material is approved by the retailer for this cycle.","It takes under ten minutes."],talk:["Ask {person} where material is allowed in this store.","Take down expired material from the last cycle at the same time."]},{id:"facings",type:"Restore planogram facings",agent:"gap",effort:12,evidence:"photo",value:[100,500],uses:"core",segments:["super"],title:"Restore agreed facings for {product}",saw:"Shelf photo shows {product} on fewer facings than the planogram agreed with the retailer.",compared:"Planogram for this store cluster, last reset {weeks} weeks ago.",why:["Lost facings usually mean another supplier took the space.","Lines at full facings run out less often.","The retailer agreement gives the brand this space."],talk:["Show the planogram page, not an opinion.","If head office gave the space away, log it instead of moving product."]},{id:"pricetag",type:"Flag a price tag error",agent:"gap",effort:6,evidence:"photo",value:[40,200],uses:"core",title:"Flag the wrong shelf price on {product}",saw:"The shelf price for {product} in the last photo does not match the retailer price file.",compared:"Retailer price file sent this week.",why:["Wrong tags cause disputes at the till and cost trust.","Shoppers compare price at the shelf first.","The store sets prices. The rep only flags the mismatch."],talk:["Point out the mismatch to {person} and let the store correct it."],guardrail:"The store sets shelf prices. The agent flags a mismatch and never changes a price."},{id:"topup",type:"Top up fast movers",agent:"order",effort:10,evidence:"scan",value:[150,700],uses:"core",segments:["conv","indep"],title:"Top up fast movers before the weekend",saw:"Stock for {n} fast-moving lines covers about {days} days at the current rate of sale.",compared:"This store's own order history over the last 12 weeks.",why:["Friday to Sunday is the busiest part of the week in this store's data.","Delivery from the distributor takes two days.","The lines are already in the suggested order."],talk:["Walk the shelf with {person} and confirm counts before ordering.","Keep it to two weeks of sales. No loading."]},{id:"winback",type:"Win back a lapsed line",agent:"gap",effort:10,evidence:"note",value:[100,450],uses:"core",segments:["conv","indep"],title:"Win back {product}",saw:"{product} has not been ordered for {weeks} weeks after steady orders before that.",compared:"This store's own order pattern over the last six months.",why:["A lapsed line often means a delivery or credit problem, not lower demand.","Shoppers in {area} still buy it in nearby stores.","Estimated value over the next quarter: {amount}."],talk:["Ask {person} what changed before you suggest a quantity.","If it was a delivery problem, log it for the distributor."]},{id:"rotate",type:"Rotate near-date product",agent:"gap",effort:8,evidence:"scan",value:[50,250],uses:"core",segments:["super","conv"],title:"Rotate stock and pull near-date {product}",saw:"The last scan found {qty} units of {product} within 30 days of the best-before date.",compared:"Rotation standard in the retailer agreement.",why:["Near-date product ends up as a markdown or a write-off.","Rotating now protects the line's shelf space.","Returns under the agreement need a scan record."],talk:["Agree with {person} which units go to the markdown area.","Scan the batch codes so the return is logged."]},{id:"deliveryday",type:"Align visit with delivery day",agent:"planner",effort:3,evidence:"note",value:[30,120],uses:"none",title:"Move the next {visit} to the day after delivery",saw:"{n} of the last four {visits} happened before the delivery arrived.",compared:"Distributor delivery calendar for {area}.",why:["After delivery, the shelf can be filled and checked in one trip.","It saves a wasted {visit} each cycle."],talk:["Confirm the new day with {person}."]}],orderReasons:{core:["Averages {avg} cases a week. About {cover} days of cover left.","Sold {qty} cases in the last four weeks.","Covers the gap found today."],focus:["Supports the {event} display.","Focus line this cycle. Store has space on the aisle end."],new:["Launch line. Trial quantity for {weeks} weeks.","Listed in similar stores nearby. Start small."]},orderRules:[{kind:"totalAbove",amount:1500,route:"manager",text:"{Orders} above {limit} need {manager} approval."},{kind:"info",text:"Prices and promotions come from the retailer agreement. The agent cannot change them."}],overrideReasons:[{label:"Store manager not available today",route:"manager"},{label:"Already fixed by the merchandising team",route:"manager"},{label:"Not allowed under the retailer agreement",route:"kam"},{label:"The data looks wrong",route:"manager"},{label:"Not enough time in this visit",route:"manager"},{label:"Other",route:"manager"}],outcomeReasons:[{label:"Store manager said no",blocked:!1},{label:"No stock at the distributor",blocked:!0},{label:"Store on credit hold",blocked:!0,route:"kam"},{label:"Ran out of time",blocked:!1}],visitNotes:["Order taken, {n} lines.","Display checked. Price cards replaced.","Store manager away. Order taken by phone.","Out-of-stock fixed from back stock.","New line discussed. Decision next {visit}."],kpis:[{id:"dist",label:"Distribution of core range",format:"pct",range:[58,94],target:90},{id:"lines",label:"Lines per order",format:"count",range:[3,9],target:8},{id:"oos",label:"Out-of-stock days (last 14)",format:"count",range:[0,6],target:1,lowerIsBetter:!0},{id:"display",label:"Display compliance",format:"pct",range:[40,92],target:80},{id:"strike",label:"Visits with an order",format:"pct",range:[55,92],target:85}],guardrails:[{agent:"all",text:"Follows each retailer agreement. Never offers terms outside it."},{agent:"gap",text:"Never changes a shelf price. Only flags a mismatch."},{agent:"order",text:"Never loads a store beyond about two weeks of expected sales."},{agent:"planner",text:"Never drops a key account store without the area sales manager."}],problems:[{title:"Our biggest stores get the same visit as the smallest",text:"Visit frequency follows habit and route convenience. High-potential stores are under-served while small ones get a weekly call.",capability:"potential"},{title:"Out-of-stocks are found late, or never",text:"Reps see the shelf every two weeks. By then the shopper has bought something else for ten days.",capability:"gaps"},{title:"Reps do the easy tasks first",text:'A 30-point checklist with nothing ranked. The display that matters most is left for "next time".',capability:"ranking"},{title:"Call cycles ignore delivery days and promotions",text:"Fixed routes mean visits land before the delivery or after the promotion has started.",capability:"planning"},{title:"Orders repeat last week's order",text:"New lines never get listed and range per store stays flat, because the rep copies the last order.",capability:"order"},{title:"We cannot prove what happened in store",text:"Execution is self-reported. Head office cannot link a display or a listing to what sold.",capability:"evidence"}],assistant:[{q:"Why is this store first today?",a:"It has the largest value at stake today across its gaps and its order, and it opens early enough to fit before the next store."},{q:"Which stores have the most out-of-stocks?",a:"The supermarkets on today's plan show the most empty days on core lines. The Gap agent ranks those fixes first."},{q:"What should I say about the new line?",a:"Share nearby sell-through as sample figures, propose one case as a trial, and agree the facing before ordering."},{q:"Can I offer an extra discount for a display?",a:"No. Display terms follow the retailer agreement. Raise it with your key account manager if the store asks."},{q:"How was the order quantity worked out?",a:"From the store's average weekly sales, the days of cover left and the delivery lead time. You can change any line."},{q:"What happens when I override an action?",a:"It goes to your area sales manager with your reason. Overrides are feedback for the agents, not a mark against you."},{q:"Which stores have I not seen in a month?",a:"Check the tier A stores with the longest gap since the last visit. The Visit Planner adds them to the next route."},{q:"How sure is the agent about this gap?",a:"Each item shows a confidence level. Low confidence means the data is thin. Check the shelf before acting."}],storyline:["Pick Consumer goods and the prospect's country. Mention it is sample data.","Today: the rep's stores, ranked by value, in local currency and cities.",'Open the first visit brief. Approve the out-of-stock fix. Override the display with "Not allowed under the retailer agreement".',"Open an action: the why, the talking points, the guardrail on displays.","Order: raise one line, show the approval rule when the order passes the limit.","Complete the visit, then switch to the manager. The override is in the exception queue.","Agent controls: stop the Order agent and show its items pause in the brief.",'How this is configured: stores, products, actions and KPIs. "This is a configuration, not a custom build."'],forbidden:["clinic","HCP","physician","prescriber","formulary","merchant","dealer","workshop","loan","patient","farmer"]};var He={id:"US",name:"United States",locale:"en-US",currency:"USD",decimals:2,priceFactor:1,compactUnits:[{value:1e9,suffix:"B"},{value:1e6,suffix:"M"},{value:1e3,suffix:"K",min:1e4}],distance:"mi",dateOrder:"mdy",dateSep:"/",clock:"12h",spelling:"us",weekend:[0,6],speedKmh:32,cities:[{name:"Chicago",region:"IL",lat:41.8781,lng:-87.6298,postcode:"606{d}{d}",phone:"(312) 555-01{d}{d}",areas:["Lincoln Park","Pilsen","Logan Square","Hyde Park","Uptown","Bridgeport"]},{name:"Dallas",region:"TX",lat:32.7767,lng:-96.797,postcode:"752{d}{d}",phone:"(214) 555-01{d}{d}",areas:["Oak Cliff","Deep Ellum","Lakewood","Bishop Arts","Lake Highlands","Uptown"]},{name:"Atlanta",region:"GA",lat:33.749,lng:-84.388,postcode:"303{d}{d}",phone:"(404) 555-01{d}{d}",areas:["Midtown","West End","Kirkwood","Grant Park","Old Fourth Ward","Inman Park"]},{name:"Phoenix",region:"AZ",lat:33.4484,lng:-112.074,postcode:"850{d}{d}",phone:"(602) 555-01{d}{d}",areas:["Arcadia","Maryvale","Ahwatukee","Encanto","Laveen","Desert View"]}],streets:["Maple Ave","Oak St","Lincoln Blvd","Washington St","Park Ave","Elm St","Cedar Rd","Lakeview Dr","Main St","Highland Ave","Jefferson St","Pine St"],firstNames:["James","Maria","David","Jennifer","Michael","Linda","Carlos","Aisha","Kevin","Emily","Daniel","Sarah","Marcus","Rachel","Brian","Nicole","Andre","Megan","Luis","Grace","Tyrone","Hannah","Victor","Olivia"],lastNames:["Johnson","Williams","Garcia","Brown","Miller","Davis","Rodriguez","Wilson","Anderson","Thomas","Moore","Jackson","Martin","Lee","Thompson","White","Harris","Clark","Lewis","Walker","Nguyen","Patel"],nameLang:"en",prefixes:["Sunrise","Maple","Hometown","Prairie","Riverside","Cedar","Northside","Bluebird","Lakeshore","Golden Field","Oak Hill","Westgate"],patterns:{business:["{prefix} {type}","{area} {type}","{surname} {type}"],institution:["{area} {type}","{prefix} {type}"],family:["{surname} {type}","{surname} & Sons {type}","{surname} Family {type}"],person:["{first} {surname} {type}"]},address:"{number} {street}, {city}, {region} {postcode}",phone:"(555) 555-01{d}{d}",events:[{name:"Thanksgiving",dates:{2026:"11-26",2027:"11-25"},note:"Holiday travel and family gatherings"},{name:"Black Friday",dates:{2026:"11-27",2027:"11-26"},note:"Peak promotion weekend"},{name:"Christmas",monthDay:"12-25",note:"Gifting and holiday season"},{name:"New Year",monthDay:"01-01",note:"Year-start resets and budgets"},{name:"Big game weekend",dates:{2027:"02-14"},note:"Snacks and drinks peak"},{name:"Independence Day",monthDay:"07-04",note:"Summer holiday weekend"},{name:"Back to school",monthDay:"08-10",note:"Family spending season"}],notes:["US dollars with cents","Miles for distance","MM/DD/YYYY dates and 12-hour clock","US spelling"]};var bt={territory:"territory"},me=[We].map(t=>({...t,vocab:{...bt,...t.vocab}})),he=[He],$t={GB:"UK",UAE:"AE"};function we(t){if(!t)return null;let e=String(t).toLowerCase();return me.find(s=>s.id===e||(s.aliases||[]).includes(e))||null}function xe(t){if(!t)return null;let e=String(t).toUpperCase();return he.find(s=>s.id===($t[e]||e))||null}function kt(t){let e=2166136261;for(let s=0;s<t.length;s++)e^=t.charCodeAt(s),e=Math.imul(e,16777619);return e>>>0}function Ge(t){let e=typeof t=="string"?kt(t):t>>>0,s=()=>{e=e+1831565813|0;let a=Math.imul(e^e>>>15,1|e);return a=a+Math.imul(a^a>>>7,61|a)^a,((a^a>>>14)>>>0)/4294967296},o={next:s,float:(a,i)=>a+s()*(i-a),int:(a,i)=>Math.floor(a+s()*(i-a+1)),pick:a=>a[Math.floor(s()*a.length)],chance:a=>s()<a,shuffle:a=>{let i=a.slice();for(let d=i.length-1;d>0;d--){let r=Math.floor(s()*(d+1));[i[d],i[r]]=[i[r],i[d]]}return i},sample:(a,i)=>o.shuffle(a).slice(0,Math.min(i,a.length)),pattern:a=>a.replace(/\{d\}/g,()=>String(Math.floor(s()*10))).replace(/\{L\}/g,()=>"ABCDEFGHJKLMNPRSTUVWXY"[Math.floor(s()*22)])};return o}var wt=[{id:"planner",name:"Visit Planner",level:3},{id:"gap",name:"Gap agent",level:2},{id:"order",name:"Order agent",level:2}],xt=864e5,Ke=510,Ye="v1";function Se(t,e){let s=Date.UTC(e.getFullYear(),e.getMonth(),e.getDate()),o=[];for(let a of t.events){let i=null;for(let d of[e.getFullYear(),e.getFullYear()+1]){let r=a.dates&&a.dates[d]||a.monthDay;if(!r)continue;let[l,y]=r.split("-").map(Number),k=Math.round((Date.UTC(d,l-1,y)-s)/xt);k>=0&&(!i||k<i.days)&&(i={...a,days:k,date:new Date(d,l-1,y)})}i&&o.push(i)}return o.sort((a,i)=>a.days-i.days)}function St(t,e){return Se(t,e)[0]||{name:t.events[0].name,days:30,note:t.events[0].note}}function Mt(t,e){let o=r=>r*Math.PI/180,a=o(e.lat-t.lat),i=o(e.lng-t.lng),d=Math.sin(a/2)**2+Math.cos(o(t.lat))*Math.cos(o(e.lat))*Math.sin(i/2)**2;return 2*6371*Math.asin(Math.sqrt(d))}function Q(t){if(t<=0)return 0;let e=10**Math.max(0,Math.floor(Math.log10(t))-2);return Math.round(t/e)*e}function se(t,e){if(t==null)return null;let s=t*e.priceFactor,o=e.priceStep||(s>=1e3?10:s>=100?1:.05);return Math.round(s/o)*o}var At=["Prefers mornings","Prefers short {visits}","Likes figures on one page","Replies faster by phone","Busy at month end","Wants notice before a {visit}","Asks for the reason behind each suggestion","Decides with a colleague"];function _e(t,e,{today:s=new Date,fmt:o}={}){if(!o)throw new Error("generate needs a formatter");let a=Ge(`${t.id}|${e.id}|${Ye}`),i=a.pick(e.cities),d=new Set,r=new Set,l=()=>{for(let m=0;m<40;m++){let M={first:a.pick(e.firstNames),last:a.pick(e.lastNames)},T=`${M.first} ${M.last}`;if(!d.has(T))return d.add(T),{...M,name:T}}let c={first:a.pick(e.firstNames),last:a.pick(e.lastNames)};return{...c,name:`${c.first} ${c.last}`}},y={...l(),title:t.personas.rep,city:i.name},k={...l(),title:t.personas.manager,city:i.name},h={...l(),title:t.personas.admin,city:i.name},A={...l(),title:t.vocab.kam},g=St(e,s),C=(c,m,M)=>{let T=c.words[e.nameLang]||c.words.en,j=c.naming||"business",B=e.patterns[j]||e.patterns.business;for(let O=0;O<30;O++){let P=a.pick(B).replace("{prefix}",a.pick(e.prefixes)).replace("{surname}",a.pick(e.lastNames)).replace("{first}",a.pick(e.firstNames)).replace("{area}",m).replace("{city}",M).replace("{type}",a.pick(T));if(!r.has(P))return r.add(P),P}let R=`${a.pick(e.prefixes)} ${a.pick(T)} ${r.size+1}`;return r.add(R),R},p=c=>typeof c=="string"?{role:c}:c,E=(c,m)=>m.prefix?`${m.prefix} ${c.name}`:c.name,f=a.int(24,30),b=t.segments.map(c=>Math.max(2,Math.round(f*c.share)));for(;b.reduce((c,m)=>c+m,0)>f;)b[b.indexOf(Math.max(...b))]--;for(;b.reduce((c,m)=>c+m,0)<f;)b[b.indexOf(Math.min(...b))]++;let D=[];t.segments.forEach((c,m)=>{for(let M=0;M<b[m];M++){let T=a.pick(c.types),j=a.pick(i.areas),B=a.int(34,97),[R,O]=c.annualValue,P=Q((R+(O-R)*(B/100))*e.priceFactor*a.float(.9,1.1)),q=Q(P*a.float(.38,.84)),Z=Math.min(c.roles.length,c.key?a.int(2,3):a.int(1,2)),ae=c.roles.slice(0,Z).map((ie,gt)=>{let ze=p(ie),vt=l();return{name:E(vt,ze),role:ze.role,primary:gt===0,phone:a.pattern(i.phone||e.phone),preference:a.pick(At),lastContactDays:a.int(4,60)}}),ue={};for(let ie of t.kpis)ue[ie.id]=a.int(ie.range[0],ie.range[1]);D.push({id:"",segmentId:c.id,segment:c.name,type:T.type,key:!!c.key,name:C(T,j,i.name),area:j,city:i.name,geo:{lat:i.lat+a.float(-.06,.06),lng:i.lng+a.float(-.07,.07)},address:e.address.replace("{number}",String(a.int(2,480))).replace("{street}",a.pick(e.streets)).replace("{area}",j).replace("{city}",i.name).replace("{region}",i.region||"").replace("{postcode}",a.pattern(i.postcode)),hours:c.hours,score:B,tier:B>=75?"A":B>=52?"B":"C",potential:P,current:q,whiteSpace:P-q,lastVisitDays:a.int(3,45),contacts:ae,kpis:ue,visitMinutes:a.int(c.visitMinutes[0],c.visitMinutes[1])})}}),D.sort((c,m)=>m.score-c.score),D.forEach((c,m)=>{c.id=`A${String(m+1).padStart(2,"0")}`});for(let c of D){let m=a.int(12,28);c.history=[0,1,2].map(M=>({daysAgo:c.lastVisitDays+M*m,note:a.pick(t.visitNotes),vars:{n:a.int(2,6),person:c.contacts[0].name}})),c.orderHistory=[0,1,2].map(M=>({daysAgo:c.lastVisitDays+M*m,total:Q(c.current/12*a.float(.6,1.3)),lines:a.int(2,7)}))}let K=a.int(6,8),te=c=>c.score+Math.min(c.lastVisitDays,40)*.8+a.float(0,14),Y=D.map(c=>({a:c,p:te(c)})).sort((c,m)=>m.p-c.p),x=[];for(let c of t.segments){let m=Y.find(M=>M.a.segmentId===c.id&&!x.includes(M.a));m&&x.push(m.a)}for(let c of Y){if(x.length>=K)break;x.includes(c.a)||x.push(c.a)}let V=(c,m)=>{let M=t.offerings.filter(T=>!T.segments||T.segments.includes(c.id));if(m&&m!=="any"){let T=M.filter(j=>j.status===m||j.category===m||j.kind===m);T.length&&(M=T)}return M},W=c=>(c.annualValue[0]+c.annualValue[1])/2,_=Math.max(...t.segments.map(W)),J=c=>.45+.95*Math.sqrt(W(c)/_),oe=c=>{let m=t.segments.find(O=>O.id===c.segmentId),M=t.actions.filter(O=>!O.segments||O.segments.includes(m.id)),T=a.int(3,Math.min(6,M.length)),B=a.sample(M,T).map(O=>{let P=O.uses==="none"?null:a.pick(V(m,O.uses)),q=Q(a.float(O.value[0],O.value[1])*e.priceFactor*J(m)*(.7+c.score/100*.6)),Z=Math.round(a.float(.52,.94)*100)/100,ae=Math.max(3,O.effort+a.int(-2,3)),ue={product:P?P.name:"",days:a.int(3,12),pct:a.int(12,38),qty:a.int(3,12),peers:a.int(6,18),n:a.int(2,4),weeks:a.int(3,8),area:c.area,city:c.city,person:c.contacts[0].name,role:c.contacts[0].role,event:g.name,eventDays:g.days,type:c.type,segment:c.segment,amount:o.money(q)};return{id:`${c.id}-${O.id}`,kind:"action",accountId:c.id,defId:O.id,agent:O.agent,type:O.type,title:O.title,saw:O.saw,compared:O.compared,evidence:O.evidence,effort:ae,value:q,confidence:Z,offeringId:P?P.id:null,vars:ue,score:q/ae*Z}});B.sort((O,P)=>P.score-O.score);let R=0;return B.forEach((O,P)=>{O.rank=P+1,R+=O.effort,O.overBudget=P>0&&R>c.visitMinutes}),B},pe=(c,m)=>{let M=t.segments.find(R=>R.id===c.segmentId),T=V(M,"any"),j=m.map(R=>R.offeringId).filter(Boolean);return[...new Set([...j,...a.shuffle(T.map(R=>R.id))])].slice(0,a.int(3,Math.min(6,T.length))).map(R=>{let O=t.offerings.find(ae=>ae.id===R),P=O.qty||M.orderQty||[1,6],q=a.int(P[0],P[1]),Z=t.orderReasons[O.status]||t.orderReasons.core;return{offeringId:R,qty:q,suggested:q,reason:a.pick(Z),vars:{qty:q,avg:Math.max(1,Math.round(q/a.int(1,2))),cover:a.int(3,12),event:g.name,eventDays:g.days,weeks:a.int(3,8)}}})},u=x.map(c=>{let m=oe(c);return{accountId:c.id,actions:m,order:pe(c,m),opportunity:m.reduce((M,T)=>M+T.value,0)}});u.sort((c,m)=>m.opportunity-c.opportunity),u.forEach((c,m)=>{c.rank=m+1});let w=Object.fromEntries(D.map(c=>[c.id,c])),I=e.speedKmh||25,$={lat:i.lat,lng:i.lng},N=Ke,F=u.slice(),z=1;for(;F.length;){let c=F.map(M=>{let T=w[M.accountId],j=Mt($,T.geo)*1.3,B=N+j/I*60;return{p:M,acc:T,km:j,travel:j/I*60,start:Math.max(B,T.hours[0])}});c.sort((M,T)=>M.start-T.start||M.km-T.km);let m=c[0];m.p.seq=z++,m.p.km=m.km,m.p.travelMin=Math.max(4,Math.round(m.travel)),m.p.start=Math.round(m.start/5)*5,N=m.p.start+m.acc.visitMinutes,$=m.acc.geo,F.splice(F.indexOf(m.p),1)}let U={A:14,B:21,C:35};for(let c of u){let m=w[c.accountId],M=c.order.reduce((R,O)=>{let P=t.offerings.find(Z=>Z.id===O.offeringId),q=se(P.price,e);return R+(q==null?0:q*O.suggested)},0),T=c.actions.filter(R=>!R.overBudget).length,j={id:`${m.id}-plan`,kind:"plan",accountId:m.id,agent:"planner",type:"Visit plan",effort:0,value:0,confidence:.88,rank:0,title:"{Visit} at {time}, {minutes} min budget",saw:"{Account} opens at {opens}. Last {visit} was {last} days ago.",compared:"Tier {tier} {accounts} are due every {cycle} days. Travel from the previous stop is about {travel} min.",vars:{time:o.time(c.start),minutes:m.visitMinutes,opens:o.time(m.hours[0]),last:m.lastVisitDays,tier:m.tier,cycle:U[m.tier],travel:c.travelMin,fits:T,total:c.actions.length}},B={id:`${m.id}-order`,kind:"order",accountId:m.id,agent:"order",type:"Order draft",effort:5,value:M,confidence:Math.round(a.float(.66,.9)*100)/100,rank:c.actions.length+1,title:M>0?"{Order} draft: {n} lines, {amount}":"{Order} draft: {n} lines",saw:"The last three {orders} for this {account} and the gaps found today.",compared:"What similar {accounts} in {area} take at this time of year.",vars:{n:c.order.length,amount:o.money(M),area:m.area}};c.brief=[j,...c.actions,B]}let re=D.reduce((c,m)=>c+m.current,0),ke=Q(re/12*1.12),ht={city:i.name,region:i.region,target:ke,achieved:Q(ke*a.float(.5,.78)),opportunity:Q(D.reduce((c,m)=>c+m.whiteSpace,0)),headlineKpi:{id:t.kpis[0].id,value:a.int(t.kpis[0].range[0],t.kpis[0].range[1])}},Ve=[{...y,self:!0,area:i.areas[0]},...[0,1,2].map(c=>({...l(),title:t.personas.rep,area:i.areas[(c+2)%i.areas.length]}))].map(c=>{let m=c.self?u.length:a.int(6,8),M=c.self?0:a.int(1,m-2);return{...c,planned:m,done:M,actionsDone:c.self?0:M*a.int(2,4),value:c.self?0:Q(a.float(.4,1.4)*(ke/22)*(M/m)),overrides:c.self?0:a.int(0,3)}}),qe=[],Ue=Ve.filter(c=>!c.self);for(let c=0;c<3;c++){let m=Ue[c%Ue.length],M=a.pick(t.segments),T=a.pick(M.types),j=a.pick(i.areas),B=a.pick(t.actions),R=B.uses==="none"?null:a.pick(V(M,B.uses)),O=c===2,P=O?a.pick(t.outcomeReasons.filter(q=>q.blocked)):a.pick(t.overrideReasons.filter(q=>q.label!=="Other"));qe.push({id:`X${c+1}`,live:!1,kind:O?"blocked":"override",rep:m.name,account:C(T,j,i.name),key:!!M.key,title:B.title,vars:{amount:o.money(Q(B.value[1]*e.priceFactor)),product:R?R.name:"",person:"",area:j,city:i.name,event:g.name,eventDays:g.days,days:a.int(3,12),weeks:a.int(3,8),n:a.int(2,4),qty:a.int(3,12),pct:a.int(12,38),peers:a.int(6,18),type:T.type,segment:M.name},reason:P.label,note:"",route:P.route==="kam"||M.key&&c===0?"kam":"manager",at:Ke+40+c*47})}let ft=wt.map(c=>({...c,owner:c.id==="gap"?k:h}));return{seedKey:`${t.id}|${e.id}|${Ye}`,city:i,rep:y,manager:k,admin:h,kam:A,event:g,accounts:D,byId:w,planned:u,territory:ht,reps:Ve,exceptions:qe,agents:ft}}var Je={color:"colour",colors:"colours",center:"centre",centers:"centres",centered:"centred",prioritize:"prioritise",prioritized:"prioritised",prioritizes:"prioritises",organize:"organise",organized:"organised",organization:"organisation",organizations:"organisations",analyze:"analyse",analyzed:"analysed",catalog:"catalogue",catalogs:"catalogues",favorite:"favourite",behavior:"behaviour",behaviors:"behaviours",recognize:"recognise",recognized:"recognised",personalize:"personalise",personalized:"personalised",optimize:"optimise",optimized:"optimised",authorize:"authorise",authorized:"authorised",authorization:"authorisation",standardize:"standardise",standardized:"standardised",minimize:"minimise",maximize:"maximise",utilization:"utilisation",summarize:"summarise",inquiry:"enquiry",inquiries:"enquiries",liter:"litre",liters:"litres",meter:"metre",meters:"metres",fulfill:"fulfil",canceled:"cancelled",labeled:"labelled",labeling:"labelling",traveled:"travelled",traveling:"travelling",enrollment:"enrolment",enroll:"enrol",defense:"defence",license:"licence",licenses:"licences",aluminum:"aluminium",tire:"tyre",tires:"tyres",program:"programme",programs:"programmes",neighborhood:"neighbourhood",neighborhoods:"neighbourhoods",specialty:"speciality"};function It(t,e){return t===t.toUpperCase()&&t.length>1?e.toUpperCase():t[0]===t[0].toUpperCase()?e[0].toUpperCase()+e.slice(1):e}var Et=new RegExp(`\\b(${Object.keys(Je).join("|")})\\b`,"gi");function Ot(t){return t.replace(Et,e=>It(e,Je[e.toLowerCase()]))}var Me=t=>t&&t[0].toUpperCase()+t.slice(1);function Qe(t,e){return(o,a={})=>{if(o==null)return"";let i=String(o).replace(/\{([A-Za-z][A-Za-z0-9_]*)\}/g,(d,r)=>{if(r in a)return String(a[r]);if(r in t)return t[r];let l=r[0].toLowerCase()+r.slice(1);if(l!==r){if(l in a)return Me(String(a[l]));if(l in t)return Me(t[l])}return d});return i.includes("{")&&(i=i.replace(/\{([A-Za-z]+)\}/g,(d,r)=>{let l=r[0].toLowerCase()+r.slice(1);return r in t?t[r]:l in t?Me(t[l]):d})),e==="uk"?Ot(i):i}}function n(t){return String(t??"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;").replace(/'/g,"&#39;")}var Xe=["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"],Ct=["Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"];function Ze(t,e=new Date){let s=t.decimals??2,o=(x,V=0)=>new Intl.NumberFormat(t.locale,{style:"currency",currency:t.currency,currencyDisplay:t.currencyDisplay||"symbol",maximumFractionDigits:x,minimumFractionDigits:V}),a=o(0),i=o(s,s),d=o(1),r=new Intl.NumberFormat(t.locale,{maximumFractionDigits:0}),l=new Intl.NumberFormat(t.locale,{maximumFractionDigits:1}),y=t.compactUnits||[{value:1e9,suffix:"B"},{value:1e6,suffix:"M"},{value:1e3,suffix:"K",min:1e4}],k=x=>a.format(Math.round(x)),h=x=>s===0?a.format(Math.round(x)):i.format(x),A=x=>{let V=Math.abs(x),W=y.find(u=>V>=(u.min??u.value));if(!W)return k(x);let _=d.formatToParts(x/W.value),J="",oe=!1,pe=_.map(u=>/integer|decimal|fraction|group/.test(u.type)).lastIndexOf(!0);return _.forEach((u,w)=>{J+=u.value,w===pe&&!oe&&(J+=W.suffix,oe=!0)}),J.replace(/ /g," ")},g=x=>r.format(x),C=x=>`${r.format(x)}%`,p=x=>t.distance==="mi"?`${l.format(x*.621371)} mi`:`${l.format(x)} km`,E=x=>new Date(e.getTime()+x*864e5),f=x=>String(x).padStart(2,"0");return{money:k,price:h,moneyShort:A,number:g,pct:C,distance:p,date:x=>{let V=t.dateSep||"/",[W,_,J]=[f(x.getDate()),f(x.getMonth()+1),x.getFullYear()];return t.dateOrder==="mdy"?`${_}${V}${W}${V}${J}`:`${W}${V}${_}${V}${J}`},dateShort:x=>t.dateOrder==="mdy"?`${Xe[x.getMonth()]} ${x.getDate()}`:t.dateSep==="."?`${f(x.getDate())}.${f(x.getMonth()+1)}.`:`${x.getDate()} ${Xe[x.getMonth()]}`,weekday:x=>Ct[x.getDay()],daysAgo:x=>x===0?"today":x===1?"yesterday":`${x} days ago`,time:x=>{let V=Math.floor(x/60)%24,W=Math.round(x%60);return t.clock==="12h"?`${(V+11)%12+1}:${f(W)} ${V<12?"am":"pm"}`:`${f(V)}:${f(W)}`},dayOffset:E,today:e}}var fe=new Map;function et(){fe.clear()}function Tt(){return{decisions:{},outcomes:{},orders:{},visits:{},stopped:{},exceptions:[],acknowledged:{},seq:0}}function Lt(t){return fe.has(t)||fe.set(t,Tt()),fe.get(t)}var ce=()=>{let t=new Date;return t.getHours()*60+t.getMinutes()};function tt(t){let{industry:e,country:s,data:o}=t,a=Lt(o.seedKey),i=u=>o.planned.find(w=>w.accountId===u),d=u=>!!a.stopped[u],r=u=>i(u)?.brief||[],l=u=>i(u)?.actions||[],y=u=>a.decisions[u],k=(u,w)=>{if(a.decisions[u]={...w,at:ce()},w.status==="overridden"){let I=A(u),$=o.byId[I.accountId],N=e.overrideReasons.find(F=>F.label===w.reason)||{};a.exceptions=a.exceptions.filter(F=>F.sourceId!==u),a.exceptions.unshift({id:`L${++a.seq}`,sourceId:u,live:!0,kind:"override",rep:o.rep.name,account:$.name,key:$.key,title:I.title,vars:I.vars,reason:w.reason,note:w.note||"",route:N.route==="kam"||$.key&&$.tier==="A"?"kam":"manager",at:ce()})}else a.exceptions=a.exceptions.filter(I=>I.sourceId!==u)},h=u=>{delete a.decisions[u],a.exceptions=a.exceptions.filter(w=>w.sourceId!==u)};function A(u){for(let w of o.planned){let I=w.brief.find($=>$.id===u);if(I)return I}return null}let g=u=>{let w=r(u).filter($=>!d($.agent)),I={total:w.length,approved:0,adjusted:0,overridden:0,pending:0,paused:r(u).length-w.length};for(let $ of w){let N=a.decisions[$.id];N?I[N.status]++:I.pending++}return I},C=u=>a.outcomes[u],p=(u,w)=>{a.outcomes[u]={...a.outcomes[u]||{},...w};let I=A(u);if(a.exceptions=a.exceptions.filter($=>$.sourceId!==`${u}#blocked`),w.status==="not_done"){let $=e.outcomeReasons.find(N=>N.label===w.reason);if($&&$.blocked){let N=o.byId[I.accountId];a.exceptions.unshift({id:`L${++a.seq}`,sourceId:`${u}#blocked`,live:!0,kind:"blocked",rep:o.rep.name,account:N.name,key:N.key,title:I.title,vars:I.vars,reason:w.reason,note:"",route:$.route==="kam"?"kam":"manager",at:ce()})}}},E=(u,w)=>{a.outcomes[u]={...a.outcomes[u]||{},evidence:w}},f=u=>{if(!a.orders[u]){let w=i(u);a.orders[u]={qty:Object.fromEntries((w?w.order:[]).map(I=>[I.offeringId,I.suggested])),submitted:!1}}return a.orders[u]},b=u=>{let w=i(u),I=f(u);return(w?w.order:[]).map($=>{let N=e.offerings.find(U=>U.id===$.offeringId),F=se(N.price,s),z=I.qty[$.offeringId]??$.suggested;return{...$,offering:N,unitPrice:F,qty:z,total:F==null?0:F*z,changed:z!==$.suggested}})},D=u=>{let w=b(u),I=w.reduce(($,N)=>$+N.total,0);return e.orderRules.map($=>{let N=!1,F={};if($.kind==="totalAbove"){let z=se($.amount,s);N=I>z,F={limit:z}}else if($.kind==="lineMax"){let z=w.filter(U=>(U.offering.kind===$.appliesTo||U.offering.status===$.appliesTo)&&U.qty>$.max);N=z.length>0,F={lines:z.map(U=>U.offering.name)}}else $.kind==="humanPrice"&&(N=w.some(z=>z.unitPrice==null&&z.qty>0));return{...$,triggered:N,detail:F,blocks:$.kind==="lineMax"}})},K=(u,w,I)=>{f(u).qty[w]=Math.max(0,Math.min(999,I))},te=u=>{let w=f(u),I=D(u).filter($=>$.triggered&&($.kind==="totalAbove"||$.kind==="humanPrice"));if(w.submitted=!0,w.needsApproval=I.length>0,a.exceptions=a.exceptions.filter($=>$.sourceId!==`order:${u}`),w.needsApproval){let $=o.byId[u];a.exceptions.unshift({id:`L${++a.seq}`,sourceId:`order:${u}`,live:!0,kind:"approval",rep:o.rep.name,account:$.name,key:$.key,title:"{Order} needs approval",vars:{},reason:I[0].text,ruleVars:I[0].detail,note:"",route:I[0].route==="kam"?"kam":"manager",at:ce()})}},Y=u=>!!a.visits[u],x=u=>{a.visits[u]={done:!0,at:ce()}},V=u=>{let w=l(u),I=w.filter(U=>a.outcomes[U.id]?.status==="done"),$=w.filter(U=>a.outcomes[U.id]?.status==="not_done"),N=b(u),F=f(u),z=F.submitted?N.reduce((U,re)=>U+re.total,0):0;return{items:w,done:I,notDone:$,value:I.reduce((U,re)=>U+re.value,0),orderTotal:z,orderSubmitted:F.submitted,needsApproval:!!F.needsApproval}};return{session:a,plannedFor:i,briefItems:r,actionsOf:l,findAction:A,decision:y,decide:k,undo:h,counts:g,outcome:C,recordOutcome:p,setEvidence:E,orderLines:b,orderRules:D,orderState:f,setQty:K,submitOrder:te,visitDone:Y,completeVisit:x,visitSummary:V,nextAccount:u=>o.planned.slice().sort((I,$)=>I.rank-$.rank).find(I=>I.accountId!==u&&!Y(I.accountId)),selfStats:()=>{let u=0,w=0;for(let $ of o.planned){let N=V($.accountId);u+=N.done.length,w+=N.value}let I=Object.values(a.decisions).filter($=>$.status==="overridden").length;return{done:o.planned.filter($=>Y($.accountId)).length,actionsDone:u,value:w,overrides:I}},exceptions:()=>[...a.exceptions,...o.exceptions].map(u=>({...u,acknowledged:!!a.acknowledged[u.id]})),acknowledge:u=>{a.acknowledged[u]=!0},agentStopped:d,toggleAgent:u=>{a.stopped[u]=!a.stopped[u]}}}var Ae={cart:'<path d="M3 4h2l2.4 10.2a1 1 0 0 0 1 .8h8.9a1 1 0 0 0 1-.8L20 7H6.2"/><circle cx="9" cy="19" r="1.5"/><circle cx="17" cy="19" r="1.5"/>',pill:'<rect x="3" y="9" width="18" height="7" rx="3.5" transform="rotate(-35 12 12.5)"/><path d="M9.2 8.4l5.6 8"/>',pulse:'<path d="M3 12h4l2-5 4 10 2-5h6"/>',glass:'<path d="M7 3h10l-1.2 8.5a3.9 3.9 0 0 1-7.6 0z"/><path d="M12 15v6M8.5 21h7M7.6 8h8.8"/>',roller:'<rect x="4" y="3" width="13" height="5" rx="1.5"/><path d="M17 5.5h2.5V11H11v3"/><rect x="9.5" y="14" width="3" height="7" rx="1"/>',sprout:'<path d="M12 21v-9"/><path d="M12 12C12 7.5 9 5 4.5 5c0 4.5 3 7 7.5 7z"/><path d="M12 14c0-4 2.5-6.5 7.5-6.5 0 4-2.5 6.5-7.5 6.5z"/>',signal:'<rect x="6" y="3" width="12" height="18" rx="2"/><path d="M10 7h4M9.5 17h5"/><path d="M9 13v-2M12 13v-3.5M15 13V9"/>',screen:'<rect x="3" y="4" width="18" height="12" rx="1.5"/><path d="M9 20h6M12 16v4"/>',wrench:'<path d="M14.7 6.3a4 4 0 0 0 5 5L21 13l-1.5 1.5-1.3-1.3L9 22.4 6.6 20 15.8 10.8l-1.3-1.3L16 8z" transform="translate(-2 -2)"/>',bank:'<path d="M3 9l9-5 9 5"/><path d="M5 9v8M9.5 9v8M14.5 9v8M19 9v8M3 20h18"/>',home:'<path d="M4 11l8-7 8 7v9a1 1 0 0 1-1 1h-4v-6h-6v6H5a1 1 0 0 1-1-1z"/>',brief:'<rect x="5" y="3" width="14" height="18" rx="2"/><path d="M9 3v3h6V3M8.5 11h7M8.5 15h5"/>',agent:'<rect x="5" y="7" width="14" height="11" rx="3"/><path d="M12 3v4M9.5 12h.01M14.5 12h.01M9.5 15h5"/>',config:'<circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M4.2 4.2l2.1 2.1M17.7 17.7l2.1 2.1M2 12h3M19 12h3M4.2 19.8l2.1-2.1M17.7 6.3l2.1-2.1"/>',team:'<circle cx="9" cy="8" r="3"/><path d="M3.5 19a5.5 5.5 0 0 1 11 0"/><circle cx="17" cy="9" r="2.3"/><path d="M15.5 14.3A4.5 4.5 0 0 1 21 19"/>',flag:'<path d="M5 21V4M5 4h11l-2 4 2 4H5"/>',bulb:'<path d="M9 18h6M10 21h4"/><path d="M12 3a6 6 0 0 0-3.5 10.9c.6.5 1 1.2 1 2V16h5v-.1c0-.8.4-1.5 1-2A6 6 0 0 0 12 3z"/>',back:'<path d="M15 5l-7 7 7 7"/>',check:'<path d="M5 12.5l4.5 4.5L19 7.5"/>',edit:'<path d="M4 20h4L19 9l-4-4L4 16z"/>',x:'<path d="M6 6l12 12M18 6L6 18"/>',pin:'<path d="M12 21s-6.5-6.2-6.5-11a6.5 6.5 0 0 1 13 0c0 4.8-6.5 11-6.5 11z"/><circle cx="12" cy="10" r="2.3"/>',clock:'<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/>',camera:'<path d="M4 8h3l2-3h6l2 3h3v11H4z"/><circle cx="12" cy="13" r="3.5"/>',pen:'<path d="M3 21c3-1 5-3 7-5M14 4l6 6-8 8-6-6z"/>',note:'<rect x="5" y="3" width="14" height="18" rx="2"/><path d="M8.5 8h7M8.5 12h7M8.5 16h4"/>',scan:'<path d="M4 8V5h3M17 5h3v3M20 16v3h-3M7 19H4v-3M8 9v6M11 9v6M14 9v6M17 9v6"/>',stop:'<rect x="6" y="6" width="12" height="12" rx="1.5"/>',play:'<path d="M8 5l11 7-11 7z"/>',chevron:'<path d="M9 5l7 7-7 7"/>',route:'<circle cx="6" cy="18" r="2"/><circle cx="18" cy="6" r="2"/><path d="M8 18h7a3 3 0 0 0 0-6H9a3 3 0 0 1 0-6h7"/>',shield:'<path d="M12 3l8 3v6c0 4.5-3.4 8.2-8 9-4.6-.8-8-4.5-8-9V6z"/><path d="M9 12l2 2 4-4"/>',ask:'<path d="M4 5h16v11H9l-5 4z"/><path d="M10 9.3a2 2 0 1 1 2.6 1.9c-.4.2-.6.5-.6 1v.3M12 14.5h.01"/>'};function v(t,e=22,s=""){let o=Ae[t]||Ae.flag;return`<svg class="ic ${s}" width="${e}" height="${e}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${o}</svg>`}var Oa=Object.keys(Ae);var H={planner:"Visit Planner",gap:"Gap agent",order:"Order agent"},le={photo:{label:"Photo",icon:"camera"},signature:{label:"Signature",icon:"pen"},note:{label:"Note",icon:"note"},scan:{label:"Scan",icon:"scan"}},at={1:"Watches and reports only",2:"Suggests. A person approves every item",3:"Acts on routine items. A person approves the rest",4:"Acts alone within set limits"},st={potential:{name:"Account Potential",decides:"Where effort goes"},gaps:{name:"Gap Detection",decides:"What is missing or wrong at each {account}"},ranking:{name:"Action Ranking",decides:"What to do first in each {visit}"},planning:{name:"Visit Planning",decides:"Which {accounts}, how often, in what order"},order:{name:"{Order} Suggestion",decides:"What to suggest, and how much"},evidence:{name:"Evidence and Learning",decides:"Did it happen, and did it work"}};function ge(t){let e=Math.round(t*100);return t>=.8?{label:"High",tone:"good",pct:e,text:`High confidence (${e}%)`}:t>=.65?{label:"Medium",tone:"mid",pct:e,text:`Medium confidence (${e}%)`}:{label:"Low",tone:"low",pct:e,text:`Low confidence (${e}%). Check before acting.`}}var L=(t,e="")=>`<span class="pill ${e}">${n(t)}</span>`;function ee(t,e,s){return t.format==="pct"?s.pct(e):t.format==="money"?s.moneyShort(e):t.format==="days"?`${s.number(e)} days`:s.number(e)}function nt(t,e){return t.lowerIsBetter?e<=t.target:e>=t.target}function ve(t,e,s=""){let o=Math.max(0,Math.min(100,t/(e||1)*100));return`<div class="bar ${s}" role="img" aria-label="${Math.round(o)} percent"><span style="width:${o.toFixed(1)}%"></span></div>`}var ye=t=>t.split(/\s+/).filter(e=>/^[A-Za-zÀ-ž]/.test(e)&&!/\.$/.test(e)).slice(0,2).map(e=>e[0]).join("").toUpperCase();function be(t,e){let s=t(e.type),o=t(e.segment);return o.toLowerCase().startsWith(s.toLowerCase())?s:`${s} · ${o}`}var Ie={};G(Ie,{actions:()=>Pt,render:()=>Nt});var Dt={rep:{label:"Field rep",text:"A ranked day and an explained plan for every {visit}."},manager:{label:"Manager",text:"Team view and the exception queue."},admin:{label:"Sales ops admin",text:"Configuration, agent controls and problems solved."}};function Nt({app:t,INDUSTRIES:e,COUNTRIES:s,buildContext:o}){let a=t.ui.setup||(t.ui.setup={industry:t.config?.industryId||"",country:t.config?.countryId||"",persona:t.config?.persona||"rep",prepared:t.config?.prepared||""}),i=a.industry&&a.country,d='<p class="muted small">Pick an industry and a country to see who you sign in as.</p>',r=null;if(i){r=o(a.industry,a.country);let h=a.persona==="rep"?r.data.rep:a.persona==="manager"?r.data.manager:r.data.admin;d=`<p class="signin">Signs in as <b>${n(h.name)}</b>, ${n(r.t(h.title))}, ${n(r.data.city.name)}</p>`}let l=e.map(h=>`
+    <button class="tile${a.industry===h.id?" on":""}" data-act="setup-industry" data-id="${h.id}" style="--tile:${h.accent}" aria-pressed="${a.industry===h.id}">
+      <span class="tile-ic">${v(h.icon,24)}</span>
+      <span class="tile-name">${n(h.name)}</span>
+      <span class="tile-sub">${n(h.tagline)}</span>
+    </button>`).join(""),y=s.map(h=>`
+    <button class="chip${a.country===h.id?" on":""}" data-act="setup-country" data-id="${h.id}" aria-pressed="${a.country===h.id}">
+      <b>${n(h.name)}</b><small>${n(h.currency)}</small>
+    </button>`).join(""),k=Object.entries(Dt).map(([h,A])=>{let g=r?r.industry.personas[h]:A.label,C=r?r.t(A.text):A.text.replace("{visit}","visit");return`<button class="persona${a.persona===h?" on":""}" data-act="setup-persona" data-id="${h}" aria-pressed="${a.persona===h}">
+      <b>${n(g)}</b><small>${n(C)}</small></button>`}).join("");return`
+  <div class="setup" data-region="setup">
+    <header class="setup-head">
+      <div class="setup-logo">${v("agent",26)}</div>
+      <h1>AI Assistor Sales Execution</h1>
+      <p class="muted">An AI field sales app that plans each rep's day, ranks what to do in every visit, and shows what happened.</p>
+      <span class="sample-tag">Sample data. All names are fictional.</span>
+    </header>
+    ${t.notice?`<div class="notice">${n(t.notice)}</div>`:""}
+    <section><h2 class="setup-step">1. Industry</h2><div class="tiles">${l}</div></section>
+    <section><h2 class="setup-step">2. Country</h2><div class="chips">${y}</div></section>
+    <section><h2 class="setup-step">3. Persona</h2><div class="personas">${k}</div></section>
+    <section><h2 class="setup-step">4. Prepared for <span class="muted small">(optional)</span></h2>
+      <input class="input" type="text" maxlength="40" placeholder="Prospect name, shown as Prepared for" value="${n(a.prepared)}" data-change="setup-prepared" id="setup-prepared">
+    </section>
+    <div class="setup-foot">
+      ${d}
+      <button class="btn primary block" data-act="setup-start" id="start-demo" ${i?"":"disabled"}>Start demo</button>
+    </div>
+  </div>`}var Pt={"setup-industry":({app:t,data:e})=>{t.ui.setup.industry=e.id},"setup-country":({app:t,data:e})=>{t.ui.setup.country=e.id},"setup-persona":({app:t,data:e})=>{t.ui.setup.persona=e.id},"setup-prepared":({app:t,value:e})=>{t.ui.setup.prepared=e.trim().slice(0,40)},"setup-start":({app:t,api:e})=>{let s=t.ui.setup;return!s.industry||!s.country?!1:(t.notice="",e.configure({industryId:s.industry,countryId:s.country,persona:s.persona,prepared:s.prepared},{home:!0}),"nav")}};var Ee={};G(Ee,{render:()=>jt});function Rt(){let t=new Date().getHours();return t<12?"Good morning":t<17?"Good afternoon":"Good evening"}function jt(t){let{t:e,fmt:s,data:o,m:a,industry:i}=t,d=s.today,r=o.planned.slice().sort((b,D)=>b.rank-D.rank),l=r.reduce((b,D)=>b+D.actions.length,0),y=r.reduce((b,D)=>b+a.counts(D.accountId).pending,0),k=r.filter(b=>a.visitDone(b.accountId)).length,h=a.nextAccount(null),A=i.kpis.find(b=>b.id===o.territory.headlineKpi.id),g=o.agents.filter(b=>a.agentStopped(b.id)),C=o.territory,p=a.selfStats(),E=C.achieved+p.value,f=r.map(b=>{let D=o.byId[b.accountId],K=a.counts(b.accountId),te=a.visitDone(b.accountId),Y=te?L("Done","good"):K.pending===0?L("Brief reviewed","info"):L(`${K.pending} to review`,"warn");return`<li><a class="row acc-row${te?" done":""}" href="#/brief/${D.id}" data-account="${D.id}">
+      <span class="rank">${b.rank}</span>
+      <span class="row-main">
+        <b>${n(D.name)}</b>
+        <small>${n(e(D.type))} · ${n(D.area)} · Tier ${D.tier}</small>
+        <small class="row-meta">${v("clock",14)} ${n(s.time(b.start))} · ${b.actions.length} actions · ${n(s.distance(b.km))}</small>
+      </span>
+      <span class="row-end"><b class="money">${n(s.moneyShort(b.opportunity))}</b>${Y}</span>
+    </a></li>`}).join("");return`
+  <section class="hello">
+    <h1>${Rt()}, ${n(o.rep.first)}</h1>
+    <p class="muted">${n(s.weekday(d))} ${n(s.dateShort(d))} · ${n(o.city.name)} · ${r.length} ${n(e("{visits}"))} planned</p>
+  </section>
+
+  ${g.length?`<div class="notice warn">${v("stop",18)} ${n(g.map(b=>H[b.id]).join(", "))} stopped. Its items are paused in every brief.</div>`:""}
+
+  <a class="banner" href="#/brief/${(h||r[0]).accountId}" id="overnight-banner">
+    <span class="banner-ic">${v("agent",22)}</span>
+    <span><b>Overnight brief ready</b>
+    <small>${n(e(`3 agents prepared ${r.length} {visit} briefs: ${l} ranked actions, plus a plan and {order} draft for each. ${y} items wait for your review.`))}</small></span>
+    ${v("chevron",18)}
+  </a>
+
+  <section class="cards2">
+    <div class="card stat">
+      <small>Target this month</small>
+      <b class="big">${n(s.moneyShort(E))}</b>
+      <small class="muted">of ${n(s.moneyShort(C.target))} (${Math.round(E/C.target*100)}%)</small>
+      ${ve(E,C.target)}
+    </div>
+    <div class="card stat">
+      <small>Opportunity in ${n(e("{territory}"))}</small>
+      <b class="big">${n(s.moneyShort(C.opportunity))}</b>
+      <small class="muted">${n(e("Untapped potential across {n} {accounts}",{n:o.accounts.length}))}</small>
+    </div>
+    <div class="card stat wide">
+      <small>${n(e(A.label))}</small>
+      <b class="big">${n(ee(A,C.headlineKpi.value,s))}</b>
+      <small class="muted">Target ${n(ee(A,A.target,s))} · ${k} of ${r.length} ${n(e("{visits}"))} done today</small>
+    </div>
+  </section>
+
+  <section>
+    <div class="section-head"><h2>${n(e("Today's {accounts}"))}</h2><small class="muted">Ranked by value at stake</small></div>
+    <ol class="list">${f}</ol>
+  </section>
+  <p class="foot-note">Sample data. Values are generated for this demo.</p>`}var Oe={};G(Oe,{actions:()=>Ut,render:()=>qt});var Ft={action:["Do it first","Do it later in the {visit}","Only if time allows","Smaller scope today"],plan:["Start earlier","Start later","Shorter {visit}","Longer {visit}"],order:["Change quantities in the builder","Review lines with the {contact}","Split into two {orders}"]};function Bt(t){return t.kind==="action"?{href:`#/action/${t.id}`,label:"Open action"}:t.kind==="order"?{href:`#/order/${t.accountId}`,label:"Open {order}"}:{href:`#/account/${t.accountId}`,label:"Open {account}"}}function Vt(t,e){let{t:s,fmt:o,m:a,ui:i}=t,d=e.vars,r=ge(e.confidence),l=a.decision(e.id),y=a.agentStopped(e.agent),k=Bt(e),h=i.panel&&i.panel.id===e.id?i.panel:null,A=y?"paused":l?l.status:"pending",g=e.value>0?o.money(e.value):e.kind==="plan"?`${d.fits} of ${d.total} actions fit`:"Value set by people",C;if(y)C=`<div class="paused-note">${v("stop",16)} ${n(H[e.agent])} is stopped. This item is paused. <a href="#/agents">Agent controls</a></div>`;else if(h&&h.kind==="override"){let p=t.industry.overrideReasons.map(E=>`
+      <label class="radio"><input type="radio" name="reason-${e.id}" value="${n(E.label)}" data-change="pick-reason" ${h.reason===E.label?"checked":""}><span>${n(s(E.label))}</span></label>`).join("");C=`<div class="panel" data-panel="override">
+      <b>Why are you overriding this?</b>
+      <p class="small muted">Your reason goes to your ${n(s("{manager}"))}. Overrides are feedback for the agents, never a penalty.</p>
+      <div class="radios">${p}</div>
+      <textarea class="input" rows="2" placeholder="Note (optional)" data-change="panel-note">${n(h.note||"")}</textarea>
+      <div class="btn-row">
+        <button class="btn ghost" data-act="panel-close">Cancel</button>
+        <button class="btn danger" data-act="save-override" data-id="${e.id}" ${h.reason?"":"disabled"}>Override</button>
+      </div></div>`}else if(h&&h.kind==="adjust")C=`<div class="panel" data-panel="adjust">
+      <b>Adjust this item</b>
+      <div class="radios">${Ft[e.kind].map(E=>`
+      <label class="radio"><input type="radio" name="adj-${e.id}" value="${n(E)}" data-change="pick-adjust" ${h.choice===E?"checked":""}><span>${n(s(E))}</span></label>`).join("")}</div>
+      <textarea class="input" rows="2" placeholder="Note (optional)" data-change="panel-note">${n(h.note||"")}</textarea>
+      <div class="btn-row">
+        <button class="btn ghost" data-act="panel-close">Cancel</button>
+        <button class="btn primary" data-act="save-adjust" data-id="${e.id}" ${h.choice?"":"disabled"}>Save adjustment</button>
+      </div></div>`;else if(l){let p=l.status==="approved"?"Approved":l.status==="adjusted"?`Adjusted: ${s(l.choice)}`:`Overridden: ${s(l.reason)}`;C=`<div class="decided">
+      ${L(p,l.status==="approved"?"good":l.status==="adjusted"?"info":"bad")}
+      ${l.note?`<p class="small muted">Note: ${n(l.note)}</p>`:""}
+      <div class="btn-row">
+        <button class="btn ghost sm" data-act="undo" data-id="${e.id}">Undo</button>
+        ${l.status!=="overridden"?`<a class="btn ghost sm" href="${k.href}">${n(s(k.label))} ${v("chevron",14)}</a>`:""}
+      </div></div>`}else C=`<div class="btn-row three">
+      <button class="btn primary" data-act="decide" data-id="${e.id}" data-status="approved">${v("check",18)}Approve</button>
+      <button class="btn ghost" data-act="panel" data-id="${e.id}" data-kind="adjust">${v("edit",18)}Adjust</button>
+      <button class="btn ghost danger-text" data-act="panel" data-id="${e.id}" data-kind="override">${v("x",18)}Override</button>
+    </div>`;return`<article class="item ${A}" id="item-${e.id}" data-item="${e.id}" data-kind="${e.kind}" data-state="${A}">
+    <header class="item-head">
+      <span class="rank sm">${e.kind==="plan"?v("route",14):e.kind==="order"?v("cart",14):e.rank}</span>
+      <span class="agent-tag">${v("agent",14)} ${n(H[e.agent])}</span>
+      ${e.overBudget?L("If time allows","muted"):""}
+    </header>
+    <h3>${n(s(e.title,d))}</h3>
+    <div class="metrics">
+      <span>${n(g)}</span>
+      ${e.effort?`<span>${v("clock",14)} ${e.effort} min</span>`:""}
+      ${L(`${r.label} confidence`,r.tone)}
+    </div>
+    <dl class="evidence">
+      <dt>What the agent saw</dt><dd>${n(s(e.saw,d))}</dd>
+      <dt>Compared against</dt><dd>${n(s(e.compared,d))}</dd>
+      <dt>How sure</dt><dd>${n(r.text)}</dd>
+    </dl>
+    ${C}
+  </article>`}function qt(t,[e]){let{t:s,fmt:o,data:a,m:i}=t,d=i.plannedFor(e)||a.planned[0],r=a.byId[d.accountId],l=i.counts(r.id),y=i.briefItems(r.id),k=r.contacts[0];return`
+  <a class="back" href="#/today">${v("back",18)} ${n(s("Today"))}</a>
+  <section class="brief-head">
+    <small class="eyebrow">${n(s("{Visit} brief"))} · prepared overnight</small>
+    <h1>${n(r.name)}</h1>
+    <p class="muted">${n(be(s,r))} · ${n(r.area)} · Tier ${r.tier}</p>
+    <p class="small">${v("clock",14)} ${n(o.time(d.start))} · ${r.visitMinutes} min · ${n(k.name)}, ${n(s(k.role))}</p>
+  </section>
+
+  <div class="counts" id="counts" aria-live="polite">
+    <span data-count="approved"><b>${l.approved}</b> approved</span>
+    <span data-count="adjusted"><b>${l.adjusted}</b> adjusted</span>
+    <span data-count="overridden"><b>${l.overridden}</b> overridden</span>
+    <span data-count="pending"><b>${l.pending}</b> to review</span>
+  </div>
+  <p class="small muted guard">${v("shield",14)} Nothing is sent or ordered until you approve. ${l.paused?`${l.paused} paused.`:""}</p>
+
+  <div class="items">${y.map(h=>Vt(t,h)).join("")}</div>
+
+  <div class="stack">
+    ${l.pending>0?`<button class="btn ghost block" data-act="approve-all" data-id="${r.id}">Approve all remaining (${l.pending})</button>`:""}
+    <a class="btn ghost block" href="#/account/${r.id}">${n(s("{Account} 360"))}</a>
+    <a class="btn ghost block" href="#/order/${r.id}">${n(s("Open {order}"))}</a>
+    <a class="btn primary block" href="#/complete/${r.id}" id="finish-visit">${n(s("Finish {visit}"))}</a>
+  </div>
+  <p class="foot-note">Sample data. Rule-based scoring on generated data.</p>`}var Ut={decide:({ctx:t,data:e})=>{t.m.decide(e.id,{status:e.status}),t.ui.panel=null},panel:({ctx:t,data:e})=>{t.ui.panel={id:e.id,kind:e.kind}},"panel-close":({ctx:t})=>{t.ui.panel=null},"pick-reason":({ctx:t,value:e})=>{t.ui.panel&&(t.ui.panel.reason=e)},"pick-adjust":({ctx:t,value:e})=>{t.ui.panel&&(t.ui.panel.choice=e)},"panel-note":({ctx:t,value:e})=>(t.ui.panel&&(t.ui.panel.note=e.slice(0,300)),!1),"save-override":({ctx:t,data:e})=>{let s=t.ui.panel;if(!s||!s.reason)return!1;t.m.decide(e.id,{status:"overridden",reason:s.reason,note:s.note||""}),t.ui.panel=null},"save-adjust":({ctx:t,data:e})=>{let s=t.ui.panel;if(!s||!s.choice)return!1;t.m.decide(e.id,{status:"adjusted",choice:s.choice,note:s.note||""}),t.ui.panel=null},undo:({ctx:t,data:e})=>{t.m.undo(e.id)},"approve-all":({ctx:t,data:e})=>{for(let s of t.m.briefItems(e.id))!t.m.decision(s.id)&&!t.m.agentStopped(s.agent)&&t.m.decide(s.id,{status:"approved"})}};var Ce={};G(Ce,{render:()=>zt});function zt(t,[e]){let{t:s,fmt:o,data:a,m:i,industry:d}=t,r=a.byId[e]||a.accounts[0],l=i.plannedFor(r.id),y=l?l.actions:[],k=r.contacts.map(p=>`<li class="row static">
+    <span class="avatar sm">${n(p.name.replace(/^\S+\.\s/,"").split(" ").map(E=>E[0]).slice(0,2).join(""))}</span>
+    <span class="row-main"><b>${n(p.name)}</b><small>${n(s(p.role))}${p.primary?" · main contact":""}</small>
+    <small class="row-meta">${n(p.phone)} · ${n(s(p.preference))} · last spoke ${n(o.daysAgo(p.lastContactDays))}</small></span></li>`).join(""),h=d.kpis.map(p=>{let E=r.kpis[p.id],f=nt(p,E);return`<div class="kpi"><small>${n(s(p.label))}</small><b>${n(ee(p,E,o))}</b>
+      <small class="${f?"ok-text":"warn-text"}">Target ${n(ee(p,p.target,o))}</small></div>`}).join(""),A=y.length?y.map(p=>`<li><a class="row" href="#/action/${p.id}">
+      <span class="row-main"><b>${n(s(p.title,p.vars))}</b><small>${n(s(p.type))} · ${n(o.money(p.value))} · ${p.effort} min</small></span>${v("chevron",16)}</a></li>`).join(""):`<li class="empty">${n(s("No open gaps. This {account} is not on today's plan."))}</li>`,g=r.history.map(p=>`<li class="row static"><span class="row-main">
+    <b>${n(o.date(o.dayOffset(-p.daysAgo)))}</b><small>${n(s(p.note,p.vars))}</small></span>
+    <small class="muted">${n(o.daysAgo(p.daysAgo))}</small></li>`).join(""),C=r.orderHistory.map(p=>`<li class="row static"><span class="row-main">
+    <b>${n(o.money(p.total))}</b><small>${p.lines} lines</small></span>
+    <small class="muted">${n(o.date(o.dayOffset(-p.daysAgo)))}</small></li>`).join("");return`
+  <a class="back" href="${l?`#/brief/${r.id}`:"#/today"}">${v("back",18)} ${l?n(s("{Visit} brief")):"Back"}</a>
+  <section class="brief-head">
+    <small class="eyebrow">${n(s("{Account} 360"))}</small>
+    <h1>${n(r.name)}</h1>
+    <p class="muted">${n(be(s,r))} · ${L(`Tier ${r.tier}`,r.tier==="A"?"good":r.tier==="B"?"info":"muted")}</p>
+    <p class="small">${v("pin",14)} ${n(r.address)}</p>
+    <p class="small">${v("clock",14)} Open ${n(o.time(r.hours[0]))} to ${n(o.time(r.hours[1]))} · last ${n(s("{visit}"))} ${n(o.daysAgo(r.lastVisitDays))}</p>
+  </section>
+
+  <section class="card">
+    <div class="section-head"><h2>Potential</h2>${L(`Score ${r.score} of 100`,"info")}</div>
+    <div class="cards3">
+      <div><small>Potential a year</small><b>${n(o.moneyShort(r.potential))}</b></div>
+      <div><small>Current a year</small><b>${n(o.moneyShort(r.current))}</b></div>
+      <div><small>White space</small><b>${n(o.moneyShort(r.whiteSpace))}</b></div>
+    </div>
+    ${ve(r.current,r.potential)}
+    <p class="small muted">Share of potential captured: ${o.pct(Math.round(r.current/r.potential*100))}. Confidence: medium, based on similar ${n(s("{accounts}"))} in ${n(r.city)}.</p>
+  </section>
+
+  <section><h2>KPIs</h2><div class="kpis">${h}</div></section>
+  <section><h2>${n(s("{Contacts}"))}</h2><ul class="list">${k}</ul></section>
+  <section><h2>Open gaps</h2><ul class="list">${A}</ul></section>
+  <section><h2>${n(s("Last {visits}"))}</h2><ul class="list">${g}</ul></section>
+  <section><h2>${n(s("{Order} history"))}</h2><ul class="list">${C}</ul></section>
+  <p class="foot-note">Sample data.</p>`}var Te={};G(Te,{actions:()=>Kt,mounted:()=>Gt,render:()=>Ht});var $e=()=>{let t=new Date;return t.getHours()*60+t.getMinutes()};function Wt(t,e,s){let{t:o,fmt:a,m:i}=t,d=i.outcome(e.id)?.evidence,r=s.evidence,l=le[r],y;return r==="photo"?y=d?`<div class="photo-ph" role="img" aria-label="Photo placeholder"><span>${v("camera",28)}</span><small>Photo captured ${n(a.time(d.at))} (placeholder)</small></div>`:`<button class="btn ghost block" data-act="ev-photo" data-id="${e.id}">${v("camera",18)}Take photo</button>`:r==="scan"?y=d?`<p class="ok-text">${v("scan",16)} Scanned ${n(d.code)} at ${n(a.time(d.at))}</p>`:`<button class="btn ghost block" data-act="ev-scan" data-id="${e.id}">${v("scan",18)}Scan barcode</button>`:r==="signature"?y=d?`<p class="ok-text">${v("pen",16)} Signed by ${n(d.by)} at ${n(a.time(d.at))}</p>`:`<p class="small muted">${n(o("Ask {person} to sign below.",e.vars))}</p>
+        <canvas class="sign" id="sign-pad" width="320" height="120" aria-label="Signature pad"></canvas>
+        <div class="btn-row"><button class="btn ghost sm" data-act="ev-sign-clear">Clear</button>
+        <button class="btn primary sm" data-act="ev-sign-save" data-id="${e.id}" id="sign-save">Save signature</button></div>
+        ${t.ui.signError?'<p class="small warn-text">Sign in the box first.</p>':""}`:y=d?`<p class="ok-text">${v("note",16)} Note saved: ${n(d.text)}</p>`:`<textarea class="input" rows="3" placeholder="What happened?" id="ev-note-text"></textarea>
+        <button class="btn ghost block" data-act="ev-note" data-id="${e.id}">${v("note",18)}Save note</button>`,`<section class="card"><div class="section-head"><h2>Evidence</h2>${L(l.label,"info")}</div>${y}</section>`}function Ht(t,[e]){let{t:s,fmt:o,data:a,m:i,industry:d,ui:r}=t,l=i.findAction(e);if(!l||l.kind!=="action")return`<a class="back" href="#/today">${v("back",18)} Today</a><div class="empty">${n(s("This action is not on today's plan."))}</div>`;let y=d.actions.find(b=>b.id===l.defId),k=a.byId[l.accountId],h=l.vars,A=ge(l.confidence),g=i.outcome(l.id),C=g?.evidence,p=y.guardrail||(d.guardrails.find(b=>b.agent===l.agent)||d.guardrails[0]).text,E=i.decision(l.id),f;return g?.status==="done"?f=`<div class="decided">${L("Done","good")}<button class="btn ghost sm" data-act="outcome-reset" data-id="${l.id}">Change</button></div>`:g?.status==="not_done"?f=`<div class="decided">${L(`Not done: ${s(g.reason)}`,"bad")}<button class="btn ghost sm" data-act="outcome-reset" data-id="${l.id}">Change</button></div>`:r.notDone===l.id?f=`<div class="panel"><b>Why not?</b><div class="radios">${d.outcomeReasons.map(b=>`
+      <label class="radio"><input type="radio" name="nd-${l.id}" value="${n(b.label)}" data-change="outcome-reason" data-id="${l.id}"><span>${n(s(b.label))}${b.blocked?' <small class="muted">(goes to your manager)</small>':""}</span></label>`).join("")}</div>
+      <button class="btn ghost sm" data-act="outcome-cancel">Cancel</button></div>`:f=`<div class="btn-row">
+      <button class="btn primary" data-act="outcome-done" data-id="${l.id}" id="mark-done" ${C?"":"disabled"}>${v("check",18)}Mark done</button>
+      <button class="btn ghost" data-act="outcome-not" data-id="${l.id}" id="mark-not-done">Not done</button></div>
+      ${C?"":`<p class="small muted">Add the ${n(le[y.evidence].label.toLowerCase())} to mark this done.</p>`}`,`
+  <a class="back" href="#/brief/${k.id}">${v("back",18)} ${n(s("{Visit} brief"))}</a>
+  <section class="brief-head">
+    <small class="eyebrow">${n(s(l.type))} · ${n(H[l.agent])}</small>
+    <h1>${n(s(l.title,h))}</h1>
+    <p class="muted">${n(k.name)} · ${n(s(k.type))}</p>
+    ${E?`<p>${L(E.status==="approved"?"Approved in brief":E.status==="adjusted"?`Adjusted: ${s(E.choice)}`:"Overridden in brief",E.status==="overridden"?"bad":"good")}</p>`:""}
+  </section>
+
+  <section class="cards3 card">
+    <div><small>Value estimate</small><b>${n(o.money(l.value))}</b></div>
+    <div><small>Effort</small><b>${l.effort} min</b></div>
+    <div><small>Confidence</small><b>${n(A.label)} (${A.pct}%)</b></div>
+  </section>
+
+  <section>
+    <h2>Why it matters</h2>
+    <ul class="why">
+      <li>${n(s(l.saw,h))}</li>
+      ${y.why.map(b=>`<li>${n(s(b,h))}</li>`).join("")}
+    </ul>
+    <p class="small muted">Compared against: ${n(s(l.compared,h))}</p>
+  </section>
+
+  <section class="card">
+    <h2>${n(s("Talking points for the {contact}"))}</h2>
+    <ul class="talk">${y.talk.map(b=>`<li>${n(s(b,h))}</li>`).join("")}</ul>
+  </section>
+
+  <div class="guardrail">${v("shield",18)}<span><b>Guardrail</b> ${n(s(p))}</span></div>
+
+  ${Wt(t,l,y)}
+
+  <section class="card"><h2>Outcome</h2>${f}</section>
+  <a class="btn ghost block" href="#/brief/${k.id}">Back to the brief</a>
+  <p class="foot-note">Sample data.</p>`}function Gt(t){let e=document.getElementById("sign-pad");if(!e)return;let s=e.getContext("2d");s.lineWidth=2.2,s.lineCap="round",s.strokeStyle="#0f172a";let o=!1,a=i=>{let d=e.getBoundingClientRect();return[(i.clientX-d.left)*(e.width/d.width),(i.clientY-d.top)*(e.height/d.height)]};e.addEventListener("pointerdown",i=>{o=!0,e.setPointerCapture?.(i.pointerId);let[d,r]=a(i);s.beginPath(),s.moveTo(d,r)}),e.addEventListener("pointermove",i=>{if(!o)return;let[d,r]=a(i);s.lineTo(d,r),s.stroke(),e.dataset.signed="1"}),e.addEventListener("pointerup",()=>{o=!1})}var Kt={"ev-photo":({ctx:t,data:e})=>{t.m.setEvidence(e.id,{type:"photo",at:$e()})},"ev-scan":({ctx:t,data:e})=>{let s=`${String.fromCharCode(65+e.id.length%20)}${e.id.charCodeAt(1)*7919%9e5+1e5}`;t.m.setEvidence(e.id,{type:"scan",code:s,at:$e()})},"ev-note":({ctx:t,data:e})=>{let s=(document.getElementById("ev-note-text")?.value||"").trim().slice(0,300);t.m.setEvidence(e.id,{type:"note",text:s||"Done as planned.",at:$e()})},"ev-sign-clear":({ctx:t})=>{t.ui.signError=!1},"ev-sign-save":({ctx:t,data:e})=>{let s=document.getElementById("sign-pad");if(!s||s.dataset.signed!=="1"){t.ui.signError=!0;return}let o=t.m.findAction(e.id);t.ui.signError=!1,t.m.setEvidence(e.id,{type:"signature",by:o.vars.person,at:$e()})},"outcome-done":({ctx:t,data:e})=>{t.m.recordOutcome(e.id,{status:"done"})},"outcome-not":({ctx:t,data:e})=>{t.ui.notDone=e.id},"outcome-cancel":({ctx:t})=>{t.ui.notDone=null},"outcome-reason":({ctx:t,data:e,value:s})=>{t.m.recordOutcome(e.id,{status:"not_done",reason:s}),t.ui.notDone=null},"outcome-reset":({ctx:t,data:e})=>{t.m.recordOutcome(e.id,{status:null,reason:null})}};var Le={};G(Le,{actions:()=>_t,render:()=>Yt});function Yt(t,[e]){let{t:s,fmt:o,data:a,m:i}=t,d=a.byId[e]||a.byId[a.planned[0].accountId],r=i.orderState(d.id),l=i.orderLines(d.id),y=l.reduce((f,b)=>f+b.total,0),k=i.orderRules(d.id),h=k.filter(f=>f.triggered&&f.blocks),A=k.filter(f=>f.triggered&&!f.blocks&&f.kind!=="info"),g=i.agentStopped("order"),C=l.map(f=>`<li class="line${f.changed?" changed":""}" data-line="${f.offeringId}">
+    <div class="line-main">
+      <b>${n(s(f.offering.name))}</b>
+      <small>${n(s(f.offering.category))} · ${f.unitPrice==null?n(s("Priced by people, not the agent")):`${n(o.price(f.unitPrice))} per ${n(s(f.offering.unit))}`}</small>
+      <small class="reason">${v("agent",12)} ${n(s(f.reason,f.vars))}</small>
+      ${f.changed?`<small class="info-text">Changed from ${f.suggested}</small>`:""}
+    </div>
+    <div class="line-end">
+      <div class="stepper" aria-label="Quantity">
+        <button class="step" data-act="qty" data-id="${d.id}" data-o="${f.offeringId}" data-d="-1" aria-label="Less" ${r.submitted?"disabled":""}>−</button>
+        <span class="qty" data-qty="${f.offeringId}">${f.qty}</span>
+        <button class="step" data-act="qty" data-id="${d.id}" data-o="${f.offeringId}" data-d="1" aria-label="More" ${r.submitted?"disabled":""}>+</button>
+      </div>
+      <b class="money">${f.unitPrice==null?"":n(o.money(f.total))}</b>
+    </div></li>`).join(""),p=k.map(f=>{let b=f.triggered?f.blocks?"bad":"warn":f.kind==="info"?"muted":"good",D=f.kind==="info"?"Rule":f.triggered?f.blocks?"Blocked":"Needs approval":"Within limit",K=s(f.text,{limit:f.detail.limit!=null?o.money(f.detail.limit):"",max:f.max??"",lines:(f.detail.lines||[]).join(", ")});return`<li class="rule ${b}" data-rule="${f.kind}" data-triggered="${f.triggered}">${L(D,b)}<span>${n(K)}</span></li>`}).join(""),E;return r.submitted?E=`<div class="notice ${r.needsApproval?"warn":"good"}" id="order-status">${r.needsApproval?n(s("Sent to your {manager} for approval. You will see the decision here.")):n(s("{Order} submitted."))}</div>
+      <a class="btn primary block" href="#/complete/${d.id}">${n(s("Finish {visit}"))}</a>`:E=`<button class="btn primary block" data-act="submit-order" data-id="${d.id}" id="submit-order" ${h.length||g?"disabled":""}>
+      ${A.length?"Send for approval":n(s("Submit {order}"))}</button>
+      ${h.length?'<p class="small warn-text">Fix the blocked line before submitting.</p>':""}`,`
+  <a class="back" href="#/brief/${d.id}">${v("back",18)} ${n(s("{Visit} brief"))}</a>
+  <section class="brief-head">
+    <small class="eyebrow">${n(s("{Order}"))} · drafted by ${n(H.order)}</small>
+    <h1>${n(d.name)}</h1>
+    <p class="muted">${n(s("{n} suggested lines. Change any quantity. Nothing is sent until you submit.",{n:l.length}))}</p>
+  </section>
+  ${g?`<div class="notice warn">${v("stop",18)} ${n(H.order)} is stopped. The draft is frozen until it resumes.</div>`:""}
+  <ul class="lines">${C}</ul>
+  <div class="total-row"><span>Total</span><b id="order-total">${n(o.money(y))}</b></div>
+  <section><h2>Approval rules</h2><ul class="rules">${p}</ul></section>
+  ${E}
+  <p class="foot-note">Sample data. Prices are illustrative.</p>`}var _t={qty:({ctx:t,data:e})=>{let s=t.m.orderLines(e.id).find(o=>o.offeringId===e.o);t.m.setQty(e.id,e.o,s.qty+Number(e.d))},"submit-order":({ctx:t,data:e})=>{t.m.submitOrder(e.id)}};var De={};G(De,{actions:()=>Qt,render:()=>Jt});function Jt(t,[e]){let{t:s,fmt:o,data:a,m:i}=t,d=a.byId[e]||a.byId[a.planned[0].accountId],r=i.plannedFor(d.id),l=i.visitSummary(d.id),y=i.counts(d.id),k=i.visitDone(d.id),h=i.nextAccount(d.id),A=h&&a.byId[h.accountId],g=l.items.filter(p=>!i.outcome(p.id)?.status),C=l.items.map(p=>{let E=i.outcome(p.id),f=E?.status==="done"?L("Done","good"):E?.status==="not_done"?L(`Not done: ${s(E.reason)}`,"bad"):L("No outcome yet","muted");return`<li><a class="row" href="#/action/${p.id}"><span class="row-main"><b>${n(s(p.title,p.vars))}</b><small>${n(o.money(p.value))}</small></span>${f}</a></li>`}).join("");return`
+  <a class="back" href="#/brief/${d.id}">${v("back",18)} ${n(s("{Visit} brief"))}</a>
+  <section class="brief-head">
+    <small class="eyebrow">${n(s(k?"{Visit} complete":"Finish {visit}"))}</small>
+    <h1>${n(d.name)}</h1>
+  </section>
+  <section class="cards3 card" id="visit-summary">
+    <div><small>Actions done</small><b data-sum="done">${l.done.length} of ${l.items.length}</b></div>
+    <div><small>Value captured</small><b data-sum="value">${n(o.money(l.value))}</b></div>
+    <div><small>${n(s("{Order}"))}</small><b data-sum="order">${l.orderSubmitted?n(o.money(l.orderTotal)):"Not sent"}</b></div>
+  </section>
+  ${l.needsApproval?`<div class="notice warn">${n(s("{Order} waiting for {manager} approval."))}</div>`:""}
+  ${y.overridden?`<div class="notice">${n(s(`${y.overridden} override${y.overridden>1?"s":""} sent to your {manager} with your reasons.`))}</div>`:""}
+  <section><h2>Actions</h2><ul class="list">${C}</ul></section>
+  ${k?`<div class="notice good" id="visit-closed">${v("check",18)} ${n(s("{Visit} closed. Evidence and outcomes are saved."))}</div>`:`${g.length?`<p class="small muted">${g.length} actions have no outcome. They will show as not recorded.</p>`:""}
+    <button class="btn primary block" data-act="complete-visit" data-id="${d.id}" id="complete-visit">${n(s("Close {visit}"))}</button>`}
+  ${A?`<section class="card next">
+      <small class="eyebrow">${n(s("Next best {account}"))}</small>
+      <b>${n(A.name)}</b>
+      <small class="muted">${n(s(A.type))} · ${n(o.time(h.start))} · ${n(o.moneyShort(h.opportunity))} at stake</small>
+      <a class="btn ghost block" href="#/brief/${A.id}" id="next-brief">Open next brief ${v("chevron",16)}</a>
+    </section>`:`<div class="notice good">${n(s("All {visits} done for today."))}</div>`}
+  <p class="foot-note">Sample data.</p>`}var Qt={"complete-visit":({ctx:t,data:e})=>{t.m.completeVisit(e.id)}};var Ne={};G(Ne,{actions:()=>ea,render:()=>Zt});var Xt={override:["Override","bad"],blocked:["Blocked","warn"],approval:["Needs approval","info"]};function Zt(t){let{t:e,fmt:s,data:o,m:a,ui:i}=t,d=a.selfStats(),r=o.reps.map(p=>p.self?{...p,done:d.done,actionsDone:d.actionsDone,value:d.value,overrides:d.overrides}:p),l=i.exFilter||"all",y=a.exceptions(),k=y.filter(p=>l==="all"||p.route===l),h=y.filter(p=>!p.acknowledged).length,A=r.map(p=>`<li class="row static rep-row">
+    <span class="avatar sm">${n(ye(p.name))}</span>
+    <span class="row-main"><b>${n(p.name)}${p.self?' <small class="muted">(demo rep)</small>':""}</b><small>${n(p.area)}</small>
+      <small class="row-meta">${p.done} of ${p.planned} ${n(e("{visits}"))} · ${p.actionsDone} actions · ${p.overrides} overrides</small></span>
+    <span class="row-end"><b class="money">${n(s.moneyShort(p.value))}</b><small class="muted">captured</small></span></li>`).join(""),g=p=>p.route==="kam"?e("{Kam}"):e("{Manager}"),C=k.length?k.map(p=>{let[E,f]=Xt[p.kind],b=e(p.reason,{limit:p.ruleVars?.limit!=null?s.money(p.ruleVars.limit):"",max:"",lines:""});return`<li class="exception${p.acknowledged?" ack":""}${p.live?" live":""}" data-exception="${p.id}" data-kind="${p.kind}">
+      <div class="ex-head">${L(E,f)}${p.live?L("New","accent"):""}<small class="muted">${n(s.time(p.at))}</small></div>
+      <b>${n(e(p.title,p.vars))}</b>
+      <small>${n(p.account)} · ${n(p.rep)}</small>
+      <p class="ex-reason"><span class="muted">Reason:</span> ${n(b)}</p>
+      ${p.note?`<p class="small">Note: ${n(p.note)}</p>`:""}
+      <div class="ex-foot"><small>${v("flag",14)} Routed to ${n(g(p))}</small>
+      ${p.acknowledged?L("Acknowledged","good"):`<button class="btn ghost sm" data-act="ack" data-id="${p.id}">Acknowledge</button>`}</div>
+    </li>`}).join(""):'<li class="empty">Nothing here.</li>';return`
+  <section class="hello">
+    <h1>Team today</h1>
+    <p class="muted">${n(o.manager.name)} · ${n(e(o.manager.title))} · ${n(o.city.name)}</p>
+  </section>
+  <section><ul class="list">${A}</ul></section>
+  <section id="exceptions">
+    <div class="section-head"><h2>Exception queue</h2>${L(`${h} open`,h?"warn":"good")}</div>
+    <p class="small muted">Overrides and blocked actions come here with the ${n(e("{rep}"))}'s reason. Use them to coach, not to police.</p>
+    <div class="seg-ctl" role="tablist">
+      ${[["all","All"],["manager",`To ${e("{manager}")}`],["kam",`To ${e("{kam}")}`]].map(([p,E])=>`<button class="seg${l===p?" on":""}" data-act="ex-filter" data-id="${p}" role="tab" aria-selected="${l===p}">${n(E)}</button>`).join("")}
+    </div>
+    <ul class="exceptions">${C}</ul>
+  </section>
+  <p class="foot-note">Sample data. Other reps' figures are generated.</p>`}var ea={ack:({ctx:t,data:e})=>{t.m.acknowledge(e.id)},"ex-filter":({ctx:t,data:e})=>{t.ui.exFilter=e.id}};var Pe={};G(Pe,{actions:()=>sa,render:()=>aa});var ta={planner:{scope:"Which {accounts} to visit today, in what order, and how long to spend at each.",alone:["Orders the day by value, opening hours and travel time","Re-plans the day when a {visit} runs long"],approval:["Dropping a key {account} from the plan","Adding a {visit} outside the {territory}"],never:["Changing coverage targets","Judging a {rep}'s performance"]},gap:{scope:"What is missing or wrong at each {account}, from {visit} records, history and peers.",alone:["Flags gaps with evidence and a confidence level","Ranks actions by value and effort"],approval:["Every action in the {visit} brief"],never:["Contacting a {contact} directly"]},order:{scope:"What to suggest in each {order}, and how much, with a reason for every line.",alone:["Drafts lines and quantities with a reason for each"],approval:["Every line and quantity","Anything above the approval limit"],never:["Setting prices or terms","Submitting without the {rep}"]}};function aa(t){let{t:e,data:s,m:o,industry:a}=t;return`
+  <section class="hello">
+    <h1>Agent controls</h1>
+    <p class="muted">Agents start with narrow authority and earn wider scope on evidence. Any person with the right role can stop one at any time.</p>
+  </section>
+  ${s.agents.map(d=>{let r=ta[d.id],l=o.agentStopped(d.id),y=a.guardrails.filter(h=>h.agent===d.id||h.agent==="all"),k=h=>h.map(A=>`<li>${n(e(A))}</li>`).join("");return`<article class="card agent${l?" stopped":""}" data-agent="${d.id}">
+      <header class="agent-head">
+        <span class="agent-ic">${v("agent",22)}</span>
+        <span class="row-main"><b>${n(d.name)}</b><small>Owner: ${n(d.owner.name)}, ${n(e(d.owner.title))}</small></span>
+        ${L(l?"Stopped":"Running",l?"bad":"good")}
+      </header>
+      <p>${n(e(r.scope))}</p>
+      <div class="level"><small>Authority level ${d.level} of 4</small><div class="level-bar">${[1,2,3,4].map(h=>`<span class="${h<=d.level?"on":""}"></span>`).join("")}</div><small class="muted">${n(at[d.level])}</small></div>
+      <dl class="scope">
+        <dt>Does alone</dt><dd><ul>${k(r.alone)}</ul></dd>
+        <dt>Needs approval</dt><dd><ul>${k(r.approval)}</ul></dd>
+        <dt>Never its call</dt><dd><ul>${k(r.never)}${y.map(h=>`<li class="guard-li">${v("shield",14)} ${n(e(h.text))}</li>`).join("")}</ul></dd>
+      </dl>
+      <button class="btn ${l?"primary":"danger"} block" data-act="toggle-agent" data-id="${d.id}" id="toggle-${d.id}">
+        ${v(l?"play":"stop",18)} ${l?"Resume":"Stop"} ${n(d.name)}</button>
+    </article>`}).join("")}
+  <section class="card">
+    <h2>${n(a.name)} guardrails</h2>
+    <ul class="guards">${a.guardrails.map(d=>`<li>${v("shield",16)} ${n(e(d.text))}</li>`).join("")}</ul>
+  </section>
+  <p class="foot-note">Sample data. Agents in this demo are rule-based.</p>`}var sa={"toggle-agent":({ctx:t,data:e})=>{t.m.toggleAgent(e.id)}};var Re={};G(Re,{render:()=>oa});var na=[["Account","account"],["Contact","contact"],["Field rep","rep"],["Field manager","manager"],["Key account manager","kam"],["Offering","offering"],["Order or proposal","order"],["Visit","visit"]];function oa(t){let{t:e,fmt:s,industry:o,country:a,data:i}=t,d=na.map(([g,C])=>`<tr><td class="muted">${n(g)}</td><td><b>${n(e(`{${C}}`))}</b></td></tr>`).join(""),r=o.segments.map(g=>`<li class="row static"><span class="row-main"><b>${n(e(g.name))}</b>
+    <small>${n(e(g.style))}</small><small class="row-meta">${g.visitMinutes[0]} to ${g.visitMinutes[1]} min · ${n(g.types.map(C=>e(C.type)).join(", "))}</small></span></li>`).join(""),l=o.actions.map(g=>`<tr><td><b>${n(e(g.type))}</b></td><td>${n(H[g.agent])}</td><td>${g.effort} min</td><td>${n(le[g.evidence].label)}</td></tr>`).join(""),y=o.kpis.map(g=>`<tr><td>${n(e(g.label))}</td><td>${g.lowerIsBetter?"At most":"At least"} ${n(ee(g,g.target,s))}</td></tr>`).join(""),k=o.offerings.map(g=>`<tr><td>${n(e(g.name))}</td><td>${n(e(g.category))}</td><td>${n(g.status)}</td></tr>`).join(""),h=o.orderRules.map(g=>`<li>${n(e(g.text,{limit:g.amount!=null?s.money(se(g.amount,a)):"",max:g.max??"",lines:""}))}</li>`).join(""),A=Se(a,s.today).slice(0,4).map(g=>`<li><b>${n(g.name)}</b> <small class="muted">${n(s.dateShort(g.date))} · ${n(g.note)}</small></li>`).join("");return`
+  <section class="hello">
+    <h1>How this is configured</h1>
+    <p class="muted">${n(o.name)} pack with the ${n(a.name)} country pack. Same product, same workflow. Only the configuration changes.</p>
+  </section>
+  <section class="card"><h2>Vocabulary</h2><table class="tbl"><thead><tr><th>Product term</th><th>Your term</th></tr></thead><tbody>${d}</tbody></table></section>
+  <section><h2>Segments</h2><ul class="list">${r}</ul></section>
+  <section class="card"><h2>Action catalogue</h2><div class="tbl-wrap"><table class="tbl"><thead><tr><th>Action</th><th>Agent</th><th>Effort</th><th>Evidence</th></tr></thead><tbody>${l}</tbody></table></div></section>
+  <section class="card"><h2>${n(e("{Offerings}"))}</h2><div class="tbl-wrap"><table class="tbl"><thead><tr><th>Name</th><th>Category</th><th>Status</th></tr></thead><tbody>${k}</tbody></table></div></section>
+  <section class="card"><h2>KPIs</h2><table class="tbl"><tbody>${y}</tbody></table></section>
+  <section class="card"><h2>Guardrails</h2><ul class="guards">${o.guardrails.map(g=>`<li>${v("shield",16)} ${n(e(g.text))}</li>`).join("")}</ul>
+    <h3>${n(e("{Order} rules"))}</h3><ul class="bullets">${h}</ul></section>
+  <section class="card"><h2>Country: ${n(a.name)}</h2>
+    <table class="tbl"><tbody>
+      <tr><td class="muted">Currency</td><td>${n(a.currency)} · ${n(s.money(1234567))} · ${n(s.moneyShort(12345678))}</td></tr>
+      <tr><td class="muted">Unit price</td><td>${n(s.price(19.5*a.priceFactor))}</td></tr>
+      <tr><td class="muted">Date</td><td>${n(s.date(s.today))}</td></tr>
+      <tr><td class="muted">Distance</td><td>${n(s.distance(12.4))}</td></tr>
+      <tr><td class="muted">Territory city</td><td>${n(i.city.name)}</td></tr>
+    </tbody></table>
+    <h3>Upcoming local events</h3><ul class="bullets">${A}</ul>
+    <ul class="bullets muted">${a.notes.map(g=>`<li>${n(g)}</li>`).join("")}</ul>
+    <p class="small muted">Event dates are approximate.</p>
+  </section>
+  <div class="notice good"><b>This is a configuration, not a custom build.</b> Adding an industry or a country means adding one pack file.</div>
+  <p class="foot-note">Sample data.</p>`}var je={};G(je,{render:()=>ra});function ra(t){let{t:e,industry:s,data:o}=t,a=o.planned.slice().sort((r,l)=>r.rank-l.rank)[0],i={potential:`#/account/${o.accounts[0].id}`,gaps:`#/brief/${a.accountId}`,ranking:`#/brief/${a.accountId}`,planning:"#/today",order:`#/order/${a.accountId}`,evidence:"#/manager"},d=s.problems.map((r,l)=>{let y=st[r.capability];return`<article class="card problem" data-capability="${r.capability}">
+      <small class="eyebrow">Problem ${l+1}</small>
+      <h3>${n(e(r.title))}</h3>
+      <p>${n(e(r.text))}</p>
+      <div class="problem-foot">${L(e(y.name),"accent")}<small class="muted">${n(e(y.decides))}</small></div>
+      <a class="btn ghost sm" href="${i[r.capability]}">See it ${v("chevron",14)}</a>
+    </article>`}).join("");return`
+  <section class="hello">
+    <h1>Problems we solve</h1>
+    <p class="muted">${n(e(`Six problems ${s.name.toLowerCase()} field teams describe, and the capability that answers each one.`))}</p>
+  </section>
+  ${d}
+  <p class="foot-note">Sample data. No results are claimed before a pilot against matched control territories.</p>`}var ne={setup:Ie,today:Ee,brief:Oe,account:Ce,action:Te,order:Le,complete:De,manager:Ne,agents:Pe,config:Re,problems:je},ot=Object.assign({},...Object.values(ne).map(t=>t.actions||{}));var ia=t=>{let e=t.data.planned[0],s=e.actions[0];return["#/setup","#/today",`#/brief/${e.accountId}`,`#/action/${s.id}`,`#/order/${e.accountId}`,`#/complete/${e.accountId}`,"#/agents","#/config"]};function rt(t,e,{INDUSTRIES:s,COUNTRIES:o,PERSONAS:a,shareLink:i}){if(!t.presenterOpen)return"";let d=t.config||{},r=(k,h)=>k.map(A=>`<option value="${n(A.id)}"${A.id===h?" selected":""}>${n(A.name)}</option>`).join(""),l={rep:"Field rep",manager:"Manager",admin:"Sales ops admin"},y=!!t.config;return`
+  <div class="presenter-backdrop" data-act="presenter-close"></div>
+  <section class="presenter" role="dialog" aria-modal="true" aria-label="Presenter menu" data-region="presenter">
+    <header class="presenter-head">
+      <div><b>Presenter menu</b><span class="sample-tag">Sample data</span></div>
+      <button class="icon-btn" data-act="presenter-close" aria-label="Close">${v("x",20)}</button>
+    </header>
+    <div class="presenter-body">
+      <label class="field"><span>Industry</span>
+        <select data-change="p-industry" id="p-industry">${y?"":'<option value="">Choose</option>'}${r(s,d.industryId)}</select></label>
+      <label class="field"><span>Country</span>
+        <select data-change="p-country" id="p-country">${y?"":'<option value="">Choose</option>'}${r(o,d.countryId)}</select></label>
+      <label class="field"><span>Persona</span>
+        <select data-change="p-persona" id="p-persona">${a.map(k=>`<option value="${k}"${k===d.persona?" selected":""}>${l[k]}</option>`).join("")}</select></label>
+      <label class="field"><span>Prepared for (optional)</span>
+        <input type="text" maxlength="40" data-change="p-prepared" value="${n(d.prepared||"")}" placeholder="Prospect name"></label>
+      ${y?`<label class="field"><span>Share link</span><input type="text" readonly value="${n(i)}" id="p-link" data-act="p-select"></label>`:""}
+      <div class="presenter-actions">
+        ${y?`<button class="btn ghost" data-act="p-copy">${v("note",18)}Copy link</button>
+        <button class="btn ghost" data-act="p-notes">${v("brief",18)}${t.notesOpen?"Hide":"Show"} presenter notes</button>
+        <button class="btn ghost" data-act="p-reset" id="p-reset">${v("route",18)}Reset demo</button>`:""}
+        <button class="btn ghost" data-act="p-setup">${v("config",18)}Open setup screen</button>
+      </div>
+      ${t.copied?'<p class="small ok-text">Link copied.</p>':""}
+      <p class="small muted">All names, places and numbers are generated sample data. Nothing here describes a real company or a real result. Shortcut: Shift+D.</p>
+    </div>
+  </section>`}function it(t,e){if(!e||!t.notesOpen)return"";let s=ia(e),o=e.industry.storyline.map((a,i)=>`<li><a href="${s[i]||"#/today"}">${n(e.t(a))}</a></li>`).join("");return`<div class="side-inner" data-region="notes">
+    <div class="side-head"><b>Presenter notes</b><span class="sample-tag">Sample data</span></div>
+    <p class="small muted">${n(e.industry.name)} · ${n(e.country.name)}. Only you see this panel.</p>
+    <ol class="story">${o}</ol>
+    <div class="side-switch">
+      <button class="btn ghost sm" data-act="p-as" data-persona="rep">As rep</button>
+      <button class="btn ghost sm" data-act="p-as" data-persona="manager">As manager</button>
+      <button class="btn ghost sm" data-act="p-as" data-persona="admin">As admin</button>
+    </div>
+  </div>`}var ct={"presenter-close":({app:t})=>{t.presenterOpen=!1,t.copied=!1},"p-industry":({value:t,api:e,app:s})=>{if(!t)return!1;let o={industryId:t,persona:s.config?.persona||"rep"};return!s.config&&!document.getElementById("p-country").value?(s.pendingIndustry=t,!1):(s.config||(o.countryId=document.getElementById("p-country").value),e.configure(o,{home:!0}),"nav")},"p-country":({value:t,api:e,app:s})=>{if(!t)return!1;let o={countryId:t,persona:s.config?.persona||"rep"};if(!s.config){let a=document.getElementById("p-industry").value;if(!a)return!1;o.industryId=a}return e.configure(o,{home:!0}),"nav"},"p-persona":({value:t,api:e,app:s})=>s.config?(e.configure({persona:t},{home:!0}),"nav"):!1,"p-prepared":({value:t,api:e,app:s})=>s.config?(e.configure({prepared:t.trim().slice(0,40)}),"nav"):!1,"p-as":({data:t,api:e})=>(e.configure({persona:t.persona},{home:!0}),"nav"),"p-select":({el:t})=>(t.select(),!1),"p-copy":({app:t})=>{let e=document.getElementById("p-link");try{navigator.clipboard?navigator.clipboard.writeText(e.value).catch(()=>{}):(e.select(),document.execCommand("copy")),t.copied=!0}catch{t.copied=!1}},"p-notes":({app:t})=>{t.notesOpen=!t.notesOpen},"p-reset":({api:t,app:e})=>(t.resetDemo(),e.presenterOpen=!1,t.navigate(`#/${{rep:"today",manager:"manager",admin:"config"}[e.config.persona]}`),"nav"),"p-setup":({app:t,api:e})=>(t.presenterOpen=!1,e.navigate("#/setup"),"nav")};var pt=["rep","manager","admin"],de={rep:"today",manager:"manager",admin:"config"},ca={rep:[["today","Today","home"],["brief","Brief","brief"],["agents","Agents","agent"],["config","Config","config"],["problems","Problems","bulb"]],manager:[["manager","Team","team"],["agents","Agents","agent"],["config","Config","config"],["problems","Problems","bulb"]],admin:[["config","Config","config"],["agents","Agents","agent"],["problems","Problems","bulb"],["manager","Team","team"]]},S={config:null,ui:{},presenterOpen:!1,notesOpen:!1,notice:"",cache:new Map},la=/^#?[0-9a-fA-F]{6}$/;function da(){let t=new URLSearchParams(location.search),e=we(t.get("industry")),s=xe(t.get("country")),o=pt.includes(t.get("persona"))?t.get("persona"):"rep";if((t.get("industry")||t.get("country"))&&(!e||!s)&&(S.notice="That link has an unknown industry or country. Pick one below."),!e||!s)return null;let a=(t.get("prepared")||"").slice(0,40),i=la.test(t.get("color")||"")?`#${t.get("color").replace("#","")}`:"";return{industryId:e.id,countryId:s.id,persona:o,prepared:a,color:i}}function ut(t){let e=S.config,s=new URLSearchParams;e&&(s.set("industry",e.industryId),s.set("country",e.countryId),s.set("persona",e.persona),e.prepared&&s.set("prepared",e.prepared),e.color&&s.set("color",e.color.replace("#","")));let o=s.toString(),a=`${location.pathname}${o?`?${o}`:""}${t??location.hash}`;history.replaceState(null,"",a)}function pa(){let t=S.config;if(!t)return location.href.split("#")[0];let e=new URLSearchParams({industry:t.industryId,country:t.countryId,persona:t.persona});return t.prepared&&e.set("prepared",t.prepared),t.color&&e.set("color",t.color.replace("#","")),`${location.origin==="null"?"file://":location.origin}${location.pathname}?${e}`}function Fe(t,e){let s=`${t}|${e}`;if(S.cache.has(s))return S.cache.get(s);let o=we(t),a=xe(e),i=Qe(o.vocab,a.spelling),d=Ze(a),r=_e(o,a,{fmt:d}),l={industry:o,country:a,t:i,fmt:d,data:r};return l.m=tt(l),S.cache.set(s,l),l}function ua(){let t=location.hash.replace(/^#\/?/,"").split("/").filter(Boolean).map(decodeURIComponent);return{name:t[0]||"",args:t.slice(1)}}function Be(t){location.hash===t?X():location.hash=t}function ma(t,{home:e=!1}={}){S.config={...S.config||{},...t},S.ui={},ut(e?`#/${de[S.config.persona]}`:void 0),e?Be(`#/${de[S.config.persona]}`):X()}function ha(){et(),S.cache.clear(),S.ui={}}function lt(t){let e=S.config?.color||t?.industry.accent||"#334155";document.documentElement.style.setProperty("--accent",e)}function X(){let t=document.getElementById("root"),e=ua(),s,o=null;if(!S.config||e.name==="setup")lt(null),s=ne.setup.render({app:S,INDUSTRIES:me,COUNTRIES:he,buildContext:Fe});else{o=Fe(S.config.industryId,S.config.countryId),o.persona=S.config.persona,o.ui=S.ui,o.app=S,lt(o);let d=ne[e.name]&&e.name!=="setup"?e.name:de[o.persona],r=ne[d].render(o,e.args);s=fa(o,d,r)}t.innerHTML=s+rt(S,o,{INDUSTRIES:me,COUNTRIES:he,PERSONAS:pt,shareLink:pa()});let a=document.getElementById("side");a&&(a.innerHTML=it(S,o)),document.body.classList.toggle("notes-open",S.notesOpen&&!!o);let i=document.getElementById("screen");i&&S.scrollTop!=null&&(i.scrollTop=S.scrollTop,S.scrollTop=null),ne[e.name]?.mounted?.(o,e.args)}function fa(t,e,s){let{t:o,data:a}=t,i=t.persona==="rep"?a.rep:t.persona==="manager"?a.manager:a.admin,d=ca[t.persona].map(([l,y,k])=>{let h=t.m.nextAccount(null)?.accountId||a.planned[0].accountId,A=l==="brief"?`#/brief/${h}`:`#/${l}`;return`<a class="tab${e===l||l==="brief"&&["brief","action","order","complete"].includes(e)||l==="today"&&e==="account"?" on":""}" href="${A}" data-nav="${l}">${v(k,22)}<span>${n(y)}</span></a>`}).join(""),r=S.config.prepared?`<div class="prepared">Prepared for ${n(S.config.prepared)}</div>`:"";return`
+  <div class="app" data-region="app" data-screen="${e}">
+    <header class="appbar">
+      <button class="logo" id="logo" aria-label="AI Assistor home. Long press for presenter menu">
+        <span class="mark">${v(t.industry.icon,18)}</span><span class="brand">AI Assistor</span>
+      </button>
+      <div class="appbar-right">${r}
+        <div class="who" title="${n(i.name)}"><span class="who-text"><b>${n(i.name)}</b><small>${n(o(i.title))}</small></span><span class="avatar">${n(ye(i.name))}</span></div>
+      </div>
+    </header>
+    <main class="screen" id="screen" data-region="screen">${s}</main>
+    <nav class="tabs" aria-label="Main">${d}</nav>
+  </div>`}function dt(t,e){let s=t.target.closest(`[data-${e}]`);if(!s)return;let o=s.dataset[e],a=ot[o]||ct[o];if(!a)return;e==="act"&&s.tagName==="A"&&t.preventDefault();let i=S.config?Fe(S.config.industryId,S.config.countryId):null;i&&(i.ui=S.ui,i.persona=S.config.persona,i.app=S);let d=document.getElementById("screen")?.scrollTop,r=a({ctx:i,app:S,el:s,value:s.value,data:s.dataset,event:t,api:{navigate:Be,configure:ma,resetDemo:ha,render:X}});r!==!1&&(r!=="nav"&&(S.scrollTop=d),X())}function mt(){S.config=da(),S.config&&!location.hash&&ut(`#/${de[S.config.persona]}`),window.addEventListener("hashchange",()=>{S.ui={...S.ui,panel:null},X(),document.getElementById("screen")?.scrollTo(0,0)}),document.addEventListener("click",o=>dt(o,"act")),document.addEventListener("change",o=>dt(o,"change")),document.addEventListener("keydown",o=>{o.shiftKey&&(o.key==="D"||o.key==="d")&&!/INPUT|TEXTAREA|SELECT/.test(o.target.tagName)?(o.preventDefault(),S.presenterOpen=!S.presenterOpen,X()):o.key==="Escape"&&S.presenterOpen&&(S.presenterOpen=!1,X())});let t=null,e=!1;document.addEventListener("pointerdown",o=>{o.target.closest("#logo")&&(e=!1,t=setTimeout(()=>{e=!0,S.presenterOpen=!0,X()},650))});let s=()=>{clearTimeout(t),t=null};document.addEventListener("pointerup",s),document.addEventListener("pointerleave",s),document.addEventListener("pointercancel",s),document.addEventListener("contextmenu",o=>{o.target.closest("#logo")&&o.preventDefault()}),document.addEventListener("click",o=>{if(o.target.closest("#logo")){if(e){e=!1;return}S.config&&Be(`#/${de[S.config.persona]}`)}}),X()}mt();})();
+</script>
+</body>
+</html>
