@@ -62,6 +62,21 @@ async function checkText(page, ind, where) {
   return txt;
 }
 
+/** Captures whatever evidence the open action asks for, including drawing a signature. */
+async function captureEvidence(page) {
+  if (await page.$('[data-act="ev-photo"]')) await page.click('[data-act="ev-photo"]');
+  else if (await page.$('[data-act="ev-scan"]')) await page.click('[data-act="ev-scan"]');
+  else if (await page.$('#ev-note-text')) { await page.fill('#ev-note-text', 'Done with the contact.'); await page.click('[data-act="ev-note"]'); }
+  else if (await page.$('#sign-pad')) {
+    await page.$eval('#sign-pad', (e) => e.scrollIntoView({ block: 'center' }));
+    const b = await page.$eval('#sign-pad', (e) => { const r = e.getBoundingClientRect(); return { x: r.x, y: r.y, w: r.width, h: r.height }; });
+    await page.mouse.move(b.x + 20, b.y + b.h / 2); await page.mouse.down();
+    for (let i = 1; i <= 8; i++) await page.mouse.move(b.x + 20 + i * 25, b.y + b.h / 2 + (i % 2 ? -20 : 20));
+    await page.mouse.up();
+    await page.click('#sign-save');
+  }
+}
+
 async function counts(page) {
   return page.$$eval('#counts [data-count]', (els) => Object.fromEntries(els.map((e) => [e.dataset.count, Number(e.querySelector('b').textContent)])));
 }
@@ -80,6 +95,7 @@ async function repFlow(browser, ind, c) {
     const ids = await page.$$eval('.acc-row', (as) => as.map((a) => a.dataset.account));
     ok(ids.length >= 6 && ids.length <= 8, `${label}: ${ids.length} planned, need 6 to 8`);
     const first = ids[0];
+    const firstName = await page.$eval(`[data-account="${first}"] .row-main b`, (e) => e.textContent);
 
     // Every brief, action, account, order and complete screen: text checks.
     for (const id of ids) {
@@ -111,10 +127,12 @@ async function repFlow(browser, ind, c) {
     const overrideId = items[2].id;
     await page.click(`#item-${overrideId} [data-kind="override"]`);
     ok(await page.isDisabled(`#item-${overrideId} [data-act="save-override"]`), `${label}: override must require a reason`);
-    const reason = await page.$eval(`#item-${overrideId} input[type="radio"]`, (r) => r.value);
-    await page.fill(`#item-${overrideId} textarea`, 'Demo note from the e2e test');
+    await page.fill(`#item-${overrideId} textarea`, 'Demo note');
     await page.check(`#item-${overrideId} input[type="radio"] >> nth=0`);
+    // F04: keep typing after picking the reason, then save straight away. The note must survive.
+    await page.type(`#item-${overrideId} textarea`, ' from the e2e test');
     await page.click(`#item-${overrideId} [data-act="save-override"]`);
+    ok((await page.innerText(`#item-${overrideId}`)).includes('Demo note from the e2e test'), `${label}: saved override must show its note in the brief`);
     c1 = await counts(page);
     ok(c1.overridden === 1 && c1.pending === items.length - 3, `${label}: override did not update counts ${JSON.stringify(c1)}`);
     ok((await page.getAttribute(`#item-${overrideId}`, 'data-state')) === 'overridden', `${label}: overridden item state`);
@@ -123,20 +141,18 @@ async function repFlow(browser, ind, c) {
     // Action detail: typed evidence, then outcome.
     await go(page, `#/action/${adjustId}`);
     ok(await page.isDisabled('#mark-done'), `${label}: Mark done must wait for evidence`);
-    if (await page.$('[data-act="ev-photo"]')) await page.click('[data-act="ev-photo"]');
-    else if (await page.$('[data-act="ev-scan"]')) await page.click('[data-act="ev-scan"]');
-    else if (await page.$('#ev-note-text')) { await page.fill('#ev-note-text', 'Done with the contact.'); await page.click('[data-act="ev-note"]'); }
-    else if (await page.$('#sign-pad')) {
-      await page.$eval('#sign-pad', (e) => e.scrollIntoView({ block: 'center' }));
-      const b = await page.$eval('#sign-pad', (e) => { const r = e.getBoundingClientRect(); return { x: r.x, y: r.y, w: r.width, h: r.height }; });
-      await page.mouse.move(b.x + 20, b.y + 60); await page.mouse.down();
-      for (let i = 1; i <= 8; i++) await page.mouse.move(b.x + 20 + i * 25, b.y + 60 + (i % 2 ? -25 : 25));
-      await page.mouse.up();
-      await page.click('#sign-save');
-    }
+    await captureEvidence(page);
     ok(!(await page.isDisabled('#mark-done')), `${label}: evidence capture did not enable Mark done`);
+    await go(page, '#/today');
+    const monthBefore = await page.innerText('.stat-row');
+    await go(page, `#/action/${adjustId}`);
     await page.click('#mark-done');
     ok((await page.innerText('[data-region="screen"]')).includes('Done'), `${label}: outcome not recorded`);
+    await go(page, '#/today');
+    ok((await page.innerText('.stat-row')) === monthBefore, `${label}: F03 completing an action must not change month-to-date actuals`);
+    await go(page, `#/account/${first}`);
+    ok(!(await page.$(`#open-gaps a[href="#/action/${adjustId}"]`)) && !!(await page.$(`#recorded-gaps a[href="#/action/${adjustId}"]`)), `${label}: F08 a done action must leave open gaps`);
+    await go(page, `#/action/${adjustId}`);
     await checkText(page, ind, `${label} action done`);
 
     // Order builder: rules evaluate live; submit.
@@ -170,14 +186,32 @@ async function repFlow(browser, ind, c) {
       }
     }
     await checkText(page, ind, `${label} order adjusted`);
+    const prereq = await page.$('[data-rule="prerequisite"][data-triggered="true"]');
+    let doneCount = 1;
+    if (prereq) {
+      // F01: lines priced by people cannot be sent before the needs review with signed consent.
+      ok(await page.isDisabled('#submit-order'), `${label}: F01 submit must be blocked until the prerequisite is done`);
+      await page.click('[data-rule="prerequisite"] a');
+      await page.waitForSelector('[data-screen="action"]');
+      await captureEvidence(page);
+      if (!(await page.isDisabled('#mark-done'))) { await page.click('#mark-done'); doneCount++; }
+      await go(page, `#/order/${first}`);
+      ok((await page.getAttribute('[data-rule="prerequisite"]', 'data-triggered')) === 'false', `${label}: prerequisite still missing after the action was done`);
+    }
+    const expectRoute = (await page.innerText('[data-region="dock"]')).match(/Goes to your (.+?) for approval/)?.[1];
     await page.click('#submit-order');
     ok(!!(await page.$('#order-status')), `${label}: order status missing after submit`);
+    if (expectRoute) ok((await page.innerText('#order-status')).includes(`Pending approval with your ${expectRoute}`), `${label}: F06 confirmation must name the routed approver ${expectRoute}`);
 
     // Visit complete and next best account.
     await go(page, `#/complete/${first}`);
     const sumDone = await page.innerText('[data-sum="done"]');
-    ok(/^1 of \d/.test(sumDone), `${label}: actions done should be 1, got ${sumDone}`);
+    ok(new RegExp(`^${doneCount} of \\d`).test(sumDone), `${label}: actions done should be ${doneCount}, got ${sumDone}`);
     await page.click('#complete-visit');
+    if (await page.$('#complete-visit-confirm')) {
+      ok(!(await page.$('#visit-closed')), `${label}: closing with open outcomes must ask first`);
+      await page.click('#complete-visit-confirm');
+    }
     ok(!!(await page.$('#visit-closed')), `${label}: visit did not close`);
     ok(!!(await page.$('#next-brief')), `${label}: next best account missing`);
     await checkText(page, ind, `${label} complete`);
@@ -214,7 +248,8 @@ async function repFlow(browser, ind, c) {
     const mgr = await checkText(page, ind, `${label} manager`);
     const live = await page.$$eval('.exception.live', (e) => e.map((x) => ({ kind: x.dataset.kind, text: x.innerText })));
     ok(live.some((x) => x.kind === 'override' && x.text.includes('Demo note from the e2e test')), `${label}: override with its note is not in the exception queue`);
-    ok(mgr.includes('Routed to'), `${label}: exceptions must show routing`);
+    ok(mgr.includes('Routed'), `${label}: exceptions must show routing`);
+    ok(!(await page.innerText('#coverage')).includes(firstName), `${label}: F05 a {visit} closed today must leave coverage gaps`);
     ok((await page.$$('.rep-row')).length === 4, `${label}: manager needs 4 reps`);
     ok((await page.$$('#coaching .coach')).length >= 1, `${label}: coaching prompts missing`);
     ok(!!(await page.$('#coverage')), `${label}: coverage section missing`);
@@ -229,6 +264,9 @@ async function repFlow(browser, ind, c) {
     for (const g of ind.guardrails) ok(ag.includes(t(g.text)), `${label}: guardrail not shown in agent scope: ${g.text}`);
     await page.click('#toggle-order');
     ok((await page.innerText('[data-agent="order"]')).includes('Stopped'), `${label}: stop button did not stop the Order agent`);
+    await go(page, `#/order/${ids[1]}`);
+    if (!(await page.$('#order-status'))) ok((await page.innerText('[data-region="app"]')).includes('You can edit this draft'), `${label}: F07 stopped-agent copy must match the editable draft`);
+    await go(page, '#/agents');
     await go(page, `#/brief/${ids[1]}`);
     ok((await page.getAttribute('[data-kind="order"]', 'data-state')) === 'paused', `${label}: order draft should pause when the Order agent stops`);
     await checkText(page, ind, `${label} brief paused`);
@@ -348,9 +386,45 @@ async function edgeCases(browser) {
     ok((await counts(page)).pending === 0, 'edge: approve all remaining');
     await page.keyboard.press('Shift+D');
     await page.click('#p-reset');
+    ok(!!(await page.$('#p-reset-confirm')), 'edge: reset must ask for confirmation');
+    await page.click('#p-reset-confirm');
     await go(page, `#/brief/${id}`);
     ok((await counts(page)).approved === 0, 'edge: reset demo should clear decisions');
   } catch (e) { failures.push(`${page._label}: ${e.message.split('\n').slice(0, 3).join(' | ')}`); } finally { await context.close(); }
+}
+
+/** Layout at real phone widths: no sideways scroll and tap targets of at least 44 px (PRD section 12). */
+async function layoutChecks(browser) {
+  const combos = [['pharma', 'IN'], ['finserv', 'UK'], ['building', 'DE'], ['telecom', 'ID']];
+  for (const width of [320, 390]) {
+    for (const [ind, ctry] of combos) {
+      const context = await browser.newContext({ viewport: { width, height: 800 } });
+      const page = await context.newPage();
+      page._label = `layout ${ind}x${ctry}@${width}`;
+      page.on('pageerror', (e) => failures.push(`${page._label}: page error: ${e.message}`));
+      try {
+        await page.goto(`${BASE}?industry=${ind}&country=${ctry}&persona=rep#/today`);
+        const id = await page.$eval('.acc-row', (a) => a.dataset.account);
+        await go(page, `#/brief/${id}`);
+        const act = await page.$eval('[data-kind="action"]', (e) => e.dataset.item);
+        for (const h of ['#/today', `#/brief/${id}`, `#/action/${act}`, `#/order/${id}`, `#/complete/${id}`, `#/account/${id}`, '#/route', '#/ask', '#/agents', '#/config', '#/problems', '#/manager', '#/setup']) {
+          await go(page, h);
+          const r = await page.evaluate(() => {
+            const doc = document.documentElement;
+            const sc = document.getElementById('screen');
+            const small = [...document.querySelectorAll('[data-region="app"] a, [data-region="app"] button, [data-region="app"] input:not([type=hidden]), [data-region="app"] select, [data-region="app"] summary, [data-region="setup"] button')]
+              .filter((el) => el.offsetParent && !el.closest('p, small, li.rule > span') && !el.disabled)
+              .map((el) => ({ el, r: el.getBoundingClientRect() }))
+              .filter(({ r }) => r.width > 0 && (r.height < 43.5 || r.width < 43.5))
+              .map(({ el, r }) => `${el.tagName.toLowerCase()}${el.id ? `#${el.id}` : ''}[${el.dataset.act || el.className}] ${Math.round(r.width)}x${Math.round(r.height)}`);
+            return { side: doc.scrollWidth - doc.clientWidth, inner: sc ? sc.scrollWidth - sc.clientWidth : 0, small };
+          });
+          ok(r.side <= 0 && r.inner <= 0, `${page._label} ${h}: horizontal scroll (${r.side}, ${r.inner})`);
+          ok(!r.small.length, `${page._label} ${h}: tap targets under 44 px: ${r.small.slice(0, 4).join(', ')}`);
+        }
+      } catch (e) { failures.push(`${page._label}: ${e.message.split('\n')[0]}`); } finally { await context.close(); }
+    }
+  }
 }
 
 async function pool(tasks, n) {
@@ -368,6 +442,7 @@ const tasks = [
   ...combos.map(([ind, c]) => () => personaLinks(browser, ind, c)),
   () => setupAll(browser, combos),
   () => edgeCases(browser),
+  () => layoutChecks(browser),
 ];
 let done = 0;
 await pool(tasks.map((fn) => async () => { await fn(); done++; if (done % 20 === 0) console.log(`  ${done}/${tasks.length} tasks`); }), WORKERS);

@@ -238,10 +238,10 @@ export default {
   ],
   kpis: [
     { id: 'act', label: 'New activations per day', format: 'count', range: [3, 24], target: 20 },
-    { id: 'float', label: 'Float availability', format: 'pct', range: [78, 99], target: 97 },
+    { id: 'float', label: 'Float availability', format: 'pct', range: [78, 99], target: 97, segments: ['sim', 'franchise'] },
     { id: 'kyc', label: 'KYC records complete', format: 'pct', range: [86, 100], target: 100 },
     { id: 'brand', label: 'Branding compliance', format: 'pct', range: [55, 95], target: 90 },
-    { id: 'demo', label: 'Live demo units', format: 'pct', range: [40, 90], target: 85 },
+    { id: 'demo', label: 'Live demo units', format: 'pct', range: [40, 90], target: 85, segments: ['franchise', 'device'] },
   ],
   guardrails: [
     { agent: 'all', text: 'No activation without a valid ID. KYC rules are never skipped.' },

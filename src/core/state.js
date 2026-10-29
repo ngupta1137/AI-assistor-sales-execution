@@ -142,16 +142,39 @@ export function createModel(ctx) {
         detail = { lines: over.map((l) => l.offering.name) };
       } else if (r.kind === 'humanPrice') {
         triggered = lines.some((l) => l.unitPrice == null && l.qty > 0);
+      } else if (r.kind === 'prerequisite') {
+        const applies = lines.some((l) => l.qty > 0 && (r.appliesTo === 'humanPrice' ? l.offering.price === null
+          : [l.offering.status, l.offering.category, l.offering.kind].includes(r.appliesTo)));
+        const action = actionsOf(accountId).find((x) => x.defId === r.action);
+        const out = action && s.outcomes[action.id];
+        const met = !!(out && out.status === 'done' && out.evidence?.type === r.evidence);
+        triggered = applies && !met;
+        detail = { actionId: action?.id || null, met, applies };
       }
-      return { ...r, triggered, detail, blocks: r.kind === 'lineMax' };
+      return { ...r, triggered, detail, blocks: r.kind === 'lineMax' || r.kind === 'prerequisite' };
     });
   };
-  const setQty = (accountId, offeringId, qty) => { orderState(accountId).qty[offeringId] = Math.max(0, Math.min(999, qty)); };
+  /** Who an {order} goes to for approval: the first triggered approval rule decides, as in the queue. */
+  const approvalRoute = (accountId) => {
+    const r = orderRules(accountId).find((x) => x.triggered && (x.kind === 'totalAbove' || x.kind === 'humanPrice'));
+    return r ? (r.route === 'kam' ? 'kam' : 'manager') : null;
+  };
+  const setQty = (accountId, offeringId, qty) => {
+    const st = orderState(accountId);
+    if (st.submitted || !Number.isInteger(qty)) return false;
+    st.qty[offeringId] = Math.max(0, Math.min(999, qty));
+    return true;
+  };
+  /** Re-checks every rule here, not only in the button: blocked rules or a stopped Order agent refuse the submit. */
   const submitOrder = (accountId) => {
     const st = orderState(accountId);
-    const rules = orderRules(accountId).filter((r) => r.triggered && (r.kind === 'totalAbove' || r.kind === 'humanPrice'));
+    const all = orderRules(accountId);
+    const blocking = all.filter((r) => r.triggered && r.blocks);
+    if (st.submitted || blocking.length || agentStopped('order')) return { ok: false, blocking };
+    const rules = all.filter((r) => r.triggered && (r.kind === 'totalAbove' || r.kind === 'humanPrice'));
     st.submitted = true;
     st.needsApproval = rules.length > 0;
+    st.route = st.needsApproval ? (rules[0].route === 'kam' ? 'kam' : 'manager') : null;
     log(data.rep.name, ctx.t(`${st.needsApproval ? 'Sent for approval' : 'Submitted'}: {order} for ${data.byId[accountId].name}`));
     s.exceptions = s.exceptions.filter((e) => e.sourceId !== `order:${accountId}`);
     if (st.needsApproval) {
@@ -159,14 +182,20 @@ export function createModel(ctx) {
       s.exceptions.unshift({
         id: `L${++s.seq}`, sourceId: `order:${accountId}`, live: true, kind: 'approval', rep: data.rep.name, account: acc.name, key: acc.key,
         title: '{Order} needs approval', vars: {}, reason: rules[0].text, ruleVars: rules[0].detail, note: '',
-        route: rules[0].route === 'kam' ? 'kam' : 'manager', at: nowMinutes(),
+        route: st.route, at: nowMinutes(),
       });
     }
+    return { ok: true };
   };
 
   // ---- Visits ----
   const visitDone = (accountId) => !!s.visits[accountId];
   const completeVisit = (accountId) => { s.visits[accountId] = { done: true, at: nowMinutes() }; log(data.rep.name, ctx.t(`Closed the {visit} at ${data.byId[accountId].name}`)); };
+  /** Days since the last visit, counting a {visit} closed in this session as today. */
+  const lastVisitDays = (accountId) => (visitDone(accountId) ? 0 : data.byId[accountId].lastVisitDays);
+  /** Open gaps exclude actions recorded done; not done and overridden stay open. */
+  const openGaps = (accountId) => actionsOf(accountId).filter((x) => s.outcomes[x.id]?.status !== 'done');
+  const doneGaps = (accountId) => actionsOf(accountId).filter((x) => s.outcomes[x.id]?.status === 'done');
   const closedToday = (accountId) => !!s.closed[accountId];
   const toggleClosed = (accountId) => {
     s.closed[accountId] = !s.closed[accountId];
@@ -179,7 +208,7 @@ export function createModel(ctx) {
     const lines = orderLines(accountId);
     const st = orderState(accountId);
     const orderTotal = st.submitted ? lines.reduce((a, l) => a + l.total, 0) : 0;
-    return { items, done, notDone, value: done.reduce((a, x) => a + x.value, 0), orderTotal, orderSubmitted: st.submitted, needsApproval: !!st.needsApproval };
+    return { items, done, notDone, estimated: done.reduce((a, x) => a + x.value, 0), orderTotal, orderSubmitted: st.submitted, needsApproval: !!st.needsApproval, route: st.route || null };
   };
 
   const nextAccount = (afterId) => {
@@ -189,14 +218,15 @@ export function createModel(ctx) {
 
   const selfStats = () => {
     let actionsDone = 0;
-    let value = 0;
+    let estimated = 0;
     for (const p of data.planned) {
       const v = visitSummary(p.accountId);
       actionsDone += v.done.length;
-      value += v.value;
+      estimated += v.estimated;
     }
     const overrides = Object.values(s.decisions).filter((d) => d.status === 'overridden').length;
-    return { done: data.planned.filter((p) => visitDone(p.accountId)).length, actionsDone, value, overrides };
+    // estimated: opportunity addressed by completed actions. An estimate, never added to actual sales.
+    return { done: data.planned.filter((p) => visitDone(p.accountId)).length, actionsDone, estimated, overrides };
   };
 
   const exceptions = () => [...s.exceptions, ...data.exceptions].map((e) => ({ ...e, acknowledged: !!s.acknowledged[e.id] }));
@@ -208,7 +238,7 @@ export function createModel(ctx) {
   };
 
   return {
-    session: s, plannedFor, briefItems, actionsOf, findAction, decision, decide, undo, counts, outcome, recordOutcome, setEvidence,
+    session: s, plannedFor, briefItems, actionsOf, approvalRoute, lastVisitDays, openGaps, doneGaps, findAction, decision, decide, undo, counts, outcome, recordOutcome, setEvidence,
     orderLines, orderRules, orderState, setQty, submitOrder, visitDone, completeVisit, visitSummary, nextAccount,
     selfStats, exceptions, acknowledge, agentStopped, toggleAgent, closedToday, toggleClosed, audit: () => s.audit,
   };

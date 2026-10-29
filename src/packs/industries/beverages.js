@@ -240,14 +240,18 @@ export default {
     { label: 'Outlet closed', blocked: false },
   ],
   visitNotes: [
-    'Order taken, {n} lines.', 'Draught lines checked. Pour quality fine.', 'Menu listing discussed. Reprint next month.',
-    'Cooler cleaned and restocked.', 'Activation night agreed for next month.',
+    'Order taken, {n} lines.',
+    { text: 'Draught lines checked. Pour quality fine.', segments: ['ontrade', 'hotels'] },
+    { text: 'Menu listing discussed. Reprint next month.', segments: ['ontrade', 'hotels'] },
+    { text: 'Cooler cleaned and restocked.', segments: ['offtrade', 'ontrade'] },
+    { text: 'Activation night agreed for next month.', segments: ['ontrade', 'hotels'] },
+    { text: 'Promotion display built near the entrance.', segments: ['offtrade'] },
   ],
   kpis: [
     { id: 'dist', label: 'Numeric distribution', format: 'pct', range: [55, 92], target: 85 },
-    { id: 'menu', label: 'Menu presence in on-trade', format: 'pct', range: [30, 80], target: 70 },
-    { id: 'cooler', label: 'Cooler purity', format: 'pct', range: [60, 98], target: 95 },
-    { id: 'draught', label: 'Draught quality checks passed', format: 'pct', range: [70, 100], target: 95 },
+    { id: 'menu', label: 'Menu presence', format: 'pct', range: [30, 80], target: 70, segments: ['ontrade', 'hotels'] },
+    { id: 'cooler', label: 'Cooler purity', format: 'pct', range: [60, 98], target: 95, segments: ['offtrade', 'ontrade'] },
+    { id: 'draught', label: 'Draught quality checks passed', format: 'pct', range: [70, 100], target: 95, segments: ['ontrade', 'hotels'] },
     { id: 'strike', label: 'Visits with an order', format: 'pct', range: [55, 92], target: 85 },
   ],
   guardrails: [

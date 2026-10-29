@@ -172,7 +172,7 @@ export function generate(industry, country, { today = new Date(), fmt } = {}) {
         };
       });
       const kpis = {};
-      for (const k of industry.kpis) kpis[k.id] = rng.int(k.range[0], k.range[1]);
+      for (const k of industry.kpis) if (!k.segments || k.segments.includes(seg.id)) kpis[k.id] = rng.int(k.range[0], k.range[1]);
       accounts.push({
         id: '', segmentId: seg.id, segment: seg.name, type: type.type, key: !!seg.key,
         name: accountName(type, area, city.name), area, city: city.name,
@@ -197,9 +197,10 @@ export function generate(industry, country, { today = new Date(), fmt } = {}) {
   // History: past visits and orders.
   for (const a of accounts) {
     const cycle = rng.int(12, 28);
+    const notes = industry.visitNotes.filter((n) => typeof n === 'string' || !n.segments || n.segments.includes(a.segmentId)).map((n) => (typeof n === 'string' ? n : n.text));
     a.history = [0, 1, 2].map((k) => ({
       daysAgo: a.lastVisitDays + k * cycle,
-      note: rng.pick(industry.visitNotes),
+      note: rng.pick(notes),
       vars: { n: rng.int(2, 6), person: a.contacts[0].name },
     }));
     a.orderHistory = [0, 1, 2].map((k) => ({
@@ -255,28 +256,55 @@ export function generate(industry, country, { today = new Date(), fmt } = {}) {
     const eligible = industry.actions.filter((x) => !x.segments || x.segments.includes(seg.id));
     const k = rng.int(3, Math.min(6, eligible.length));
     const chosen = rng.sample(eligible, k);
-    const items = chosen.map((def) => {
-      const product = def.uses === 'none' ? null : offeringForAction(seg, def.uses);
-      const value = nice(rng.float(def.value[0], def.value[1]) * country.priceFactor * segScale(seg) * (0.7 + (a.score / 100) * 0.6));
-      const confidence = Math.round(rng.float(0.52, 0.94) * 100) / 100;
-      const effort = Math.max(3, def.effort + rng.int(-2, 3));
-      const vars = {
-        product: product ? product.name : '', days: rng.int(3, 12), pct: rng.int(12, 38), qty: rng.int(3, 12),
-        peers: rng.int(6, 18), n: rng.int(2, 4), weeks: rng.int(3, 8), area: a.area, city: a.city,
-        person: a.contacts[0].name, role: a.contacts[0].role, event: event.name, eventDays: event.days,
-        type: a.type, segment: a.segment, amount: fmt.money(value),
-      };
-      return {
-        id: `${a.id}-${def.id}`, kind: 'action', accountId: a.id, defId: def.id, agent: def.agent, type: def.type,
-        title: def.title, saw: def.saw, compared: def.compared,
-        evidence: def.evidence, effort, value, confidence, offeringId: product ? product.id : null, vars,
-        score: (value / effort) * confidence,
-      };
-    });
+    return rankItems(a, chosen.map((def) => buildItem(def, a, seg)));
+  };
+
+  /** One prepared action for an account, with its evidence values. */
+  function buildItem(def, a, seg) {
+    const product = def.uses === 'none' ? null : offeringForAction(seg, def.uses);
+    const value = nice(rng.float(def.value[0], def.value[1]) * country.priceFactor * segScale(seg) * (0.7 + (a.score / 100) * 0.6));
+    const confidence = Math.round(rng.float(0.52, 0.94) * 100) / 100;
+    const effort = Math.max(3, def.effort + rng.int(-2, 3));
+    const vars = {
+      product: product ? product.name : '', days: rng.int(3, 12), pct: rng.int(12, 38), qty: rng.int(3, 12),
+      peers: rng.int(6, 18), n: rng.int(2, 4), weeks: rng.int(3, 8), area: a.area, city: a.city,
+      person: a.contacts[0].name, role: a.contacts[0].role, event: event.name, eventDays: event.days,
+      type: a.type, segment: a.segment, amount: fmt.money(value),
+    };
+    return {
+      id: `${a.id}-${def.id}`, kind: 'action', accountId: a.id, defId: def.id, agent: def.agent, type: def.type,
+      title: def.title, saw: def.saw, compared: def.compared,
+      evidence: def.evidence, effort, value, confidence, offeringId: product ? product.id : null, vars,
+      score: (value / effort) * confidence,
+    };
+  }
+
+  /** Ranks by value per minute times confidence, and flags what does not fit the time budget. */
+  function rankItems(a, items) {
     items.sort((x, y) => y.score - x.score);
     let used = 0;
     items.forEach((it, i) => { it.rank = i + 1; used += it.effort; it.overBudget = i > 0 && used > a.visitMinutes; });
     return items;
+  }
+
+  /** Lines a prerequisite rule applies to: 'humanPrice' (price set by people) or an offering status, category or kind. */
+  const ruleApplies = (r, o) => (r.appliesTo === 'humanPrice' ? o.price === null : matches(o, r.appliesTo));
+
+  /**
+   * When the draft contains lines that need a prerequisite action (for example a needs review
+   * with signed consent), that action must be in the brief, so the rep can actually satisfy it.
+   */
+  const ensurePrerequisites = (a, actions, order) => {
+    const seg = industry.segments.find((s) => s.id === a.segmentId);
+    for (const r of industry.orderRules.filter((x) => x.kind === 'prerequisite')) {
+      const needed = order.some((l) => ruleApplies(r, industry.offerings.find((o) => o.id === l.offeringId)));
+      const def = industry.actions.find((x) => x.id === r.action);
+      if (!needed || actions.some((x) => x.defId === r.action) || (def.segments && !def.segments.includes(seg.id))) continue;
+      if (actions.length >= 6) actions.splice(actions.length - 1, 1);
+      actions.push(buildItem(def, a, seg));
+      rankItems(a, actions);
+    }
+    return actions;
   };
 
   const orderFor = (a, actions) => {
@@ -288,7 +316,8 @@ export function generate(industry, country, { today = new Date(), fmt } = {}) {
       const o = industry.offerings.find((x) => x.id === id);
       const range = o.qty || seg.orderQty || [1, 6];
       const qty = rng.int(range[0], range[1]);
-      const reasons = industry.orderReasons[o.kind] || industry.orderReasons[o.status] || industry.orderReasons.core;
+      const bySeg = industry.orderReasons.bySegment?.[seg.id] || {};
+      const reasons = bySeg[o.kind] || bySeg[o.status] || industry.orderReasons[o.kind] || industry.orderReasons[o.status] || bySeg.core || industry.orderReasons.core;
       return {
         offeringId: id, qty, suggested: qty, reason: rng.pick(reasons),
         vars: { qty, avg: Math.max(1, Math.round(qty / rng.int(1, 2))), cover: rng.int(3, 12), event: event.name, eventDays: event.days, weeks: rng.int(3, 8) },
@@ -298,7 +327,9 @@ export function generate(industry, country, { today = new Date(), fmt } = {}) {
 
   const planned = plan.map((a) => {
     const actions = actionsFor(a);
-    return { accountId: a.id, actions, order: orderFor(a, actions), opportunity: actions.reduce((s, x) => s + x.value, 0) };
+    const order = orderFor(a, actions);
+    ensurePrerequisites(a, actions, order);
+    return { accountId: a.id, actions, order, opportunity: actions.reduce((s, x) => s + x.value, 0) };
   });
   planned.sort((x, y) => y.opportunity - x.opportunity);
   planned.forEach((p, i) => { p.rank = i + 1; });

@@ -236,6 +236,18 @@ export default {
     focus: ['Premium line for the {event} repaint season.', 'Shade display refreshed today. Stock to match.'],
     new: ['Launch line. Small trial order.', 'Contractors asked for it at the last meet.'],
     service: ['Calibration due this month. No charge.'],
+    bySegment: {
+      project: {
+        core: ['Quantity from the finish schedule. This is a quote, not dealer stock.', 'Matches the area in the bill of quantities.'],
+        focus: ['Finish named in the draft specification.', 'Premium finish for the main areas, per the architect.'],
+        new: ['Sample patch quantity for the site trial.'],
+      },
+      contractor: {
+        core: ['Covers the next two jobs the contractor has booked.', 'Bought through two dealers last month.'],
+        focus: ['Linked to the contractor meet.'],
+        new: ['Trial quantity for one job.'],
+      },
+    },
   },
   orderRules: [
     { kind: 'totalAbove', amount: 4000, route: 'manager', text: 'Quotes and {orders} above {limit} need {manager} approval.' },
@@ -256,15 +268,21 @@ export default {
     { label: 'Site closed today', blocked: false },
   ],
   visitNotes: [
-    'Stock plan agreed, {n} lines.', 'Shade display refreshed.', 'Tinting machine calibrated.',
-    'Contractor meet held, {n} painters attended.', 'Specification sheet shared with the architect.',
+    { text: 'Stock plan agreed, {n} lines.', segments: ['dealer'] },
+    { text: 'Shade display refreshed.', segments: ['dealer'] },
+    { text: 'Tinting machine calibrated.', segments: ['dealer'] },
+    { text: 'Contractor meet held, {n} painters attended.', segments: ['dealer', 'contractor'] },
+    { text: 'Site visit with the contractor. Surface preparation checked.', segments: ['contractor'] },
+    { text: 'Specification sheet shared with the architect.', segments: ['project'] },
+    { text: 'Sample patch reviewed on site with the project manager.', segments: ['project'] },
   ],
   kpis: [
-    { id: 'sellin', label: 'Dealer sell-in vs plan', format: 'pct', range: [64, 108], target: 100 },
-    { id: 'conv', label: 'Project conversion', format: 'pct', range: [18, 46], target: 40 },
+    { id: 'sellin', label: 'Dealer sell-in vs plan', format: 'pct', range: [64, 108], target: 100, segments: ['dealer'] },
+    { id: 'conv', label: 'Project conversion', format: 'pct', range: [18, 46], target: 40, segments: ['project', 'contractor'] },
     { id: 'premium', label: 'Premium share of sales', format: 'pct', range: [12, 38], target: 30 },
-    { id: 'tint', label: 'Tinting machine uptime', format: 'pct', range: [80, 99], target: 97 },
-    { id: 'loyal', label: 'Active loyalty painters', format: 'count', range: [8, 40], target: 35 },
+    { id: 'tint', label: 'Tinting machine uptime', format: 'pct', range: [80, 99], target: 97, segments: ['dealer'] },
+    { id: 'loyal', label: 'Active loyalty painters', format: 'count', range: [8, 40], target: 35, segments: ['dealer', 'contractor'] },
+    { id: 'spec', label: 'Specification wins this quarter', format: 'count', range: [1, 8], target: 6, segments: ['project'] },
   ],
   guardrails: [
     { agent: 'all', text: 'Quotes above the threshold need approval. The agent never offers a discount.' },

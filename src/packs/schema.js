@@ -58,12 +58,16 @@
  * @property {Segment[]} segments           2 or 3.
  * @property {Offering[]} offerings         8 to 12.
  * @property {ActionDef[]} actions          8 to 12.
- * @property {Record<string, string[]>} orderReasons  Keyed by offering kind or status.
- * @property {{kind: 'totalAbove'|'lineMax'|'humanPrice'|'info', amount?: number, max?: number, appliesTo?: string, route?: 'manager'|'kam', text: string}[]} orderRules
+ * @property {Record<string, string[]> & {bySegment?: Record<string, Record<string, string[]>>}} orderReasons
+ *   Keyed by offering kind or status. bySegment overrides them for one segment (for example projects).
+ * @property {{kind: 'totalAbove'|'lineMax'|'humanPrice'|'prerequisite'|'info', amount?: number, max?: number, appliesTo?: string, action?: string, evidence?: string, route?: 'manager'|'kam', text: string}[]} orderRules
+ *   prerequisite: lines matching appliesTo ('humanPrice' or an offering status, category or kind) cannot be sent until
+ *   the account's action `action` is done with evidence of type `evidence`. Blocks submission.
  * @property {{label: string, route: 'manager'|'kam'}[]} overrideReasons
  * @property {{label: string, blocked: boolean, route?: 'manager'|'kam'}[]} outcomeReasons
- * @property {string[]} visitNotes
- * @property {{id: string, label: string, format: 'pct'|'count'|'money'|'days', range: [number, number], target: number, lowerIsBetter?: boolean}[]} kpis  First KPI is the headline.
+ * @property {(string|{text: string, segments: string[]})[]} visitNotes
+ * @property {{id: string, label: string, format: 'pct'|'count'|'money'|'days', range: [number, number], target: number, lowerIsBetter?: boolean, segments?: string[]}[]} kpis
+ *   First KPI is the territory headline. segments limits a KPI to the account segments it applies to.
  * @property {{agent: 'all'|'planner'|'gap'|'order', text: string}[]} guardrails
  * @property {{title: string, text: string, capability: 'potential'|'gaps'|'ranking'|'planning'|'order'|'evidence'}[]} problems  Exactly 6.
  * @property {{q: string, a: string}[]} assistant  8 to 10.
@@ -195,10 +199,23 @@ export function validateIndustry(p, iconKeys = []) {
     const n = (p.actions || []).filter((a) => !a.segments || a.segments.includes(s.id)).length;
     req(n >= 3, `segment ${s.id} has only ${n} eligible actions, needs 3`);
   }
-  Object.entries(p.orderReasons || {}).forEach(([k, arr]) => arr.forEach((s) => checkTokens(e, `${p.id}.orderReasons.${k}`, s, vocab, ORDER_VARS)));
+  const { bySegment, ...reasons } = p.orderReasons || {};
+  Object.entries(reasons).forEach(([k, arr]) => arr.forEach((s) => checkTokens(e, `${p.id}.orderReasons.${k}`, s, vocab, ORDER_VARS)));
+  Object.entries(bySegment || {}).forEach(([segId, map]) => {
+    req(segIds.includes(segId), `orderReasons.bySegment unknown segment ${segId}`);
+    Object.entries(map).forEach(([k, arr]) => arr.forEach((s) => checkTokens(e, `${p.id}.orderReasons.bySegment.${segId}.${k}`, s, vocab, ORDER_VARS)));
+  });
   req((p.orderRules || []).length >= 2, 'needs at least 2 orderRules');
   for (const r of p.orderRules || []) {
-    req(['totalAbove', 'lineMax', 'humanPrice', 'info'].includes(r.kind), `orderRule kind ${r.kind}`);
+    req(['totalAbove', 'lineMax', 'humanPrice', 'prerequisite', 'info'].includes(r.kind), `orderRule kind ${r.kind}`);
+    if (r.kind === 'prerequisite') {
+      const def = (p.actions || []).find((a) => a.id === r.action);
+      req(def, `prerequisite rule names unknown action ${r.action}`);
+      req(['photo', 'signature', 'note', 'scan'].includes(r.evidence) && def?.evidence === r.evidence, `prerequisite evidence ${r.evidence} must match action ${r.action}'s evidence type`);
+      req(r.appliesTo === 'humanPrice' || tags.has(r.appliesTo), `prerequisite appliesTo ${r.appliesTo} matches no offering`);
+      const lines = (p.offerings || []).filter((o) => (r.appliesTo === 'humanPrice' ? o.price === null : [o.status, o.category, o.kind].includes(r.appliesTo)));
+      for (const o of lines) for (const s of o.segments || segIds) req(!def?.segments || def.segments.includes(s), `offering ${o.id} needs action ${r.action}, which is not available in segment ${s}`);
+    }
     if (r.kind === 'totalAbove') req(r.amount > 0, 'totalAbove needs amount');
     if (r.kind === 'lineMax') req(r.max > 0 && r.appliesTo, 'lineMax needs max and appliesTo');
     checkTokens(e, `${p.id}.orderRules`, r.text, vocab, RULE_VARS);
@@ -207,10 +224,19 @@ export function validateIndustry(p, iconKeys = []) {
   req((p.overrideReasons || []).length >= 4 && p.overrideReasons.every((r) => r.label && ['manager', 'kam'].includes(r.route)), 'overrideReasons need 4+ with route');
   req((p.overrideReasons || []).some((r) => r.route === 'kam'), 'at least one override reason routes to the KAM');
   req((p.outcomeReasons || []).length >= 3 && p.outcomeReasons.some((r) => r.blocked), 'outcomeReasons need 3+ with at least one blocked');
-  range(p.visitNotes, 3, 8, 'visitNotes');
-  (p.visitNotes || []).forEach((s) => checkTokens(e, `${p.id}.visitNotes`, s, vocab, NOTE_VARS));
+  range(p.visitNotes, 3, 10, 'visitNotes');
+  (p.visitNotes || []).forEach((n) => {
+    const s = typeof n === 'string' ? n : n.text;
+    if (typeof n !== 'string') (n.segments || []).forEach((sid) => req(segIds.includes(sid), `visitNote unknown segment ${sid}`));
+    checkTokens(e, `${p.id}.visitNotes`, s, vocab, NOTE_VARS);
+  });
+  for (const sid of segIds) req((p.visitNotes || []).filter((n) => typeof n === 'string' || !n.segments || n.segments.includes(sid)).length >= 2, `segment ${sid} needs 2+ visitNotes`);
   range(p.kpis, 4, 6, 'kpis');
-  (p.kpis || []).forEach((k) => req(k.id && k.label && ['pct', 'count', 'money', 'days'].includes(k.format) && k.range?.length === 2 && typeof k.target === 'number', `kpi ${k.id}`));
+  (p.kpis || []).forEach((k) => {
+    req(k.id && k.label && ['pct', 'count', 'money', 'days'].includes(k.format) && k.range?.length === 2 && typeof k.target === 'number', `kpi ${k.id}`);
+    (k.segments || []).forEach((sid) => req(segIds.includes(sid), `kpi ${k.id} unknown segment ${sid}`));
+  });
+  for (const sid of segIds) req((p.kpis || []).filter((k) => !k.segments || k.segments.includes(sid)).length >= 3, `segment ${sid} needs 3+ KPIs`);
   range(p.guardrails, 3, 8, 'guardrails');
   (p.guardrails || []).forEach((g) => req(['all', 'planner', 'gap', 'order'].includes(g.agent) && g.text, 'guardrail agent and text'));
   req(p.problems?.length === 6, 'needs exactly 6 problems');

@@ -12,7 +12,7 @@ const GENERIC = [
 export function render(ctx) {
   const { t, fmt, industry, country, data } = ctx;
   const vocab = GENERIC.map(([g, k]) => `<tr><td class="muted">${esc(g)}</td><td><b>${esc(t(`{${k}}`))}</b></td></tr>`).join('');
-  const segs = industry.segments.map((s) => `<li class="row static"><span class="row-main"><b>${esc(t(s.name))}</b>
+  const segs = industry.segments.map((s) => `<li class="row"><span class="row-main"><b>${esc(t(s.name))}</b>
     <small>${esc(t(s.style))}</small><small class="row-meta">${s.visitMinutes[0]} to ${s.visitMinutes[1]} min · ${esc(s.types.map((x) => t(x.type)).join(', '))}</small></span></li>`).join('');
   const acts = industry.actions.map((a) => `<tr><td><b>${esc(t(a.type))}</b></td><td>${esc(AGENT_LABEL[a.agent])}</td><td>${a.effort} min</td><td>${esc(EVIDENCE[a.evidence].label)}</td></tr>`).join('');
   const kpis = industry.kpis.map((k) => `<tr><td>${esc(t(k.label))}</td><td>${k.lowerIsBetter ? 'At most' : 'At least'} ${esc(kpiValue(k, k.target, fmt))}</td></tr>`).join('');
@@ -20,19 +20,22 @@ export function render(ctx) {
   const rules = industry.orderRules.map((r) => `<li>${esc(t(r.text, { limit: r.amount != null ? fmt.money(localPrice(r.amount, country)) : '', max: r.max ?? '', lines: '' }))}</li>`).join('');
   const events = upcomingEvents(country, fmt.today).slice(0, 4).map((e) => `<li><b>${esc(e.name)}</b> <small class="muted">${esc(fmt.dateShort(e.date))} · ${esc(e.note)}</small></li>`).join('');
 
+  const jump = [['vocab', 'Vocabulary'], ['segments', 'Segments'], ['actions', 'Actions'], ['offerings', t('{Offerings}')], ['kpis', 'KPIs'], ['rules', 'Guardrails'], ['country', 'Country']]
+    .map(([id, label]) => `<a href="#/config" data-act="jump" data-id="${id}">${esc(label)}</a>`).join('');
   return `
-  <section class="hello">
+  <section class="page-head">
     <h1>How this is configured</h1>
-    <p class="muted">${esc(industry.name)} pack with the ${esc(country.name)} country pack. Same product, same workflow. Only the configuration changes.</p>
+    <p class="small muted">${esc(industry.name)} pack with the ${esc(country.name)} country pack. Same product, same workflow. Only the configuration changes.</p>
   </section>
-  <section class="card"><h2>Vocabulary</h2><table class="tbl"><thead><tr><th>Product term</th><th>Your term</th></tr></thead><tbody>${vocab}</tbody></table></section>
-  <section><h2>Segments</h2><ul class="list">${segs}</ul></section>
-  <section class="card"><h2>${esc(t('Action catalog'))}</h2><div class="tbl-wrap"><table class="tbl"><thead><tr><th>Action</th><th>Agent</th><th>Effort</th><th>Evidence</th></tr></thead><tbody>${acts}</tbody></table></div></section>
-  <section class="card"><h2>${esc(t('{Offerings}'))}</h2><div class="tbl-wrap"><table class="tbl"><thead><tr><th>Name</th><th>Category</th><th>Status</th></tr></thead><tbody>${offerings}</tbody></table></div></section>
-  <section class="card"><h2>KPIs</h2><table class="tbl"><tbody>${kpis}</tbody></table></section>
-  <section class="card"><h2>Guardrails</h2><ul class="guards">${industry.guardrails.map((g) => `<li>${icon('shield', 16)} ${esc(t(g.text))}</li>`).join('')}</ul>
+  <nav class="jump tight" aria-label="Sections">${jump}</nav>
+  <section class="card" id="vocab"><h2>Vocabulary</h2><table class="tbl"><thead><tr><th>Product term</th><th>Your term</th></tr></thead><tbody>${vocab}</tbody></table></section>
+  <section id="segments"><h2>Segments</h2><ul class="group" style="margin-top:12px">${segs}</ul></section>
+  <section class="card" id="actions"><h2>${esc(t('Action catalog'))}</h2><div class="tbl-wrap"><table class="tbl"><thead><tr><th>Action</th><th>Agent</th><th>Effort</th><th>Evidence</th></tr></thead><tbody>${acts}</tbody></table></div></section>
+  <section class="card" id="offerings"><h2>${esc(t('{Offerings}'))}</h2><div class="tbl-wrap"><table class="tbl"><thead><tr><th>Name</th><th>Category</th><th>Status</th></tr></thead><tbody>${offerings}</tbody></table></div></section>
+  <section class="card" id="kpis"><h2>KPIs</h2><table class="tbl"><tbody>${kpis}</tbody></table></section>
+  <section class="card" id="rules"><h2>Guardrails</h2><ul class="guards">${industry.guardrails.map((g) => `<li>${icon('shield', 16)} ${esc(t(g.text))}</li>`).join('')}</ul>
     <h3>${esc(t('{Order} rules'))}</h3><ul class="bullets">${rules}</ul></section>
-  <section class="card"><h2>Country: ${esc(country.name)}</h2>
+  <section class="card" id="country"><h2>Country: ${esc(country.name)}</h2>
     <table class="tbl"><tbody>
       <tr><td class="muted">Currency</td><td>${esc(country.currency)} · ${esc(fmt.money(1234567))} · ${esc(fmt.moneyShort(12345678))}</td></tr>
       <tr><td class="muted">Unit price</td><td>${esc(fmt.price(19.5 * country.priceFactor))}</td></tr>
@@ -44,6 +47,10 @@ export function render(ctx) {
     <ul class="bullets muted">${country.notes.map((n) => `<li>${esc(n)}</li>`).join('')}</ul>
     <p class="small muted">Event dates are approximate.</p>
   </section>
-  <div class="notice good"><b>This is a configuration, not a custom build.</b> Adding an industry or a country means adding one pack file.</div>
+  <div class="notice good">${icon('check', 18)}<span><b>This is a configuration, not a custom build.</b> Adding an industry or a country means adding one pack file.</span></div>
   <p class="foot-note">Sample data.</p>`;
 }
+
+export const actions = {
+  jump: ({ data }) => { document.getElementById(data.id)?.scrollIntoView({ block: 'start' }); return false; },
+};
