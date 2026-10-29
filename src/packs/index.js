@@ -2,13 +2,22 @@
 // Order here is the order on the setup screen.
 
 import cpg from './industries/cpg.js';
+import pharma from './industries/pharma.js';
+import meddevices from './industries/meddevices.js';
+import beverages from './industries/beverages.js';
+import building from './industries/building.js';
+import agri from './industries/agri.js';
+import telecom from './industries/telecom.js';
+import electronics from './industries/electronics.js';
+import autoparts from './industries/autoparts.js';
+import finserv from './industries/finserv.js';
 
 import US from './countries/US.js';
 
 /** Vocabulary every pack gets unless it overrides the word. */
 const DEFAULT_VOCAB = { territory: 'territory' };
 
-export const INDUSTRIES = [cpg].map((p) => ({ ...p, vocab: { ...DEFAULT_VOCAB, ...p.vocab } }));
+export const INDUSTRIES = [cpg, pharma, meddevices, beverages, building, agri, telecom, electronics, autoparts, finserv].map((p) => ({ ...p, vocab: { ...DEFAULT_VOCAB, ...p.vocab } }));
 export const COUNTRIES = [US];
 
 /** Accepts common aliases so shared links are forgiving (GB for UK, case-insensitive). */

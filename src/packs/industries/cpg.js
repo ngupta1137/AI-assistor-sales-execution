@@ -146,7 +146,10 @@ export default {
         'Shoppers compare price at the shelf first.',
         'The store sets prices. The rep only flags the mismatch.',
       ],
-      talk: ['Point out the mismatch to {person} and let the store correct it.'],
+      talk: [
+        'Point out the mismatch to {person} and let the store correct it.',
+        'Photograph the corrected tag on your next pass through the aisle.',
+      ],
       guardrail: 'The store sets shelf prices. The agent flags a mismatch and never changes a price.',
     },
     {
@@ -202,8 +205,12 @@ export default {
       why: [
         'After delivery, the shelf can be filled and checked in one trip.',
         'It saves a wasted {visit} each cycle.',
+        'Out-of-stocks found the day after delivery are ordering gaps, not shelf gaps.',
       ],
-      talk: ['Confirm the new day with {person}.'],
+      talk: [
+        'Confirm the new day with {person}.',
+        'Ask whether the delivery day changes over the holiday season.',
+      ],
     },
   ],
   orderReasons: {

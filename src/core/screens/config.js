@@ -27,7 +27,7 @@ export function render(ctx) {
   </section>
   <section class="card"><h2>Vocabulary</h2><table class="tbl"><thead><tr><th>Product term</th><th>Your term</th></tr></thead><tbody>${vocab}</tbody></table></section>
   <section><h2>Segments</h2><ul class="list">${segs}</ul></section>
-  <section class="card"><h2>Action catalogue</h2><div class="tbl-wrap"><table class="tbl"><thead><tr><th>Action</th><th>Agent</th><th>Effort</th><th>Evidence</th></tr></thead><tbody>${acts}</tbody></table></div></section>
+  <section class="card"><h2>${esc(t('Action catalog'))}</h2><div class="tbl-wrap"><table class="tbl"><thead><tr><th>Action</th><th>Agent</th><th>Effort</th><th>Evidence</th></tr></thead><tbody>${acts}</tbody></table></div></section>
   <section class="card"><h2>${esc(t('{Offerings}'))}</h2><div class="tbl-wrap"><table class="tbl"><thead><tr><th>Name</th><th>Category</th><th>Status</th></tr></thead><tbody>${offerings}</tbody></table></div></section>
   <section class="card"><h2>KPIs</h2><table class="tbl"><tbody>${kpis}</tbody></table></section>
   <section class="card"><h2>Guardrails</h2><ul class="guards">${industry.guardrails.map((g) => `<li>${icon('shield', 16)} ${esc(t(g.text))}</li>`).join('')}</ul>

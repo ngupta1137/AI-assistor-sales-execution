@@ -16,7 +16,11 @@ const US_TO_UK = {
   traveled: 'travelled', traveling: 'travelling', enrollment: 'enrolment', enroll: 'enrol',
   defense: 'defence', license: 'licence', licenses: 'licences',
   aluminum: 'aluminium', tire: 'tyre', tires: 'tyres', program: 'programme', programs: 'programmes',
-  neighborhood: 'neighbourhood', neighborhoods: 'neighbourhoods', specialty: 'speciality',
+  neighbor: 'neighbour', neighbors: 'neighbours', neighborhood: 'neighbourhood', neighborhoods: 'neighbourhoods', specialty: 'speciality', organizer: 'organiser', organizers: 'organisers',
+  fertilizer: 'fertiliser', fertilizers: 'fertilisers', theater: 'theatre', theaters: 'theatres',
+  gray: 'grey', finalize: 'finalise', finalizing: 'finalising', finalized: 'finalised',
+   analyzer: 'analyser', analyzers: 'analysers', orthopedic: 'orthopaedic', orthopedics: 'orthopaedics',
+   jewelry: 'jewellery', mold: 'mould', aging: 'ageing',
 };
 
 function matchCase(src, repl) {

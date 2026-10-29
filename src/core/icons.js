@@ -1,7 +1,7 @@
 // Brand-neutral line icons (24x24, stroke). Packs refer to them by key.
 const P = {
   cart: '<path d="M3 4h2l2.4 10.2a1 1 0 0 0 1 .8h8.9a1 1 0 0 0 1-.8L20 7H6.2"/><circle cx="9" cy="19" r="1.5"/><circle cx="17" cy="19" r="1.5"/>',
-  pill: '<rect x="3" y="9" width="18" height="7" rx="3.5" transform="rotate(-35 12 12.5)"/><path d="M9.2 8.4l5.6 8"/>',
+  pill: '<g transform="rotate(-45 12 12)"><rect x="3" y="8.5" width="18" height="7" rx="3.5"/><path d="M12 8.5v7"/></g>',
   pulse: '<path d="M3 12h4l2-5 4 10 2-5h6"/>',
   glass: '<path d="M7 3h10l-1.2 8.5a3.9 3.9 0 0 1-7.6 0z"/><path d="M12 15v6M8.5 21h7M7.6 8h8.8"/>',
   roller: '<rect x="4" y="3" width="13" height="5" rx="1.5"/><path d="M17 5.5h2.5V11H11v3"/><rect x="9.5" y="14" width="3" height="7" rx="1"/>',

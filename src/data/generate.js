@@ -186,13 +186,29 @@ export function generate(industry, country, { today = new Date(), fmt } = {}) {
   }
   for (const s of scored) { if (plan.length >= nPlan) break; if (!plan.includes(s.a)) plan.push(s.a); }
 
+  const matches = (o, uses) => o.status === uses || o.category === uses || o.kind === uses || o.id === uses;
+  const inSegment = (o, seg) => !o.segments || o.segments.includes(seg.id);
+
+  /** Offerings an {order} can carry in this segment, optionally narrowed by status, category or kind. */
   const offeringsFor = (seg, uses) => {
-    let pool = industry.offerings.filter((o) => !o.segments || o.segments.includes(seg.id));
+    let pool = industry.offerings.filter((o) => inSegment(o, seg));
     if (uses && uses !== 'any') {
-      const byStatus = pool.filter((o) => o.status === uses || o.category === uses || o.kind === uses);
-      if (byStatus.length) pool = byStatus;
+      const narrowed = pool.filter((o) => matches(o, uses));
+      if (narrowed.length) pool = narrowed;
     }
     return pool;
+  };
+
+  /**
+   * The offering an action talks about. Offerings with a kind (for example samples) are only
+   * picked when the action asks for that kind. In-segment offerings are preferred.
+   */
+  const offeringForAction = (seg, uses) => {
+    const pool = industry.offerings.filter((o) => !o.kind || o.kind === uses);
+    const exact = pool.filter((o) => uses === 'any' || matches(o, uses));
+    const inSeg = exact.filter((o) => inSegment(o, seg));
+    const list = inSeg.length ? inSeg : exact.length ? exact : pool;
+    return rng.pick(list);
   };
 
   // Bigger segments carry bigger actions: scale by the square root of segment size.
@@ -206,7 +222,7 @@ export function generate(industry, country, { today = new Date(), fmt } = {}) {
     const k = rng.int(3, Math.min(6, eligible.length));
     const chosen = rng.sample(eligible, k);
     const items = chosen.map((def) => {
-      const product = def.uses === 'none' ? null : rng.pick(offeringsFor(seg, def.uses));
+      const product = def.uses === 'none' ? null : offeringForAction(seg, def.uses);
       const value = nice(rng.float(def.value[0], def.value[1]) * country.priceFactor * segScale(seg) * (0.7 + (a.score / 100) * 0.6));
       const confidence = Math.round(rng.float(0.52, 0.94) * 100) / 100;
       const effort = Math.max(3, def.effort + rng.int(-2, 3));
@@ -238,7 +254,7 @@ export function generate(industry, country, { today = new Date(), fmt } = {}) {
       const o = industry.offerings.find((x) => x.id === id);
       const range = o.qty || seg.orderQty || [1, 6];
       const qty = rng.int(range[0], range[1]);
-      const reasons = industry.orderReasons[o.status] || industry.orderReasons.core;
+      const reasons = industry.orderReasons[o.kind] || industry.orderReasons[o.status] || industry.orderReasons.core;
       return {
         offeringId: id, qty, suggested: qty, reason: rng.pick(reasons),
         vars: { qty, avg: Math.max(1, Math.round(qty / rng.int(1, 2))), cover: rng.int(3, 12), event: event.name, eventDays: event.days, weeks: rng.int(3, 8) },
@@ -289,14 +305,14 @@ export function generate(industry, country, { today = new Date(), fmt } = {}) {
     }, 0);
     const fits = p.actions.filter((x) => !x.overBudget).length;
     const plan = {
-      id: `${acc.id}-plan`, kind: 'plan', accountId: acc.id, agent: 'planner', type: 'Visit plan', effort: 0, value: 0,
+      id: `${acc.id}-plan`, kind: 'plan', accountId: acc.id, agent: 'planner', type: '{Visit} plan', effort: 0, value: 0,
       confidence: 0.88, rank: 0, title: '{Visit} at {time}, {minutes} min budget',
       saw: '{Account} opens at {opens}. Last {visit} was {last} days ago.',
       compared: 'Tier {tier} {accounts} are due every {cycle} days. Travel from the previous stop is about {travel} min.',
       vars: { time: fmt.time(p.start), minutes: acc.visitMinutes, opens: fmt.time(acc.hours[0]), last: acc.lastVisitDays, tier: acc.tier, cycle: CYCLE[acc.tier], travel: p.travelMin, fits, total: p.actions.length },
     };
     const draft = {
-      id: `${acc.id}-order`, kind: 'order', accountId: acc.id, agent: 'order', type: 'Order draft', effort: 5, value: orderTotal,
+      id: `${acc.id}-order`, kind: 'order', accountId: acc.id, agent: 'order', type: '{Order} draft', effort: 5, value: orderTotal,
       confidence: Math.round(rng.float(0.66, 0.9) * 100) / 100, rank: p.actions.length + 1,
       title: orderTotal > 0 ? '{Order} draft: {n} lines, {amount}' : '{Order} draft: {n} lines',
       saw: 'The last three {orders} for this {account} and the gaps found today.',
@@ -333,7 +349,7 @@ export function generate(industry, country, { today = new Date(), fmt } = {}) {
     const type = rng.pick(seg.types);
     const area = rng.pick(city.areas);
     const def = rng.pick(industry.actions);
-    const product = def.uses === 'none' ? null : rng.pick(offeringsFor(seg, def.uses));
+    const product = def.uses === 'none' ? null : offeringForAction(seg, def.uses);
     const blocked = i === 2;
     const reason = blocked ? rng.pick(industry.outcomeReasons.filter((x) => x.blocked)) : rng.pick(industry.overrideReasons.filter((x) => x.label !== 'Other'));
     exceptions.push({

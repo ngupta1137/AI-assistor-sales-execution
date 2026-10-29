@@ -17,7 +17,7 @@ export function render(ctx, [accountId]) {
   const rows = lines.map((l) => `<li class="line${l.changed ? ' changed' : ''}" data-line="${l.offeringId}">
     <div class="line-main">
       <b>${esc(t(l.offering.name))}</b>
-      <small>${esc(t(l.offering.category))} · ${l.unitPrice == null ? esc(t('Priced by people, not the agent')) : `${esc(fmt.price(l.unitPrice))} per ${esc(t(l.offering.unit))}`}</small>
+      <small>${esc(t(l.offering.category))} · ${l.unitPrice == null ? esc(t('Priced by people, not the agent')) : l.unitPrice === 0 ? 'No charge' : `${esc(fmt.price(l.unitPrice))} per ${esc(t(l.offering.unit))}`}</small>
       <small class="reason">${icon('agent', 12)} ${esc(t(l.reason, l.vars))}</small>
       ${l.changed ? `<small class="info-text">Changed from ${l.suggested}</small>` : ''}
     </div>
