@@ -22,7 +22,12 @@ export function answer(ctx, question) {
   }
   if (/target|achiev|month|kpi/.test(q)) {
     const k = industry.kpis[0];
-    return t(`Month to date: ${fmt.money(data.territory.achieved + m.selfStats().value)} of ${fmt.money(data.territory.target)}. ${t(k.label)} is ${data.territory.headlineKpi.value}${k.format === 'pct' ? '%' : ''} against a target of ${k.target}${k.format === 'pct' ? '%' : ''}.`);
+    const est = m.selfStats().estimated;
+    return t(`Month to date: ${fmt.money(data.territory.achieved)} of ${fmt.money(data.territory.target)}, from sales records. ${t(k.label)} is ${data.territory.headlineKpi.value}${k.format === 'pct' ? '%' : ''} against a target of ${k.target}${k.format === 'pct' ? '%' : ''}.${est ? ` Actions done today address an estimated ${fmt.money(est)} of opportunity. That is an estimate, not sales.` : ''}`);
+  }
+  if (/missing|prerequisite|consent|signature|can i send|blocked/.test(q)) {
+    const missing = data.planned.flatMap((p) => m.orderRules(p.accountId).filter((r) => r.triggered && r.blocks).map((r) => `${data.byId[p.accountId].name}: ${t(r.text, { limit: '', max: r.max ?? '', lines: (r.detail.lines || []).join(', ') })}`));
+    return missing.length ? t(`These {orders} cannot be sent yet. ${missing.slice(0, 3).join(' ')}`) : t('No {order} on today\'s plan is blocked right now.');
   }
   const qw = words(q);
   let best = null;
@@ -38,21 +43,30 @@ export function answer(ctx, question) {
 export function render(ctx) {
   const { t, industry, ui } = ctx;
   const chat = ui.chat || [];
-  const qs = industry.assistant.map((x, i) => `<button class="chip-q" data-act="ask-q" data-i="${i}">${esc(t(x.q))}</button>`).join('');
-  const log = chat.map((c) => `<div class="msg me">${esc(c.q)}</div><div class="msg ai" data-answer>${icon('agent', 16)} <span>${esc(c.a)}</span></div>`).join('');
-  return `
+  const chip = (x, i) => `<button class="chip-q" data-act="ask-q" data-i="${i}">${esc(t(x.q))}</button>`;
+  const first = industry.assistant.slice(0, 3).map(chip).join('');
+  const rest = industry.assistant.slice(3).map((x, i) => chip(x, i + 3)).join('');
+  const log = chat.map((c) => `<div class="msg me"><small>You</small><div class="bubble">${esc(c.q)}</div></div>
+    <div class="msg ai"><small>AI Assistor</small><div class="bubble" data-answer>${esc(c.a)}</div></div>`).join('');
+  const html = `
   <a class="back" href="#/today">${icon('back', 18)} Today</a>
-  <section class="hello">
+  <section class="page-head">
     <h1>Ask AI</h1>
-    <p class="muted">Answers come from this demo's sample data and the configured guidance. Rule-based in the prototype.</p>
+    <p class="small muted">Sample data. Answers come from configured rules and this scenario's data, not a live model.</p>
   </section>
-  <div class="chips-q">${qs}</div>
-  <div class="chat" id="chat">${log}</div>
-  <form class="ask-row" data-ask-form onsubmit="return false">
-    <input class="input" id="ask-input" type="text" maxlength="200" placeholder="${esc(t('Ask about today\'s {accounts}'))}">
+  <div class="chat" id="chat"${chat.length ? '' : ' hidden'}>${log}</div>
+  <section>
+    <h2 class="small" style="margin-bottom:8px">Suggested questions</h2>
+    <div class="chips-q">${first}</div>
+    <details><summary>Show all questions</summary><div class="chips-q">${rest}</div></details>
+  </section>
+  <p class="foot-note">The assistant never gives clinical, credit, pricing or agronomic advice.</p>`;
+  const dock = `<form class="ask-row" onsubmit="return false">
+    <label class="sr-only" for="ask-input">Question</label>
+    <input class="input" id="ask-input" type="text" maxlength="200" placeholder="${esc(t('Ask about today\'s {accounts}'))}" data-input="ask-draft" value="${esc(ui.askDraft || '')}">
     <button class="btn primary" data-act="ask-free" id="ask-send">Ask</button>
-  </form>
-  <p class="foot-note">Sample data. The assistant never gives clinical, credit, pricing or agronomic advice.</p>`;
+  </form>`;
+  return { html, dock };
 }
 
 export const actions = {
@@ -65,9 +79,11 @@ export const actions = {
     const q = (input?.value || '').trim().slice(0, 200);
     if (!q) return false;
     ctx.ui.chat = [...(ctx.ui.chat || []), { q, a: answer(ctx, q) }].slice(-8);
+    ctx.ui.askDraft = '';
   },
+  'ask-draft': ({ ctx, value }) => { ctx.ui.askDraft = value.slice(0, 200); return false; },
 };
 
 export function mounted(ctx) {
-  if (ctx?.ui.chat?.length) { const sc = document.getElementById('screen'); if (sc) sc.scrollTop = sc.scrollHeight; }
+  if (ctx?.ui.chat?.length) document.querySelector('#chat .msg:last-child')?.scrollIntoView({ block: 'nearest' });
 }

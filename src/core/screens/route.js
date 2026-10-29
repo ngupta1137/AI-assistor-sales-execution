@@ -17,30 +17,33 @@ export function render(ctx) {
   const rows = stops.map((st) => {
     const a = data.byId[st.accountId];
     const done = m.visitDone(a.id);
-    return `<li class="row static route-stop${done ? ' done' : ''}" data-stop="${a.id}">
-      <span class="rank sm">${st.seq}</span>
+    return `<li class="stop${done ? ' done' : ''}" data-stop="${a.id}">
+      <span class="rank${st.seq === 1 ? ' first' : ''}">${st.seq}</span>
       <span class="row-main"><b>${esc(a.name)}</b>
-        <small>${esc(fmt.time(st.start))} to ${esc(fmt.time(st.end))} · ${a.visitMinutes} min budget</small>
-        <small class="row-meta">${icon('route', 14)} ${st.travelMin} min, ${esc(fmt.distance(st.km))} from the previous stop</small></span>
-      <span class="row-end">${done ? pill('Done', 'good') : `<button class="btn ghost sm" data-act="close-account" data-id="${a.id}">Closed today</button>`}</span>
+        <small>${esc(fmt.time(st.start))} to ${esc(fmt.time(st.end))} · ${a.visitMinutes} min</small>
+        <span class="travel">${icon('route', 16)} ${st.travelMin} min, ${esc(fmt.distance(st.km))} from the previous stop</span>
+        <span class="btn-row" style="margin-top:8px">${done ? pill('Done', 'good') : `<a class="btn secondary sm" href="#/brief/${a.id}">Open brief</a><button class="btn secondary sm" data-act="close-account" data-id="${a.id}">Mark closed today</button>`}</span></span>
     </li>`;
   }).join('');
 
   return `
   <a class="back" href="#/today">${icon('back', 18)} Today</a>
-  <section class="hello">
+  <section class="page-head">
     <h1>Route plan</h1>
-    <p class="muted">${esc(t('Ordered by the Visit Planner for opening hours and travel. The ranking on Today is by value.'))}</p>
+    <p class="small muted">${esc(t('Time order from the Visit Planner, by opening hours and travel. Today ranks by estimated opportunity.'))}</p>
   </section>
-  <section class="cards3 card" id="route-summary">
-    <div><small>${esc(t('{Visits}'))}</small><b data-route="stops">${stops.length}</b></div>
-    <div><small>Travel</small><b>${travel} min</b><small>${esc(fmt.distance(km))}</small></div>
-    <div><small>Day ends</small><b>${stops.length ? esc(fmt.time(end)) : '-'}</b><small>${budget} min with ${esc(t('{accounts}'))}</small></div>
+  <section class="card tight" id="route-summary">
+    <div class="facts">
+      <div><small>${esc(t('{Visits}'))}</small><b data-route="stops">${stops.length}</b></div>
+      <div><small>Day ends</small><b>${stops.length ? esc(fmt.time(end)) : '-'}</b></div>
+      <div><small>Travel</small><b>${travel} min</b><small>${esc(fmt.distance(km))}</small></div>
+      <div><small>With ${esc(t('{accounts}'))}</small><b>${budget} min</b></div>
+    </div>
   </section>
-  ${closed.length ? `<div class="notice warn" id="replanned">${icon('route', 18)} ${esc(t(`Re-planned without ${closed.map((p) => data.byId[p.accountId].name).join(', ')}.`))}</div>` : ''}
-  ${dropped.length ? `<div class="notice warn">${esc(t(`${dropped.length} {accounts} no longer fit before closing and move to tomorrow.`))}</div>` : ''}
-  <ol class="list">${rows}</ol>
-  ${closed.length ? `<section><h2>Closed today</h2><ul class="list">${closed.map((p) => `<li class="row static"><span class="row-main"><b>${esc(data.byId[p.accountId].name)}</b></span><button class="btn ghost sm" data-act="close-account" data-id="${p.accountId}">Reopen</button></li>`).join('')}</ul></section>` : ''}
+  ${closed.length ? `<div class="notice warn" id="replanned">${icon('route', 18)}<span>${esc(t(`Route updated without ${closed.map((p) => data.byId[p.accountId].name).join(', ')}.`))}</span></div>` : ''}
+  ${dropped.length ? `<div class="notice warn">${icon('clock', 18)}<span>${esc(t(`${dropped.length} {accounts} no longer fit before closing and move to tomorrow.`))}</span></div>` : ''}
+  <ol class="group timeline">${rows}</ol>
+  ${closed.length ? `<section><h2>Closed today</h2><ul class="group" style="margin-top:12px">${closed.map((p) => `<li class="row"><span class="row-main"><b>${esc(data.byId[p.accountId].name)}</b><small>Closed today</small></span><button class="btn secondary sm" data-act="close-account" data-id="${p.accountId}">Reopen</button></li>`).join('')}</ul></section>` : ''}
   <p class="foot-note">Sample data. Travel times use a straight-line estimate at an average city speed.</p>`;
 }
 

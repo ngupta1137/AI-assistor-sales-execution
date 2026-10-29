@@ -116,7 +116,7 @@ Screens never contain industry nouns. They write `{account}`, `{contact}`, `{vis
 4. Define 2 or 3 `segments`. Each needs a visit length, a visit style, a reference annual value in USD, opening hours, account types with name words per language (`en` is required; `pt`, `es`, `de` and `id` are used by Brazil, Mexico, Germany and Indonesia), and contact roles. Mark at least one segment `key: true`; overrides there route to the KAM.
 5. Add 8 to 12 `offerings` with fictional names. Set `price` to a reference USD price, `0` for no charge, or `null` when people, not the agent, set the price. Add a `kind` for special classes such as samples or contracts. Only actions that ask for that kind will talk about them.
 6. Add 8 to 12 `actions`. Each needs `title`, `saw` (what the agent saw), `compared` (what it compared against), 3 to 5 `why` lines and 2 to 3 `talk` lines. Templates can use `{product} {days} {pct} {qty} {peers} {n} {weeks} {area} {city} {person} {role} {event} {eventDays} {type} {segment} {amount}` plus vocabulary tokens. Include at least one action for each agent (`planner`, `gap`, `order`) and at least 3 actions per segment.
-7. Add `orderReasons`, `orderRules` (`totalAbove`, `lineMax`, `humanPrice`, `info`), `overrideReasons` (with `route`), `outcomeReasons` (mark the ones that block), `visitNotes`, 4 to 6 `kpis` (the first is the headline), `guardrails`, exactly 6 `problems`, 8 to 10 `assistant` questions and answers, an 8-step `storyline`, and `forbidden` words that must never appear for this industry.
+7. Add `orderReasons` (optionally `bySegment` overrides), `orderRules` (`totalAbove`, `lineMax`, `humanPrice`, `prerequisite`, `info`), `overrideReasons` (with `route`), `outcomeReasons` (mark the ones that block), `visitNotes` (strings, or `{ text, segments }`), 4 to 6 `kpis` (the first is the territory headline; add `segments` to limit one to the segments it applies to), `guardrails`, exactly 6 `problems`, 8 to 10 `assistant` questions and answers, an 8-step `storyline`, and `forbidden` words that must never appear for this industry. A `prerequisite` rule (for example a needs review with signed consent before a loan line can be sent) names an action and its evidence type; the generator makes sure that action is in the brief whenever the order needs it.
 8. Register the pack in `src/packs/index.js`: import it and add it to the `INDUSTRIES` list.
 9. Run `npm test`. The validator reports anything missing. The duplicate-text check fails if you copied sentences from another pack, so rewrite them in the new industry's own words. The browser checks then open the new industry in all 8 countries.
 10. Run `npm run build` and commit `docs/index.html`.
@@ -141,7 +141,8 @@ Update the count check in `tests/static.mjs` (`expected 10 industries`) when you
 
 1. **Build** of `docs/index.html`.
 2. **Static checks** (`tests/static.mjs`, about 61,000 checks, a few seconds):
-   - Every pack against the schema, including accent contrast.
+   - Every pack against the schema, including accent contrast, segment-scoped KPIs and notes, and order prerequisites that can actually be met.
+   - No order reason claims a signature or consent that has not been captured.
    - Every template token resolves.
    - No em or en dashes and no hype words in shipped source.
    - A blocklist of real brands, chains and companies.
@@ -162,7 +163,9 @@ Update the count check in `tests/static.mjs` (`expected 10 industries`) when you
 
 Any console error, leftover `{token}`, `undefined` or `NaN`, or one of the pack's forbidden words (for example "store" in pharma or financial services) fails the run. `E2E_ONLY=pharma:IN npm run test:e2e` runs one combination. `E2E_WORKERS=8` runs more in parallel.
 
-Last full run: 80 combinations, 3 personas, 5,768 screens checked, 21,717 assertions, all passing.
+Regression checks from the October 2026 functional review are part of the suite: proposals blocked until the needs review has signed consent (F01), sample requests never shown as signed drops (F02), month actuals unchanged by estimates (F03), override notes kept through save (F04), closed visits leaving coverage gaps (F05), the stored approver named everywhere (F06), honest stopped-agent copy (F07) and done actions leaving open gaps (F08). Layout checks open every screen at 320 and 390 px wide and fail on sideways scroll or any tap target under 44 px.
+
+Last full run: 80 combinations, 3 personas, 5,834 screens checked, 22,697 assertions, all passing.
 
 ## Publish on GitHub Pages
 

@@ -118,15 +118,42 @@ export function readableAccent(hex) {
   return `#${rgb.map((v) => v.toString(16).padStart(2, '0')).join('')}`;
 }
 
+/** Mixes a hex colour with another (0..1 of the other). Literal hex, so nothing depends on color-mix(). */
+function mix(hex, other, amount) {
+  const a = hex.replace('#', '').match(/../g).map((x) => parseInt(x, 16));
+  const b = other.replace('#', '').match(/../g).map((x) => parseInt(x, 16));
+  return `#${a.map((v, i) => Math.round(v * (1 - amount) + b[i] * amount).toString(16).padStart(2, '0')).join('')}`;
+}
+
 function applyTheme(ctx) {
   const pick = app.ui.setup?.industry && !ctx ? findIndustry(app.ui.setup.industry)?.accent : null;
-  const accent = app.config?.color && ctx ? readableAccent(app.config.color) : ctx?.industry.accent || pick || '#334155';
-  document.documentElement.style.setProperty('--accent', accent);
+  const raw = (app.config?.color && ctx ? app.config.color : ctx?.industry.accent || pick) || '#334155';
+  const accent = readableAccent(raw);
+  const root = document.documentElement.style;
+  root.setProperty('--accent-raw', raw);
+  root.setProperty('--accent', accent);
+  root.setProperty('--accent-hover', mix(accent, '#000000', 0.1));
+  root.setProperty('--accent-pressed', mix(accent, '#000000', 0.2));
+  root.setProperty('--accent-soft', mix(accent, '#ffffff', 0.92));
+  root.setProperty('--accent-line', mix(accent, '#ffffff', 0.7));
+}
+
+/** Remembers the focused control so a re-render does not drop keyboard focus. */
+function focusKey() {
+  const f = document.activeElement;
+  if (!f || f === document.body) return null;
+  if (f.id) return `#${CSS.escape(f.id)}`;
+  if (f.name && f.type === 'radio') return `input[name="${CSS.escape(f.name)}"][value="${CSS.escape(f.value)}"]`;
+  if (f.dataset?.act) return `[data-act="${f.dataset.act}"]${f.dataset.id ? `[data-id="${CSS.escape(f.dataset.id)}"]` : ''}${f.dataset.o ? `[data-o="${CSS.escape(f.dataset.o)}"]` : ''}${f.dataset.d ? `[data-d="${f.dataset.d}"]` : ''}`;
+  return null;
 }
 
 export function render() {
   const root = document.getElementById('root');
   const route = parseRoute();
+  const keep = focusKey();
+  const fresh = app.lastRoute !== location.hash;
+  app.lastRoute = location.hash;
   let html;
   let ctx = null;
   if (!app.config || route.name === 'setup') {
@@ -148,30 +175,33 @@ export function render() {
   document.body.classList.toggle('notes-open', app.notesOpen && !!ctx);
   const scroller = document.getElementById('screen');
   if (scroller && app.scrollTop != null) { scroller.scrollTop = app.scrollTop; app.scrollTop = null; }
+  if (scroller && fresh) scroller.classList.add('enter');
+  if (keep && !fresh) document.querySelector(keep)?.focus({ preventScroll: true });
   SCREENS[route.name]?.mounted?.(ctx, route.args);
 }
 
-function shell(ctx, name, out) {
+function shell(ctx, name, result) {
   const { t, data } = ctx;
+  const out = typeof result === 'string' ? result : result.html;
+  const dock = typeof result === 'string' ? '' : result.dock || '';
   const user = ctx.persona === 'rep' ? data.rep : ctx.persona === 'manager' ? data.manager : data.admin;
   const nav = NAV[ctx.persona].map(([id, label, ic]) => {
     const firstBrief = ctx.m.nextAccount(null)?.accountId || data.planned[0].accountId;
     const href = id === 'brief' ? `#/brief/${firstBrief}` : `#/${id}`;
     const active = name === id || (id === 'brief' && ['brief', 'action', 'order', 'complete'].includes(name)) || (id === 'today' && ['account', 'route', 'ask'].includes(name));
-    return `<a class="tab${active ? ' on' : ''}" href="${href}" data-nav="${id}">${icon(ic, 22)}<span>${esc(label)}</span></a>`;
+    return `<a class="tab${active ? ' on' : ''}" href="${href}" data-nav="${id}"${active ? ' aria-current="page"' : ''}><span class="tab-ic">${icon(ic, 22)}</span><span>${esc(label)}</span></a>`;
   }).join('');
   const prepared = app.config.prepared ? `<div class="prepared-band" id="prepared">Prepared for ${esc(app.config.prepared)}</div>` : '';
   return `
   <div class="app" data-region="app" data-screen="${name}">
     <header class="appbar">
-      <button class="logo" id="logo" aria-label="AI Assistor home. Long press for presenter menu">
+      <button class="logo" id="logo" aria-label="AI Assistor home">
         <span class="mark">${icon(ctx.industry.icon, 18)}</span><span class="brand">AI Assistor</span>
       </button>
-      <div class="appbar-right">
-        <div class="who" title="${esc(user.name)}"><span class="who-text"><b>${esc(user.name)}</b><small>${esc(t(user.title))}</small></span><span class="avatar">${esc(initials(user.name))}</span></div>
-      </div>
+      <div class="who"><span class="who-text"><b>${esc(user.name)}</b><small>${esc(t(user.title))}</small></span><span class="avatar" aria-hidden="true">${esc(initials(user.name))}</span></div>
     </header>${prepared}
     <main class="screen" id="screen" data-region="screen">${out}</main>
+    ${dock ? `<div class="dock" data-region="dock">${dock}</div>` : ''}
     <nav class="tabs" aria-label="Main">${nav}</nav>
   </div>`;
 }
@@ -201,6 +231,8 @@ export function start() {
   window.addEventListener('hashchange', () => { app.ui = { ...app.ui, panel: null }; render(); document.getElementById('screen')?.scrollTo(0, 0); });
   document.addEventListener('click', (e) => handle(e, 'act'));
   document.addEventListener('change', (e) => handle(e, 'change'));
+  // Drafts (notes, questions) are captured on every keystroke without a re-render, so nothing typed is lost.
+  document.addEventListener('input', (e) => handle(e, 'input'));
 
   document.addEventListener('keydown', (e) => {
     if (e.shiftKey && (e.key === 'D' || e.key === 'd') && !/INPUT|TEXTAREA|SELECT/.test(e.target.tagName)) {
@@ -210,6 +242,14 @@ export function start() {
     } else if (e.key === 'Escape' && app.presenterOpen) {
       app.presenterOpen = false;
       render();
+    } else if (e.key === 'Escape' && app.ui.panel) {
+      const id = app.ui.panel.id;
+      app.ui.panel = null;
+      render();
+      document.querySelector(`#item-${CSS.escape(id)} [data-act="panel"]`)?.focus();
+    } else if (e.key === 'Enter' && e.target.id === 'ask-input') {
+      e.preventDefault();
+      document.getElementById('ask-send')?.click();
     }
   });
 

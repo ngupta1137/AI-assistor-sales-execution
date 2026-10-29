@@ -68,7 +68,7 @@ for (const p of INDUSTRIES) {
   const strings = [
     p.tagline, ...p.actions.flatMap((a) => [a.title, a.saw, a.compared, ...a.why, ...a.talk, a.guardrail || '']),
     ...p.problems.flatMap((x) => [x.title, x.text]), ...p.assistant.flatMap((x) => [x.q, x.a]),
-    ...p.guardrails.map((g) => g.text), ...p.storyline, ...p.segments.map((s) => s.style), ...p.visitNotes,
+    ...p.guardrails.map((g) => g.text), ...p.storyline, ...p.segments.map((s) => s.style), ...p.visitNotes.map((n) => (typeof n === 'string' ? n : n.text)),
   ].filter((s) => s && s.length >= 30);
   for (const s of new Set(strings)) {
     if (seen.has(s) && seen.get(s) !== p.id) check(false, `copied text in ${p.id} and ${seen.get(s)}: "${s}"`);
@@ -114,6 +114,23 @@ for (const ind of INDUSTRIES) {
       for (const l of p.order) check(!/\{[A-Za-z]+\}/.test(t(l.reason, l.vars)), `${tag}: unresolved order reason "${t(l.reason, l.vars)}"`);
     }
     for (const acc of a.accounts) check(!/\{|undefined/.test(acc.address + acc.name + acc.contacts.map((x) => x.phone).join()), `${tag}: bad account fields ${acc.name} ${acc.address}`);
+  }
+}
+
+// 6b. Truthful order copy and satisfiable prerequisites (functional review F01, F02).
+const CLAIMS = /signed at the call|consent recorded|interest recorded with consent|signed for\b/i;
+for (const ind of INDUSTRIES) {
+  const { bySegment, ...reasons } = ind.orderReasons;
+  const all = [...Object.values(reasons).flat(), ...Object.values(bySegment || {}).flatMap((m) => Object.values(m).flat())];
+  for (const r of all) check(!CLAIMS.test(r), `${ind.id}: order reason claims evidence that does not exist yet: "${r}"`);
+  for (const rule of ind.orderRules.filter((x) => x.kind === 'prerequisite')) {
+    for (const c of COUNTRIES) {
+      const d = generate(ind, c, { today: ONE_DAY, fmt: createFormat(c, ONE_DAY) });
+      for (const p of d.planned) {
+        const applies = p.order.some((l) => { const o = ind.offerings.find((x) => x.id === l.offeringId); return rule.appliesTo === 'humanPrice' ? o.price === null : [o.status, o.category, o.kind].includes(rule.appliesTo); });
+        if (applies) check(p.actions.some((x) => x.defId === rule.action), `${ind.id}x${c.id} ${p.accountId}: order needs ${rule.action} but the brief does not include it`);
+      }
+    }
   }
 }
 

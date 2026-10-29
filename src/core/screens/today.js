@@ -1,4 +1,5 @@
-// R1 Today: greeting, territory target vs achieved, opportunity, today's accounts ranked by value, overnight brief banner.
+// R1 Today: next brief first, then the month, then today's accounts ranked by estimated opportunity.
+// Month actual comes from source data only. Completed actions are shown as an estimate, never added to actuals.
 
 import { esc, icon, pill, bar, kpiValue, AGENT_LABEL } from '../ui.js';
 
@@ -15,72 +16,71 @@ export function render(ctx) {
   const pending = ordered.reduce((s, p) => s + m.counts(p.accountId).pending, 0);
   const done = ordered.filter((p) => m.visitDone(p.accountId)).length;
   const next = m.nextAccount(null);
+  const nextAcc = data.byId[(next || ordered[0]).accountId];
   const kpi = industry.kpis.find((k) => k.id === data.territory.headlineKpi.id);
   const stopped = data.agents.filter((a) => m.agentStopped(a.id));
   const tr = data.territory;
   const self = m.selfStats();
-  const achieved = tr.achieved + self.value;
+  const pct = Math.round((tr.achieved / tr.target) * 100);
 
   const rows = ordered.map((p) => {
     const a = data.byId[p.accountId];
     const c = m.counts(p.accountId);
     const isDone = m.visitDone(p.accountId);
     const status = isDone ? pill('Done', 'good')
-      : c.pending === 0 ? pill('Brief reviewed', 'info')
-        : pill(`${c.pending} to review`, 'warn');
+      : m.closedToday(p.accountId) ? pill('Closed today', 'muted')
+        : c.pending === 0 ? pill('Reviewed', 'info') : pill(`${c.pending} to review`, 'warn');
     return `<li><a class="row acc-row${isDone ? ' done' : ''}" href="#/brief/${a.id}" data-account="${a.id}">
-      <span class="rank">${p.rank}</span>
+      <span class="rank${p.rank === 1 ? ' first' : ''}">${p.rank}</span>
       <span class="row-main">
         <b>${esc(a.name)}</b>
-        <small>${esc(t(a.type))} · ${esc(a.area)} · Tier ${a.tier}</small>
-        <small class="row-meta">${icon('clock', 14)} ${esc(fmt.time(p.start))} · ${p.actions.length} actions · ${esc(fmt.distance(p.km))}</small>
+        <small>${esc(fmt.time(p.start))} · ${esc(t(a.type))} · ${esc(a.area)} · ${esc(fmt.distance(p.km))}</small>
+        <span class="row-line"><span class="small">Est. <b class="money">${esc(fmt.moneyShort(p.opportunity))}</b> · ${p.actions.length} actions · Tier ${a.tier}</span>${status}</span>
       </span>
-      <span class="row-end"><b class="money">${esc(fmt.moneyShort(p.opportunity))}</b>${status}</span>
     </a></li>`;
   }).join('');
 
   return `
-  <section class="hello">
+  <section class="page-head">
     <h1>${greeting()}, ${esc(data.rep.first)}</h1>
     <p class="muted">${esc(fmt.weekday(today))} ${esc(fmt.dateShort(today))} · ${esc(data.city.name)} · ${ordered.length} ${esc(t('{visits}'))} planned</p>
   </section>
 
-  ${stopped.length ? `<div class="notice warn">${icon('stop', 18)} ${esc(stopped.map((a) => AGENT_LABEL[a.id]).join(', '))} stopped. Its items are paused in every brief.</div>` : ''}
+  ${stopped.length ? `<div class="notice warn">${icon('stop', 18)}<span>${esc(stopped.map((a) => AGENT_LABEL[a.id]).join(', '))} stopped. Its items are paused in every brief.</span></div>` : ''}
 
-  <a class="banner" href="#/brief/${(next || ordered[0]).accountId}" id="overnight-banner">
-    <span class="banner-ic">${icon('agent', 22)}</span>
-    <span><b>Overnight brief ready</b>
-    <small>${esc(t(`3 agents prepared ${ordered.length} {visit} briefs: ${totalActions} ranked actions, plus a plan and {order} draft for each. ${pending} items wait for your review.`))}</small></span>
-    ${icon('chevron', 18)}
-  </a>
+  <section class="hero">
+    <div class="hero-top">
+      <span class="hero-ic">${icon('agent', 22)}</span>
+      <span class="row-main"><b>Briefs ready</b>
+      <small>${esc(t(`${ordered.length} {visit} briefs, ${totalActions} ranked actions, prepared overnight by 3 agents.`))}</small></span>
+      ${pill(`${pending} to review`, pending ? 'warn' : 'good')}
+    </div>
+    <a class="btn primary block" href="#/brief/${nextAcc.id}" id="overnight-banner">${esc(t(`Open next brief: ${nextAcc.name}`))}${icon('chevron', 18)}</a>
+  </section>
 
-  <div class="quick">
-    <a class="btn ghost" href="#/route" id="open-route">${icon('route', 18)}Route plan</a>
-    <a class="btn ghost" href="#/ask" id="open-ask">${icon('ask', 18)}Ask AI</a>
+  <div class="quick tight">
+    <a class="btn secondary" href="#/route" id="open-route">${icon('route', 20)}Route plan</a>
+    <a class="btn secondary" href="#/ask" id="open-ask">${icon('ask', 20)}Ask AI</a>
   </div>
 
-  <section class="cards2">
-    <div class="card stat">
-      <small>Target this month</small>
-      <b class="big">${esc(fmt.moneyShort(achieved))}</b>
-      <small class="muted">of ${esc(fmt.moneyShort(tr.target))} (${Math.round((achieved / tr.target) * 100)}%)</small>
-      ${bar(achieved, tr.target)}
-    </div>
-    <div class="card stat">
-      <small>Opportunity in ${esc(t('{territory}'))}</small>
-      <b class="big">${esc(fmt.moneyShort(tr.opportunity))}</b>
-      <small class="muted">${esc(t('Untapped potential across {n} {accounts}', { n: data.accounts.length }))}</small>
-    </div>
-    <div class="card stat wide">
-      <small>${esc(t(kpi.label))}</small>
-      <b class="big">${esc(kpiValue(kpi, tr.headlineKpi.value, fmt))}</b>
-      <small class="muted">Target ${esc(kpiValue(kpi, kpi.target, fmt))} · ${done} of ${ordered.length} ${esc(t('{visits}'))} done today</small>
-    </div>
+  <section class="card tight" style="padding:12px 16px">
+    <div class="stat-row"><span class="small muted">Month to date</span><span class="small"><b class="money">${esc(fmt.moneyShort(tr.achieved))}</b> of ${esc(fmt.moneyShort(tr.target))} · ${pct}%</span></div>
+    ${bar(tr.achieved, tr.target)}
+    <small>${done} of ${ordered.length} ${esc(t('{visits}'))} recorded · ${self.actionsDone} actions done</small>
   </section>
 
   <section>
-    <div class="section-head"><h2>${esc(t("Today's {accounts}"))}</h2><small class="muted">Ranked by value at stake</small></div>
-    <ol class="list">${rows}</ol>
+    <div class="section-head"><h2>${esc(t("Today's {accounts}"))}</h2><small>Ranked by estimated opportunity</small></div>
+    <ol class="group list">${rows}</ol>
+  </section>
+
+  <section class="card">
+    <h2>${esc(t('{Territory}'))}</h2>
+    <div class="facts">
+      <div><small>${esc(t(kpi.label))}</small><b>${esc(kpiValue(kpi, tr.headlineKpi.value, fmt))}</b><small>Target ${esc(kpiValue(kpi, kpi.target, fmt))}</small></div>
+      <div><small>Untapped potential</small><b>${esc(fmt.moneyShort(tr.opportunity))}</b><small>${esc(t(`Across ${data.accounts.length} {accounts}`))}</small></div>
+      ${self.estimated ? `<div class="wide"><small>Estimated opportunity addressed today</small><b>${esc(fmt.moneyShort(self.estimated))}</b><small>An estimate from completed actions. Not booked sales, and not added to the month figure.</small></div>` : ''}
+    </div>
   </section>
   <p class="foot-note">Sample data. Values are generated for this demo.</p>`;
 }

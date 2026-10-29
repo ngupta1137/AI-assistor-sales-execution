@@ -244,7 +244,7 @@ export default {
     { id: 'dist', label: 'Distribution of core range', format: 'pct', range: [58, 94], target: 90 },
     { id: 'lines', label: 'Lines per order', format: 'count', range: [3, 9], target: 8 },
     { id: 'oos', label: 'Out-of-stock days (last 14)', format: 'count', range: [0, 6], target: 1, lowerIsBetter: true },
-    { id: 'display', label: 'Display compliance', format: 'pct', range: [40, 92], target: 80 },
+    { id: 'display', label: 'Display compliance', format: 'pct', range: [40, 92], target: 80, segments: ['super', 'conv'] },
     { id: 'strike', label: 'Visits with an order', format: 'pct', range: [55, 92], target: 85 },
   ],
   guardrails: [

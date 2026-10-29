@@ -60,3 +60,11 @@ export function typeLine(t, a) {
   const seg = t(a.segment);
   return seg.toLowerCase().startsWith(type.toLowerCase()) ? type : `${type} · ${seg}`;
 }
+
+/** Confidence shown once, as icon + label + whole percent. Low confidence is said plainly. */
+export function confBadge(c) {
+  const x = confidence(c);
+  return `<span class="conf ${x.tone === 'low' ? 'low' : ''}">${icon(x.tone === 'low' ? 'flag' : 'check', 16)}${x.label} confidence · ${x.pct}%</span>`;
+}
+
+export const agentTag = (agentId) => `<span class="agent-tag">${icon('agent', 16)}${esc(AGENT_LABEL[agentId])}</span>`;

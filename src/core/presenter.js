@@ -34,12 +34,16 @@ export function renderPresenter(app, ctx, { INDUSTRIES, COUNTRIES, PERSONAS, sha
         <input type="text" maxlength="40" data-change="p-prepared" value="${esc(c.prepared || '')}" placeholder="Prospect name"></label>
       ${configured ? `<label class="field"><span>Share link</span><input type="text" readonly value="${esc(shareLink)}" id="p-link" data-act="p-select"></label>` : ''}
       <div class="presenter-actions">
-        ${configured ? `<button class="btn ghost" data-act="p-copy">${icon('note', 18)}Copy link</button>
-        <button class="btn ghost" data-act="p-notes">${icon('brief', 18)}${app.notesOpen ? 'Hide' : 'Show'} presenter notes</button>
-        <button class="btn ghost" data-act="p-reset" id="p-reset">${icon('route', 18)}Reset demo</button>` : ''}
-        <button class="btn ghost" data-act="p-setup">${icon('config', 18)}Open setup screen</button>
+        ${configured ? `<button class="btn secondary" data-act="p-copy">${icon('note', 20)}Copy link</button>
+        <button class="btn secondary" data-act="p-notes">${icon('brief', 20)}${app.notesOpen ? 'Hide' : 'Show'} presenter notes</button>` : ''}
+        <button class="btn secondary" data-act="p-setup">${icon('config', 20)}Open setup screen</button>
+        ${configured ? `<hr>${app.confirmReset
+    ? `<p class="small">Clear every decision, outcome and ${esc(ctx ? ctx.t('{order}') : 'order')} in ${esc(INDUSTRIES.find((i) => i.id === c.industryId)?.name || '')}, ${esc(COUNTRIES.find((x) => x.id === c.countryId)?.name || '')} and all other scenarios? The sample data itself stays the same.</p>
+        <div class="btn-row" style="flex-wrap:nowrap"><button class="btn secondary" style="flex:1" data-act="p-reset-cancel">Cancel</button>
+        <button class="btn danger" style="flex:1" data-act="p-reset-confirm" id="p-reset-confirm">Reset demo</button></div>`
+    : `<button class="btn danger" data-act="p-reset" id="p-reset">${icon('route', 20)}Reset demo</button>`}` : ''}
       </div>
-      ${app.copied ? '<p class="small ok-text">Link copied.</p>' : ''}
+      ${app.copied === true ? '<p class="small ok-text" role="status">Link copied.</p>' : app.copied === 'failed' ? '<p class="small warn-text" role="status">Copy failed. Select the link and copy it.</p>' : ''}
       <p class="small muted">All names, places and numbers are generated sample data. Nothing here describes a real company or a real result. Shortcut: Shift+D.</p>
     </div>
   </section>`;
@@ -48,21 +52,25 @@ export function renderPresenter(app, ctx, { INDUSTRIES, COUNTRIES, PERSONAS, sha
 export function renderNotes(app, ctx) {
   if (!ctx || !app.notesOpen) return '';
   const routes = STEP_ROUTES(ctx);
-  const steps = ctx.industry.storyline.map((s, i) => `<li><a href="${routes[i] || '#/today'}">${esc(ctx.t(s))}</a></li>`).join('');
+  const hash = location.hash || '#/today';
+  // The most specific matching step: exact route first, then the screen name.
+  let current = routes.findIndex((r) => r === hash);
+  if (current < 0) current = routes.findIndex((r) => r.split('/')[1] === hash.split('/')[1]);
+  const steps = ctx.industry.storyline.map((s, i) => `<li${i === current ? ' class="current" aria-current="step"' : ''}><a href="${routes[i] || '#/today'}">${esc(ctx.t(s))}</a></li>`).join('');
   return `<div class="side-inner" data-region="notes">
     <div class="side-head"><b>Presenter notes</b><span class="sample-tag">Sample data</span></div>
-    <p class="small muted">${esc(ctx.industry.name)} · ${esc(ctx.country.name)}. Only you see this panel.</p>
+    <p class="small muted">${esc(ctx.industry.name)} · ${esc(ctx.country.name)}. Presenter notes are visible beside the app, so hide them before you share this window.</p>
     <ol class="story">${steps}</ol>
     <div class="side-switch">
-      <button class="btn ghost sm" data-act="p-as" data-persona="rep">As rep</button>
-      <button class="btn ghost sm" data-act="p-as" data-persona="manager">As manager</button>
-      <button class="btn ghost sm" data-act="p-as" data-persona="admin">As admin</button>
+      <button class="btn secondary sm" data-act="p-as" data-persona="rep">As rep</button>
+      <button class="btn secondary sm" data-act="p-as" data-persona="manager">As manager</button>
+      <button class="btn secondary sm" data-act="p-as" data-persona="admin">As admin</button>
     </div>
   </div>`;
 }
 
 export const presenterActions = {
-  'presenter-close': ({ app }) => { app.presenterOpen = false; app.copied = false; },
+  'presenter-close': ({ app }) => { app.presenterOpen = false; app.copied = false; app.confirmReset = false; },
   'p-industry': ({ value, api, app }) => {
     if (!value) return false;
     const next = { industryId: value, persona: app.config?.persona || 'rep' };
@@ -97,16 +105,22 @@ export const presenterActions = {
   },
   'p-as': ({ data, api }) => { api.configure({ persona: data.persona }, { home: true }); return 'nav'; },
   'p-select': ({ el }) => { el.select(); return false; },
-  'p-copy': ({ app }) => {
+  'p-copy': ({ app, api }) => {
     const input = document.getElementById('p-link');
     try {
-      if (navigator.clipboard) navigator.clipboard.writeText(input.value).catch(() => {});
-      else { input.select(); document.execCommand('copy'); }
-      app.copied = true;
-    } catch { app.copied = false; }
+      if (navigator.clipboard) {
+        navigator.clipboard.writeText(input.value).then(() => { app.copied = true; api.render(); }, () => { app.copied = 'failed'; api.render(); });
+        return false;
+      }
+      input.select();
+      app.copied = document.execCommand('copy') ? true : 'failed';
+    } catch { app.copied = 'failed'; }
   },
   'p-notes': ({ app }) => { app.notesOpen = !app.notesOpen; },
-  'p-reset': ({ api, app }) => {
+  'p-reset': ({ app }) => { app.confirmReset = true; },
+  'p-reset-cancel': ({ app }) => { app.confirmReset = false; },
+  'p-reset-confirm': ({ api, app }) => {
+    app.confirmReset = false;
     api.resetDemo();
     app.presenterOpen = false;
     api.navigate(`#/${{ rep: 'today', manager: 'manager', admin: 'config' }[app.config.persona]}`);

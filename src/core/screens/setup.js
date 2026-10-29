@@ -13,19 +13,20 @@ export function render({ app, INDUSTRIES, COUNTRIES, buildContext }) {
     industry: app.config?.industryId || '', country: app.config?.countryId || '', persona: app.config?.persona || 'rep', prepared: app.config?.prepared || '', color: app.config?.color || '',
   });
   const ready = s.industry && s.country;
-  let preview = '<p class="muted small">Pick an industry and a country to see who you sign in as.</p>';
+  let preview = '<p class="signin">Choose an industry and a country to start.</p>';
   let ctx = null;
   if (ready) {
     ctx = buildContext(s.industry, s.country);
     const who = s.persona === 'rep' ? ctx.data.rep : s.persona === 'manager' ? ctx.data.manager : ctx.data.admin;
     preview = `<p class="signin">Signs in as <b>${esc(who.name)}</b>, ${esc(ctx.t(who.title))}, ${esc(ctx.data.city.name)}</p>`;
   }
-  const tiles = INDUSTRIES.map((ind) => `
-    <button class="tile${s.industry === ind.id ? ' on' : ''}" data-act="setup-industry" data-id="${ind.id}" style="--tile:${ind.accent}" aria-pressed="${s.industry === ind.id}">
-      <span class="tile-ic">${icon(ind.icon, 24)}</span>
-      <span class="tile-name">${esc(ind.name)}</span>
-      <span class="tile-sub">${esc(ind.tagline)}</span>
-    </button>`).join('');
+  const check = icon('check', 14);
+  const tiles = INDUSTRIES.map((ind) => `<li>
+    <button class="choice tile${s.industry === ind.id ? ' on' : ''}" data-act="setup-industry" data-id="${ind.id}" style="--tile:${ind.accent}" aria-pressed="${s.industry === ind.id}">
+      <span class="tile-ic">${icon(ind.icon, 20)}</span>
+      <span class="txt"><b class="tile-name">${esc(ind.name)}</b><small class="tile-sub">${esc(ind.tagline)}</small></span>
+      <span class="check" aria-hidden="true">${s.industry === ind.id ? check : ''}</span>
+    </button></li>`).join('');
   const countries = COUNTRIES.map((c) => `
     <button class="chip${s.country === c.id ? ' on' : ''}" data-act="setup-country" data-id="${c.id}" aria-pressed="${s.country === c.id}">
       <b>${esc(c.name)}</b><small>${esc(c.currency)}</small>
@@ -36,30 +37,36 @@ export function render({ app, INDUSTRIES, COUNTRIES, buildContext }) {
     return `<button class="persona${s.persona === id ? ' on' : ''}" data-act="setup-persona" data-id="${id}" aria-pressed="${s.persona === id}">
       <b>${esc(title)}</b><small>${esc(text)}</small></button>`;
   }).join('');
+  const chosen = ready ? `${INDUSTRIES.find((i) => i.id === s.industry).name} · ${COUNTRIES.find((c) => c.id === s.country).name}` : '';
 
   return `
   <div class="setup" data-region="setup">
-    <header class="setup-head">
-      <div class="setup-logo">${icon('agent', 26)}</div>
-      <h1>AI Assistor Sales Execution</h1>
-      <p class="muted">An AI field sales app that plans each rep's day, ranks what to do in every visit, and shows what happened.</p>
-      <span class="sample-tag">Sample data. All names are fictional.</span>
-    </header>
-    ${app.notice ? `<div class="notice">${esc(app.notice)}</div>` : ''}
-    <section><h2 class="setup-step">1. Industry</h2><div class="tiles">${tiles}</div></section>
-    <section><h2 class="setup-step">2. Country</h2><div class="chips">${countries}</div></section>
-    <section><h2 class="setup-step">3. Persona</h2><div class="personas">${personas}</div></section>
-    <section><h2 class="setup-step">4. Prepared for <span class="muted small">(optional)</span></h2>
-      <input class="input" type="text" maxlength="40" placeholder="Prospect name, shown as Prepared for" value="${esc(s.prepared)}" data-change="setup-prepared" id="setup-prepared">
-      <label class="color-row"><span>Accent</span>
-        <input type="color" value="${esc(s.color || (INDUSTRIES.find((i) => i.id === s.industry)?.accent || '#334155'))}" data-change="setup-color" id="setup-color">
-        ${s.color ? '<button class="btn ghost sm" data-act="setup-color-reset">Use industry default</button>' : ''}
-      </label>
-      <p class="small muted">Name and accent only. Never use a real company's logo.</p>
-    </section>
+    <div class="setup-scroll">
+      <header class="setup-head">
+        <div class="setup-brand"><span class="mark">${icon('agent', 18)}</span>AI Assistor</div>
+        <h1>AI Assistor Sales Execution</h1>
+        <p class="muted small">Plans each rep's day, ranks what to do in every visit, and shows what happened. Choose a sample scenario.</p>
+        <span><span class="sample-tag">Sample data. All names are fictional.</span></span>
+      </header>
+      ${app.notice ? `<div class="notice warn">${icon('flag', 18)}<span>${esc(app.notice)}</span></div>` : ''}
+      <section><h2 class="setup-step">Industry</h2><ul class="choice-list tiles">${tiles}</ul></section>
+      <section><h2 class="setup-step">Country</h2><div class="chips">${countries}</div></section>
+      <section><h2 class="setup-step">Role</h2><div class="personas">${personas}</div></section>
+      <details ${s.prepared || s.color ? 'open' : ''}><summary>Prepared for (optional)</summary>
+        <label class="field">Prospect name, shown as Prepared for
+          <input class="input" type="text" maxlength="40" value="${esc(s.prepared)}" data-change="setup-prepared" id="setup-prepared"></label>
+        <label class="color-row"><span>Accent</span>
+          <input type="color" value="${esc(s.color || (INDUSTRIES.find((i) => i.id === s.industry)?.accent || '#334155'))}" data-change="setup-color" id="setup-color">
+          ${s.color ? '<button class="btn secondary sm" data-act="setup-color-reset">Use industry default</button>' : ''}
+        </label>
+        <p class="small muted">Name and accent only. Never use a real company's logo.</p>
+      </details>
+    </div>
     <div class="setup-foot">
+      ${chosen ? `<p class="small"><b>${esc(chosen)}</b></p>` : ''}
       ${preview}
-      <button class="btn primary block" data-act="setup-start" id="start-demo" ${ready ? '' : 'disabled'}>Start demo</button>
+      <span class="small warn-text">Sample data</span>
+      <button class="btn primary block" data-act="setup-start" id="start-demo" ${ready ? '' : 'disabled'}>${ready ? 'Start demo' : 'Choose an industry and a country'}</button>
     </div>
   </div>`;
 }
