@@ -1,8 +1,11 @@
 // Auto parts: workshops, parts retailers and fleet operators. Part brand names are coined.
 // Counterfeit and warranty rules apply; warranty decisions stay with the warranty team.
 
+import assistant from './autoparts.assistant.js';
+
 /** @type {import('../schema.js').IndustryPack} */
 export default {
+  ...assistant,
   id: 'autoparts',
   name: 'Auto parts',
   tagline: 'Workshops, parts retailers and fleets',

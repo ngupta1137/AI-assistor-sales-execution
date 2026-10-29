@@ -1,8 +1,11 @@
 // Financial services field sales: merchants, small businesses and banking agent outlets.
 // Agents never set a price, approve credit or offer a product without suitability and consent.
 
+import assistant from './finserv.assistant.js';
+
 /** @type {import('../schema.js').IndustryPack} */
 export default {
+  ...assistant,
   id: 'finserv',
   name: 'Financial services',
   tagline: 'Merchants, small businesses and agent outlets',

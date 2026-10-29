@@ -1,8 +1,11 @@
 // Pharma: hospitals, clinics and pharmacies. Product names are coined and fictional.
 // No clinical claims anywhere: content is "use the approved material", never what it says.
 
+import assistant from './pharma.assistant.js';
+
 /** @type {import('../schema.js').IndustryPack} */
 export default {
+  ...assistant,
   id: 'pharma',
   name: 'Pharma',
   tagline: 'Hospitals, clinics and pharmacies',

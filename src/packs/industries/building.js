@@ -1,8 +1,11 @@
 // Building materials and paints: dealers, hardware stores, contractors and projects.
 // Product names are coined. Quotes above a threshold need approval; credit stays with finance.
 
+import assistant from './building.assistant.js';
+
 /** @type {import('../schema.js').IndustryPack} */
 export default {
+  ...assistant,
   id: 'building',
   name: 'Building materials and paints',
   tagline: 'Dealers, hardware stores, contractors and projects',

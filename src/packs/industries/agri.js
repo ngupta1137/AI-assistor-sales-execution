@@ -1,8 +1,11 @@
 // Agri inputs: agri dealers, cooperatives and farmers. Product names are coined.
 // Crop protection advice follows the product label. Credit decisions stay with people.
 
+import assistant from './agri.assistant.js';
+
 /** @type {import('../schema.js').IndustryPack} */
 export default {
+  ...assistant,
   id: 'agri',
   name: 'Agri inputs',
   tagline: 'Agri dealers, cooperatives and farmers',

@@ -103,7 +103,7 @@ export function answer(ctx, question, c, opts = {}) {
   try {
     const refusal = check(ctx, q);
     if (refusal) {
-      ctx.m.logAudit(actor(ctx, c), `Assistant declined a question on the ${c.screen} screen (${c.persona}). Guardrail ${refusal.guardrailId}. Question: "${q.slice(0, 80)}"`);
+      ctx.m.logAudit(actor(ctx, c), `Assistant declined a question (${c.persona}, ${c.screen} screen). Guardrail ${refusal.guardrailId}. Question: "${q.slice(0, 80)}"`);
       return { intent: 'refusal', text: refusal.text, basedOn: 'the guardrails of this pack', links: [], refusal: { guardrailId: refusal.guardrailId, guardrailText: refusal.guardrailText } };
     }
     const id = opts.intent || detectIntent(ctx, q, c)?.id;

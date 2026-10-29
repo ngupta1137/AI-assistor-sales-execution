@@ -30,6 +30,7 @@ const stripComments = (src) => src.replace(/\/\*[\s\S]*?\*\//g, '').replace(/(^|
 // 1. Schema
 for (const p of INDUSTRIES) validateIndustry(p, ICON_KEYS).forEach((m) => check(false, `schema: ${m}`));
 for (const c of COUNTRIES) validateCountry(c).forEach((m) => check(false, `schema: ${m}`));
+for (const p of INDUSTRIES) check(!!(p.assistantContext && p.assistantAnswers && p.assistantRefusals), `${p.id}: assistant content (assistantContext, assistantAnswers, assistantRefusals) is required`);
 check(INDUSTRIES.length === 10, `expected 10 industries, found ${INDUSTRIES.length}`);
 check(COUNTRIES.length === 8, `expected 8 countries, found ${COUNTRIES.length}`);
 check(new Set(INDUSTRIES.map((p) => p.id)).size === INDUSTRIES.length, 'duplicate industry ids');
@@ -69,6 +70,7 @@ for (const p of INDUSTRIES) {
     p.tagline, ...p.actions.flatMap((a) => [a.title, a.saw, a.compared, ...a.why, ...a.talk, a.guardrail || '']),
     ...p.problems.flatMap((x) => [x.title, x.text]), ...p.assistant.flatMap((x) => [x.q, x.a]),
     ...p.guardrails.map((g) => g.text), ...p.storyline, ...p.segments.map((s) => s.style), ...p.visitNotes.map((n) => (typeof n === 'string' ? n : n.text)),
+    ...Object.values(p.assistantAnswers || {}), ...(p.assistantRefusals || []).flatMap((r) => [r.refusal, r.allowed]),
   ].filter((s) => s && s.length >= 30);
   for (const s of new Set(strings)) {
     if (seen.has(s) && seen.get(s) !== p.id) check(false, `copied text in ${p.id} and ${seen.get(s)}: "${s}"`);

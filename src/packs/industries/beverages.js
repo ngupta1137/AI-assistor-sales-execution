@@ -1,8 +1,11 @@
 // Beverages and alcohol: bars, restaurants and hotels (on-trade) and stores (off-trade).
 // Brand names are coined. Responsible marketing, licensing and age rules come first.
 
+import assistant from './beverages.assistant.js';
+
 /** @type {import('../schema.js').IndustryPack} */
 export default {
+  ...assistant,
   id: 'beverages',
   name: 'Beverages and alcohol',
   tagline: 'Bars, restaurants, hotels and liquor stores',

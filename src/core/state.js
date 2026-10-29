@@ -50,10 +50,12 @@ export function createModel(ctx) {
   const actionsOf = (accountId) => plannedFor(accountId)?.actions || [];
 
   const decision = (id) => s.decisions[id];
-  const decide = (id, d) => {
+  /** meta: { persona, screen } of where the decision was made. Overrides and refusals both record it. */
+  const decide = (id, d, meta) => {
     s.decisions[id] = { ...d, at: nowMinutes() };
     const it = findAction(id);
-    log(data.rep.name, d.status === 'approved' ? `Approved ${itemText(it)}` : d.status === 'adjusted' ? `Adjusted ${itemText(it)}: ${ctx.t(d.choice)}` : `Overrode ${itemText(it)}. Reason: ${ctx.t(d.reason)}`);
+    const where = meta ? ` (${meta.persona}, ${meta.screen} screen)` : '';
+    log(data.rep.name, d.status === 'approved' ? `Approved ${itemText(it)}` : d.status === 'adjusted' ? `Adjusted ${itemText(it)}: ${ctx.t(d.choice)}` : `Overrode ${itemText(it)}. Reason: ${ctx.t(d.reason)}${where}`);
     if (d.status === 'overridden') {
       const item = findAction(id);
       const acc = data.byId[item.accountId];

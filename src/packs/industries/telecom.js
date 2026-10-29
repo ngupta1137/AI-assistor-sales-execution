@@ -1,8 +1,11 @@
 // Telecom retail: SIM and recharge outlets, franchise stores and phone retailers.
 // Device and plan names are coined. No activation without valid ID and complete KYC.
 
+import assistant from './telecom.assistant.js';
+
 /** @type {import('../schema.js').IndustryPack} */
 export default {
+  ...assistant,
   id: 'telecom',
   name: 'Telecom retail',
   tagline: 'SIM and recharge outlets, franchise stores',

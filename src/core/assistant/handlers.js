@@ -457,8 +457,9 @@ H['mgr.patterns'] = (ctx) => {
 
 // ---- Agents ----------------------------------------------------------------
 H['agents.what'] = (ctx) => {
-  const rows = ctx.data.agents.map((ag) => `${ag.name} (level ${ag.level} of 4, owner ${ag.owner.name}): ${SCOPE[ag.id].scope.replace(/\.$/, '')}`);
-  return { text: `${rows.join('. ')}. ${LEVELS[2]} is the starting point; authority grows on evidence and can be withdrawn.`, basedOn: 'the three agents, their scope, owners and authority levels', links: [link.agents()] };
+  const lower = (x) => x.replace(/^(\w)/, (m) => m.toLowerCase());
+  const rows = ctx.data.agents.map((ag) => `${ag.name} (level ${ag.level} of 4, owner ${ag.owner.name}) handles ${lower(SCOPE[ag.id].scope).replace(/\.$/, '')}`);
+  return { text: `${rows.join('. ')}. Authority starts narrow, grows on evidence and can be withdrawn.`, basedOn: 'the three agents, their scope, owners and authority levels', links: [link.agents()] };
 };
 
 H['agents.cannot'] = (ctx) => {

@@ -33,7 +33,7 @@ export const INTENTS = [
   // Order
   { id: 'order.why', screens: ['order'], phrases: ['why these lines', 'why these', 'where do the lines come from', 'how were the lines', 'why this quantity'], words: ['lines', 'quantity', 'quantities', 'suggested'] },
   { id: 'order.blocking', screens: ['order'], phrases: ['blocking send', 'what is blocking', 'can i send', 'why cannot i send', 'why can i not send', 'why is submit', 'cannot submit', 'not allowed to send'], words: ['blocking', 'blocked', 'send', 'submit', 'stuck'] },
-  { id: 'order.rule', screens: ['order'], phrases: ['what rule applies', 'which rule', 'approval rule', 'approval limit', 'who approves'], words: ['rule', 'rules', 'approval', 'approve', 'limit', 'threshold'] },
+  { id: 'order.rule', screens: ['order'], phrases: ['what rule applies', 'which rule', 'approval rule', 'approval limit', 'who approves', 'why is there a'], words: ['rule', 'rules', 'approval', 'approve', 'limit', 'threshold', 'cap', 'capped', 'maximum'] },
   { id: 'order.edit', screens: ['order'], phrases: ['if i edit', 'change a line', 'what changes if', 'if i change the quantity', 'raise a line'], words: ['edit', 'change', 'changes', 'raise', 'increase'] },
   // Visit complete
   { id: 'complete.log', screens: ['complete'], phrases: ['what should i log', 'what do i log', 'what to record', 'what do i record'], words: ['log', 'record', 'outcome', 'outcomes'] },

@@ -1,8 +1,11 @@
 // Medical devices: hospitals, surgery centers and diagnostic labs. Product names are coined.
 // Approved claims only; case support is logged; contract pricing stays with people.
 
+import assistant from './meddevices.assistant.js';
+
 /** @type {import('../schema.js').IndustryPack} */
 export default {
+  ...assistant,
   id: 'meddevices',
   name: 'Medical devices',
   tagline: 'Hospitals, surgery centers and labs',

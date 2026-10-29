@@ -1,8 +1,11 @@
 // Consumer electronics: large format stores and multi-brand outlets. Model names are coined.
 // Price promises follow the retailer agreement; product claims use the approved feature sheet.
 
+import assistant from './electronics.assistant.js';
+
 /** @type {import('../schema.js').IndustryPack} */
 export default {
+  ...assistant,
   id: 'electronics',
   name: 'Consumer electronics',
   tagline: 'Electronics stores and multi-brand outlets',
