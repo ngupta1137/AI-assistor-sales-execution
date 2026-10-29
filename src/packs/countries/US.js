@@ -1,0 +1,48 @@
+// United States. Phone numbers use the 555-01xx range reserved for fiction.
+
+/** @type {import('../schema.js').CountryPack} */
+export default {
+  id: 'US',
+  name: 'United States',
+  locale: 'en-US',
+  currency: 'USD',
+  decimals: 2,
+  priceFactor: 1,
+  compactUnits: [{ value: 1e9, suffix: 'B' }, { value: 1e6, suffix: 'M' }, { value: 1e3, suffix: 'K', min: 1e4 }],
+  distance: 'mi',
+  dateOrder: 'mdy',
+  dateSep: '/',
+  clock: '12h',
+  spelling: 'us',
+  weekend: [0, 6],
+  speedKmh: 32,
+  cities: [
+    { name: 'Chicago', region: 'IL', lat: 41.8781, lng: -87.6298, postcode: '606{d}{d}', phone: '(312) 555-01{d}{d}', areas: ['Lincoln Park', 'Pilsen', 'Logan Square', 'Hyde Park', 'Uptown', 'Bridgeport'] },
+    { name: 'Dallas', region: 'TX', lat: 32.7767, lng: -96.797, postcode: '752{d}{d}', phone: '(214) 555-01{d}{d}', areas: ['Oak Cliff', 'Deep Ellum', 'Lakewood', 'Bishop Arts', 'Lake Highlands', 'Uptown'] },
+    { name: 'Atlanta', region: 'GA', lat: 33.749, lng: -84.388, postcode: '303{d}{d}', phone: '(404) 555-01{d}{d}', areas: ['Midtown', 'West End', 'Kirkwood', 'Grant Park', 'Old Fourth Ward', 'Inman Park'] },
+    { name: 'Phoenix', region: 'AZ', lat: 33.4484, lng: -112.074, postcode: '850{d}{d}', phone: '(602) 555-01{d}{d}', areas: ['Arcadia', 'Maryvale', 'Ahwatukee', 'Encanto', 'Laveen', 'Desert View'] },
+  ],
+  streets: ['Maple Ave', 'Oak St', 'Lincoln Blvd', 'Washington St', 'Park Ave', 'Elm St', 'Cedar Rd', 'Lakeview Dr', 'Main St', 'Highland Ave', 'Jefferson St', 'Pine St'],
+  firstNames: ['James', 'Maria', 'David', 'Jennifer', 'Michael', 'Linda', 'Carlos', 'Aisha', 'Kevin', 'Emily', 'Daniel', 'Sarah', 'Marcus', 'Rachel', 'Brian', 'Nicole', 'Andre', 'Megan', 'Luis', 'Grace', 'Tyrone', 'Hannah', 'Victor', 'Olivia'],
+  lastNames: ['Johnson', 'Williams', 'Garcia', 'Brown', 'Miller', 'Davis', 'Rodriguez', 'Wilson', 'Anderson', 'Thomas', 'Moore', 'Jackson', 'Martin', 'Lee', 'Thompson', 'White', 'Harris', 'Clark', 'Lewis', 'Walker', 'Nguyen', 'Patel'],
+  nameLang: 'en',
+  prefixes: ['Sunrise', 'Maple', 'Hometown', 'Prairie', 'Riverside', 'Cedar', 'Northside', 'Bluebird', 'Lakeshore', 'Golden Field', 'Oak Hill', 'Westgate'],
+  patterns: {
+    business: ['{prefix} {type}', '{area} {type}', '{surname} {type}'],
+    institution: ['{area} {type}', '{prefix} {type}'],
+    family: ['{surname} {type}', '{surname} & Sons {type}', '{surname} Family {type}'],
+    person: ['{first} {surname} {type}'],
+  },
+  address: '{number} {street}, {city}, {region} {postcode}',
+  phone: '(555) 555-01{d}{d}',
+  events: [
+    { name: 'Thanksgiving', dates: { 2026: '11-26', 2027: '11-25' }, note: 'Holiday travel and family gatherings' },
+    { name: 'Black Friday', dates: { 2026: '11-27', 2027: '11-26' }, note: 'Peak promotion weekend' },
+    { name: 'Christmas', monthDay: '12-25', note: 'Gifting and holiday season' },
+    { name: 'New Year', monthDay: '01-01', note: 'Year-start resets and budgets' },
+    { name: 'Big game weekend', dates: { 2027: '02-14' }, note: 'Snacks and drinks peak' },
+    { name: 'Independence Day', monthDay: '07-04', note: 'Summer holiday weekend' },
+    { name: 'Back to school', monthDay: '08-10', note: 'Family spending season' },
+  ],
+  notes: ['US dollars with cents', 'Miles for distance', 'MM/DD/YYYY dates and 12-hour clock', 'US spelling'],
+};

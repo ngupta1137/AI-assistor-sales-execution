@@ -1,0 +1,48 @@
+// Mexico. UI is English; names, places and addresses are Spanish. Phones masked.
+
+/** @type {import('../schema.js').CountryPack} */
+export default {
+  id: 'MX',
+  name: 'Mexico',
+  locale: 'es-MX',
+  currency: 'MXN',
+  decimals: 2,
+  priceFactor: 14,
+  compactUnits: [{ value: 1e9, suffix: ' mil M' }, { value: 1e6, suffix: ' M' }, { value: 1e3, suffix: ' mil', min: 1e4 }],
+  distance: 'km',
+  dateOrder: 'dmy',
+  dateSep: '/',
+  clock: '12h',
+  spelling: 'us',
+  weekend: [0],
+  speedKmh: 17,
+  cities: [
+    { name: 'Mexico City', region: 'CDMX', lat: 19.4326, lng: -99.1332, postcode: '0{d}{d}{d}{d}', phone: '+52 55 {d}{d}{d}{d} ••{d}{d}', areas: ['Roma', 'Coyoacán', 'Polanco', 'Narvarte', 'Iztapalapa', 'Azcapotzalco'] },
+    { name: 'Guadalajara', region: 'Jal.', lat: 20.6597, lng: -103.3496, postcode: '44{d}{d}{d}', phone: '+52 33 {d}{d}{d}{d} ••{d}{d}', areas: ['Chapalita', 'Providencia', 'Tlaquepaque', 'Zapopan Centro', 'Oblatos', 'Santa Tere'] },
+    { name: 'Monterrey', region: 'N.L.', lat: 25.6866, lng: -100.3161, postcode: '64{d}{d}{d}', phone: '+52 81 {d}{d}{d}{d} ••{d}{d}', areas: ['San Pedro', 'Cumbres', 'Mitras', 'Contry', 'Obispado', 'Linda Vista'] },
+    { name: 'Puebla', region: 'Pue.', lat: 19.0414, lng: -98.2063, postcode: '72{d}{d}{d}', phone: '+52 222 {d}{d}{d} ••{d}{d}', areas: ['Centro Histórico', 'Angelópolis', 'La Paz', 'Huexotitla', 'San Manuel', 'Amalucan'] },
+  ],
+  streets: ['Av. Juárez', 'Calle Hidalgo', 'Av. Revolución', 'Calle Morelos', 'Av. Insurgentes', 'Calle Allende', 'Av. Reforma', 'Calle Zaragoza', 'Calle Madero', 'Av. Universidad', 'Calle Guerrero', 'Calle 5 de Mayo'],
+  firstNames: ['José', 'María', 'Juan', 'Guadalupe', 'Luis', 'Fernanda', 'Carlos', 'Daniela', 'Miguel', 'Alejandra', 'Jorge', 'Sofía', 'Ricardo', 'Valeria', 'Eduardo', 'Mariana', 'Arturo', 'Lucía', 'Héctor', 'Paola'],
+  lastNames: ['Hernández', 'García', 'Martínez', 'López', 'González', 'Pérez', 'Rodríguez', 'Sánchez', 'Ramírez', 'Cruz', 'Flores', 'Gómez', 'Morales', 'Vázquez', 'Jiménez', 'Reyes', 'Díaz', 'Torres', 'Gutiérrez', 'Ruiz'],
+  nameLang: 'es',
+  prefixes: ['San José', 'La Esperanza', 'El Sol', 'La Estrella', 'La Paz', 'El Roble', 'San Miguel', 'Los Pinos', 'La Providencia', 'El Faro', 'Las Palmas', 'Santa Rosa'],
+  patterns: {
+    business: ['{type} {prefix}', '{type} {area}'],
+    institution: ['{type} {area}', '{type} {prefix}'],
+    family: ['{type} {surname}', '{type} {first}', '{type} {surname} Hermanos'],
+    person: ['{type} {prefix}', '{type} {surname}'],
+  },
+  address: '{street} {number}, Col. {area}, {postcode} {city}, {region}',
+  phone: '+52 55 {d}{d}{d}{d} ••{d}{d}',
+  events: [
+    { name: 'Day of the Dead', monthDay: '11-02', note: 'Family gatherings and offerings' },
+    { name: 'El Buen Fin', dates: { 2026: '11-13', 2027: '11-12' }, note: 'National discount weekend' },
+    { name: 'Virgin of Guadalupe Day', monthDay: '12-12', note: 'Start of the December holidays' },
+    { name: 'Christmas', monthDay: '12-25', note: 'Posadas and family gatherings' },
+    { name: 'Three Kings Day', monthDay: '01-06', note: 'Gifting and rosca de reyes' },
+    { name: 'Mother\'s Day', monthDay: '05-10', note: 'Major gifting date' },
+    { name: 'Independence Day', monthDay: '09-16', note: 'National celebrations' },
+  ],
+  notes: ['Mexican pesos', 'Kilometres', 'DD/MM/YYYY dates', 'El Buen Fin and the December holidays drive demand', 'Phone numbers are masked'],
+};

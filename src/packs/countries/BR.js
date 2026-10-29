@@ -1,0 +1,48 @@
+// Brazil. UI is English; numbers use comma decimals; names and places are Portuguese. Phones masked.
+
+/** @type {import('../schema.js').CountryPack} */
+export default {
+  id: 'BR',
+  name: 'Brazil',
+  locale: 'pt-BR',
+  currency: 'BRL',
+  decimals: 2,
+  priceFactor: 3.6,
+  compactUnits: [{ value: 1e9, suffix: ' bi' }, { value: 1e6, suffix: ' mi' }, { value: 1e3, suffix: ' mil', min: 1e4 }],
+  distance: 'km',
+  dateOrder: 'dmy',
+  dateSep: '/',
+  clock: '24h',
+  spelling: 'us',
+  weekend: [0, 6],
+  speedKmh: 19,
+  cities: [
+    { name: 'São Paulo', region: 'SP', lat: -23.5505, lng: -46.6333, postcode: '0{d}{d}{d}{d}-{d}{d}{d}', phone: '+55 11 9{d}{d}{d}{d}-••{d}{d}', areas: ['Pinheiros', 'Mooca', 'Santana', 'Vila Mariana', 'Tatuapé', 'Lapa'] },
+    { name: 'Belo Horizonte', region: 'MG', lat: -19.9167, lng: -43.9345, postcode: '3{d}{d}{d}{d}-{d}{d}{d}', phone: '+55 31 9{d}{d}{d}{d}-••{d}{d}', areas: ['Savassi', 'Pampulha', 'Barreiro', 'Santa Efigênia', 'Funcionários', 'Venda Nova'] },
+    { name: 'Curitiba', region: 'PR', lat: -25.4284, lng: -49.2733, postcode: '8{d}{d}{d}{d}-{d}{d}{d}', phone: '+55 41 9{d}{d}{d}{d}-••{d}{d}', areas: ['Batel', 'Água Verde', 'Boqueirão', 'Portão', 'Santa Felicidade', 'Cabral'] },
+    { name: 'Recife', region: 'PE', lat: -8.0476, lng: -34.877, postcode: '5{d}{d}{d}{d}-{d}{d}{d}', phone: '+55 81 9{d}{d}{d}{d}-••{d}{d}', areas: ['Boa Viagem', 'Casa Forte', 'Madalena', 'Espinheiro', 'Afogados', 'Graças'] },
+  ],
+  streets: ['Rua das Flores', 'Avenida Brasil', 'Rua São João', 'Rua XV de Novembro', 'Rua da Paz', 'Rua Sete de Setembro', 'Avenida Getúlio Vargas', 'Rua do Comércio', 'Rua Santa Clara', 'Rua Dom Pedro II', 'Avenida Independência', 'Rua das Palmeiras'],
+  firstNames: ['Ana', 'João', 'Maria', 'Pedro', 'Juliana', 'Lucas', 'Camila', 'Rafael', 'Fernanda', 'Gabriel', 'Beatriz', 'Mateus', 'Larissa', 'Gustavo', 'Patrícia', 'Thiago', 'Aline', 'Bruno', 'Carla', 'Diego'],
+  lastNames: ['Silva', 'Santos', 'Oliveira', 'Souza', 'Pereira', 'Costa', 'Rodrigues', 'Almeida', 'Nascimento', 'Lima', 'Araújo', 'Fernandes', 'Carvalho', 'Gomes', 'Martins', 'Rocha', 'Ribeiro', 'Barbosa', 'Moreira', 'Cardoso'],
+  nameLang: 'pt',
+  prefixes: ['Bairro', 'Sol Nascente', 'Boa Vista', 'Estrela', 'Primavera', 'Bela Vista', 'Nova Era', 'Santa Luzia', 'São Jorge', 'Central', 'Ipê', 'Jardim'],
+  patterns: {
+    business: ['{type} {prefix}', '{prefix} {type}', '{type} {area}'],
+    institution: ['{type} {area}', '{type} {prefix}'],
+    family: ['{type} {surname}', '{type} {first}', '{surname} {type}'],
+    person: ['{type} {prefix}', '{type} {surname}'],
+  },
+  address: '{street}, {number} - {area}, {city} - {region}, {postcode}',
+  phone: '+55 11 9{d}{d}{d}{d}-••{d}{d}',
+  events: [
+    { name: 'Black Friday', dates: { 2026: '11-27', 2027: '11-26' }, note: 'Peak promotion weekend' },
+    { name: '13th salary paydays', monthDay: '12-18', note: 'Year-end bonus lifts spending' },
+    { name: 'Christmas', monthDay: '12-25', note: 'Gifting and family gatherings' },
+    { name: 'New Year', monthDay: '01-01', note: 'Summer holidays begin' },
+    { name: 'Carnival', dates: { 2026: '02-17', 2027: '02-09' }, note: 'Biggest holiday of the year' },
+    { name: 'Mother\'s Day', dates: { 2026: '05-10', 2027: '05-09' }, note: 'Second biggest gifting date' },
+    { name: 'Festa Junina', monthDay: '06-24', note: 'June festivals' },
+  ],
+  notes: ['Brazilian reais with comma decimals', 'Kilometres', 'DD/MM/YYYY dates and 24-hour clock', 'Carnival and the 13th salary shape demand', 'Phone numbers are masked'],
+};
