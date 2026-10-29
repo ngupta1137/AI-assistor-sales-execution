@@ -236,10 +236,10 @@ export default {
     { id: 'aged', label: 'Stock older than 90 days', format: 'pct', range: [3, 18], target: 5, lowerIsBetter: true },
   ],
   guardrails: [
-    { agent: 'all', text: 'Price promises follow the retailer agreement. Never offers price protection.' },
-    { agent: 'gap', text: 'Product claims use the approved feature sheet only.' },
-    { agent: 'order', text: 'Never orders more than about two weeks of sell-out for a model.' },
-    { agent: 'planner', text: 'Launch weeks keep their store visits. Moving them needs the regional sales manager.' },
+    { id: 'all1', agent: 'all', text: 'Price promises follow the retailer agreement. Never offers price protection.' },
+    { id: 'gap1', agent: 'gap', text: 'Product claims use the approved feature sheet only.' },
+    { id: 'order1', agent: 'order', text: 'Never orders more than about two weeks of sell-out for a model.' },
+    { id: 'planner1', agent: 'planner', text: 'Launch weeks keep their store visits. Moving them needs the regional sales manager.' },
   ],
   problems: [
     { title: 'Big stores get visits, small ones get forgotten', text: 'Multi-brand outlets with real potential see a rep once a month.', capability: 'potential' },

@@ -1,8 +1,11 @@
 // Consumer goods: supermarkets, convenience stores and independent shops.
 // All product and store names are fictional.
 
+import assistant from './cpg.assistant.js';
+
 /** @type {import('../schema.js').IndustryPack} */
 export default {
+  ...assistant,
   id: 'cpg',
   name: 'Consumer goods',
   tagline: 'Supermarkets, convenience stores and independent shops',
@@ -248,10 +251,10 @@ export default {
     { id: 'strike', label: 'Visits with an order', format: 'pct', range: [55, 92], target: 85 },
   ],
   guardrails: [
-    { agent: 'all', text: 'Follows each retailer agreement. Never offers terms outside it.' },
-    { agent: 'gap', text: 'Never changes a shelf price. Only flags a mismatch.' },
-    { agent: 'order', text: 'Never loads a store beyond about two weeks of expected sales.' },
-    { agent: 'planner', text: 'Never drops a key account store without the area sales manager.' },
+    { id: 'all1', agent: 'all', text: 'Follows each retailer agreement. Never offers terms outside it.' },
+    { id: 'gap1', agent: 'gap', text: 'Never changes a shelf price. Only flags a mismatch.' },
+    { id: 'order1', agent: 'order', text: 'Never loads a store beyond about two weeks of expected sales.' },
+    { id: 'planner1', agent: 'planner', text: 'Never drops a key account store without the area sales manager.' },
   ],
   problems: [
     { title: 'Our biggest stores get the same visit as the smallest', text: 'Visit frequency follows habit and route convenience. High-potential stores are under-served while small ones get a weekly call.', capability: 'potential' },

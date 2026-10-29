@@ -268,10 +268,10 @@ export default {
     { id: 'uptime', label: 'Installed base uptime', format: 'pct', range: [91, 99], target: 98 },
   ],
   guardrails: [
-    { agent: 'all', text: 'Approved claims only. Product use follows the instructions for use.' },
-    { agent: 'planner', text: 'Case support is logged. The territory manager never makes clinical decisions.' },
-    { agent: 'order', text: 'Never sets contract prices or terms. The contracts team does.' },
-    { agent: 'gap', text: 'Device complaints go to the quality team within 24 hours.' },
+    { id: 'all1', agent: 'all', text: 'Approved claims only. Product use follows the instructions for use.' },
+    { id: 'planner1', agent: 'planner', text: 'Case support is logged. The territory manager never makes clinical decisions.' },
+    { id: 'order1', agent: 'order', text: 'Never sets contract prices or terms. The contracts team does.' },
+    { id: 'gap1', agent: 'gap', text: 'Device complaints go to the quality team within 24 hours.' },
   ],
   problems: [
     { title: 'High-volume accounts get the same attention as quiet ones', text: 'Visit plans follow relationships. Accounts with the most procedures are not always the ones we see most.', capability: 'potential' },

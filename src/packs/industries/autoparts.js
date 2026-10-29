@@ -250,10 +250,10 @@ export default {
     { id: 'plan', label: 'Fleet vehicles on a maintenance plan', format: 'pct', range: [30, 80], target: 70, segments: ['fleet'] },
   ],
   guardrails: [
-    { agent: 'all', text: 'Genuine parts only. Suspected counterfeits are reported, never sold or moved.' },
-    { agent: 'gap', text: 'Warranty outcomes are decided by the warranty team. Never promised in the field.' },
-    { agent: 'order', text: 'Never suggests a part outside the vehicle maker\'s specification.' },
-    { agent: 'planner', text: 'Fleet accounts under contract review keep their visits. Changes need the key account manager.' },
+    { id: 'all1', agent: 'all', text: 'Genuine parts only. Suspected counterfeits are reported, never sold or moved.' },
+    { id: 'gap1', agent: 'gap', text: 'Warranty outcomes are decided by the warranty team. Never promised in the field.' },
+    { id: 'order1', agent: 'order', text: 'Never suggests a part outside the vehicle maker\'s specification.' },
+    { id: 'planner1', agent: 'planner', text: 'Fleet accounts under contract review keep their visits. Changes need the key account manager.' },
   ],
   problems: [
     { title: 'Busy workshops buy elsewhere because we visit the wrong ones', text: 'Visit plans follow history, not how many cars each workshop services.', capability: 'potential' },

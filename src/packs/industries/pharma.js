@@ -270,11 +270,11 @@ export default {
     { id: 'expiry', label: 'Packs within 90 days of expiry', format: 'count', range: [0, 12], target: 2, lowerIsBetter: true, segments: ['pharm'] },
   ],
   guardrails: [
-    { agent: 'all', text: 'Approved content only. Never writes clinical claims, comparisons or off-label information.' },
-    { agent: 'all', text: 'Clinical questions go to Medical Information. The app never answers them.' },
-    { agent: 'gap', text: 'Sample suggestions stay within compliance limits. Every drop needs a signature.' },
-    { agent: 'order', text: 'Never offers discounts, free goods or anything that could be an inducement.' },
-    { agent: 'planner', text: 'Never books calls that break local rules on HCP contact.' },
+    { id: 'all1', agent: 'all', text: 'Approved content only. Never writes clinical claims, comparisons or off-label information.' },
+    { id: 'all2', agent: 'all', text: 'Clinical questions go to Medical Information. The app never answers them.' },
+    { id: 'gap1', agent: 'gap', text: 'Sample suggestions stay within compliance limits. Every drop needs a signature.' },
+    { id: 'order1', agent: 'order', text: 'Never offers discounts, free goods or anything that could be an inducement.' },
+    { id: 'planner1', agent: 'planner', text: 'Never books calls that break local rules on HCP contact.' },
   ],
   problems: [
     { title: 'Reps call on the HCPs they know, not the ones who matter', text: 'Call lists are built once a year. Priority prescribers get the same frequency as low-potential ones.', capability: 'potential' },

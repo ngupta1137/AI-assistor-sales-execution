@@ -68,11 +68,31 @@
  * @property {(string|{text: string, segments: string[]})[]} visitNotes
  * @property {{id: string, label: string, format: 'pct'|'count'|'money'|'days', range: [number, number], target: number, lowerIsBetter?: boolean, segments?: string[]}[]} kpis
  *   First KPI is the territory headline. segments limits a KPI to the account segments it applies to.
- * @property {{agent: 'all'|'planner'|'gap'|'order', text: string}[]} guardrails
+ * @property {{id: string, agent: 'all'|'planner'|'gap'|'order', text: string}[]} guardrails
+ *   id is unique within the pack (all1, gap1, order1, planner1 ...). Refusals refer to it.
  * @property {{title: string, text: string, capability: 'potential'|'gaps'|'ranking'|'planning'|'order'|'evidence'}[]} problems  Exactly 6.
  * @property {{q: string, a: string}[]} assistant  8 to 10.
  * @property {string[]} storyline           8 steps, PRD section 14.
  * @property {string[]} forbidden           Words that must never render for this industry.
+ *
+ * @typedef {Object} AssistantQuestion
+ * @property {string} q        Question text with vocabulary tokens.
+ * @property {string} intent   An id from src/core/assistant/intents.js, answer:<key> (a key of assistantAnswers) or qa:<n>.
+ *
+ * @typedef {Object} AssistantRefusal
+ * @property {string} id
+ * @property {string} guardrail   A guardrail id of this pack. The "Why can't you answer that?" panel shows its text.
+ * @property {string[]} patterns  Lowercase words or phrases that trigger the refusal (matched from the start of a word).
+ * @property {string} refusal     Plain-language refusal.
+ * @property {string} allowed     What the assistant can do instead.
+ *
+ * @typedef {Object} AssistantContent  (added to IndustryPack)
+ * @property {Record<string, {rep?: AssistantQuestion[], manager?: AssistantQuestion[]}>} assistantContext
+ *   Screen to persona to 4 to 6 suggested questions. Build it with withBase() from src/packs/assistant-base.js.
+ *   Required: rep on today, brief, account, action, order, complete, route, agents, config, problems; manager on manager, agents, config, problems.
+ * @property {{talkToContact: string, goodVisit: string, guardrailWhy: string, [key: string]: string}} assistantAnswers
+ *   Industry phrasing. Tokens: vocabulary tokens plus {name} {person} {area} {city} of the focused account.
+ * @property {AssistantRefusal[]} assistantRefusals  4 to 6 out-of-scope patterns, each tied to a guardrail.
  *
  * @typedef {Object} City
  * @property {string} name
@@ -112,6 +132,10 @@
  * @property {string[]} notes
  */
 
+import { isKnownIntent } from '../core/assistant/intents.js';
+import { REQUIRED } from './assistant-base.js';
+
+const ANSWER_VARS = ['name', 'person', 'area', 'city'];
 const VOCAB_KEYS = ['account', 'accounts', 'contact', 'contacts', 'rep', 'reps', 'manager', 'kam', 'offering', 'offerings', 'order', 'orders', 'visit', 'visits', 'territory'];
 export const ACTION_VARS = ['product', 'days', 'pct', 'qty', 'peers', 'n', 'weeks', 'area', 'city', 'person', 'role', 'event', 'eventDays', 'type', 'segment', 'amount'];
 export const ORDER_VARS = ['qty', 'avg', 'cover', 'event', 'eventDays', 'weeks'];
@@ -238,7 +262,9 @@ export function validateIndustry(p, iconKeys = []) {
   });
   for (const sid of segIds) req((p.kpis || []).filter((k) => !k.segments || k.segments.includes(sid)).length >= 3, `segment ${sid} needs 3+ KPIs`);
   range(p.guardrails, 3, 8, 'guardrails');
-  (p.guardrails || []).forEach((g) => req(['all', 'planner', 'gap', 'order'].includes(g.agent) && g.text, 'guardrail agent and text'));
+  (p.guardrails || []).forEach((g) => req(['all', 'planner', 'gap', 'order'].includes(g.agent) && g.text && /^[a-z]+\d+$/.test(g.id || ''), `guardrail needs agent, text and an id like all1: ${g.text}`));
+  req(new Set((p.guardrails || []).map((g) => g.id)).size === (p.guardrails || []).length, 'guardrail ids must be unique');
+  if (p.assistantContext || p.assistantAnswers || p.assistantRefusals) validateAssistant(p, vocab, e, req);
   req(p.problems?.length === 6, 'needs exactly 6 problems');
   (p.problems || []).forEach((x) => req(x.title && x.text && CAPS.includes(x.capability), `problem "${x.title}" capability`));
   range(p.assistant, 8, 10, 'assistant');
@@ -275,4 +301,50 @@ export function validateCountry(c) {
   req(c.notes?.length >= 2, 'needs notes');
   try { new Intl.NumberFormat(c.locale, { style: 'currency', currency: c.currency }).format(1); } catch { req(false, 'locale or currency rejected by Intl'); }
   return e;
+}
+
+/** Assistant content: questions, industry phrasing and refusals (all three are required). */
+function validateAssistant(p, vocab, e, req) {
+  const ctxMap = p.assistantContext;
+  const answers = p.assistantAnswers;
+  const refusals = p.assistantRefusals;
+  req(ctxMap && typeof ctxMap === 'object', 'assistantContext missing');
+  req(answers && typeof answers === 'object', 'assistantAnswers missing');
+  req(Array.isArray(refusals), 'assistantRefusals missing');
+  if (!ctxMap || !answers || !Array.isArray(refusals)) return;
+  for (const k of ['talkToContact', 'goodVisit', 'guardrailWhy']) req(typeof answers[k] === 'string' && answers[k], `assistantAnswers.${k} missing`);
+  Object.entries(answers).forEach(([k, v]) => checkTokens(e, `${p.id}.assistantAnswers.${k}`, v, vocab, ANSWER_VARS));
+  for (const [persona, screens] of Object.entries(REQUIRED)) {
+    for (const screen of screens) {
+      const list = ctxMap[screen]?.[persona];
+      req(Array.isArray(list) && list.length >= 4 && list.length <= 6, `assistantContext.${screen}.${persona} needs 4 to 6 questions (has ${list?.length ?? 0})`);
+    }
+  }
+  const seen = new Set();
+  for (const [screen, byPersona] of Object.entries(ctxMap)) {
+    for (const [persona, list] of Object.entries(byPersona)) {
+      for (const x of list) {
+        const where = `${p.id}.assistantContext.${screen}.${persona}`;
+        req(x.q && x.intent, `${where} entry needs q and intent`);
+        checkTokens(e, where, x.q, vocab, []);
+        req(isKnownIntent(x.intent), `${where}: unknown intent "${x.intent}"`);
+        if (x.intent?.startsWith('answer:')) req(answers[x.intent.slice(7)], `${where}: intent ${x.intent} has no assistantAnswers.${x.intent.slice(7)}`);
+        if (x.intent?.startsWith('qa:')) req((p.assistant || [])[Number(x.intent.slice(3))], `${where}: ${x.intent} points past the assistant list`);
+        const key = `${screen}|${persona}|${x.q}`;
+        req(!seen.has(key), `${where}: duplicate question "${x.q}"`);
+        seen.add(key);
+      }
+    }
+  }
+  req(refusals.length >= 4 && refusals.length <= 6, `assistantRefusals needs 4 to 6 entries (has ${refusals.length})`);
+  const gids = new Set((p.guardrails || []).map((g) => g.id));
+  const rids = new Set();
+  for (const r of refusals) {
+    req(r.id && !rids.has(r.id), `refusal id missing or duplicate: ${r.id}`);
+    rids.add(r.id);
+    req(gids.has(r.guardrail), `refusal ${r.id} names unknown guardrail ${r.guardrail}`);
+    req(Array.isArray(r.patterns) && r.patterns.length >= 3 && r.patterns.every((x) => x === x.toLowerCase() && x.length >= 4), `refusal ${r.id} needs 3+ lowercase patterns of 4+ characters`);
+    req(r.refusal && r.allowed, `refusal ${r.id} needs refusal and allowed text`);
+    checkTokens(e, `${p.id}.assistantRefusals.${r.id}`, `${r.refusal} ${r.allowed}`, vocab, []);
+  }
 }

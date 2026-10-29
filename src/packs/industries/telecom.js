@@ -244,10 +244,10 @@ export default {
     { id: 'demo', label: 'Live demo units', format: 'pct', range: [40, 90], target: 85, segments: ['franchise', 'device'] },
   ],
   guardrails: [
-    { agent: 'all', text: 'No activation without a valid ID. KYC rules are never skipped.' },
-    { agent: 'all', text: 'Prices and offers follow the published tariff.' },
-    { agent: 'gap', text: 'Plans are suggested to match use. No mis-selling.' },
-    { agent: 'order', text: 'Never tops up float above the distributor limit.' },
+    { id: 'all1', agent: 'all', text: 'No activation without a valid ID. KYC rules are never skipped.' },
+    { id: 'all2', agent: 'all', text: 'Prices and offers follow the published tariff.' },
+    { id: 'gap1', agent: 'gap', text: 'Plans are suggested to match use. No mis-selling.' },
+    { id: 'order1', agent: 'order', text: 'Never tops up float above the distributor limit.' },
   ],
   problems: [
     { title: 'High-volume outlets run dry while we visit quiet ones', text: 'Beat plans treat every outlet the same, whatever its daily recharges.', capability: 'potential' },

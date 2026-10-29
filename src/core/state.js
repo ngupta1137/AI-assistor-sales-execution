@@ -41,6 +41,8 @@ export function createModel(ctx) {
   const log = (actor, text) => { s.audit.unshift({ at: nowMinutes(), actor, text }); if (s.audit.length > 200) s.audit.pop(); };
   const itemText = (item) => `"${ctx.t(item.title, item.vars)}" at ${data.byId[item.accountId].name}`;
   const agentStopped = (agentId) => !!s.stopped[agentId];
+  /** Public audit entry, used by the assistant for refusals (actor and screen are part of the text). */
+  const logAudit = (actor, text) => log(actor, text);
 
   /** All brief items: planner slot, ranked actions, order draft. */
   const briefItems = (accountId) => plannedFor(accountId)?.brief || [];
@@ -240,6 +242,6 @@ export function createModel(ctx) {
   return {
     session: s, plannedFor, briefItems, actionsOf, approvalRoute, lastVisitDays, openGaps, doneGaps, findAction, decision, decide, undo, counts, outcome, recordOutcome, setEvidence,
     orderLines, orderRules, orderState, setQty, submitOrder, visitDone, completeVisit, visitSummary, nextAccount,
-    selfStats, exceptions, acknowledge, agentStopped, toggleAgent, closedToday, toggleClosed, audit: () => s.audit,
+    selfStats, exceptions, acknowledge, agentStopped, toggleAgent, closedToday, toggleClosed, logAudit, audit: () => s.audit,
   };
 }

@@ -285,10 +285,10 @@ export default {
     { id: 'spec', label: 'Specification wins this quarter', format: 'count', range: [1, 8], target: 6, segments: ['project'] },
   ],
   guardrails: [
-    { agent: 'all', text: 'Quotes above the threshold need approval. The agent never offers a discount.' },
-    { agent: 'all', text: 'Credit terms and limits stay with finance.' },
-    { agent: 'order', text: 'Never pushes month-end stock beyond about four weeks of sell-out.' },
-    { agent: 'gap', text: 'Product performance claims use the approved data sheet only.' },
+    { id: 'all1', agent: 'all', text: 'Quotes above the threshold need approval. The agent never offers a discount.' },
+    { id: 'all2', agent: 'all', text: 'Credit terms and limits stay with finance.' },
+    { id: 'order1', agent: 'order', text: 'Never pushes month-end stock beyond about four weeks of sell-out.' },
+    { id: 'gap1', agent: 'gap', text: 'Product performance claims use the approved data sheet only.' },
   ],
   problems: [
     { title: 'Our best dealers are served the same as small counters', text: 'Every dealer gets a fortnightly visit, whatever their potential or growth.', capability: 'potential' },
