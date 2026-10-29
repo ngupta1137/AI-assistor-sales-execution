@@ -210,7 +210,7 @@ Update the count check in `tests/static.mjs` (`expected 10 industries`) when you
 
 ## Tests
 
-`npm test` runs five steps and fails on the first failure: build, static checks, assistant engine checks, the browser suite, and the assistant browser suite.
+`npm test` runs seven steps and fails on the first failure: build, static checks, assistant engine checks, Companion engine checks, the browser suite, the assistant browser suite and the Companion browser suite.
 
 1. **Build** of `docs/index.html`.
 2. **Static checks** (`tests/static.mjs`, about 61,000 checks, a few seconds):
@@ -242,7 +242,7 @@ Regression checks from the October 2026 functional review are part of the suite:
 
 **Assistant checks.** `tests/assistant-unit.mjs` answers every suggested question on every screen for every persona, industry and country without a browser (249,720 checks). `tests/assistant.mjs` (about 10 minutes with 4 workers; it uses Playwright's controlled clock for the 400 to 700 ms typing delay) opens every screen in all 80 combinations for the rep and the manager, clicks every suggested question and checks for an answer, a "Based on" line, no leftover token, no wrong-industry word and no console error. It also covers the guardrail refusals and audit entries, an answer that reflects an override, the focus trap, Escape and tap targets, navigation that never submits, the shared conversation, the presenter toggle, `?assistant=off`, the Setup questions, and that the live provider is absent from the build.
 
-Last full run: static 100,134 checks; assistant engine 249,720 checks; browser suite 80 combinations, 3 personas, 5,834 screens, 22,697 assertions; assistant suite 80 combinations, 8,160 questions answered, 157,346 assertions. All passing.
+Last full run: static 134,954 checks; assistant engine 249,720; Companion engine 8,563; browser suite 80 combinations, 3 personas, 5,834 screens, 22,697 assertions; assistant suite 80 combinations, 8,160 questions answered, 157,346 assertions; Companion suite 80 combinations x 2 personas, 3,200 screens, 80 full flows (debrief, leave, expense, approvals), 19,076 assertions. All passing. `npm test` runs all seven steps (about 15 minutes).
 
 ## Publish on GitHub Pages
 
