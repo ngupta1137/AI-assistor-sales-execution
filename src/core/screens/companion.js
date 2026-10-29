@@ -7,6 +7,7 @@ import { TAGS, powered, accountOf } from './companion-ui.js';
 import * as plan from './companion-plan.js';
 import * as sell from './companion-sell.js';
 import * as work from './companion-work.js';
+import * as learn from './companion-learn.js';
 
 /** Feature catalogue. powered: the capabilities whose output the feature shows. */
 const FEATURES = [
@@ -22,6 +23,7 @@ const FEATURES = [
   { id: 'leave', pillar: 'productivity', icon: 'calendar', title: 'Leave', text: 'Apply, track, and approve as a manager.', powered: [], view: work.leave, badge: 'leave' },
   { id: 'expenses', pillar: 'productivity', icon: 'wallet', title: 'Expense claims', text: 'Receipt photo (mock), category, local currency, policy check.', powered: [], view: work.expenses, badge: 'expenses' },
   { id: 'hr', pillar: 'productivity', icon: 'note', title: 'HR and pay', text: 'Sample pay slips and documents.', powered: [], view: work.hr },
+  { id: 'learning', pillar: 'learning', icon: 'book', title: 'Learning', text: 'Certification tracker, modules, knowledge base and a learning chatbot.', powered: [], view: learn.learning },
 ];
 
 const PILLARS = [
@@ -69,4 +71,6 @@ export function render(ctx, args) {
   return f ? f.view(ctx, id) : hub(ctx);
 }
 
-export const actions = { ...plan.actions, ...sell.actions, ...work.actions };
+export function mounted(ctx, args) { if (args?.[0] === 'learning') learn.mounted(ctx); }
+
+export const actions = { ...plan.actions, ...sell.actions, ...work.actions, ...learn.actions };

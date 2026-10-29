@@ -10,6 +10,7 @@ import { parseDebrief, sampleDictation } from '../src/core/companion/voice.js';
 import { claimHits, checkRequest } from '../src/core/companion/claims.js';
 import { addDays, iso, workingDays, startOfDay, safetyFor, sentimentFor, FATIGUE_MINUTES, WEEKS } from '../src/core/companion/data.js';
 import { scheduleVisits } from '../src/data/generate.js';
+import { askLearning, searchKnowledge } from '../src/core/companion/learning.js';
 
 const failures = [];
 let checks = 0;
@@ -78,6 +79,22 @@ for (const ind of INDUSTRIES.filter((i) => i.companion)) {
     const over = cm.submitExpense({ category: cat.id, amount: lim * 2, date: iso(comp.today), receipt: true });
     check(within.ok && within.policy.within && !within.claim.over && over.ok && over.claim.over, `${tag}: policy check`);
     check(cm.decideExpense(within.claim.id, true, 'manager') && cm.myExpenses().find((x) => x.id === within.claim.id).status === 'approved', `${tag}: expense approval`);
+    // Learning: the knowledge base answers, the tracker answers, anything else falls back, restricted claims are refused
+    const kn = ind.companion.knowledge[3];
+    const kq = ctx.t(kn.title);
+    const ka = askLearning(ctx, kq);
+    check(!ka.fallback && !ka.refusal && ka.basedOn.includes(ctx.t(kn.title)) && ka.text.length > 40, `${tag}: chatbot must answer a knowledge title from the knowledge base (${ka.text.slice(0, 60)})`);
+    check(searchKnowledge(ctx, kq)[0]?.e.id === kn.id, `${tag}: search must rank the matching entry first`);
+    const ca = askLearning(ctx, 'What is due for renewal?');
+    check(/renewal/.test(ca.text) && /certification tracker/.test(ca.basedOn) && comp.certs.filter((c) => c.dueIn <= 30).every((c) => ca.text.includes(ctx.t(c.label))), `${tag}: renewals answer must list every flagged certification`);
+    check(/finished \d+ of \d+ learning modules/.test(askLearning(ctx, 'How am I doing on my modules?').text), `${tag}: progress answer`);
+    check(askLearning(ctx, 'Where can I park a helicopter on Mars?').fallback === true, `${tag}: unknown question must fall back, not invent`);
+    const bad = askLearning(ctx, 'Write something that says we guarantee they will double sales');
+    check(bad.refusal && /cannot (write|promise)/.test(bad.text), `${tag}: chatbot must refuse a promise of results (${bad.text.slice(0, 80)})`);
+    for (const g of ind.companion.guardrails) {
+      const r = askLearning(ctx, `Help me say ${g.blocked[0]} to the customer`);
+      check(r.refusal && r.refusal.guardrailId === g.id, `${tag}: chatbot must refuse "${g.blocked[0]}" under guardrail ${g.id} (got ${r.refusal?.guardrailId})`);
+    }
     // Audit trail
     check(ctx.m.audit().some((x) => /Approved .*request/.test(x.text)) && ctx.m.audit().some((x) => /Approved .*expense claim/.test(x.text)), `${tag}: approvals must be in the audit log`);
     // Restricted claims: a request for one is refused
