@@ -17,6 +17,7 @@ An AI field sales app that tells every field rep which customers to visit, what 
 | Setup screen, URL parameters, presenter menu (Shift+D, long press), seeded data | Built and tested |
 | P1: route plan (R8), Ask AI (R9), coaching prompts (M3), coverage (M4), audit log (G3), prospect branding | Built and tested |
 | Assistant on every screen: context-aware, rule-based, grounded in live state, with guardrails and an audit trail (PRD R9) | Built and tested |
+| Sales Companion (concept): growth (plan and sell), productivity (leave, expenses, HR), learning, for all 10 industries and 8 countries (PRD 9.6) | Built and tested, including the P1 items |
 | P2: offline sync, pack editor, translated UI, partner view | Not built |
 | Real integrations, real models, user accounts | Not built (out of scope for v1) |
 
@@ -98,6 +99,46 @@ Not recommended for a public demo. The adapter exists for private experiments on
 - To try it: build with `ASSISTANT_LIVE=1 npm run build`, then open the page with `?live=https://your-endpoint`. Only `https://` endpoints are accepted.
 - The page sends only the question, the screen, persona, industry and country, and the rule-based answer built from generated sample data. It sends no API key. The endpoint holds the key, so keep the key on a server you control, never in this repository or the page.
 - Guardrail refusals run before the call and on the reply, and the reply is shown as a model answer. If the endpoint fails, the rule-based answer is shown instead.
+
+## Sales Companion (concept)
+
+The Companion is the field enabler: one place where a rep and a manager meet the five capabilities together with the admin and learning tools they use every day. It is a new tab (Companion) for the rep and the manager. Problems we solve is now reached from Config.
+
+**Design rule.** The Companion consumes outputs of the existing capabilities and links to their screens. It does not build a second route plan, visit brief or order builder. Each hub row has a "Powered by" row naming the capability whose output it shows.
+
+| Pillar | Screens | Uses |
+|---|---|---|
+| Growth: plan | Journey planning with a safety strip (weather, traffic, a fatigue prompt after 120 minutes of driving, all sample data); pre-call brief card with a sentiment tag; voice debrief; live resource planning (manager) | The Visit Planner route, gaps and ranked actions |
+| Growth: sell | Call plan; dynamic pitch (each point shows its source; your own point is checked); local overlay (schematic map and ranked list); customer value story with the data used; customer self-service mock-up | Ranked actions, KPIs, the order draft, potential |
+| Productivity | Leave (apply, track, manager approval); expense claims (receipt photo mock, local currency, automatic policy check, manager approval); HR and pay (sample pay slips and documents) | Country pack |
+| Learning | Certification tracker (renewals due within 30 days and overdue are flagged); learning modules; knowledge base search; a rule-based chatbot; onboarding checklist with a demo e-signature; call fundamentals library; team learning progress for managers | Assistant guard and normaliser |
+| Productivity (P1) | Wellbeing hub (daily check-in, tips, anonymous team counts for managers; not medical advice); complaint and feedback portal (anonymous option, manager acknowledges); travel planner with a mileage log in the country's unit | Route plan, country pack |
+
+- **Everything is sample data.** Pay slip amounts are generated and labelled as samples. Nothing is real HR or pay information. The hub and every screen say "Sample data", and the hub says "Concept".
+- **The voice debrief is a simulation.** A rule-based parser turns text into outcome, issues, follow-ups and order intent for the rep to confirm. The microphone button appears only where the browser supports speech recognition, and it never starts by itself. Browsers may send microphone audio to the browser maker, and the screen says so. Typing and "Play sample dictation" work everywhere.
+- **Approvals are real inside the demo.** The rep submits leave or an expense, switches persona (Shift+D), and the manager approves or rejects. The rep sees the result. Every step goes to the audit log.
+- **Restricted claims.** Each pack lists blocked claim patterns (`companion.guardrails`). The pitch, value story and knowledge text may never contain one. A request for one, typed into the pitch or asked of the chatbot, is refused with the guardrail named and an audit entry. Tests fail if authored text contains a blocked pattern.
+- **Customer self-service** is a clearly separate mock-up of what the account could browse, order and track. It is not a customer portal and it writes nothing.
+
+### Add Companion content to a new pack
+
+1. Create `src/packs/industries/<id>.companion.js` exporting `{ companion: {...} }` and spread it into the pack (`...companion`), as the other packs do.
+2. Fill in every field (the validator names what is missing):
+   - `roles`: the rep and manager titles.
+   - `expenseCategories`: 5 to 6, each with a `limitClass` (meals, travel, lodging or other) that picks the country's sample limit.
+   - `certifications`: 4 to 6 with `cycleMonths`.
+   - `learningModules`: 8 to 10.
+   - `knowledge`: 10 to 12 how-to entries.
+   - `pitchTemplates`: exactly 3, each one talking point. Tokens: the vocabulary tokens plus `{name} {person} {kpi} {kpiValue} {kpiTarget} {offer} {trend} {event} {eventDays}`. `uses` lists what each reads, and is shown as the source.
+   - `valueStoryTemplates`: exactly 3. Tokens: `{name} {person} {share} {potential} {current} {whitespace} {orderCount} {trend} {offer}`. `{orders}` stays the vocabulary word.
+   - `resourcePlans`: exactly 2 sample activations (`startWeek` 0 to 4, `weeks` 2 to 5, `perWeek` rep-days).
+   - `guardrails`: 2 to 5, each with `blocked` patterns (lowercase, 4 or more characters, at least 3).
+3. No authored text in the block may contain one of its own blocked patterns, so write "never offers special terms" and not the blocked phrase.
+4. Run `npm test`. The engine test checks every pack's content, runs the debrief, leave and expense flows and asks the chatbot under every guardrail.
+
+### Add Companion fields to a new country
+
+In the country file add `publicHolidays` (6 to 8 `{name, monthDay}`), `leaveTypes` (3 to 4 `{id, label, days}`), `expenseLimits` (`meals`, `travel`, `lodging`, `other`, sample amounts in local currency), `mileageUnit` (`mi` or `km`), `payslipLabel` (generic wording) and `tempUnit` (`C` or `F`). Moving holidays use approximate fixed dates.
 
 ## Demo script (PRD section 14)
 
@@ -197,6 +238,8 @@ Any console error, leftover `{token}`, `undefined` or `NaN`, or one of the pack'
 
 Regression checks from the October 2026 functional review are part of the suite: proposals blocked until the needs review has signed consent (F01), sample requests never shown as signed drops (F02), month actuals unchanged by estimates (F03), override notes kept through save (F04), closed visits leaving coverage gaps (F05), the stored approver named everywhere (F06), honest stopped-agent copy (F07) and done actions leaving open gaps (F08). Layout checks open every screen at 320 and 390 px wide and fail on sideways scroll or any tap target under 44 px.
 
+**Companion checks.** `tests/companion-unit.mjs` (about 7,800 checks, no browser) validates every pack, runs the sample data, the debrief parser, the leave and expense rules with manager approval, the learning chatbot under every guardrail, and checks authored text against its own blocked patterns. `tests/companion.mjs` opens every Companion screen in all 80 combinations for the rep and the manager, and in each combination completes the voice debrief sample, submits a leave request and an expense, approves both as the manager and sees the result as the rep. It also covers a restricted claim refused in all 10 industries, the microphone fallbacks (unsupported, denied, working), flagged renewals and resource gaps cross-checked against the engine, and layout at 320 and 390 px.
+
 **Assistant checks.** `tests/assistant-unit.mjs` answers every suggested question on every screen for every persona, industry and country without a browser (249,720 checks). `tests/assistant.mjs` (about 10 minutes with 4 workers; it uses Playwright's controlled clock for the 400 to 700 ms typing delay) opens every screen in all 80 combinations for the rep and the manager, clicks every suggested question and checks for an answer, a "Based on" line, no leftover token, no wrong-industry word and no console error. It also covers the guardrail refusals and audit entries, an answer that reflects an override, the focus trap, Escape and tap targets, navigation that never submits, the shared conversation, the presenter toggle, `?assistant=off`, the Setup questions, and that the live provider is absent from the build.
 
 Last full run: static 100,134 checks; assistant engine 249,720 checks; browser suite 80 combinations, 3 personas, 5,834 screens, 22,697 assertions; assistant suite 80 combinations, 8,160 questions answered, 157,346 assertions. All passing.
@@ -226,6 +269,9 @@ If a build fails with "No Output Directory named public", the deployment ran wit
 - **Names are generated, not cleared.** Product and account names are coined from patterns and screened against a blocklist of about 120 real brands. A generated name can still match a small real business or a product somewhere. Screen the names for each country and industry you demo in, and check "AI Assistor" for trademark conflicts (PRD section 16) before any external use.
 - **Regulated content is guardrail text only.** The pharma, devices, financial services and agri packs state the rules, but they have not been reviewed by a compliance or regulatory practitioner. PRD section 16 recommends one practitioner review per pack.
 - **Numbers are illustrative.** Price factors are rough local price levels, not exchange rates. Event dates for moving holidays are approximate. Travel time is a straight-line estimate.
+- **The Companion is a concept on sample data.** Leave, expenses, pay slips and the certification tracker are not connected to any HR, payroll or learning system. Weather and traffic are generated, not live. The "map" is schematic. The sentiment tag is a visible rule, not a prediction. The customer self-service view is a mock-up.
+- **The microphone depends on the browser.** Where speech recognition exists it may send audio to the browser maker. Where it does not, the screen offers typing and the sample dictation. The parser is keyword rules, so a long, free dictation can be misread. The rep confirms every field before it is saved.
+- **Holidays and limits are samples.** Public holidays use fixed approximate dates and expense limits are illustrative amounts in local currency. Leave rules (balances, working-day counting) are simplified and not a statement of local employment law.
 - **The assistant is rule-based, not a language model.** It scores a question against a catalogue of 52 intents, so a phrasing it was not written for falls back to "I do not have an answer for that" and the list of questions it can answer. The suggested questions always work, free text may not, and a prospect will find the edge of it. The screen says it is rule-based.
 - **Refusal patterns are keyword lists.** A rephrased clinical, credit or label question can slip past a pattern and then falls back to "no answer", which is safe but is not a refusal. Patterns need review by a compliance practitioner for each regulated pack before external use.
 - **Assistant answers are guidance plus data, not advice.** Industry answers (`assistantAnswers`) are short practitioner-style guidance written for the demo. They have not been reviewed by an industry specialist.

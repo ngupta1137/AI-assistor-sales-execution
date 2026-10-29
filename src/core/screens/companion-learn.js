@@ -37,9 +37,12 @@ export function learning(ctx) {
       ${c.r.links?.length ? `<div class="btn-row">${c.r.links.map((l) => `<a class="btn secondary sm" href="${esc(l.href)}" data-act="lc-link">${esc(l.label)}</a>`).join('')}</div>` : ''}
       ${c.r.refusal ? `<div class="guardrail" data-why>${icon('shield', 20)}<span><b>Guardrail ${esc(c.r.refusal.guardrailId)}.</b> ${esc(c.r.refusal.guardrailText)}</span></div>` : ''}</div>`).join('');
   const sugg = ['What is due for renewal?', 'How am I doing on my modules?', t(industry.companion.knowledge[0].title)].map((q) => `<button class="chip-q" data-act="lc-q" data-q="${esc(q)}">${esc(q)}</button>`).join('');
+  const team = ctx.persona !== 'rep' ? `<section class="card" id="team-learning"><h2>Team learning progress</h2><p class="small muted">For coaching conversations, not a ranking. Sample data.</p>
+    <ul class="kpi-list">${comp.teamLearning.map((r) => `<li data-team-row><span class="small"><b>${esc(r.rep)}</b>${r.self ? ' (demo rep)' : ''}<br><small>${r.done} of ${r.total} modules${r.certsDue ? `, ${r.certsDue} certification${r.certsDue > 1 ? 's' : ''} due or overdue` : ''}</small></span><span class="kv"><b>${Math.round((r.done / r.total) * 100)}%</b></span></li>`).join('')}</ul></section>` : '';
   const jump = [['cert-tracker', 'Certifications'], ['modules', 'Modules'], ['kb', 'Knowledge base'], ['lc', 'Chatbot']].map(([id, l]) => `<a href="#/companion/learning" data-act="jump" data-id="${id}">${l}</a>`).join('');
   return head(ctx, { title: 'Learning', lead: 'Certifications, modules, a knowledge base and a chatbot that answers only from them. Sample content.' }) + `
   <nav class="jump tight" aria-label="Sections">${jump}</nav>
+  ${team}
   <section class="card" id="cert-tracker"><div class="section-head"><h2>Certification tracker</h2>${pill(`${flagged.length} due or overdue`, flagged.length ? 'warn' : 'good')}</div>
     <p class="small muted">Renewals due within 30 days, and anything overdue, are flagged.</p><ul class="group" style="margin-top:4px">${certRows}</ul></section>
   <section class="card" id="modules"><div class="section-head"><h2>Learning modules</h2>${pill(`${done} of ${comp.modules.length} done`, 'info')}</div><ul class="group">${mods}</ul></section>

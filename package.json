@@ -10,7 +10,8 @@
     "test:static": "node tests/static.mjs && node tests/assistant-unit.mjs && node tests/companion-unit.mjs",
     "test:e2e": "node tests/e2e.mjs",
     "test": "node scripts/build.mjs && node tests/static.mjs && node tests/assistant-unit.mjs && node tests/companion-unit.mjs && node tests/e2e.mjs && node tests/assistant.mjs && node tests/companion.mjs",
-    "test:assistant": "node tests/assistant.mjs"
+    "test:assistant": "node tests/assistant.mjs",
+    "test:companion": "node tests/companion.mjs"
   },
   "devDependencies": {
     "esbuild": "0.28.2",

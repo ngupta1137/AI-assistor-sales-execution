@@ -8,6 +8,7 @@ import * as plan from './companion-plan.js';
 import * as sell from './companion-sell.js';
 import * as work from './companion-work.js';
 import * as learn from './companion-learn.js';
+import * as more from './companion-more.js';
 
 /** Feature catalogue. powered: the capabilities whose output the feature shows. */
 const FEATURES = [
@@ -23,6 +24,11 @@ const FEATURES = [
   { id: 'leave', pillar: 'productivity', icon: 'calendar', title: 'Leave', text: 'Apply, track, and approve as a manager.', powered: [], view: work.leave, badge: 'leave' },
   { id: 'expenses', pillar: 'productivity', icon: 'wallet', title: 'Expense claims', text: 'Receipt photo (mock), category, local currency, policy check.', powered: [], view: work.expenses, badge: 'expenses' },
   { id: 'hr', pillar: 'productivity', icon: 'note', title: 'HR and pay', text: 'Sample pay slips and documents.', powered: [], view: work.hr },
+  { id: 'wellbeing', pillar: 'productivity', icon: 'heart', title: 'Wellbeing hub', text: 'A daily check-in and practical tips.', powered: [], view: more.wellbeing },
+  { id: 'feedback', pillar: 'productivity', icon: 'note', title: 'Complaints and feedback', text: 'Tell the team what is not working. You can stay anonymous.', powered: [], view: more.feedback },
+  { id: 'travel', pillar: 'productivity', icon: 'map', title: 'Travel and mileage', text: "Today's trips in local units and an overnight trip plan.", powered: ['planning'], view: more.travel },
+  { id: 'onboarding', pillar: 'learning', icon: 'check', title: 'Onboarding checklist', text: 'Five steps and an e-signature.', powered: [], view: more.onboarding },
+  { id: 'library', pillar: 'learning', icon: 'book', title: 'Call fundamentals', text: 'Six steps for a good {visit}.', powered: [], view: more.library },
   { id: 'learning', pillar: 'learning', icon: 'book', title: 'Learning', text: 'Certification tracker, modules, knowledge base and a learning chatbot.', powered: [], view: learn.learning },
 ];
 
@@ -71,6 +77,9 @@ export function render(ctx, args) {
   return f ? f.view(ctx, id) : hub(ctx);
 }
 
-export function mounted(ctx, args) { if (args?.[0] === 'learning') learn.mounted(ctx); }
+export function mounted(ctx, args) {
+  if (args?.[0] === 'learning') learn.mounted(ctx);
+  if (args?.[0] === 'onboarding') more.mountedOnboarding();
+}
 
-export const actions = { ...plan.actions, ...sell.actions, ...work.actions, ...learn.actions };
+export const actions = { ...plan.actions, ...sell.actions, ...work.actions, ...learn.actions, ...more.actions };

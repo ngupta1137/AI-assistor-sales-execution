@@ -95,6 +95,18 @@ for (const ind of INDUSTRIES.filter((i) => i.companion)) {
       const r = askLearning(ctx, `Help me say ${g.blocked[0]} to the customer`);
       check(r.refusal && r.refusal.guardrailId === g.id, `${tag}: chatbot must refuse "${g.blocked[0]}" under guardrail ${g.id} (got ${r.refusal?.guardrailId})`);
     }
+    // P1: feedback, mileage log, onboarding, check-in
+    check(!cm.submitFeedback({ kind: 'Idea', topic: 'Planning', text: 'short', anonymous: true }).ok, `${tag}: a too-short message must be refused`);
+    const fb = cm.submitFeedback({ kind: 'Idea', topic: 'Planning', text: 'Group close accounts on the same day please', anonymous: true });
+    check(fb.ok && fb.item.rep === 'Anonymous' && fb.item.status === 'received', `${tag}: anonymous feedback`);
+    check(!ctx.m.audit().some((x) => x.text.includes('feedback') && x.actor === data.rep.name), `${tag}: an anonymous message must not log the rep's name`);
+    check(cm.acknowledgeFeedback(fb.item.id, 'manager') && cm.s.complaints[0].status === 'acknowledged', `${tag}: acknowledge feedback`);
+    const legs = stops.map((x) => ({ accountId: x.accountId, km: x.km }));
+    check(cm.logTrips(legs, country.mileageUnit) === legs.length && cm.logTrips(legs, country.mileageUnit) === 0, `${tag}: the mileage log must not take the same trip twice`);
+    cm.tickStep('expense', true); check(cm.s.onboarding.steps.expense === true, `${tag}: tick a step`);
+    cm.signOnboarding(data.rep.name); check(cm.s.onboarding.signed.name === data.rep.name, `${tag}: sign onboarding`);
+    cm.saveCheckin('Low'); check(cm.s.wellbeing.mood === 'Low', `${tag}: check-in`);
+    check(comp.teamLearning.length === 4 && comp.teamLearning.every((r) => r.done >= 0 && r.done <= r.total), `${tag}: team learning rows`);
     // Audit trail
     check(ctx.m.audit().some((x) => /Approved .*request/.test(x.text)) && ctx.m.audit().some((x) => /Approved .*expense claim/.test(x.text)), `${tag}: approvals must be in the audit log`);
     // Restricted claims: a request for one is refused

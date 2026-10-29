@@ -92,7 +92,37 @@ export function createCompanionModel(ctx) {
   const setModule = (id, status) => { s.modules[id] = status; log(data.rep.name, `Marked a learning module ${status === 'done' ? 'done' : 'in progress'}`); };
   const startRenewal = (id) => { s.renewals[id] = 'started'; log(data.rep.name, `Started a renewal for ${industry.companion.certifications.find((c) => c.id === id).label}`); };
 
+  // ---- P1: feedback, mileage, onboarding, wellbeing ----
+  const submitFeedback = ({ kind, topic, text, anonymous }) => {
+    const body = String(text || '').trim().slice(0, 400);
+    if (body.length < 10) return { ok: false, error: 'Write at least a short sentence so the team can act on it.' };
+    const item = { id: `FB${++s.seq}`, kind, topic, text: body, anonymous: !!anonymous, status: 'received', rep: anonymous ? 'Anonymous' : data.rep.name, sample: false };
+    s.complaints.push(item);
+    log(anonymous ? 'Anonymous' : data.rep.name, `Sent ${kind.toLowerCase()} about ${topic.toLowerCase()}`);
+    return { ok: true, item };
+  };
+  const acknowledgeFeedback = (id, persona) => {
+    const f = s.complaints.find((x) => x.id === id) || null;
+    if (f) { f.status = 'acknowledged'; log(who(persona), 'Acknowledged a feedback item'); return true; }
+    if (!s.fbAck) s.fbAck = {};
+    s.fbAck[id] = true; log(who(persona), 'Acknowledged a feedback item'); return true;
+  };
+  const logTrips = (legs, unit) => {
+    const date = iso(today());
+    const fresh = legs.filter((l) => !s.mileage.some((m) => m.date === date && m.accountId === l.accountId));
+    for (const l of fresh) s.mileage.push({ id: `MT${++s.seq}`, date, accountId: l.accountId, km: l.km });
+    if (fresh.length) log(data.rep.name, `Logged ${fresh.length} trips in the mileage log (${unit})`);
+    return fresh.length;
+  };
+  const tickStep = (id, on) => { s.onboarding.steps[id] = !!on; };
+  const signOnboarding = (name) => {
+    s.onboarding.signed = { name, date: iso(today()) };
+    log(data.rep.name, 'Signed the onboarding acknowledgement');
+  };
+  const saveCheckin = (mood) => { s.wellbeing.mood = mood; s.wellbeing.date = iso(today()); log(data.rep.name, 'Completed a wellbeing check-in'); };
+
   return {
+    submitFeedback, acknowledgeFeedback, logTrips, tickStep, signOnboarding, saveCheckin,
     s, requestLeave, decideLeave, myLeave, pendingTeamLeave, remaining, leaveType,
     submitExpense, decideExpense, myExpenses, pendingExpenses, policy, category, limitFor,
     saveDebrief, moduleStatus, setModule, startRenewal, iso,

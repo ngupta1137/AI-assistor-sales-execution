@@ -439,3 +439,4 @@ details[open] > summary::after { transform: rotate(-135deg); }
 .track li span { display: grid; place-items: center; width: 24px; height: 24px; border-radius: 50%; background: var(--surface-inset); font-size: 12px; font-weight: 700; }
 .track li.on { color: var(--ink); font-weight: 600; }
 .track li.on span { background: var(--accent); color: #fff; }
+.bullets a, .why a { display: inline-flex; align-items: center; min-height: var(--tap); }
