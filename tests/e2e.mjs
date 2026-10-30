@@ -16,7 +16,7 @@ if (!existsSync(file)) { console.error('docs/index.html is missing. Run npm run 
 const BASE = pathToFileURL(file).href;
 const WORKERS = Number(process.env.E2E_WORKERS || 4);
 const ONLY = process.env.E2E_ONLY ? process.env.E2E_ONLY.split(',') : null;
-const CURRENCY = { US: '$', UK: '£', DE: '€', IN: '₹', BR: 'R$', ID: 'Rp', MX: '$', AE: 'AED' };
+const CURRENCY = { US: '$', UK: '£', DE: '€', FR: '€', AU: '$', NZ: '$', IN: '₹', BR: 'R$', ID: 'Rp', MX: '$', AE: 'AED' };
 const DIST = { US: 'mi', UK: 'mi' };
 
 const failures = [];
