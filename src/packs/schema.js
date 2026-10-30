@@ -138,7 +138,7 @@
  * @property {string[]} streets
  * @property {string[]} firstNames
  * @property {string[]} lastNames
- * @property {'en'|'pt'|'es'|'de'|'id'} nameLang
+ * @property {'en'|'pt'|'es'|'de'|'fr'|'id'} nameLang
  * @property {string[]} prefixes
  * @property {{business: string[], institution: string[], family: string[], person: string[]}} patterns
  * @property {string} address

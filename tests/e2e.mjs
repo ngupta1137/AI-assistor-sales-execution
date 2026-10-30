@@ -1,5 +1,5 @@
 // End-to-end checks in a headless browser against the built single file (docs/index.html).
-// Covers all 10 industries x 8 countries x 3 personas and every P0 screen.
+// Covers all 14 industries x 11 countries x 3 personas and every P0 screen.
 // Fails on any console error, leftover {token}, undefined/NaN, or a forbidden industry noun.
 // Run: npm test (builds first) or npm run test:e2e. Workers: E2E_WORKERS=4. Filter: E2E_ONLY=pharma:IN
 
@@ -322,8 +322,8 @@ async function setupAll(browser, combos) {
     const setupText = await page.innerText('[data-region="setup"]');
     ok(setupText.includes('AI Assistor Sales Execution'), 'setup: full product name');
     ok(/Sample data/.test(setupText), 'setup: Sample data label');
-    ok((await page.$$('[data-act="setup-industry"]')).length === 10, 'setup: 10 industries');
-    ok((await page.$$('[data-act="setup-country"]')).length === 8, 'setup: 8 countries');
+    ok((await page.$$('[data-act="setup-industry"]')).length === 14, 'setup: 14 industries');
+    ok((await page.$$('[data-act="setup-country"]')).length === 11, 'setup: 11 countries');
     ok((await page.$$('[data-act="setup-persona"]')).length === 3, 'setup: 3 personas');
     ok(await page.isDisabled('#start-demo'), 'setup: Start demo must wait for a choice');
     for (const [ind, c] of combos) {

@@ -30,8 +30,8 @@ export default {
       style: 'Dealer visit: stock plan, shade display, tinting machine and counter sales.',
       annualValue: [30000, 140000], hours: [9 * 60 + 30, 20 * 60 + 30], orderQty: [4, 24],
       types: [
-        { type: 'Paint dealer', naming: 'family', words: { en: ['Paints', 'Paint and Hardware', 'Color House'], pt: ['Tintas', 'Casa das Tintas'], es: ['Pinturas', 'Tlapalería'], de: ['Farben', 'Farbenhaus'], id: ['Toko Cat', 'Pusat Cat'] } },
-        { type: 'Hardware store', naming: 'family', words: { en: ['Hardware Traders', 'Hardware', 'Building Supplies'], pt: ['Materiais de Construção', 'Depósito'], es: ['Ferretería', 'Materiales'], de: ['Baustoffe', 'Eisenwaren'], id: ['Toko Besi', 'Toko Bangunan'] } },
+        { type: 'Paint dealer', naming: 'family', words: { en: ['Paints', 'Paint and Hardware', 'Color House'], fr: ['Peintures', 'Comptoir Peinture', 'Couleurs'], pt: ['Tintas', 'Casa das Tintas'], es: ['Pinturas', 'Tlapalería'], de: ['Farben', 'Farbenhaus'], id: ['Toko Cat', 'Pusat Cat'] } },
+        { type: 'Hardware store', naming: 'family', words: { en: ['Hardware Traders', 'Hardware', 'Building Supplies'], fr: ['Quincaillerie', 'Bricolage', 'Matériaux'], pt: ['Materiais de Construção', 'Depósito'], es: ['Ferretería', 'Materiales'], de: ['Baustoffe', 'Eisenwaren'], id: ['Toko Besi', 'Toko Bangunan'] } },
       ],
       roles: ['Dealer owner', 'Counter salesperson'],
     },
@@ -39,7 +39,7 @@ export default {
       id: 'contractor', name: 'Contractors', share: 0.35, visitMinutes: [20, 30],
       style: 'Influencer visit: trust in the product, needs on site and loyalty points.',
       annualValue: [8000, 40000], hours: [8 * 60, 18 * 60], orderQty: [2, 10],
-      types: [{ type: 'Painting contractor', naming: 'family', words: { en: ['Painting Contractors', 'Decorators', 'Painting Services'], pt: ['Pinturas e Reformas', 'Empreiteira'], es: ['Pintores', 'Acabados'], de: ['Malerbetrieb', 'Maler'], id: ['Jasa Pengecatan', 'Kontraktor Cat'] } }],
+      types: [{ type: 'Painting contractor', naming: 'family', words: { en: ['Painting Contractors', 'Decorators', 'Painting Services'], fr: ['Peinture et Décoration', 'Peintres Associés', 'Travaux de Peinture'], pt: ['Pinturas e Reformas', 'Empreiteira'], es: ['Pintores', 'Acabados'], de: ['Malerbetrieb', 'Maler'], id: ['Jasa Pengecatan', 'Kontraktor Cat'] } }],
       roles: ['Contractor', 'Site supervisor'],
     },
     {
@@ -47,8 +47,8 @@ export default {
       style: 'Project visit: specifications, architects and large quotes.',
       annualValue: [60000, 300000], hours: [9 * 60, 18 * 60], orderQty: [10, 40],
       types: [
-        { type: 'Construction project', naming: 'institution', words: { en: ['Residences', 'Towers', 'Business Park'], pt: ['Residencial', 'Torres'], es: ['Residencial', 'Torres'], de: ['Wohnpark', 'Quartier'], id: ['Residence', 'Apartemen'] } },
-        { type: 'Architect firm', words: { en: ['Architects', 'Design Studio'], pt: ['Arquitetura', 'Estúdio de Arquitetura'], es: ['Arquitectos', 'Estudio de Arquitectura'], de: ['Architekten', 'Planungsbüro'], id: ['Arsitek', 'Studio Desain'] } },
+        { type: 'Construction project', naming: 'institution', words: { en: ['Residences', 'Towers', 'Business Park'], fr: ['Résidence', 'Les Tours', 'Parc d\'Affaires'], pt: ['Residencial', 'Torres'], es: ['Residencial', 'Torres'], de: ['Wohnpark', 'Quartier'], id: ['Residence', 'Apartemen'] } },
+        { type: 'Architect firm', words: { en: ['Architects', 'Design Studio'], fr: ['Architectes', 'Atelier d\'Architecture'], pt: ['Arquitetura', 'Estúdio de Arquitetura'], es: ['Arquitectos', 'Estudio de Arquitectura'], de: ['Architekten', 'Planungsbüro'], id: ['Arsitek', 'Studio Desain'] } },
       ],
       roles: ['Project manager', 'Architect', 'Procurement lead'],
     },
