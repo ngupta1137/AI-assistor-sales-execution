@@ -19,13 +19,12 @@ export function render(ctx) {
   };
   const cards = industry.problems.map((p, i) => {
     const cap = CAPABILITIES[p.capability];
-    return `<article class="card problem" data-capability="${p.capability}">
-      <span class="num">Problem ${i + 1}</span>
-      <h3>${esc(t(p.title))}</h3>
+    return `<details class="fold problem" data-capability="${p.capability}"${i === 0 ? ' open' : ''}>
+      <summary><span><span class="num">Problem ${i + 1}</span> ${esc(t(p.title))}</span></summary>
       <p>${esc(t(p.text))}</p>
       <small>Capability: <b>${esc(t(cap.name))}</b>. ${esc(t(cap.decides))}.</small>
       <a class="btn secondary sm" href="${LINK[p.capability]}">${esc(t(LABEL[p.capability]))} ${icon('chevron', 16)}</a>
-    </article>`;
+    </details>`;
   }).join('');
   return `
   <section class="page-head">

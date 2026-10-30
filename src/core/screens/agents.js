@@ -61,15 +61,15 @@ export function render(ctx) {
     <p class="small muted">Agents start with narrow authority and earn wider scope on evidence. Anyone with the right role can stop one at any time.</p>
   </section>
   <div class="items tight">${cards}</div>
-  <section class="card">
-    <h2>${esc(industry.name)} guardrails</h2>
+  <details class="fold" id="guardrails">
+    <summary>${esc(industry.name)} guardrails<span class="sum-end">${industry.guardrails.length}</span></summary>
     <ul class="guards">${industry.guardrails.map((g) => `<li>${icon('shield', 16)} ${esc(t(g.text))}</li>`).join('')}</ul>
-  </section>
-  <section class="card" id="audit">
-    <h2>Audit log</h2>
+  </details>
+  <details class="fold" id="audit"${m.audit().length ? ' open' : ''}>
+    <summary>Audit log<span class="sum-end">${m.audit().length}</span></summary>
     <p class="small muted">Approvals, overrides, outcomes, evidence and agent stops in this session.</p>
     ${m.audit().length ? `<ul class="audit">${m.audit().slice(0, 30).map((x) => `<li><time>${esc(ctx.fmt.time(x.at))}</time><span><b>${esc(x.actor)}</b> ${esc(x.text)}</span></li>`).join('')}</ul>` : '<p class="small muted">Nothing yet in this session.</p>'}
-  </section>
+  </details>
   <p class="foot-note">Sample data. Agents in this demo are rule-based.</p>`;
 }
 

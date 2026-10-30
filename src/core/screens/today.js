@@ -34,8 +34,8 @@ export function render(ctx) {
       <span class="rank${p.rank === 1 ? ' first' : ''}">${p.rank}</span>
       <span class="row-main">
         <b>${esc(a.name)}</b>
-        <small>${esc(fmt.time(p.start))} · ${esc(t(a.type))} · ${esc(a.area)} · ${esc(fmt.distance(p.km))}</small>
-        <span class="row-line"><span class="small">Est. <b class="money">${esc(fmt.moneyShort(p.opportunity))}</b> · ${p.actions.length} actions · Tier ${a.tier}</span>${status}</span>
+        <small>${esc(fmt.time(p.start))} · ${esc(t(a.type))} · ${esc(fmt.distance(p.km))}</small>
+        <span class="row-line"><span class="small">Est. <b class="money">${esc(fmt.moneyShort(p.opportunity))}</b> · ${p.actions.length} actions</span>${status}</span>
       </span>
     </a></li>`;
   }).join('');
@@ -63,7 +63,7 @@ export function render(ctx) {
     <a class="btn secondary" href="#/ask" id="open-ask">${icon('ask', 20)}Ask AI</a>
   </div>
 
-  <section class="card tight" style="padding:12px 16px">
+  <section class="card tight">
     <div class="stat-row"><span class="small muted">Month to date</span><span class="small"><b class="money">${esc(fmt.moneyShort(tr.achieved))}</b> of ${esc(fmt.moneyShort(tr.target))} · ${pct}%</span></div>
     ${bar(tr.achieved, tr.target)}
     <small>${done} of ${ordered.length} ${esc(t('{visits}'))} recorded · ${self.actionsDone} actions done</small>
@@ -74,13 +74,13 @@ export function render(ctx) {
     <ol class="group list">${rows}</ol>
   </section>
 
-  <section class="card">
-    <h2>${esc(t('{Territory}'))}</h2>
+  <details class="fold" id="territory">
+    <summary>${esc(t('{Territory}'))}<span class="sum-end">${esc(kpiValue(kpi, tr.headlineKpi.value, fmt))}</span></summary>
     <div class="facts">
       <div><small>${esc(t(kpi.label))}</small><b>${esc(kpiValue(kpi, tr.headlineKpi.value, fmt))}</b><small>Target ${esc(kpiValue(kpi, kpi.target, fmt))}</small></div>
       <div><small>Untapped potential</small><b>${esc(fmt.moneyShort(tr.opportunity))}</b><small>${esc(t(`Across ${data.accounts.length} {accounts}`))}</small></div>
       ${self.estimated ? `<div class="wide"><small>Estimated opportunity addressed today</small><b>${esc(fmt.moneyShort(self.estimated))}</b><small>An estimate from completed actions. Not booked sales, and not added to the month figure.</small></div>` : ''}
     </div>
-  </section>
+  </details>
   <p class="foot-note">Sample data. Values are generated for this demo.</p>`;
 }

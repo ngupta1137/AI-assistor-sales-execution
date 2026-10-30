@@ -28,14 +28,14 @@ export function render(ctx) {
     <p class="small muted">${esc(industry.name)} pack with the ${esc(country.name)} country pack. Same product, same workflow. Only the configuration changes.</p>
   </section>
   <nav class="jump tight" aria-label="Sections">${jump}</nav>
-  <section class="card" id="vocab"><h2>Vocabulary</h2><table class="tbl"><thead><tr><th>Product term</th><th>Your term</th></tr></thead><tbody>${vocab}</tbody></table></section>
-  <section id="segments"><h2>Segments</h2><ul class="group" style="margin-top:12px">${segs}</ul></section>
-  <section class="card" id="actions"><h2>${esc(t('Action catalog'))}</h2><div class="tbl-wrap"><table class="tbl"><thead><tr><th>Action</th><th>Agent</th><th>Effort</th><th>Evidence</th></tr></thead><tbody>${acts}</tbody></table></div></section>
-  <section class="card" id="offerings"><h2>${esc(t('{Offerings}'))}</h2><div class="tbl-wrap"><table class="tbl"><thead><tr><th>Name</th><th>Category</th><th>Status</th></tr></thead><tbody>${offerings}</tbody></table></div></section>
-  <section class="card" id="kpis"><h2>KPIs</h2><table class="tbl"><tbody>${kpis}</tbody></table></section>
-  <section class="card" id="rules"><h2>Guardrails</h2><ul class="guards">${industry.guardrails.map((g) => `<li>${icon('shield', 16)} ${esc(t(g.text))}</li>`).join('')}</ul>
-    <h3>${esc(t('{Order} rules'))}</h3><ul class="bullets">${rules}</ul></section>
-  <section class="card" id="country"><h2>Country: ${esc(country.name)}</h2>
+  <details class="fold" id="vocab" open><summary>Vocabulary</summary><table class="tbl"><thead><tr><th>Product term</th><th>Your term</th></tr></thead><tbody>${vocab}</tbody></table></details>
+  <details class="fold" id="segments"><summary>Segments<span class="sum-end">${industry.segments.length}</span></summary><ul class="group">${segs}</ul></details>
+  <details class="fold" id="actions"><summary>${esc(t('Action catalog'))}<span class="sum-end">${industry.actions.length}</span></summary><div class="tbl-wrap"><table class="tbl"><thead><tr><th>Action</th><th>Agent</th><th>Effort</th><th>Evidence</th></tr></thead><tbody>${acts}</tbody></table></div></details>
+  <details class="fold" id="offerings"><summary>${esc(t('{Offerings}'))}<span class="sum-end">${industry.offerings.length}</span></summary><div class="tbl-wrap"><table class="tbl"><thead><tr><th>Name</th><th>Category</th><th>Status</th></tr></thead><tbody>${offerings}</tbody></table></div></details>
+  <details class="fold" id="kpis"><summary>KPIs<span class="sum-end">${industry.kpis.length}</span></summary><table class="tbl"><tbody>${kpis}</tbody></table></details>
+  <details class="fold" id="rules"><summary>Guardrails</summary><ul class="guards">${industry.guardrails.map((g) => `<li>${icon('shield', 16)} ${esc(t(g.text))}</li>`).join('')}</ul>
+    <h3>${esc(t('{Order} rules'))}</h3><ul class="bullets">${rules}</ul></details>
+  <details class="fold" id="country"><summary>Country: ${esc(country.name)}</summary>
     <table class="tbl"><tbody>
       <tr><td class="muted">Currency</td><td>${esc(country.currency)} · ${esc(fmt.money(1234567))} · ${esc(fmt.moneyShort(12345678))}</td></tr>
       <tr><td class="muted">Unit price</td><td>${esc(fmt.price(19.5 * country.priceFactor))}</td></tr>
@@ -46,12 +46,12 @@ export function render(ctx) {
     <h3>Upcoming local events</h3><ul class="bullets">${events}</ul>
     <ul class="bullets muted">${country.notes.map((n) => `<li>${esc(n)}</li>`).join('')}</ul>
     <p class="small muted">Event dates are approximate.</p>
-  </section>
+  </details>
   <a class="btn secondary block" href="#/problems" id="open-problems">${icon('bulb', 20)}Problems we solve</a>
   <div class="notice good">${icon('check', 18)}<span><b>This is a configuration, not a custom build.</b> Adding an industry or a country means adding one pack file.</span></div>
   <p class="foot-note">Sample data.</p>`;
 }
 
 export const actions = {
-  jump: ({ data }) => { document.getElementById(data.id)?.scrollIntoView({ block: 'start' }); return false; },
+  jump: ({ data }) => { const el = document.getElementById(data.id); if (el) { el.open = true; el.scrollIntoView({ block: 'start' }); } return false; },
 };
