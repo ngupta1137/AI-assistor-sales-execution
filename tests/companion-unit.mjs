@@ -11,6 +11,7 @@ import { claimHits, checkRequest } from '../src/core/companion/claims.js';
 import { addDays, iso, workingDays, startOfDay, safetyFor, sentimentFor, FATIGUE_MINUTES, WEEKS } from '../src/core/companion/data.js';
 import { scheduleVisits } from '../src/data/generate.js';
 import { askLearning, searchKnowledge } from '../src/core/companion/learning.js';
+import { buildPitch, buildStories } from '../src/core/companion/pitch.js';
 
 const failures = [];
 let checks = 0;
@@ -33,6 +34,12 @@ for (const ind of INDUSTRIES.filter((i) => i.companion)) {
     ctx.ui = {}; ctx.persona = 'rep'; ctx.app = {};
     const tag = `${ind.id}x${country.id}`;
     const { comp, cm, data } = ctx;
+    // Pitch and stories must build for every account, not only the first one (a segment may list only samples).
+    for (const acct of data.accounts) {
+      let ok = true;
+      try { ok = buildPitch(ctx, acct).length === 3 && buildStories(ctx, acct).length === 3; } catch (e) { ok = false; }
+      check(ok, `${tag}: pitch or story failed for account ${acct.id} (${acct.segmentId})`);
+    }
     // Sample data
     check(comp.certs.some((c) => c.dueIn >= 0 && c.dueIn <= 30), `${tag}: no certification due within 30 days`);
     check(comp.certs.some((c) => c.dueIn > 30), `${tag}: every certification is due soon`);
