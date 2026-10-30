@@ -832,7 +832,7 @@ details.evi > summary { min-height: var(--tap); }
           ${k(d?"play":"stop",20)} ${d?"Resume":"Stop"} ${o(i.name)}</button>
       </div>
     </article>`}).join("")}</div>
-  <details class="fold" id="guardrails">
+  <details class="fold" id="guardrails" open>
     <summary>${o(s.name)} guardrails<span class="sum-end">${s.guardrails.length}</span></summary>
     <ul class="guards">${s.guardrails.map(i=>`<li>${k("shield",16)} ${o(t(i.text))}</li>`).join("")}</ul>
   </details>

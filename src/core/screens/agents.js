@@ -61,7 +61,7 @@ export function render(ctx) {
     <p class="small muted">Agents start with narrow authority and earn wider scope on evidence. Anyone with the right role can stop one at any time.</p>
   </section>
   <div class="items tight">${cards}</div>
-  <details class="fold" id="guardrails">
+  <details class="fold" id="guardrails" open>
     <summary>${esc(industry.name)} guardrails<span class="sum-end">${industry.guardrails.length}</span></summary>
     <ul class="guards">${industry.guardrails.map((g) => `<li>${icon('shield', 16)} ${esc(t(g.text))}</li>`).join('')}</ul>
   </details>
