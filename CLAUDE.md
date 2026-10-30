@@ -8,3 +8,4 @@
 - Regulated industries: no clinical claims (pharma, medical devices); agents never set price or approve credit (financial services); crop-protection advice follows the label (agri).
 - Git: commit after each meaningful step and push immediately. Never force-push or rewrite history. If you cannot push to `main`, push to your branch and open a pull request into `main`.
 - Before finishing any task: run `npm test` (all industry x country combinations) and `npm run build` (refreshes `docs/index.html`), and commit the build.
+- Live demo (Vercel, deploys from `main`): https://ai-assistor-sales-execution.vercel.app . Use this link when you tell the user where to look. The older address ai-assistor.vercel.app is retired.

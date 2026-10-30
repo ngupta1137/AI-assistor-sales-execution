@@ -88,10 +88,12 @@ function renderItem(ctx, it, isNext) {
     <div class="item-head">${agentTag(it.agent)}${it.overBudget ? pill('If time allows', 'muted') : ''}<span class="state">${pill(stateLabel[0], stateLabel[1])}</span></div>
     <div class="item-title"><span class="rank">${lead}</span><h3>${esc(t(it.title, v))}</h3></div>
     <div class="metrics"><span>${esc(valueText)}</span>${it.effort ? `<span>${icon('clock', 16)} ${it.effort} min</span>` : ''}${confBadge(it.confidence)}</div>
-    <dl class="evidence">
-      <dt>Saw</dt><dd>${esc(t(it.saw, v))}</dd>
-      <dt>Compared</dt><dd>${esc(t(it.compared, v))}</dd>
-    </dl>
+    <details class="evi"${isNext ? ' open' : ''}><summary>What the agent saw</summary>
+      <dl class="evidence">
+        <dt>Saw</dt><dd>${esc(t(it.saw, v))}</dd>
+        <dt>Compared</dt><dd>${esc(t(it.compared, v))}</dd>
+      </dl>
+    </details>
     ${controls}
     ${open && !paused && !d ? sheet(ctx, it, open) : ''}
   </article>`;

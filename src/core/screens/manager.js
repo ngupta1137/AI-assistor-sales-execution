@@ -22,8 +22,7 @@ export function render(ctx) {
       <div class="ex-head">${pill(label, tone)}${e.live ? pill('New', 'accent') : ''}<span class="time">${esc(fmt.time(e.at))}</span></div>
       <h3>${esc(t(e.title, e.vars))}</h3>
       <dl class="ex-grid">
-        <dt>Where</dt><dd>${esc(e.account)}</dd>
-        <dt>Who</dt><dd>${esc(e.rep)}</dd>
+        <dt>Where</dt><dd>${esc(e.account)} · ${esc(e.rep)}</dd>
         <dt>Reason</dt><dd>${esc(reason)}</dd>
         ${e.note ? `<dt>Note</dt><dd>${esc(e.note)}</dd>` : ''}
         <dt>Routed</dt><dd>${esc(routeName(e))}</dd>
@@ -66,20 +65,20 @@ export function render(ctx) {
   </section>
   <section id="exceptions">
     <div class="section-head"><h2>Exception queue</h2>${pill(`${open} open`, open ? 'warn' : 'good')}</div>
-    <p class="small muted" style="margin-bottom:12px">${esc(t("Overrides, blocked actions and pending approvals, with the {rep}'s reason. For coaching, not policing."))}</p>
-    <div class="seg-ctl" role="tablist" style="margin-bottom:12px">
+    <p class="small muted lead-sm" style="margin-bottom:8px">${esc(t("Overrides, blocked actions and pending approvals, with the {rep}'s reason. For coaching, not policing."))}</p>
+    <div class="seg-ctl" role="tablist" style="margin-bottom:8px">
       ${[['all', 'All'], ['manager', `To ${t('{manager}')}`], ['kam', `To ${t('{kam}')}`]].map(([id, label]) => `<button class="seg${filter === id ? ' on' : ''}" data-act="ex-filter" data-id="${id}" role="tab" aria-selected="${filter === id}">${esc(label)}</button>`).join('')}
     </div>
     <ul class="group exceptions">${queue}</ul>
   </section>
-  <section><h2>Team</h2><ul class="group" style="margin-top:12px">${team}</ul>
-    <small style="display:block;margin-top:8px">Estimated opportunity addressed comes from completed actions. It is not booked sales.</small></section>
-  <section id="coaching"><h2>Coaching prompts</h2>
-    <p class="small muted" style="margin:4px 0 12px">From patterns in overrides and blocked actions. For conversations, not a leaderboard.</p>
-    <ul class="group">${prompts || '<li class="empty">No patterns yet.</li>'}</ul></section>
-  <section id="coverage"><div class="section-head"><h2>Coverage gaps</h2>${pill(`${uncovered.length} tier A`, uncovered.length ? 'warn' : 'good')}</div>
-    <p class="small muted" style="margin-bottom:12px">${esc(t(`High-potential {accounts} not visited in ${N} days. The Visit Planner adds them to the next routes.`))}</p>
-    <ul class="group">${coverage}</ul></section>
+  <details class="fold" id="team"><summary>Team<span class="sum-end">${reps.length}</span></summary><ul class="group">${team}</ul>
+    <small style="display:block">Estimated opportunity addressed comes from completed actions. It is not booked sales.</small></details>
+  <details class="fold" id="coaching"><summary>Coaching prompts</summary>
+    <p class="small muted">From patterns in overrides and blocked actions. For conversations, not a leaderboard.</p>
+    <ul class="group">${prompts || '<li class="empty">No patterns yet.</li>'}</ul></details>
+  <details class="fold" id="coverage"><summary>Coverage gaps<span class="sum-end">${uncovered.length} tier A</span></summary>
+    <p class="small muted">${esc(t(`High-potential {accounts} not visited in ${N} days. The Visit Planner adds them to the next routes.`))}</p>
+    <ul class="group">${coverage}</ul></details>
   <p class="foot-note">Sample data. Other reps' figures are generated.</p>`;
 }
 

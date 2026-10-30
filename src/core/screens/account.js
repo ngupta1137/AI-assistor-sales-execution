@@ -45,8 +45,7 @@ export function render(ctx, [accountId]) {
     <span class="eyebrow">${esc(t('{Account} 360'))}</span>
     <h1>${esc(a.name)}</h1>
     <p class="small muted">${esc(typeLine(t, a))} · Tier ${a.tier}</p>
-    <p class="small">${esc(a.address)}</p>
-    <p class="small">Open ${esc(fmt.time(a.hours[0]))} to ${esc(fmt.time(a.hours[1]))} · ${last === 0 ? esc(t('Visited today')) : `last ${esc(t('{visit}'))} ${esc(fmt.daysAgo(last))}`}</p>
+    <p class="small">${esc(a.address)} · Open ${esc(fmt.time(a.hours[0]))} to ${esc(fmt.time(a.hours[1]))} · ${last === 0 ? esc(t('Visited today')) : `last ${esc(t('{visit}'))} ${esc(fmt.daysAgo(last))}`}</p>
   </section>
 
   <section><div class="section-head"><h2>Open gaps</h2>${p ? pill(`${open.length} open`, open.length ? 'warn' : 'good') : ''}</div>
@@ -64,9 +63,9 @@ export function render(ctx, [accountId]) {
     <small>${fmt.pct(Math.round((a.current / a.potential) * 100))} of potential captured. Medium confidence, based on similar ${esc(t('{accounts}'))} in ${esc(a.city)}.</small>
   </section>
 
-  <section class="card"><h2>KPIs</h2><ul class="kpi-list">${kpis}</ul></section>
-  <section><h2>${esc(t('{Contacts}'))}</h2><ul class="group" style="margin-top:12px">${contacts}</ul></section>
-  <section><h2>${esc(t('Last {visits}'))}</h2><ul class="group" style="margin-top:12px">${visits}</ul></section>
-  <section><h2>${esc(t('{Order} history'))}</h2><ul class="group" style="margin-top:12px">${orders}</ul></section>
+  <details class="fold" id="acc-kpis"><summary>KPIs</summary><ul class="kpi-list">${kpis}</ul></details>
+  <details class="fold" id="acc-contacts"><summary>${esc(t('{Contacts}'))}<span class="sum-end">${a.contacts.length}</span></summary><ul class="group">${contacts}</ul></details>
+  <details class="fold" id="acc-visits"><summary>${esc(t('Last {visits}'))}<span class="sum-end">${a.history.length}</span></summary><ul class="group">${visits}</ul></details>
+  <details class="fold" id="acc-orders"><summary>${esc(t('{Order} history'))}<span class="sum-end">${a.orderHistory.length}</span></summary><ul class="group">${orders}</ul></details>
   <p class="foot-note">Sample data.</p>`;
 }
