@@ -14,8 +14,8 @@ export default {
     route: { rep: [{ q: 'What if the {contact} has to cancel?', intent: 'answer:routeCancel' }] },
     manager: { manager: [{ q: 'Which {accounts} need a {kam} conversation?', intent: 'answer:managerKam' }] },
     agents: {
-      rep: [{ q: 'Can an agent suggest a resale price?', intent: 'answer:agentsResale' }],
-      manager: [{ q: 'Can an agent suggest a resale price?', intent: 'answer:agentsResale' }],
+      rep: [{ q: 'Can an agent tell a {contact} what to charge?', intent: 'answer:agentsResale' }],
+      manager: [{ q: 'Can an agent tell a {contact} what to charge?', intent: 'answer:agentsResale' }],
     },
   }),
   assistantAnswers: {

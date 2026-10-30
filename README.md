@@ -15,11 +15,11 @@ An AI field sales app that tells every field rep which customers to visit, what 
 | Area | State |
 |---|---|
 | P0 requirements (PRD section 9): rep R1 to R7, manager M1 and M2, agents G1 and G2, configuration C1 and C2 | Built and tested |
-| 10 industry packs, 8 country packs, all 80 combinations | Built and tested |
+| 14 industry packs, 11 country packs, all 154 combinations | Built and tested |
 | Setup screen, URL parameters, presenter menu (Shift+D, long press), seeded data | Built and tested |
 | P1: route plan (R8), Ask AI (R9), coaching prompts (M3), coverage (M4), audit log (G3), prospect branding | Built and tested |
 | Assistant on every screen: context-aware, rule-based, grounded in live state, with guardrails and an audit trail (PRD R9) | Built and tested |
-| Sales Companion (concept): growth (plan and sell), productivity (leave, expenses, HR), learning, for all 10 industries and 8 countries (PRD 9.6) | Built and tested, including the P1 items |
+| Sales Companion (concept): growth (plan and sell), productivity (leave, expenses, HR), learning, for all 14 industries and 11 countries (PRD 9.6) | Built and tested, including the P1 items |
 | P2: offline sync, pack editor, translated UI, partner view | Not built |
 | Real integrations, real models, user accounts | Not built (out of scope for v1) |
 
@@ -63,7 +63,8 @@ This builds, then runs the static checks and the browser checks. The browser che
 | no parameters | Setup screen |
 
 - **Industries:** `cpg`, `pharma`, `meddevices`, `beverages`, `building` (also `paints`), `agri`, `telecom`, `electronics`, `autoparts`, `finserv` (also `fs`).
-- **Countries:** `US`, `UK` (also `GB`), `DE`, `IN`, `BR`, `ID`, `MX`, `AE` (also `UAE`). Case does not matter.
+- **Countries:** `US`, `UK` (also `GB`), `DE`, `FR`, `AU`, `NZ`, `IN`, `BR`, `ID`, `MX`, `AE` (also `UAE`). Case does not matter. ANZ is two packs, `AU` and `NZ`, because the two have different currencies, holidays and cities.
+- **Industries:** `cpg`, `pharma`, `meddevices`, `beverages`, `building`, `agri`, `telecom`, `electronics`, `autoparts`, `finserv`, `foodservice`, `industrial`, `apparel`, `energy`.
 - **Personas:** `rep`, `manager`, `admin`.
 - **Hash routes:** `#/today`, `#/brief/<id>`, `#/account/<id>`, `#/action/<actionId>`, `#/order/<id>`, `#/complete/<id>`, `#/route`, `#/ask`, `#/manager`, `#/agents`, `#/config`, `#/problems`, `#/setup`.
 - An unknown industry or country opens the setup screen with a short note. It does not show an error.
@@ -188,7 +189,7 @@ Screens never contain industry nouns. They write `{account}`, `{contact}`, `{vis
 1. Copy the pack closest to the new industry, for example `src/packs/industries/autoparts.js`, to `src/packs/industries/<id>.js`. The id is lowercase letters and digits.
 2. Set `name`, `tagline` (shown on the setup tile), `icon` (a key from `src/core/icons.js`; add an icon there if you need one) and `accent` (hex, at least 4.5:1 against white; the validator checks this).
 3. Fill in `vocab`: the words for account, contact, rep, manager, KAM, offering, order and visit, singular and plural. These words replace the tokens on every screen.
-4. Define 2 or 3 `segments`. Each needs a visit length, a visit style, a reference annual value in USD, opening hours, account types with name words per language (`en` is required; `pt`, `es`, `de` and `id` are used by Brazil, Mexico, Germany and Indonesia), and contact roles. Mark at least one segment `key: true`; overrides there route to the KAM.
+4. Define 2 or 3 `segments`. Each needs a visit length, a visit style, a reference annual value in USD, opening hours, account types with name words per language (`en` is required; `pt`, `es`, `de`, `fr` and `id` are used by Brazil, Mexico, Germany, France and Indonesia), and contact roles. Mark at least one segment `key: true`; overrides there route to the KAM.
 5. Add 8 to 12 `offerings` with fictional names. Set `price` to a reference USD price, `0` for no charge, or `null` when people, not the agent, set the price. Add a `kind` for special classes such as samples or contracts. Only actions that ask for that kind will talk about them.
 6. Add 8 to 12 `actions`. Each needs `title`, `saw` (what the agent saw), `compared` (what it compared against), 3 to 5 `why` lines and 2 to 3 `talk` lines. Templates can use `{product} {days} {pct} {qty} {peers} {n} {weeks} {area} {city} {person} {role} {event} {eventDays} {type} {segment} {amount}` plus vocabulary tokens. Include at least one action for each agent (`planner`, `gap`, `order`) and at least 3 actions per segment.
 7. Add `orderReasons` (optionally `bySegment` overrides), `orderRules` (`totalAbove`, `lineMax`, `humanPrice`, `prerequisite`, `info`), `overrideReasons` (with `route`), `outcomeReasons` (mark the ones that block), `visitNotes` (strings, or `{ text, segments }`), 4 to 6 `kpis` (the first is the territory headline; add `segments` to limit one to the segments it applies to), `guardrails`, exactly 6 `problems`, 8 to 10 `assistant` questions and answers, an 8-step `storyline`, and `forbidden` words that must never appear for this industry. A `prerequisite` rule (for example a needs review with signed consent before a loan line can be sent) names an action and its evidence type; the generator makes sure that action is in the brief whenever the order needs it.
@@ -196,7 +197,7 @@ Screens never contain industry nouns. They write `{account}`, `{contact}`, `{vis
 9. Run `npm test`. The validator reports anything missing. The duplicate-text check fails if you copied sentences from another pack, so rewrite them in the new industry's own words. The browser checks then open the new industry in all 8 countries.
 10. Run `npm run build` and commit `docs/index.html`.
 
-Update the count check in `tests/static.mjs` (`expected 10 industries`) when you add one.
+Update the count check in `tests/static.mjs` (`expected 14 industries`, and the country count) when you add one.
 
 ## Add a country pack
 
@@ -224,25 +225,25 @@ Update the count check in `tests/static.mjs` (`expected 10 industries`) when you
    - No sentence copied between industries.
    - No industry nouns hard-coded in `src/core`.
    - US spelling in source.
-   - Generation is deterministic for all 80 combinations: 24 to 30 accounts, 6 to 8 visits, 3 to 6 actions, every visit inside opening hours.
+   - Generation is deterministic for all 154 combinations: 24 to 30 accounts, 6 to 8 visits, 3 to 6 actions, every visit inside opening hours.
    - Country formatting: lakh and crore, comma decimals, date orders.
-3. **Browser checks** (`tests/e2e.mjs`, Playwright against the built file, about 80 seconds with 4 workers). For each of the 80 combinations, the rep flow opens every brief, action, account, order and complete screen. It also:
+3. **Browser checks** (`tests/e2e.mjs`, Playwright against the built file, about 80 seconds with 4 workers). For each of the 154 combinations, the rep flow opens every brief, action, account, order and complete screen. It also:
    - Runs approve, adjust and override and checks the live counts.
    - Captures the typed evidence, including drawing a signature.
    - Triggers the order rules: approval threshold, and the sample limit block.
    - Closes the visit and switches to manager through the presenter menu, then checks the override and its note are in the exception queue.
    - Checks coaching prompts and coverage, then stops and resumes the Order agent and checks paused items and the audit log.
    - Opens config, problems, route re-plan and Ask AI.
-   - Opens manager and admin direct links for all 80 combinations, and starts the demo from the setup screen for all 80.
+   - Opens manager and admin direct links for all 154 combinations, and starts the demo from the setup screen for all 154.
    - Edge cases: bad links, aliases, HTML escaping of "Prepared for", the contrast guard, the same data after a reload, long press, switch time and reset.
 
 Any console error, leftover `{token}`, `undefined` or `NaN`, or one of the pack's forbidden words (for example "store" in pharma or financial services) fails the run. `E2E_ONLY=pharma:IN npm run test:e2e` runs one combination. `E2E_WORKERS=8` runs more in parallel.
 
 Regression checks from the October 2026 functional review are part of the suite: proposals blocked until the needs review has signed consent (F01), sample requests never shown as signed drops (F02), month actuals unchanged by estimates (F03), override notes kept through save (F04), closed visits leaving coverage gaps (F05), the stored approver named everywhere (F06), honest stopped-agent copy (F07) and done actions leaving open gaps (F08). Layout checks open every screen at 320 and 390 px wide and fail on sideways scroll or any tap target under 44 px.
 
-**Companion checks.** `tests/companion-unit.mjs` (about 7,800 checks, no browser) validates every pack, runs the sample data, the debrief parser, the leave and expense rules with manager approval, the learning chatbot under every guardrail, and checks authored text against its own blocked patterns. `tests/companion.mjs` opens every Companion screen in all 80 combinations for the rep and the manager, and in each combination completes the voice debrief sample, submits a leave request and an expense, approves both as the manager and sees the result as the rep. It also covers a restricted claim refused in all 10 industries, the microphone fallbacks (unsupported, denied, working), flagged renewals and resource gaps cross-checked against the engine, and layout at 320 and 390 px.
+**Companion checks.** `tests/companion-unit.mjs` (about 7,800 checks, no browser) validates every pack, runs the sample data, the debrief parser, the leave and expense rules with manager approval, the learning chatbot under every guardrail, and checks authored text against its own blocked patterns. `tests/companion.mjs` opens every Companion screen in all 154 combinations for the rep and the manager, and in each combination completes the voice debrief sample, submits a leave request and an expense, approves both as the manager and sees the result as the rep. It also covers a restricted claim refused in all 10 industries, the microphone fallbacks (unsupported, denied, working), flagged renewals and resource gaps cross-checked against the engine, and layout at 320 and 390 px.
 
-**Assistant checks.** `tests/assistant-unit.mjs` answers every suggested question on every screen for every persona, industry and country without a browser (249,720 checks). `tests/assistant.mjs` (about 10 minutes with 4 workers; it uses Playwright's controlled clock for the 400 to 700 ms typing delay) opens every screen in all 80 combinations for the rep and the manager, clicks every suggested question and checks for an answer, a "Based on" line, no leftover token, no wrong-industry word and no console error. It also covers the guardrail refusals and audit entries, an answer that reflects an override, the focus trap, Escape and tap targets, navigation that never submits, the shared conversation, the presenter toggle, `?assistant=off`, the Setup questions, and that the live provider is absent from the build.
+**Assistant checks.** `tests/assistant-unit.mjs` answers every suggested question on every screen for every persona, industry and country without a browser (249,720 checks). `tests/assistant.mjs` (about 10 minutes with 4 workers; it uses Playwright's controlled clock for the 400 to 700 ms typing delay) opens every screen in all 154 combinations for the rep and the manager, clicks every suggested question and checks for an answer, a "Based on" line, no leftover token, no wrong-industry word and no console error. It also covers the guardrail refusals and audit entries, an answer that reflects an override, the focus trap, Escape and tap targets, navigation that never submits, the shared conversation, the presenter toggle, `?assistant=off`, the Setup questions, and that the live provider is absent from the build.
 
 Last full run: static 134,954 checks; assistant engine 249,720; Companion engine 8,563; browser suite 80 combinations, 3 personas, 5,834 screens, 22,697 assertions; assistant suite 80 combinations, 8,160 questions answered, 157,346 assertions; Companion suite 80 combinations x 2 personas, 3,200 screens, 80 full flows (debrief, leave, expense, approvals), 19,076 assertions. All passing. `npm test` runs all seven steps (about 15 minutes).
 
