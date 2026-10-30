@@ -453,7 +453,7 @@ details[open] > summary::after { transform: rotate(-135deg); }
 .fold.flat > .group { margin-top: 0; }
 .fold > * + * { margin-top: var(--s2); }
 .item > details.evi { margin-top: calc(-1 * var(--s1)); }
-.item > details.evi > summary { min-height: 36px; font-weight: 600; color: var(--muted); }
+.item > details.evi > summary { font-weight: 600; color: var(--muted); }
 details.evi > summary { min-height: var(--tap); }
 .tiles { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--s2); padding: 0 var(--s3) var(--s3); }
 .tile { display: flex; flex-direction: column; gap: 2px; padding: var(--s2) var(--s3); min-height: 84px; border: 1px solid var(--line); border-radius: var(--radius-sm); background: var(--surface-subtle); text-decoration: none; color: inherit; }
