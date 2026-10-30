@@ -108,18 +108,25 @@ Each capability can run alone; together they close the loop (gaps become actions
 | Consumer electronics | Electronics stores, multi-brand outlets | Store manager, in-store promoter | Retail account manager | Models, demo units | Make a demo unit live, train promoters, fix price tags, track sell-out, set up a launch display | Sell-out share, display compliance | Price promises follow the retailer agreement |
 | Auto parts | Workshops, parts retailers, fleet operators | Workshop owner, mechanic | Field sales rep | Parts, lubricants, batteries | Stock fast-moving parts, train mechanics, enrol in the loyalty scheme, follow up a warranty claim | Lines per workshop, loyalty enrolment | Counterfeit and warranty rules |
 | Financial services field sales | Merchants, small businesses, agent outlets | Business owner | Relationship officer | Accounts, loans, card terminals, insurance | Check terminal health, follow up a loan application, collect KYC documents, offer a product within suitability, collections visit | Active merchants, portfolio quality | Suitability and consent; credit and pricing decisions stay human; no mis-selling |
+| Foodservice distribution | Restaurants, cafes, hotels, caterers, canteens | Head chef, purchasing manager | Sales rep | Food and drink products by the case | Place a product on the next menu, fix repeat short deliveries, hand over a spec sheet, set up a standing order | Core range ordered | Allergen and nutrition statements only from the spec sheet; prices from the contract list |
+| Industrial supplies | Plants, machine and fabrication shops, contractors | Maintenance lead, plant engineer | Sales engineer | Safety gear, bearings, lubricants, tools, instruments | Set up a restock bin, plan stock for a shutdown, replace a discontinued item, flag calibration due dates | Contract items bought | Rating and load questions go to the technical desk; quotes from the pricing desk |
+| Apparel and footwear | Department stores, boutiques, online sellers | Fashion buyer, owner | Wholesale rep | Styles by size run, curve or carton | Restore a broken size run, take an in-season reorder, take the pre-season order, review aged stock | Sell-through this season | Retailer sets its own resale prices; orders within the agreed order budget |
+| Solar and home energy | Installers, electrical wholesalers, home builders | Technical buyer, project lead | Territory rep | Panels, inverters, storage, charging, monitoring | Plan stock for the project list, book maker training, check compatibility, set up a counter display | Core range stocked | No savings, payback or output figures; design and sizing by a qualified person |
 
 Each pack contains: vocabulary, account types and segments, 8 to 12 offerings, an action catalogue (8 to 12 action types with evidence type and default effort), KPIs, guardrails, 6 problem statements in the prospect's language, AI assistant Q&A, and a demo storyline.
 
 **Segments replace modern vs traditional trade:** each pack defines two or three segments (for example pharma: hospitals, clinics, pharmacies; paints: dealers, contractors, projects). The workflow adapts: long consultative visits vs short order-led visits.
 
-## 7. Country packs (v1: eight)
+## 7. Country packs (eleven)
 
 | Country | Currency | Distance | Cities (examples) | Content notes |
 |---|---|---|---|---|
 | United States | USD ($) | miles | Chicago, Dallas, Atlanta, Phoenix | Imperial units; US date format |
 | United Kingdom | GBP (£) | miles | Manchester, Birmingham, Leeds, Bristol | UK spelling and postcodes |
 | Germany | EUR (€) | km | Munich, Hamburg, Cologne, Frankfurt | Comma decimals; works council note on rep data |
+| France | EUR (€) | km | Paris, Lyon, Marseille, Toulouse | Comma decimals, space for thousands; French names; note on consulting employee representatives |
+| Australia | AUD ($) | km | Sydney, Melbourne, Brisbane, Perth | UK spelling; 12-hour clock; state holidays differ |
+| New Zealand | NZD ($) | km | Auckland, Wellington, Christchurch, Hamilton | UK spelling; 12-hour clock; some Maori names |
 | India | INR (₹, lakh/crore) | km | Mumbai, Pune, Lucknow, Bengaluru | Lakh/crore formatting; festival seasons |
 | Brazil | BRL (R$) | km | São Paulo, Belo Horizonte, Curitiba, Recife | Comma decimals |
 | Indonesia | IDR (Rp) | km | Jakarta, Surabaya, Bandung, Medan | Large numbers in thousands |
@@ -257,13 +264,13 @@ Pack content: each industry pack supplies `companion` (roles, expense categories
 
 ## 13. Prototype acceptance criteria
 
-1. Setup screen lists 10 industries, 8 countries and 3 personas; "Start demo" works for all combinations.
+1. Setup screen lists 14 industries, 11 countries and 3 personas; "Start demo" works for all combinations.
 2. URL parameters open the right pack directly; Shift+D opens the presenter menu.
 3. In every industry, all screen labels use that industry's words (no "store" in pharma, no "SKU" in financial services).
 4. Switching country changes currency, number format, cities, names, addresses, distance unit and local events.
 5. P0 requirements in section 9 all work; the visit brief approve, adjust and override flow updates counts on screen.
 6. Agent controls show industry guardrails and the stop button works.
-7. Automated check (headless browser) loads all 80 combinations and every P0 screen without errors.
+7. Automated check (headless browser) loads all 154 combinations and every P0 screen without errors.
 
 ## 14. Demo storyline (same arc in every industry)
 
@@ -280,7 +287,7 @@ Pack content: each industry pack supplies `companion` (roles, expense categories
 
 | Phase | Scope |
 |---|---|
-| Prototype v1 | This PRD's P0 scope: 10 industries, 8 countries, rep, manager, agents, configuration screens |
+| Prototype v1 | This PRD's P0 scope: 10 industries, 8 countries (extended later to 14 and 11), rep, manager, agents, configuration screens |
 | Prototype v1.1 | P1: route plan, Ask AI, coaching prompts, coverage, prospect branding |
 | Pilot-ready MVP | Real data import (CSV), one CRM integration (for example Salesforce or Dynamics), basic models for potential and order suggestion, offline sync, measurement against control |
 | Product | Pack editor, more CRM and ERP connectors, partner and customer self-service views, translated UI |

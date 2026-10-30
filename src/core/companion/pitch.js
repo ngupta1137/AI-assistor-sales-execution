@@ -18,7 +18,9 @@ export function pitchVars(ctx, acct) {
   }
   const seg = industry.segments.find((s) => s.id === acct.segmentId);
   const inOrder = new Set((m.plannedFor(acct.id)?.order || []).map((l) => l.offeringId));
-  const pool = industry.offerings.filter((o) => (!o.segments || o.segments.includes(seg.id)) && !o.kind && o.price !== 0);
+  const forSeg = industry.offerings.filter((o) => !o.segments || o.segments.includes(seg.id));
+  // A segment can list only samples (pharma clinics), so fall back to what the segment has, then to the range.
+  const pool = [forSeg.filter((o) => !o.kind && o.price !== 0), forSeg, industry.offerings].find((l) => l.length);
   const offer = pool.find((o) => (o.status === 'new' || o.status === 'focus') && !inOrder.has(o.id)) || pool.find((o) => o.status === 'new' || o.status === 'focus') || pool[0];
   const [a, b] = acct.orderHistory;
   const change = Math.round(((a.total - b.total) / b.total) * 100);

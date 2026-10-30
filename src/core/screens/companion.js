@@ -42,12 +42,12 @@ function hub(ctx) {
   const { t } = ctx;
   const next = accountOf(ctx, null);
   const cards = PILLARS.map((p) => {
-    const rows = FEATURES.filter((f) => f.pillar === p.id).map((f) => `<a class="tile" href="#/companion/${f.id}${f.account ? `/${esc(next.id)}` : ''}" data-feature="${f.id}">
-      <span class="tile-top"><span class="tile-ic">${icon(f.icon, 16)}</span><b>${esc(t(f.title))}</b></span>
+    const rows = FEATURES.filter((f) => f.pillar === p.id).map((f) => `<a class="hub-tile" href="#/companion/${f.id}${f.account ? `/${esc(next.id)}` : ''}" data-feature="${f.id}">
+      <span class="hub-top"><span class="hub-ic">${icon(f.icon, 16)}</span><b>${esc(t(f.title))}</b></span>
       <small>${esc(t(f.text))}</small>${powered(ctx, f.powered)}${badge(ctx, f)}</a>`).join('');
     return `<section class="card flush pillar" data-pillar="${p.id}">
       <div class="section-head"><h2>${esc(p.title)}</h2><small>${esc(p.text)}</small></div>
-      <div class="tiles">${rows || '<p class="empty">Coming in this build.</p>'}</div></section>`;
+      <div class="hub-tiles">${rows || '<p class="empty">Coming in this build.</p>'}</div></section>`;
   }).join('');
   return `
   <section class="page-head"><span class="eyebrow">Field enabler</span><h1>Sales Companion</h1>
@@ -62,7 +62,7 @@ function hub(ctx) {
 function badge(ctx, f) {
   if (ctx.persona === 'rep' || !f.badge) return '';
   const n = f.badge === 'leave' ? ctx.cm.pendingTeamLeave().length : ctx.cm.pendingExpenses().length;
-  return `<div class="tile-badge">${pill(`${n} to approve`, n ? 'warn' : 'good')}</div>`;
+  return `<div class="hub-badge">${pill(`${n} to approve`, n ? 'warn' : 'good')}</div>`;
 }
 
 const BY_ID = Object.fromEntries(FEATURES.map((f) => [f.id, f]));

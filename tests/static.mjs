@@ -33,8 +33,8 @@ for (const c of COUNTRIES) validateCountry(c).forEach((m) => check(false, `schem
 for (const c of COUNTRIES) validateCountryCompanion(c).forEach((m) => check(false, `schema: ${m}`));
 for (const p of INDUSTRIES) check(!!p.companion, `${p.id}: Companion content (companion) is required`);
 for (const p of INDUSTRIES) check(!!(p.assistantContext && p.assistantAnswers && p.assistantRefusals), `${p.id}: assistant content (assistantContext, assistantAnswers, assistantRefusals) is required`);
-check(INDUSTRIES.length === 10, `expected 10 industries, found ${INDUSTRIES.length}`);
-check(COUNTRIES.length === 8, `expected 8 countries, found ${COUNTRIES.length}`);
+check(INDUSTRIES.length === 14, `expected 14 industries, found ${INDUSTRIES.length}`);
+check(COUNTRIES.length === 11, `expected 11 countries, found ${COUNTRIES.length}`);
 check(new Set(INDUSTRIES.map((p) => p.id)).size === INDUSTRIES.length, 'duplicate industry ids');
 check(new Set(INDUSTRIES.map((p) => p.accent.toLowerCase())).size === INDUSTRIES.length, 'two industries share an accent colour');
 
@@ -59,7 +59,7 @@ for (const f of srcFiles.filter((x) => !SPELLING_EXEMPT.some((e) => x.includes(e
 }
 
 // 3. Real brand, chain and company names must never appear (case-sensitive, whole word).
-const BRANDS = ['Walmart', 'Kroger', 'Costco', 'Tesco', 'Sainsbury', 'Asda', 'Aldi', 'Lidl', 'Rewe', 'Edeka', 'Carrefour', 'Oxxo', 'Soriana', 'Alfamart', 'Indomaret', 'Spinneys', 'Reliance', 'DMart', 'Walgreens', 'CVS', 'Boots', 'Pfizer', 'Novartis', 'Roche', 'Sanofi', 'GSK', 'AstraZeneca', 'Merck', 'Bayer', 'Abbott', 'Medtronic', 'Stryker', 'Siemens', 'Philips', 'Heineken', 'Diageo', 'Budweiser', 'Corona', 'Coca-Cola', 'Pepsi', 'PepsiCo', 'Nestle', 'Nestlé', 'Unilever', 'Procter', 'Colgate', 'Tide', 'Ariel', 'Dulux', 'Sherwin', 'AkzoNobel', 'Nerolac', 'Berger', 'Syngenta', 'Corteva', 'BASF', 'Monsanto', 'Airtel', 'Jio', 'Vodafone', 'Verizon', 'Telcel', 'Telkomsel', 'Etisalat', 'Samsung', 'Sony', 'Xiaomi', 'Huawei', 'Bosch', 'Castrol', 'Shell', 'Exide', 'Visa', 'Mastercard', 'Paytm', 'PhonePe', 'Itaú', 'Bradesco', 'Santander', 'HSBC', 'Barclays', 'HDFC', 'ICICI', 'Chase', 'Amazon', 'Flipkart', 'Croma', 'MediaMarkt', 'Raiffeisen', 'Kingfisher', 'Bacardi', 'Smirnoff', 'Absolut', 'Lipton', 'Nescafe', 'Cadbury', 'Kellogg', 'Amul', 'Britannia', 'Ambev', 'Brahma', 'Bintang', 'Dettol', 'Gillette', 'Pantene', 'Apollo', 'Lulu', 'Tata', 'Mahindra', 'Bimbo', 'Natura', 'Drogasil', 'Guardian', 'Watsons', 'Spar'];
+const BRANDS = ['Walmart', 'Kroger', 'Costco', 'Tesco', 'Sainsbury', 'Asda', 'Aldi', 'Lidl', 'Rewe', 'Edeka', 'Carrefour', 'Oxxo', 'Soriana', 'Alfamart', 'Indomaret', 'Spinneys', 'Reliance', 'DMart', 'Walgreens', 'CVS', 'Boots', 'Pfizer', 'Novartis', 'Roche', 'Sanofi', 'GSK', 'AstraZeneca', 'Merck', 'Bayer', 'Abbott', 'Medtronic', 'Stryker', 'Siemens', 'Philips', 'Heineken', 'Diageo', 'Budweiser', 'Corona', 'Coca-Cola', 'Pepsi', 'PepsiCo', 'Nestle', 'Nestlé', 'Unilever', 'Procter', 'Colgate', 'Tide', 'Ariel', 'Dulux', 'Sherwin', 'AkzoNobel', 'Nerolac', 'Berger', 'Syngenta', 'Corteva', 'BASF', 'Monsanto', 'Airtel', 'Jio', 'Vodafone', 'Verizon', 'Telcel', 'Telkomsel', 'Etisalat', 'Samsung', 'Sony', 'Xiaomi', 'Huawei', 'Bosch', 'Castrol', 'Shell', 'Exide', 'Visa', 'Mastercard', 'Paytm', 'PhonePe', 'Itaú', 'Bradesco', 'Santander', 'HSBC', 'Barclays', 'HDFC', 'ICICI', 'Chase', 'Amazon', 'Flipkart', 'Croma', 'MediaMarkt', 'Raiffeisen', 'Kingfisher', 'Bacardi', 'Smirnoff', 'Absolut', 'Lipton', 'Nescafe', 'Cadbury', 'Kellogg', 'Amul', 'Britannia', 'Ambev', 'Brahma', 'Bintang', 'Dettol', 'Gillette', 'Pantene', 'Apollo', 'Lulu', 'Tata', 'Mahindra', 'Bimbo', 'Natura', 'Drogasil', 'Guardian', 'Watsons', 'Spar', 'Coles', 'Woolworths', 'Countdown', 'Leclerc', 'Auchan', 'Intermarche', 'Monoprix', 'Bunnings', 'Kmart', 'Myer', 'Nike', 'Adidas', 'Puma', 'Zara', 'Uniqlo', 'Sysco', 'Grainger', 'Fastenal', 'Enphase', 'SolarEdge', 'Tesla', 'Siemens', 'Bosch', 'Decathlon', 'Fnac', 'Boulanger'];
 for (const f of srcFiles.filter((x) => x.includes(`${path.sep}packs${path.sep}`))) {
   const raw = stripComments(await readFile(f, 'utf8'));
   for (const b of BRANDS) check(!new RegExp(`(^|[^A-Za-z])${b.replace(/[-.]/g, '\\$&')}([^A-Za-z]|$)`).test(raw), `${path.relative(root, f)}: real brand or company name "${b}"`);
@@ -140,7 +140,7 @@ for (const ind of INDUSTRIES) {
 }
 
 // 7. Formatting by country (PRD sections 7 and 11).
-if (COUNTRIES.length === 8) {
+if (COUNTRIES.length === 11) {
 const fmtOf = (id) => createFormat(findCountry(id), ONE_DAY);
 check(fmtOf('IN').money(12345678).includes('1,23,45,678'), `IN lakh grouping: ${fmtOf('IN').money(12345678)}`);
 check(/1\.2 Cr/.test(fmtOf('IN').moneyShort(12345678)), `IN crore: ${fmtOf('IN').moneyShort(12345678)}`);
@@ -153,6 +153,9 @@ check(/AED/.test(fmtOf('AE').money(100)), 'AE currency');
 check(/Rp/.test(fmtOf('ID').money(12500)) && !/,00/.test(fmtOf('ID').money(12500)), `ID: ${fmtOf('ID').money(12500)}`);
 check(/ mi$/.test(fmtOf('US').distance(10)) && / km$/.test(fmtOf('DE').distance(10)), 'distance units');
 check(fmtOf('US').date(ONE_DAY) === '10/29/2026' && fmtOf('DE').date(ONE_DAY) === '29.10.2026' && fmtOf('UK').date(ONE_DAY) === '29/10/2026', 'date order');
+check(/19,50/.test(fmtOf('FR').price(19.5)) && /€/.test(fmtOf('FR').money(100)), `FR format: ${fmtOf('FR').price(19.5)} ${fmtOf('FR').money(100)}`);
+check(/\$/.test(fmtOf('AU').money(100)) && fmtOf('AU').date(ONE_DAY) === '29/10/2026', `AU format: ${fmtOf('AU').money(100)} ${fmtOf('AU').date(ONE_DAY)}`);
+check(/\$/.test(fmtOf('NZ').money(100)) && / km$/.test(fmtOf('NZ').distance(10)), `NZ format: ${fmtOf('NZ').money(100)}`);
 check(createText({}, 'uk')('Color center catalog') === 'Colour centre catalogue', 'UK spelling');
 check(findCountry('gb')?.id === 'UK' && findIndustry('PHARMA')?.id === 'pharma', 'URL aliases');
 }
