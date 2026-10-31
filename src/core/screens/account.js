@@ -169,6 +169,27 @@ export function render(ctx, [accountId]) {
     </div>
   </section>
 
+  <details class="fold" id="acc-intel"><summary>Competitive intelligence and local market share</summary>
+    <div style="padding:var(--s2) 0">
+      <div class="facts" style="margin-bottom:8px;grid-template-columns:repeat(auto-fit,minmax(80px,1fr))">
+        <div><small>Our portfolio share</small><b class="good-text">64%</b></div>
+        <div><small>Competing share</small><b class="warn-text">36%</b></div>
+        <div><small>Price index</small><b>1.02 vs market</b></div>
+      </div>
+      <p class="small muted" style="margin-bottom:8px">Account-level brand penetration and competing promotional activity tracking.</p>
+      <div style="display:flex;flex-direction:column;gap:4px;font-size:12px;margin-bottom:8px">
+        <div style="display:flex;justify-content:space-between">
+          <span>Primary competitor</span>
+          <b>Regional Brand Competitor (15% promo campaign active)</b>
+        </div>
+        <div style="display:flex;justify-content:space-between">
+          <span>Counter-strategy</span>
+          <b>Leverage volume rebate tier schedule and faster logistics delivery</b>
+        </div>
+      </div>
+      <button class="btn secondary sm" data-act="log-competitor-intel" data-acc="${esc(a.name)}" style="min-height:var(--tap);width:100%">${icon('flag', 14)} Log competitor field activity</button>
+    </div>
+  </details>
   <details class="fold" id="acc-agreement"${ctx.ui?.agreementOpen === a.id ? ' open' : ''}>
     <summary>Commercial agreement and credit terms<span class="sum-end">Tier ${a.tier}</span></summary>
     <div style="padding:var(--s2) 0">
@@ -211,6 +232,10 @@ export function render(ctx, [accountId]) {
 }
 
 export const actions = {
+  'log-competitor-intel': ({ ctx, data }) => {
+    (ctx.ui ||= {}).accountToast = `Competitor field observation logged for ${data.acc}.`;
+    if (ctx.m?.logAudit) ctx.m.logAudit('Market Intelligence', `Logged competitor promotion and pricing observation at ${data.acc}`);
+  },
   'view-contract-doc': ({ ctx, data }) => {
     const a = ctx.data.byId[data.id];
     const poNum = 'AGR-' + String(1000 + (a.name.length * 97) % 9000);
