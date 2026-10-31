@@ -85,8 +85,17 @@ export function render(ctx) {
   return `
   ${ui?.managerToast ? `<div class="notice good" style="margin-bottom:var(--s3)">${icon('check', 16)}<span>${esc(ui.managerToast)}</span></div>` : ''}
   <section class="page-head">
-    <h1>Team today</h1>
-    <p class="small muted">${esc(data.manager.name)} · ${esc(t(data.manager.title))} · ${esc(data.city.name)}</p>
+    <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px">
+      <div>
+        <h1>Team today</h1>
+        <p class="small muted">${esc(data.manager.name)} · ${esc(t(data.manager.title))} · ${esc(ctx.ui?.activeDistrict || 'Central Metro')}</p>
+      </div>
+      <div class="seg-ctl" role="group" aria-label="District profile" style="margin-top:2px">
+        <button class="seg ${(ctx.ui?.activeDistrict || 'Central Metro') === 'Central Metro' ? 'on' : ''}" data-act="set-district" data-d="Central Metro" style="min-height:var(--tap);min-width:var(--tap)">Central Metro</button>
+        <button class="seg ${ctx.ui?.activeDistrict === 'North Regional' ? 'on' : ''}" data-act="set-district" data-d="North Regional" style="min-height:var(--tap);min-width:var(--tap)">North Regional</button>
+        <button class="seg ${ctx.ui?.activeDistrict === 'South Corridor' ? 'on' : ''}" data-act="set-district" data-d="South Corridor" style="min-height:var(--tap);min-width:var(--tap)">South Corridor</button>
+      </div>
+    </div>
   </section>
   <section class="card tight" id="ai-impact" style="margin-bottom:var(--s4)">
     <div class="section-head" style="margin-bottom:6px">
@@ -271,6 +280,11 @@ export function exportQbrCsv(ctx) {
 }
 
 export const actions = {
+  'set-district': ({ ctx, data }) => {
+    (ctx.ui ||= {}).activeDistrict = data.d;
+    (ctx.ui ||= {}).managerToast = `Switched operational district to ${data.d}. Territory routing adapted.`;
+    if (ctx.m?.logAudit) ctx.m.logAudit('Commercial Operations', `Switched active district view to ${data.d}`);
+  },
   'send-team-recognition': ({ ctx }) => {
     (ctx.ui ||= {}).managerToast = 'District recognition announcement dispatched to team.';
     if (ctx.m?.logAudit) ctx.m.logAudit('Manager', 'Dispatched district performance recognition announcement');
