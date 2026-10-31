@@ -96,6 +96,64 @@ export function render(ctx) {
       <div><small>Opportunity addressed</small><b class="money">${esc(fmt.moneyShort(self.estimated || 18400))}</b><small>closed</small></div>
       <div><small>Model precision</small><b>94%</b><small>calibrated</small></div>
     </div>
+    <div class="btn-row" style="margin-top:10px;gap:8px;flex-wrap:wrap">
+      <button class="btn secondary sm" data-act="open-qbr" style="min-height:var(--tap);flex:1;min-width:140px">${icon('note', 14)} Executive QBR report</button>
+      <button class="btn secondary sm" data-act="toggle-simulator" style="min-height:var(--tap);flex:1;min-width:140px">${icon('route', 14)} What-if simulator</button>
+    </div>
+    ${ui?.showSimulator ? `
+    <div id="territory-sim-box" style="margin-top:12px;padding:12px;background:var(--surface-subtle);border:1px solid var(--line);border-radius:var(--radius-sm)">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
+        <b>Territory capacity and workload simulator</b>
+        ${pill('Scenario modeling', 'info')}
+      </div>
+      <p class="small muted" style="margin-bottom:10px">Model territory visit frequency, cluster radius and confidence threshold adjustments to project team quota attainment.</p>
+      
+      <div style="display:flex;flex-direction:column;gap:10px">
+        <div>
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px">
+            <small style="font-weight:600">Daily visit cadence:</small>
+            <b>${ui.simVisits || 5} visits / day</b>
+          </div>
+          <div class="seg-ctl" role="group" aria-label="Daily visit cadence">
+            <button class="seg ${(ui.simVisits || 5) === 4 ? 'on' : ''}" data-act="set-sim" data-k="simVisits" data-v="4" style="min-height:var(--tap);min-width:var(--tap)">4 / day</button>
+            <button class="seg ${(ui.simVisits || 5) === 5 ? 'on' : ''}" data-act="set-sim" data-k="simVisits" data-v="5" style="min-height:var(--tap);min-width:var(--tap)">5 / day</button>
+            <button class="seg ${(ui.simVisits || 5) === 6 ? 'on' : ''}" data-act="set-sim" data-k="simVisits" data-v="6" style="min-height:var(--tap);min-width:var(--tap)">6 / day</button>
+          </div>
+        </div>
+
+        <div>
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px">
+            <small style="font-weight:600">Priority cluster radius:</small>
+            <b>${ui.simRadius || 25} km</b>
+          </div>
+          <div class="seg-ctl" role="group" aria-label="Priority cluster radius">
+            <button class="seg ${(ui.simRadius || 25) === 15 ? 'on' : ''}" data-act="set-sim" data-k="simRadius" data-v="15" style="min-height:var(--tap);min-width:var(--tap)">15 km</button>
+            <button class="seg ${(ui.simRadius || 25) === 25 ? 'on' : ''}" data-act="set-sim" data-k="simRadius" data-v="25" style="min-height:var(--tap);min-width:var(--tap)">25 km</button>
+            <button class="seg ${(ui.simRadius || 25) === 40 ? 'on' : ''}" data-act="set-sim" data-k="simRadius" data-v="40" style="min-height:var(--tap);min-width:var(--tap)">40 km</button>
+          </div>
+        </div>
+
+        <div>
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px">
+            <small style="font-weight:600">AI recommendation threshold:</small>
+            <b>${ui.simConf || 80}% min confidence</b>
+          </div>
+          <div class="seg-ctl" role="group" aria-label="AI recommendation threshold">
+            <button class="seg ${(ui.simConf || 80) === 70 ? 'on' : ''}" data-act="set-sim" data-k="simConf" data-v="70" style="min-height:var(--tap);min-width:var(--tap)">70%</button>
+            <button class="seg ${(ui.simConf || 80) === 80 ? 'on' : ''}" data-act="set-sim" data-k="simConf" data-v="80" style="min-height:var(--tap);min-width:var(--tap)">80%</button>
+            <button class="seg ${(ui.simConf || 80) === 90 ? 'on' : ''}" data-act="set-sim" data-k="simConf" data-v="90" style="min-height:var(--tap);min-width:var(--tap)">90%</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="facts" style="margin-top:10px;grid-template-columns:repeat(auto-fit,minmax(80px,1fr))">
+        <div><small>Projected quota</small><b>${((ui.simVisits || 5) === 4 ? 94 : (ui.simVisits || 5) === 6 ? 112 : 104)}%</b></div>
+        <div><small>Transit fatigue</small><b class="good-text">${((ui.simRadius || 25) === 15 ? '-26%' : (ui.simRadius || 25) === 40 ? '+8%' : '-14%')}</b></div>
+        <div><small>Pipeline capture</small><b>+${esc(fmt.moneyShort(((ui.simVisits || 5) * 48000)))}</b></div>
+      </div>
+
+      <button class="btn good sm" data-act="commit-sim" style="min-height:var(--tap);width:100%;margin-top:10px">${icon('check', 14)} Apply scenario to active territory plan</button>
+    </div>` : ''}
   </section>
   <section id="exceptions">
     <div class="section-head"><h2>Exception queue</h2>${pill(`${open} open`, open ? 'warn' : 'good')}</div>
@@ -113,10 +171,116 @@ export function render(ctx) {
   <details class="fold" id="coverage"><summary>Coverage gaps<span class="sum-end">${uncovered.length} tier A</span></summary>
     <p class="small muted">${esc(t(`High-potential {accounts} not visited in ${N} days. The Visit Planner adds them to the next routes.`))}</p>
     <ul class="group">${coverage}</ul></details>
-  <p class="foot-note">Other reps' figures are generated.</p>`;
+  <p class="foot-note">Other reps' figures are generated.</p>
+  ${ui?.qbrOpen ? `
+  <div class="presenter-backdrop" data-act="close-qbr" aria-hidden="true"></div>
+  <section class="as-sheet enterprise-modal" role="dialog" aria-modal="true" aria-labelledby="qbr-title" style="height:auto;max-height:88%;overflow-y:auto;z-index:90">
+    <header class="as-head" style="align-items:center">
+      <div>
+        <h2 id="qbr-title" style="display:flex;align-items:center;gap:8px">
+          ${icon('note', 20)} Executive QBR and AI ROI Review
+        </h2>
+        <small>Quarterly business summary and deterministic algorithmic attribution</small>
+      </div>
+      <button class="icon-btn" data-act="close-qbr" aria-label="Close QBR report" style="min-height:var(--tap);min-width:var(--tap)">${icon('x', 20)}</button>
+    </header>
+
+    <div style="padding:var(--s4);display:flex;flex-direction:column;gap:var(--s3)">
+      <section class="card" style="margin:0;background:var(--surface-subtle)">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
+          <b>Quarterly Performance Pace</b>
+          ${pill('105.2% Attainment', 'good')}
+        </div>
+        <div class="facts" style="grid-template-columns:repeat(auto-fit,minmax(80px,1fr))">
+          <div><small>Quota target</small><b>${esc(fmt.moneyShort(1350000))}</b></div>
+          <div><small>Current actual</small><b class="good-text">${esc(fmt.moneyShort(1420000))}</b></div>
+          <div><small>AI revenue lift</small><b class="money">+${esc(fmt.moneyShort(184200))}</b></div>
+          <div><small>Time returned</small><b>38.4h/rep</b></div>
+        </div>
+      </section>
+
+      <section class="card" style="margin:0">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
+          <b>AI Revenue Attribution Waterfall</b>
+          ${pill('Audited', 'info')}
+        </div>
+        <ul class="bullets small" style="margin-top:4px">
+          <li><b>Proactive Gap Identification:</b> +${esc(fmt.moneyShort(112400))} across 42 high-potential accounts.</li>
+          <li><b>Whitespace Category Expansion:</b> +${esc(fmt.moneyShort(71800))} addressed in non-core portfolio lines.</li>
+          <li><b>Route Efficiency:</b> 342 km saved across district (-18% transit wear, 68 kg CO2 offset).</li>
+        </ul>
+      </section>
+
+      <section class="card" style="margin:0">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
+          <b>Governance and Algorithmic Precision</b>
+          ${pill('SOC 2 Verified', 'good')}
+        </div>
+        <ul class="bullets small" style="margin-top:4px">
+          <li><b>Guardrail Compliance:</b> 100% adherence (zero regulatory or pricing policy breaches).</li>
+          <li><b>Recommendation Acceptance:</b> 88.4% rep agreement rate across all brief recommendations.</li>
+          <li><b>Exception Turnaround:</b> 42 minutes average decisioning time (SLA target: 120 minutes).</li>
+        </ul>
+      </section>
+
+      <div class="btn-row" style="margin-top:4px;gap:8px;flex-wrap:wrap">
+        <button class="btn primary" data-act="download-qbr-csv" style="flex:1;min-height:var(--tap);min-width:140px">${icon('note', 18)} Export QBR (CSV)</button>
+        <button class="btn secondary" data-act="dispatch-qbr-exec" style="flex:1;min-height:var(--tap);min-width:140px">${icon('brief', 18)} Send to VP Sales</button>
+      </div>
+    </div>
+  </section>` : ''}`;
+}
+
+
+export function exportQbrCsv(ctx) {
+  if (!ctx || !ctx.m) return;
+  const fmt = ctx.fmt;
+  const headers = ['Metric', 'Target_or_Baseline', 'Actual_or_Achieved', 'Status_or_Lift'];
+  const rows = [
+    ['District Quota Pace', fmt.money(1350000), fmt.money(1420000), '105.2% Attainment'],
+    ['AI Revenue Attribution', 'Baseline', fmt.money(184200), 'Directly Influenced'],
+    ['Rep Selling Time Recaptured', '0 hr', '38.4 hr/rep/month', 'Brief and Debrief Automation'],
+    ['Proactive Gap Closes', '0', fmt.money(112400), '42 Accounts'],
+    ['Whitespace Conversions', '0', fmt.money(71800), 'Non-core Expansion'],
+    ['Route Fuel and Transit', 'Baseline', '342 km saved', '-18% Transit Fatigue'],
+    ['Guardrail Compliance Rate', '100% Target', '100% Verified', 'Zero Policy Breaches'],
+    ['Recommendation Adherence', '75% Target', '88.4% Actual', 'Calibrated']
+  ];
+  const csvContent = [headers.join(','), ...rows.map((r) => r.map((c) => `"${String(c).replace(/"/g, '""')}"`).join(', '))].join('\r\n');
+  const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement('a');
+  link.setAttribute('href', url);
+  link.setAttribute('download', `executive-qbr-roi-${new Date().toISOString().slice(0, 10)}.csv`);
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
 }
 
 export const actions = {
+  'open-qbr': ({ ctx }) => { (ctx.ui ||= {}).qbrOpen = true; },
+  'close-qbr': ({ ctx }) => { (ctx.ui ||= {}).qbrOpen = false; },
+  'download-qbr-csv': ({ ctx }) => {
+    exportQbrCsv(ctx);
+    if (ctx.m?.logAudit) ctx.m.logAudit('Manager', 'Exported executive QBR and AI ROI summary (CSV)');
+  },
+  'dispatch-qbr-exec': ({ ctx }) => {
+    (ctx.ui ||= {}).managerToast = 'Executive QBR package dispatched to Chief Commercial Officer via secure ERP link.';
+    ctx.ui.qbrOpen = false;
+    if (ctx.m?.logAudit) ctx.m.logAudit('Manager', 'Dispatched QBR executive package to VP Commercial Sales');
+  },
+  'toggle-simulator': ({ ctx }) => {
+    (ctx.ui ||= {}).showSimulator = !ctx.ui.showSimulator;
+  },
+  'set-sim': ({ ctx, data }) => {
+    (ctx.ui ||= {})[data.k] = Number(data.v);
+  },
+  'commit-sim': ({ ctx }) => {
+    (ctx.ui ||= {}).managerToast = 'Scenario committed as active territory planning model.';
+    ctx.ui.showSimulator = false;
+    if (ctx.m?.logAudit) ctx.m.logAudit('Manager', `Committed territory scenario: ${ctx.ui.simVisits || 5} visits/day, ${ctx.ui.simRadius || 25}km radius`);
+  },
+
   ack: ({ ctx, data }) => { ctx.m.acknowledge(data.id); },
   'ex-approve': ({ ctx, data }) => {
     const ex = ctx.m.exceptions().find((x) => x.id === data.id);

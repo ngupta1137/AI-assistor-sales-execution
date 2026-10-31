@@ -98,6 +98,38 @@ export function renderSyncModal(app, ctx) {
         </div>
         <div style="margin-top:8px">
           <button class="btn secondary sm" data-act="toggle-offline" style="min-height:var(--tap);width:100%">${app.offline ? 'Restore network connectivity' : 'Simulate offline field mode'}</button>
+          <button class="btn secondary sm" data-act="toggle-conflict-sim" style="min-height:var(--tap);width:100%;margin-top:6px">${app.ui?.conflictSimOpen ? 'Hide conflict resolution console' : 'Open sync conflict resolution console'}</button>
+          ${app.ui?.conflictSimOpen ? `
+          <div style="margin-top:10px;padding:10px;background:var(--surface-subtle);border:1px solid var(--line);border-radius:var(--radius-sm)">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
+              <small style="font-weight:600">Simulated synchronization conflict</small>
+              ${app.ui?.conflictResolved ? pill('Resolved', 'good') : pill('1 Conflict detected', 'warn')}
+            </div>
+            ${app.ui?.conflictResolved ? `
+              <p class="small good-text" style="margin-bottom:4px">${icon('check', 14)} Agreement #AG-8821 reconciled using Last-Write-Wins policy. Reconciled in ERP gateway.</p>
+            ` : `
+              <p class="small muted" style="margin-bottom:8px">Agreement #AG-8821 was modified concurrently on local device and cloud ERP.</p>
+              <div style="display:flex;flex-direction:column;gap:6px;font-size:12px">
+                <div style="padding:6px 8px;background:var(--info-bg);border-radius:4px;border:1px solid var(--line)">
+                  <b>Local device (Offline Queue · 14:15):</b>
+                  <div>Discount: 12% Partner Preferred · Term: Net 30</div>
+                </div>
+                <div style="padding:6px 8px;background:var(--good-bg);border-radius:4px;border:1px solid var(--line)">
+                  <b>Cloud master (SAP S/4HANA · 14:18):</b>
+                  <div>Discount: 10% Standard Volume · Term: Net 30</div>
+                </div>
+              </div>
+              <div style="margin-top:8px">
+                <small class="muted" style="font-weight:600;display:block;margin-bottom:4px">Deterministic resolution strategy:</small>
+                <div class="seg-ctl" role="group" aria-label="Resolution strategy">
+                  <button class="seg ${(app.ui?.conflictStrategy || 'lww') === 'lww' ? 'on' : ''}" data-act="set-conflict-strat" data-strat="lww" style="min-height:var(--tap);min-width:var(--tap)">Last-write-wins</button>
+                  <button class="seg ${app.ui?.conflictStrategy === 'cloud' ? 'on' : ''}" data-act="set-conflict-strat" data-strat="cloud" style="min-height:var(--tap);min-width:var(--tap)">Cloud master</button>
+                  <button class="seg ${app.ui?.conflictStrategy === 'rep' ? 'on' : ''}" data-act="set-conflict-strat" data-strat="rep" style="min-height:var(--tap);min-width:var(--tap)">Rep override</button>
+                </div>
+              </div>
+              <button class="btn good sm" data-act="resolve-conflict" style="min-height:var(--tap);width:100%;margin-top:8px">${icon('check', 14)} Reconcile conflict and commit to ERP</button>
+            `}
+          </div>` : ''}
         </div>
       </section>
 
@@ -142,6 +174,22 @@ export function exportAuditCsv(ctx) {
 }
 
 export const syncActions = {
+  'toggle-conflict-sim': ({ app }) => {
+    (app.ui ||= {}).conflictSimOpen = !app.ui.conflictSimOpen;
+  },
+  'set-conflict-strat': ({ app, data }) => {
+    (app.ui ||= {}).conflictStrategy = data.strat;
+  },
+  'resolve-conflict': ({ app, ctx }) => {
+    (app.ui ||= {}).conflictResolved = true;
+    app.ui.syncJustRan = true;
+    app.ui.lastSyncTime = 'Just now';
+    const stratName = app.ui.conflictStrategy === 'cloud' ? 'Cloud Master Authority' : app.ui.conflictStrategy === 'rep' ? 'Field Rep Override' : 'Last-Write-Wins';
+    if (ctx?.m?.logAudit) {
+      ctx.m.logAudit('Offline Engine', `Resolved synchronization conflict for Agreement #AG-8821 using ${stratName} policy. Reconciled in ERP gateway.`);
+    }
+  },
+
   'switch-persona': ({ app, data, api }) => {
     app.ui.syncModalOpen = false;
     api.configure({ persona: data.persona }, { home: true });
