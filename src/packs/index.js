@@ -19,6 +19,7 @@ import insurance from './industries/insurance.js';
 import animalhealth from './industries/animalhealth.js';
 import hygiene from './industries/hygiene.js';
 import logistics from './industries/logistics.js';
+import education from './industries/education.js';
 
 import US from './countries/US.js';
 import UK from './countries/UK.js';
@@ -35,7 +36,7 @@ import NZ from './countries/NZ.js';
 /** Vocabulary every pack gets unless it overrides the word. */
 const DEFAULT_VOCAB = { territory: 'territory' };
 
-export const INDUSTRIES = [cpg, pharma, meddevices, beverages, building, agri, telecom, electronics, autoparts, finserv, foodservice, industrial, apparel, energy, insurance, animalhealth, hygiene, logistics].map((p) => ({ ...p, vocab: { ...DEFAULT_VOCAB, ...p.vocab } }));
+export const INDUSTRIES = [cpg, pharma, meddevices, beverages, building, agri, telecom, electronics, autoparts, finserv, foodservice, industrial, apparel, energy, insurance, animalhealth, hygiene, logistics, education].map((p) => ({ ...p, vocab: { ...DEFAULT_VOCAB, ...p.vocab } }));
 export const COUNTRIES = [US, UK, DE, FR, AU, NZ, IN, BR, ID, MX, AE];
 
 /** Accepts common aliases so shared links are forgiving (GB for UK, case-insensitive). */
