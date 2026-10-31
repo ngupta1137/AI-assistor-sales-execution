@@ -71,6 +71,7 @@ export function render(ctx) {
   const dock = `<form class="ask-row" onsubmit="return false">
     <label class="sr-only" for="ask-input">Question</label>
     <input class="input" id="ask-input" type="text" maxlength="200" autocomplete="off" placeholder="${esc(t('Ask about today\'s {accounts}'))}" data-input="ask-draft" value="${esc(st.draft)}">
+    <button class="icon-btn" data-act="as-voice" aria-label="Voice question" style="min-height:var(--tap);min-width:var(--tap)">${icon('mic', 20)}</button>
     <button class="btn primary" data-act="ask-free" id="ask-send">Ask</button>
   </form>`;
   return { html, dock };

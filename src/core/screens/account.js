@@ -145,6 +145,28 @@ export function render(ctx, [accountId]) {
     </div>
     ${bar(a.current, a.potential)}
     <small>${fmt.pct(Math.round((a.current / a.potential) * 100))} of potential captured. Medium confidence, based on similar ${esc(t('{accounts}'))} in ${esc(a.city)}.</small>
+
+    <div style="margin-top:12px;padding-top:10px;border-top:1px solid var(--line-soft)">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
+        <small class="muted" style="font-weight:600">Category whitespace breakdown:</small>
+        ${pill('Whitespace opportunity', 'info')}
+      </div>
+      <div style="display:flex;flex-direction:column;gap:6px;margin-top:6px">
+        <div style="display:flex;justify-content:space-between;align-items:center;font-size:12px">
+          <span>Core lines</span>
+          <span style="display:flex;align-items:center;gap:6px"><b>74% penetrated</b>${pill('Established', 'good')}</span>
+        </div>
+        <div style="display:flex;justify-content:space-between;align-items:center;font-size:12px">
+          <span>Focus lines</span>
+          <span style="display:flex;align-items:center;gap:6px"><b>38% penetrated</b>${pill('Growth potential', 'warn')}</span>
+        </div>
+        <div style="display:flex;justify-content:space-between;align-items:center;font-size:12px">
+          <span>New introductions</span>
+          <span style="display:flex;align-items:center;gap:6px"><b>12% penetrated</b>${pill('Whitespace void', 'accent')}</span>
+        </div>
+      </div>
+      <button class="btn secondary sm" data-act="convert-whitespace" data-id="${a.id}" style="min-height:var(--tap);margin-top:10px;width:100%">${icon('agent', 14)} Convert white space to prioritized action</button>
+    </div>
   </section>
 
   <details class="fold" id="acc-kpis"><summary>KPIs</summary><ul class="kpi-list">${kpis}</ul></details>
@@ -159,6 +181,11 @@ export function render(ctx, [accountId]) {
 }
 
 export const actions = {
+  'convert-whitespace': ({ ctx, data }) => {
+    const a = ctx.data.byId[data.id];
+    (ctx.ui ||= {}).accountToast = `Category whitespace converted to prioritized action for ${a ? a.name : 'account'}.`;
+    if (ctx.m?.logAudit) ctx.m.logAudit('Gap agent', `Converted category whitespace to prioritized action for ${a ? a.name : data.id}`);
+  },
   'open-crm-note': ({ ctx, data }) => { (ctx.ui ||= {}).crmNoteOpen = data.id; },
   'close-crm-note': ({ ctx }) => { (ctx.ui ||= {}).crmNoteOpen = null; },
   'save-crm-note': ({ ctx, data }) => {
