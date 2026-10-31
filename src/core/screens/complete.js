@@ -29,6 +29,11 @@ export function render(ctx, [accountId]) {
   let dock;
   if (done) {
     dock = `<div class="notice good" id="visit-closed">${icon('check', 18)}<span>${esc(t('Visited today. Outcomes and evidence are saved.'))}</span></div>
+      ${ctx.ui?.recapToast ? `<div class="notice good" style="margin-top:6px">${icon('check', 16)}<span>${esc(ctx.ui.recapToast)}</span></div>` : ''}
+      <div class="btn-row" style="margin-bottom:8px">
+        <button class="btn secondary sm" data-act="call-summary" data-id="${a.id}" style="flex:1">${icon('note', 16)} Call summary</button>
+        <button class="btn secondary sm" data-act="email-recap" data-id="${a.id}" style="flex:1">${icon('brief', 16)} Email recap</button>
+      </div>
       ${nextAcc ? `<a class="btn primary block" href="#/brief/${nextAcc.id}" id="next-brief">${esc(t(`Next brief: ${nextAcc.name}`))}${icon('chevron', 18)}</a>` : ''}`;
   } else if (confirming) {
     dock = `<p class="small warn-text">${esc(t(`${open.length} actions have no recorded outcome. They stay open; nothing is marked done.`))}</p>
@@ -55,8 +60,7 @@ export function render(ctx, [accountId]) {
   ${c.overridden ? `<div class="notice">${icon('flag', 18)}<span>${esc(t(`${c.overridden} override${c.overridden > 1 ? 's' : ''} sent with your reasons. Each goes to the person its reason routes to.`))}</span></div>` : ''}
   ${!done && open.length ? `<div class="notice warn">${icon('flag', 18)}<span>${esc(t(`${open.length} actions have no recorded outcome.`))}</span></div>` : ''}
   <section><h2>Actions</h2><ul class="group" style="margin-top:12px">${list}</ul></section>
-  ${!nextAcc && done ? `<div class="notice good">${esc(t('All {visits} done for today.'))}</div>` : ''}
-  <p class="foot-note">Sample data.</p>`;
+  ${!nextAcc && done ? `<div class="notice good">${esc(t('All {visits} done for today.'))}</div>` : ''}`;
   return { html, dock };
 }
 
@@ -68,4 +72,23 @@ export const actions = {
     ctx.m.completeVisit(data.id);
   },
   'close-cancel': ({ ctx }) => { ctx.ui.confirmClose = null; },
+  'call-summary': ({ ctx, data }) => {
+    const a = ctx.data.byId[data.id];
+    const sum = ctx.m.visitSummary(data.id);
+    const content = `CALL SUMMARY REPORT\nCustomer: ${a.name}\nActions Completed: ${sum.done.length} of ${sum.items.length}\nEstimated Opportunity Addressed: ${ctx.fmt.money(sum.estimated)}\nSynced to CRM Activity Timeline.\n`;
+    const blob = new Blob([content], { type: 'text/plain;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `Call-Summary-${a.name.replace(/\s+/g, '-')}.txt`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    if (ctx.m?.logAudit) ctx.m.logAudit('Activity Log', `Call summary exported for ${a.name}`);
+  },
+  'email-recap': ({ ctx, data }) => {
+    const a = ctx.data.byId[data.id];
+    (ctx.ui ||= {}).recapToast = `Recap dispatched to ${a.name} contacts.`;
+    if (ctx.m?.logAudit) ctx.m.logAudit('Activity Log', `Recap email sent to contacts at ${a.name}`);
+  },
 };

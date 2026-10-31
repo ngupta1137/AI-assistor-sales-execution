@@ -39,7 +39,7 @@ export default {
       { id: 'k7', title: 'What can I offer to win a menu listing?', text: 'Menu design help and staff training under the trade agreement. Nothing in cash and no free stock. Ask your {kam} if the {contact} asks for more.' },
       { id: 'k8', title: 'How do I handle a hotel with several outlets?', text: 'Find out who decides across outlets, usually the food and beverage manager, and keep each bar manager informed. Escalate group decisions to your {kam}.' },
       { id: 'k9', title: 'When should I visit a bar?', text: 'Between lunch and evening service. The {contact} has time and the bar is quiet enough to check the lines. A {visit} during service helps nobody.' },
-      { id: 'k10', title: 'Can I claim glassware I buy locally?', text: 'Yes, inside the sample limit, with a receipt, for serve materials used at an approved activation. Keep the activation reference.' },
+      { id: 'k10', title: 'Can I claim glassware I buy locally?', text: 'Yes, inside the policy limit, with a receipt, for serve materials used at an approved activation. Keep the activation reference.' },
       { id: 'k11', title: 'What is the right way to pour a draught drink?', text: 'Hold the glass at an angle, fill steadily, finish upright and check clarity and head. Serve with a clean glass. Use the brand serve guide for the details.' },
     ],
     pitchTemplates: [
@@ -50,7 +50,7 @@ export default {
     valueStoryTemplates: [
       { id: 's1', title: 'A well-kept serve', uses: ['share', 'orderCount'], text: '{name} has reached {share} of its estimated potential. Across the last {orderCount} {orders}, the range has stayed steady. The next step is to check the serve and agree one change to the menu or the cold space.' },
       { id: 's2', title: 'Something new on the menu', uses: ['offer', 'trend'], text: 'The last {order} was {trend}. A small trial of {offer} gives {person} something new to offer guests and a clear review date.' },
-      { id: 's3', title: 'The season ahead', uses: ['potential', 'share'], text: 'The estimate for {name} is {potential} a year, and the current figure is {current}. The difference of {whitespace} is a sample estimate. It is a reason to plan the season together, within the rules on responsible marketing.' },
+      { id: 's3', title: 'The season ahead', uses: ['potential', 'share'], text: 'The estimate for {name} is {potential} a year, and the current figure is {current}. The difference of {whitespace} is a benchmark estimate. It is a reason to plan the season together, within the rules on responsible marketing.' },
     ],
     resourcePlans: [
       { id: 'r1', name: 'Holiday activation nights', startWeek: 1, weeks: 3, perWeek: 5 },

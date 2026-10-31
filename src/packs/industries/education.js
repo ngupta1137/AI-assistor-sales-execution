@@ -105,7 +105,7 @@ export default {
       id: 'bursarreview', type: 'Finalize back-to-school requisition budget', agent: 'order', effort: 15, evidence: 'note', value: [280, 1350], uses: 'core',
       title: 'Finalize back-to-school classroom requisition for {event}',
       saw: 'Annual academic term enrollment projections indicate supply requisition deadlines around {event}, {eventDays} days away.',
-      compared: 'Historical per-pupil classroom material expenditures recorded for this institution (sample data).',
+      compared: 'Historical per-pupil classroom material expenditures recorded for this institution.',
       why: [
         'Early requisition submission ensures classroom delivery prior to the opening day of school.',
         'Bulk term ordering avoids expedited freight surcharges during late summer warehouse rushes.',

@@ -41,7 +41,7 @@ export default {
       { id: 'k8', title: 'How do I move aged stock?', text: 'Propose a bundle with accessories. Any price change needs retailer and brand approval, and you cannot promise cover against a later price drop.' },
       { id: 'k9', title: 'When is a weekday visit the right choice?', text: 'Managers have time on weekday mornings, displays can be fixed before the weekend crowd and promoters can be trained before their shift fills up.' },
       { id: 'k10', title: 'May I photograph a competitor display?', text: 'Ask the {contact} first, photograph only what is on display and note prices only as shown. Head office plans the response from field photos.' },
-      { id: 'k11', title: 'Which demo accessories can I claim?', text: 'Cables and stands for demo units within the sample limit, with a receipt and the model name. Keep them with the unit.' },
+      { id: 'k11', title: 'Which demo accessories can I claim?', text: 'Cables and stands for demo units within the policy limit, with a receipt and the model name. Keep them with the unit.' },
     ],
     pitchTemplates: [
       { id: 'p1', uses: ['kpi'], text: 'On {kpi}, {name} is at {kpiValue} against a target of {kpiTarget}. Walk the floor with {person} and fix the biggest gap first.' },
@@ -51,7 +51,7 @@ export default {
     valueStoryTemplates: [
       { id: 's1', title: 'A floor that sells', uses: ['share', 'orderCount'], text: '{name} has reached {share} of its estimated potential. Across the last {orderCount} {orders}, the range has followed the floor. The next step is to keep demo units live and tags right.' },
       { id: 's2', title: 'A new model on the wall', uses: ['offer', 'trend'], text: 'The last {order} was {trend}. A live demo of {offer}, with promoters trained on the feature sheet, gives {person} a clear way to show it.' },
-      { id: 's3', title: 'Planning for the peak', uses: ['potential', 'share'], text: 'The estimate for {name} is {potential} a year, and the current figure is {current}. The difference of {whitespace} is a sample estimate. It is a reason to plan the peak weeks with {person}.' },
+      { id: 's3', title: 'Planning for the peak', uses: ['potential', 'share'], text: 'The estimate for {name} is {potential} a year, and the current figure is {current}. The difference of {whitespace} is a benchmark estimate. It is a reason to plan the peak weeks with {person}.' },
     ],
     resourcePlans: [
       { id: 'r1', name: 'New model launch week', startWeek: 1, weeks: 3, perWeek: 5 },

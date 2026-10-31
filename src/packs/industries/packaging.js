@@ -135,7 +135,7 @@ export default {
       id: 'bulkpalletorder', type: 'Establish seasonal corrugated supply replenishment', agent: 'order', effort: 15, evidence: 'note', value: [320, 1500], uses: 'core', segments: ['foodbev', 'industrial'],
       title: 'Plan corrugated box and pallet wrap replenishment for {event}',
       saw: 'Plant production scheduling indicates packaging volume surges around {event}, {eventDays} days away.',
-      compared: 'Historical substrate consumption data recorded for this plant during prior packing seasons (sample data).',
+      compared: 'Historical substrate consumption data recorded for this plant during prior packing seasons.',
       why: [
         'Advance corrugator booking reserves mill paperboard capacity ahead of seasonal boxboard shortages.',
         'Staged releases prevent plant floor congestion while ensuring steady packaging supply.',

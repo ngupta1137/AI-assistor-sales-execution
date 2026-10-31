@@ -41,7 +41,7 @@ export default {
       { id: 'k7', title: 'Which fees can I explain?', text: 'Only fees on the approved sheet, read as written. If the {contact} asks about something not on the sheet, say you will find out and log it.' },
       { id: 'k8', title: 'How do I record consent?', text: 'Explain what the {contact} agrees to, capture the signature on the signature pad and save it with the date. Consent is not assumed and not pre-filled.' },
       { id: 'k9', title: 'When is a good time to see a {contact}?', text: 'Outside the lunch peak and the end-of-day cash count. A needs review takes about twenty quiet minutes.' },
-      { id: 'k10', title: 'Which courier costs can I claim?', text: 'Courier for signed documents within the sample limit, with the receipt and the file reference.' },
+      { id: 'k10', title: 'Which courier costs can I claim?', text: 'Courier for signed documents within the policy limit, with the receipt and the file reference.' },
       { id: 'k11', title: 'How do I set up QR payments at a {account}?', text: 'Place the stand next to the till, make a test payment with the {contact} and photograph the setup. There is no charge for the kit in this demo.' },
     ],
     pitchTemplates: [
@@ -52,7 +52,7 @@ export default {
     valueStoryTemplates: [
       { id: 's1', title: 'Payments that work', uses: ['share', 'orderCount'], text: '{name} has reached {share} of its estimated potential. Across the last {orderCount} {orders}, activity has been steady. The next step is to keep payments working and to ask what the business needs.' },
       { id: 's2', title: 'A conversation, not a product', uses: ['offer', 'trend'], text: 'The last {order} was {trend}. If a needs review shows a fit, {offer} can be explained from the approved sheet, with consent first and a decision by the credit team where credit is involved.' },
-      { id: 's3', title: 'Planning together', uses: ['potential', 'share'], text: 'The estimate for {name} is {potential} a year, and the current figure is {current}. The difference of {whitespace} is a sample estimate. It is a reason to keep talking with {person}, with no outcome promised.' },
+      { id: 's3', title: 'Planning together', uses: ['potential', 'share'], text: 'The estimate for {name} is {potential} a year, and the current figure is {current}. The difference of {whitespace} is a benchmark estimate. It is a reason to keep talking with {person}, with no outcome promised.' },
     ],
     resourcePlans: [
       { id: 'r1', name: 'Terminal replacement round', startWeek: 1, weeks: 3, perWeek: 5 },

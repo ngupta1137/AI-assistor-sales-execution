@@ -36,12 +36,12 @@ export function leave(ctx) {
     <button class="btn primary block" data-act="leave-submit" id="leave-submit">Submit request</button>
   </section>`;
   const hol = comp.holidays.slice(0, 4).map((h) => `<li class="row"><span class="row-main"><b>${esc(h.name)}</b></span><small>${esc(fmt.date(h.date))}</small></li>`).join('');
-  return head(ctx, { title: 'Leave', lead: 'Request leave, track it, and approve it as a manager. Sample data.' }) + `
+  return head(ctx, { title: 'Leave', lead: 'Request leave, track it, and approve it as a manager.' }) + `
   <section class="card tight"><div class="facts">${bal}</div></section>
   ${mgr ? '' : form}
   ${mgr ? `<section id="leave-approvals"><div class="section-head"><h2>Waiting for your approval</h2>${pill(`${pending.length} open`, pending.length ? 'warn' : 'good')}</div><ul class="group">${queue}</ul></section>` : `<section><h2>Your requests</h2><ul class="group" style="margin-top:12px" id="leave-list">${mine}</ul></section>`}
-  <section><h2>Next public holidays</h2><ul class="group" style="margin-top:12px">${hol}</ul><p class="small muted" style="margin-top:8px">${esc(country.name)} sample calendar. Dates are approximate.</p></section>
-  <p class="foot-note">Sample data. Not a real HR system.</p>`;
+  <section><h2>Next public holidays</h2><ul class="group" style="margin-top:12px">${hol}</ul><p class="small muted" style="margin-top:8px">${esc(country.name)} public holiday calendar. Dates are approximate.</p></section>
+  <p class="foot-note">Not a real HR system.</p>`;
 }
 
 // ---- Expenses ------------------------------------------------------------------
@@ -51,8 +51,8 @@ function policyHtml(ctx, f) {
   if (!f.category || !Number.isFinite(amt) || amt <= 0) return '<p class="small muted">Enter a category and an amount to see the policy check.</p>';
   const p = cm.policy(f.category, amt);
   return p.over
-    ? `<div class="notice warn" data-policy="over">${icon('flag', 18)}<span>Over the sample limit of ${esc(fmt.price(p.limit))} for this category by ${esc(fmt.price(amt - p.limit))}. It can still be sent, and your ${esc(ctx.t('{manager}'))} decides.</span></div>`
-    : `<div class="notice good" data-policy="within">${icon('check', 18)}<span>Within the sample limit of ${esc(fmt.price(p.limit))} for this category.</span></div>`;
+    ? `<div class="notice warn" data-policy="over">${icon('flag', 18)}<span>Over the policy limit of ${esc(fmt.price(p.limit))} for this category by ${esc(fmt.price(amt - p.limit))}. It can still be sent, and your ${esc(ctx.t('{manager}'))} decides.</span></div>`
+    : `<div class="notice good" data-policy="within">${icon('check', 18)}<span>Within the policy limit of ${esc(fmt.price(p.limit))} for this category.</span></div>`;
 }
 
 export function expenses(ctx) {
@@ -60,7 +60,7 @@ export function expenses(ctx) {
   const f = (ui.exp ||= { category: industry.companion.expenseCategories[0].id, amount: '', date: iso(comp.today), note: '', receipt: false, error: '', done: null });
   const mgr = persona !== 'rep';
   const rows = (list, withActions) => list.map((e) => `<li class="row" data-expense="${esc(e.id)}" data-status="${e.status}"><span class="row-main"><b>${esc(cm.category(e.category).label)}</b>
-    <small>${esc(withActions ? `${e.rep} · ` : '')}${esc(dateText(ctx, e.date))}${e.over ? ' · over the sample limit' : ''}</small>
+    <small>${esc(withActions ? `${e.rep} · ` : '')}${esc(dateText(ctx, e.date))}${e.over ? ' · over the policy limit' : ''}</small>
     ${withActions ? `<span class="btn-row" style="margin-top:8px"><button class="btn primary sm" data-act="exp-decide" data-id="${esc(e.id)}" data-approve="1">Approve</button><button class="btn secondary sm" data-act="exp-decide" data-id="${esc(e.id)}" data-approve="0">Reject</button></span>` : ''}</span>
     <span class="row-end"><b class="money small">${esc(fmt.price(e.amount))}</b>${withActions ? '' : pill(LABEL[e.status], TONE[e.status])}</span></li>`).join('');
   const pending = cm.pendingExpenses();
@@ -77,9 +77,9 @@ export function expenses(ctx) {
     ${f.done ? `<div class="notice good" id="exp-done" role="status">${icon('check', 18)}<span>${esc(f.done)}</span></div>` : ''}
     <button class="btn primary block" data-act="exp-submit" id="exp-submit">Submit claim</button>
   </section>`;
-  return head(ctx, { title: 'Expense claims', lead: 'Add a claim, see the policy check, and approve claims as a manager. Sample data.' }) + `
+  return head(ctx, { title: 'Expense claims', lead: 'Add a claim, see the policy check, and approve claims as a manager.' }) + `
   ${mgr ? `<section id="expense-approvals"><div class="section-head"><h2>Waiting for your approval</h2>${pill(`${pending.length} open`, pending.length ? 'warn' : 'good')}</div><ul class="group">${pending.length ? rows(pending, true) : '<li class="empty">No claims are waiting.</li>'}</ul></section>` : `${form}<section><h2>Your claims</h2><ul class="group" style="margin-top:12px" id="expense-list">${rows(cm.myExpenses().slice().reverse(), false)}</ul></section>`}
-  <p class="foot-note">Sample data. Limits are sample amounts in local currency. Not a real expense system.</p>`;
+  <p class="foot-note">Limits are policy amounts in local currency. Not a real expense system.</p>`;
 }
 
 // ---- HR and pay slips ----------------------------------------------------------------
@@ -87,16 +87,16 @@ export function hr(ctx) {
   const { t, fmt, comp, data, industry, country, cm } = ctx;
   const slips = comp.payslips.map((p) => `<li data-slip="${esc(p.id)}"><details class="row" style="display:block"><summary>${esc(country.payslipLabel)}, ${esc(p.month)}</summary>
     <table class="tbl" style="margin-top:8px"><tbody><tr><td>Base pay</td><td>${esc(fmt.money(p.base))}</td></tr><tr><td>Allowances</td><td>${esc(fmt.money(p.allowance))}</td></tr><tr><td>Deductions</td><td>-${esc(fmt.money(p.deduct))}</td></tr><tr><td><b>Net</b></td><td><b>${esc(fmt.money(p.net))}</b></td></tr></tbody></table>
-    <p class="small muted">Sample amounts. Not real pay.</p></details></li>`).join('');
+    <p class="small muted">Illustrative amounts. Not real pay.</p></details></li>`).join('');
   const docs = comp.documents.map((d) => `<li class="row"><span class="tile-ic">${icon('note', 20)}</span><span class="row-main"><b>${esc(d.title)}</b><small>${esc(d.kind)}</small></span></li>`).join('');
   const bal = comp.balances.map((b) => `${esc(b.label)}: ${cm.remaining(b.id)} of ${b.total}`).join(' · ');
-  return head(ctx, { title: 'HR and pay', lead: 'Sample pay slips and documents. Generated for the demo, never real pay information.' }) + `
-  <div class="notice">${icon('flag', 18)}<span>Every amount and document here is sample data. The ${esc(country.payslipLabel.toLowerCase())} wording is generic and has no legal meaning.</span></div>
-  <section class="card"><h2>${esc(data.rep.name)}</h2><p class="small muted">${esc(t(industry.companion.roles.rep))} · ${esc(data.city.name)} · Sample ID E-${String(1000 + (data.rep.name.length * 37) % 9000)}</p>
+  return head(ctx, { title: 'HR and pay', lead: 'Pay slips and documents. Generated for the demo, never real pay information.' }) + `
+  <div class="notice">${icon('flag', 18)}<span>Every amount and document here is generated for demonstration. The ${esc(country.payslipLabel.toLowerCase())} wording is generic and has no legal meaning.</span></div>
+  <section class="card"><h2>${esc(data.rep.name)}</h2><p class="small muted">${esc(t(industry.companion.roles.rep))} · ${esc(data.city.name)} · ID E-${String(1000 + (data.rep.name.length * 37) % 9000)}</p>
     <p class="small">${bal}</p><a class="btn secondary sm" href="#/companion/leave">Open leave</a></section>
   <section><h2>${esc(country.payslipLabel)}s</h2><ul class="group" style="margin-top:12px" id="payslips">${slips}</ul></section>
   <section><h2>Documents</h2><ul class="group" style="margin-top:12px">${docs}</ul></section>
-  <p class="foot-note">Sample data. Not a real HR or payroll system.</p>`;
+  <p class="foot-note">Not a real HR or payroll system.</p>`;
 }
 
 // ---- Actions ----------------------------------------------------------------------------
@@ -125,7 +125,7 @@ export const actions = {
     Object.assign(f, { category: get('exp-category', f.category), amount: get('exp-amount', f.amount), date: get('exp-date', f.date), note: get('exp-note', f.note) });
     const r = ctx.cm.submitExpense(f);
     f.error = r.ok ? '' : r.error;
-    f.done = r.ok ? `Claim sent to your ${ctx.t('{manager}')}. ${r.policy.over ? 'It is over the sample limit and needs a decision.' : 'It is within the sample limit.'}` : null;
+    f.done = r.ok ? `Claim sent to your ${ctx.t('{manager}')}. ${r.policy.over ? 'It is over the policy limit and needs a decision.' : 'It is within the policy limit.'}` : null;
     if (r.ok) Object.assign(f, { amount: '', note: '', receipt: false });
   },
   'exp-decide': ({ ctx, data }) => { ctx.cm.decideExpense(data.id, data.approve === '1', ctx.persona); },

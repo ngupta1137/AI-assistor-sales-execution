@@ -5,8 +5,9 @@ import { esc, icon } from '../ui.js';
 import { suggestionsFor } from './engine.js';
 import { contextFor } from './router.js';
 import { getProvider } from './provider.js';
+import { getCountryLanguage, translateQuestion, translateAnswer, translateBasedOn } from './i18n.js';
 
-export const SAMPLE_LINE = "Sample data. Answers come from configured rules and this scenario's data, not a live model.";
+export const SAMPLE_LINE = "Answers come from configured rules and this scenario's data, not a live model.";
 
 export const newAssistantState = () => ({
   open: false,
@@ -18,6 +19,8 @@ export const newAssistantState = () => ({
   c: null,
   focus: null,
   typewriterTimer: null,
+  lang: 'en',
+  askScreen: null,
 });
 
 export const stateOf = (app) => (app.assistant ||= newAssistantState());
@@ -43,8 +46,8 @@ function shouldAnimateTypewriter() {
   const flag = params.get('typewriter');
   if (flag === 'off' || flag === '0') return false;
   if (flag === 'normal' || flag === 'on' || flag === '1') return true;
-  if (typeof navigator !== 'undefined' && navigator.webdriver) return false;
-  if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) return false;
+  // In automated Playwright sweeps over file:// without query parameter, skip animation
+  if (typeof navigator !== 'undefined' && navigator.webdriver && location.protocol === 'file:' && !flag) return false;
   return true;
 }
 
@@ -63,8 +66,10 @@ function startTypewriter(app, api, item) {
   st.history.push(item);
   api.render();
 
-  const fullText = item.res?.text || '';
-  const stepMs = 16;
+  const lang = st.lang || 'en';
+  const fullText = lang !== 'en' ? translateAnswer(item.res?.text || '', lang) : (item.res?.text || '');
+  // Balanced typing speed: ~25ms per character, so every character is distinctly seen
+  const stepMs = Math.max(20, Math.min(32, Math.floor(2500 / Math.max(1, fullText.length))));
   let idx = 0;
 
   st.typewriterTimer = setInterval(() => {
@@ -75,12 +80,14 @@ function startTypewriter(app, api, item) {
     }
     idx += 1;
     item.typed = idx;
-    const span = document.querySelector('.as-tw-text');
-    if (span) {
+    const spans = document.querySelectorAll('.as-tw-text');
+    spans.forEach((span) => {
       span.textContent = fullText.slice(0, idx);
-    }
-    const log = document.getElementById('as-log') || document.getElementById('chat');
-    if (log) log.scrollTop = log.scrollHeight;
+    });
+    const logs = [document.getElementById('as-log'), document.getElementById('chat')];
+    logs.forEach((log) => {
+      if (log) log.scrollTop = log.scrollHeight;
+    });
 
     if (idx >= fullText.length) {
       clearInterval(st.typewriterTimer);
@@ -104,10 +111,10 @@ export function syncContext(app, ctx, route, persona) {
 const delayFor = (q) => {
   let h = 0;
   for (let i = 0; i < q.length; i++) h = (h * 31 + q.charCodeAt(i)) >>> 0;
-  return 400 + (h % 301);
+  return 150 + (h % 151); // 150ms to 300ms quick thinking indicator
 };
 
-/** Sends a question. The reply appears after a short typing indicator, 400 to 700 ms, the same each time. */
+/** Sends a question. The reply appears after a short typing indicator, 150 to 300 ms, the same each time. */
 export function submit(ctx, app, api, q, intent) {
   const st = stateOf(app);
   finishTypewriter(app, api);
@@ -138,8 +145,13 @@ export function submit(ctx, app, api, q, intent) {
 
 function renderMessage(ctx, st, item, i) {
   const r = item.res;
+  const lang = st.lang || 'en';
+  const ansText = lang !== 'en' ? translateAnswer(r.text, lang) : r.text;
+  const basedText = lang !== 'en' ? translateBasedOn(r.basedOn, lang) : (r.basedOn ? `Based on: ${r.basedOn}` : '');
+
   if (item.typing) {
-    const typedText = (r.text || '').slice(0, item.typed || 0);
+    const fullText = lang !== 'en' ? translateAnswer(r.text || '', lang) : (r.text || '');
+    const typedText = fullText.slice(0, item.typed || 0);
     return `<div class="msg me"><small>You</small><div class="bubble">${esc(item.q)}</div></div>
       <div class="msg ai" data-typing role="status"><small>AI Assistor</small>
         <div class="bubble as-typewriter" data-act="as-skip-type" title="Click to reveal all"><span class="as-tw-text">${esc(typedText)}</span><span class="as-cursor" aria-hidden="true"></span></div>
@@ -150,8 +162,8 @@ function renderMessage(ctx, st, item, i) {
     <button class="btn text sm" data-act="as-why" data-i="${i}" aria-expanded="${!!st.why[i]}" aria-controls="as-why-${i}">Why can't you answer that?</button>
     ${st.why[i] ? `<div class="guardrail" id="as-why-${i}" data-why>${icon('shield', 20)}<span><b>Guardrail ${esc(r.refusal.guardrailId)}.</b> ${esc(ctx.t(ctx.industry.assistantAnswers.guardrailWhy))} ${esc(r.refusal.guardrailText)}</span></div>` : ''}` : '';
   return `<div class="msg me"><small>You</small><div class="bubble">${esc(item.q)}</div></div>
-    <div class="msg ai"><small>AI Assistor</small><div class="bubble" data-answer>${esc(r.text)}</div>
-      ${r.basedOn ? `<p class="based" data-based>Based on: ${esc(r.basedOn)}</p>` : ''}
+    <div class="msg ai"><small>AI Assistor</small><div class="bubble" data-answer>${esc(ansText)}</div>
+      ${basedText ? `<p class="based" data-based>${esc(basedText)}</p>` : ''}
       ${links ? `<div class="btn-row">${links}</div>` : ''}${why}</div>`;
 }
 
@@ -165,8 +177,13 @@ export function renderLog(ctx, app) {
 }
 
 export function renderChips(ctx, app, attrs = 'data-act="ask-q"') {
-  const c = stateOf(app).c;
-  return suggestionsFor(ctx, c).map((s) => `<button class="chip-q" ${attrs} data-intent="${esc(s.intent)}" data-q="${esc(s.q)}">${esc(s.q)}</button>`).join('');
+  const st = stateOf(app);
+  const c = st.c;
+  const lang = st.lang || 'en';
+  return suggestionsFor(ctx, c).map((s) => {
+    const label = translateQuestion(s.q, lang);
+    return `<button class="chip-q" ${attrs} data-intent="${esc(s.intent)}" data-q="${esc(s.q)}">${esc(label)}</button>`;
+  }).join('');
 }
 
 /** Launcher and sheet. Rendered inside the phone frame on every screen except the Ask page. */
@@ -181,15 +198,31 @@ export function renderAssistant(app, ctx, route) {
   const chips = setup ? suggestionsFor(null, { screen: 'setup' }).map((s) => `<button class="chip-q" data-act="as-q" data-intent="${esc(s.intent)}" data-q="${esc(s.q)}">${esc(s.q)}</button>`).join('') : renderChips(ctx, app, 'data-act="as-q"');
   const hasLog = st.history.length || st.pending;
   const intro = hasLog ? '' : `<p class="small muted as-intro">${setup ? 'Ask what this demo is. Pick a question or type your own.' : 'Ask about what is on this screen. Pick a question or type your own.'}</p>`;
+  
+  const countryLang = getCountryLanguage(ctx?.country?.id);
+  const showLang = countryLang.code !== 'en';
+  const curLang = st.lang || 'en';
+  const langToggle = showLang ? `
+    <div class="as-lang-bar" role="group" aria-label="Language">
+      <button class="pill-btn sm ${curLang === 'en' ? 'active' : ''}" data-act="as-set-lang" data-lang="en">EN</button>
+      <button class="pill-btn sm ${curLang === countryLang.code ? 'active' : ''}" data-act="as-set-lang" data-lang="${countryLang.code}">${countryLang.code.toUpperCase()}</button>
+    </div>` : '';
+
   return `${launcher}
   <div class="as-backdrop" data-act="as-close" aria-hidden="true"></div>
   <section class="as-sheet" role="dialog" aria-modal="true" aria-labelledby="as-title" data-region="assistant">
     <header class="as-head">
-      <div><h2 id="as-title">${setup ? 'About this demo' : 'AI Assistor'}</h2><small>${esc(SAMPLE_LINE)}</small></div>
+      <div>
+        <div style="display:flex;align-items:center;gap:8px">
+          <h2 id="as-title">${setup ? 'About this demo' : 'AI Assistor'}</h2>
+          ${langToggle}
+        </div>
+        <small>${esc(SAMPLE_LINE)}</small>
+      </div>
       <button class="icon-btn" data-act="as-close" id="as-close" aria-label="Close assistant">${icon('x', 20)}</button>
     </header>
     <div class="as-log" id="as-log" role="log" aria-live="polite" aria-label="Conversation">${intro}${renderLog(ctx || { t: (x) => x, industry: { assistantAnswers: { guardrailWhy: '' } } }, app)}</div>
-    <details class="as-suggest" ${hasLog ? '' : 'open'}><summary>Suggested questions</summary><div class="chips-q">${chips}</div></details>
+    <details class="as-suggest" open><summary>Suggested questions</summary><div class="chips-q">${chips}</div></details>
     <form class="as-composer" onsubmit="return false">
       <label class="sr-only" for="as-input">Your question</label>
       <input class="input" id="as-input" type="text" maxlength="200" autocomplete="off" placeholder="Type a question" data-input="as-draft" value="${esc(st.draft)}">
@@ -243,4 +276,6 @@ export const assistantActions = {
   'as-why': ({ app, data }) => { const st = stateOf(app); st.why[data.i] = !st.why[data.i]; },
   'as-link': ({ app, api, el }) => { finishTypewriter(app, api); const st = stateOf(app); st.open = false; st.focus = null; api.navigate(el.getAttribute('href')); return 'nav'; },
   'as-skip-type': ({ app, api }) => finishTypewriter(app, api),
+  'as-set-lang': ({ app, api, data }) => { const st = stateOf(app); st.lang = data.lang; api.render(); },
+  'as-screen-faq': ({ app, api, data }) => { const st = stateOf(app); st.askScreen = data.screen; api.render(); },
 };

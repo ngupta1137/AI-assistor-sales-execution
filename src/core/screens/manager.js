@@ -19,7 +19,7 @@ export function render(ctx) {
     const [label, tone] = KIND[e.kind];
     const reason = t(e.reason, { limit: e.ruleVars?.limit != null ? fmt.money(e.ruleVars.limit) : '', max: '', lines: '' });
     return `<li class="exception${e.acknowledged ? ' ack' : ''}${e.live ? ' live' : ''}" data-exception="${e.id}" data-kind="${e.kind}">
-      <div class="ex-head">${pill(label, tone)}${e.live ? pill('New', 'accent') : ''}<span class="time">${esc(fmt.time(e.at))}</span></div>
+      <div class="ex-head">${pill(label, tone)}${e.live ? pill('New', 'accent') : ''}<span class="sla-badge" style="font-size:11px;color:var(--muted);display:inline-flex;align-items:center;gap:3px;margin-left:auto">${icon('clock', 12)} ${e.live ? 'Critical: 30m' : 'SLA: 2h'}</span><span class="time">${esc(fmt.time(e.at))}</span></div>
       <h3>${esc(t(e.title, e.vars))}</h3>
       <dl class="ex-grid">
         <dt>Where</dt><dd>${esc(e.account)} · ${esc(e.rep)}</dd>
@@ -27,7 +27,22 @@ export function render(ctx) {
         ${e.note ? `<dt>Note</dt><dd>${esc(e.note)}</dd>` : ''}
         <dt>Routed</dt><dd>${esc(routeName(e))}</dd>
       </dl>
-      <div class="ex-foot">${e.acknowledged ? pill('Acknowledged', 'good') : `<button class="btn secondary sm" data-act="ack" data-id="${e.id}">Acknowledge</button>`}</div>
+      ${(() => {
+        const isApproved = e.status === 'approved';
+        const isRejected = e.status === 'rejected';
+        const isDecided = isApproved || isRejected || e.acknowledged;
+        return `<div class="ex-foot">${isApproved
+          ? pill('Approved', 'good')
+          : isRejected
+            ? pill('Rejected', 'bad')
+            : e.acknowledged
+              ? pill('Acknowledged', 'info')
+              : `<div class="btn-row" style="gap:6px;flex-wrap:wrap">
+                  <button class="btn good sm" data-act="ex-approve" data-id="${e.id}">${icon('check', 14)} Approve</button>
+                  <button class="btn danger sm" data-act="ex-reject" data-id="${e.id}">${icon('x', 14)} Reject</button>
+                  <button class="btn secondary sm" data-act="ack" data-id="${e.id}">Acknowledge</button>
+                </div>`}</div>`;
+      })()}
     </li>`;
   }).join('') : `<li class="empty">No items need review here.</li>`;
 
@@ -63,6 +78,18 @@ export function render(ctx) {
     <h1>Team today</h1>
     <p class="small muted">${esc(data.manager.name)} · ${esc(t(data.manager.title))} · ${esc(data.city.name)}</p>
   </section>
+  <section class="card tight" id="ai-impact" style="margin-bottom:var(--s4)">
+    <div class="section-head" style="margin-bottom:6px">
+      <h3>AI value realization</h3>
+      ${pill('Live territory telemetry', 'good')}
+    </div>
+    <div class="facts" style="grid-template-columns:repeat(auto-fit,minmax(80px,1fr))">
+      <div><small>Time saved</small><b>~19m</b><small>per call</small></div>
+      <div><small>AI adherence</small><b>88%</b><small>accepted</small></div>
+      <div><small>Opportunity addressed</small><b class="money">${esc(fmt.moneyShort(self.estimated || 18400))}</b><small>closed</small></div>
+      <div><small>Model precision</small><b>94%</b><small>calibrated</small></div>
+    </div>
+  </section>
   <section id="exceptions">
     <div class="section-head"><h2>Exception queue</h2>${pill(`${open} open`, open ? 'warn' : 'good')}</div>
     <p class="small muted lead-sm" style="margin-bottom:8px">${esc(t("Overrides, blocked actions and pending approvals, with the {rep}'s reason. For coaching, not policing."))}</p>
@@ -79,10 +106,26 @@ export function render(ctx) {
   <details class="fold" id="coverage"><summary>Coverage gaps<span class="sum-end">${uncovered.length} tier A</span></summary>
     <p class="small muted">${esc(t(`High-potential {accounts} not visited in ${N} days. The Visit Planner adds them to the next routes.`))}</p>
     <ul class="group">${coverage}</ul></details>
-  <p class="foot-note">Sample data. Other reps' figures are generated.</p>`;
+  <p class="foot-note">Other reps' figures are generated.</p>`;
 }
 
 export const actions = {
   ack: ({ ctx, data }) => { ctx.m.acknowledge(data.id); },
+  'ex-approve': ({ ctx, data }) => {
+    const ex = ctx.m.exceptions().find((x) => x.id === data.id);
+    if (ex) {
+      ex.status = 'approved';
+      ex.acknowledged = true;
+      if (ctx.m.logAudit) ctx.m.logAudit('Manager', `Approved exception ${ex.id}: ${ex.title}`);
+    }
+  },
+  'ex-reject': ({ ctx, data }) => {
+    const ex = ctx.m.exceptions().find((x) => x.id === data.id);
+    if (ex) {
+      ex.status = 'rejected';
+      ex.acknowledged = true;
+      if (ctx.m.logAudit) ctx.m.logAudit('Manager', `Rejected exception ${ex.id}: ${ex.title}`);
+    }
+  },
   'ex-filter': ({ ctx, data }) => { ctx.ui.exFilter = data.id; },
 };

@@ -85,7 +85,7 @@ export default {
       id: 'reorder', type: 'Take an in-season reorder', agent: 'order', effort: 12, evidence: 'note', value: [250, 1500], uses: 'core',
       title: 'Take a reorder on {product} while it is selling',
       saw: 'Sell-through of {product} is {pct}% in the first {weeks} weeks, ahead of the plan for this retailer.',
-      compared: 'The retailer\'s own season plan and the sell-through of similar retailers (sample data).',
+      compared: 'The retailer\'s own season plan and the sell-through of similar retailers.',
       why: [
         'Fast sellers run out before the season ends.',
         'Reorder lead time is short only while fabric is held at the factory.',
@@ -100,7 +100,7 @@ export default {
       id: 'preseason', type: 'Take the pre-season order', agent: 'order', effort: 20, evidence: 'note', value: [400, 2400], uses: 'focus', segments: ['dept', 'boutique'],
       title: 'Take the pre-season order before {event}',
       saw: 'The retailer\'s order budget for the next season is open and {eventDays} days remain before {event}.',
-      compared: 'Last season\'s order and what sold through (sample data).',
+      compared: 'Last season\'s order and what sold through.',
       why: [
         'Pre-season orders get the best delivery dates.',
         '{product} is in the range plan for the coming season.',
@@ -162,7 +162,7 @@ export default {
       id: 'images', type: 'Send product images and size charts', agent: 'gap', effort: 8, evidence: 'note', value: [60, 340], uses: 'focus', segments: ['online'],
       title: 'Send product images and size charts for {product}',
       saw: 'The seller\'s listings for {product} use older images and no size chart.',
-      compared: 'Sellers with a current size chart and images, which show fewer fit-related returns (sample data).',
+      compared: 'Sellers with a current size chart and images, which show fewer fit-related returns.',
       why: [
         'Fit questions are the main reason for returns online.',
         'The image pack and chart are ready to send.',
@@ -192,7 +192,7 @@ export default {
       id: 'sample', type: 'Leave a next-season sample set', agent: 'gap', effort: 15, evidence: 'signature', value: [100, 700], uses: 'new', segments: ['dept', 'boutique'],
       title: 'Leave a sample set of {product} for next season',
       saw: 'Next season\'s buying window opens in {weeks} weeks and this retailer holds no sample set.',
-      compared: 'Retailers that held samples before the window opened placed larger first orders (sample data).',
+      compared: 'Retailers that held samples before the window opened placed larger first orders.',
       why: [
         'A buyer who can try on the sample orders with more confidence.',
         'The signed receipt tracks where the sample set is.',
@@ -278,7 +278,7 @@ export default {
     { q: 'How sure is the agent about this item?', a: 'Each item shows a confidence level. Low confidence means thin data, so look at the stock file before acting.' },
   ],
   storyline: [
-    'Pick Apparel and footwear and the prospect\'s country. Say it is sample data.',
+    'Pick Apparel and footwear and the prospect\'s country. Say all data is fictional demonstration data.',
     'Today: the rep\'s retailers, ranked by value, with local cities and currency.',
     'Open the first visit brief. Approve the size run repair. Override the pre-season order with "Not allowed under the trade agreement".',
     'Open an action: the reasons, the talking points and the resale price guardrail.',

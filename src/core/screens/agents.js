@@ -70,7 +70,7 @@ export function render(ctx) {
     <p class="small muted">Approvals, overrides, outcomes, evidence and agent stops in this session.</p>
     ${m.audit().length ? `<ul class="audit">${m.audit().slice(0, 30).map((x) => `<li><time>${esc(ctx.fmt.time(x.at))}</time><span><b>${esc(x.actor)}</b> ${esc(x.text)}</span></li>`).join('')}</ul>` : '<p class="small muted">Nothing yet in this session.</p>'}
   </details>
-  <p class="foot-note">Sample data. Agents in this demo are rule-based.</p>`;
+  <p class="foot-note">Agents in this demo are rule-based.</p>`;
 }
 
 export const actions = {

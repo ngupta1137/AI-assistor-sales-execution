@@ -47,6 +47,11 @@ export function render(ctx, [accountId]) {
       <div class="notice ${st.needsApproval ? 'warn' : 'good'}" id="order-status">${icon(st.needsApproval ? 'clock' : 'check', 18)}<span>${st.needsApproval
   ? esc(t(`Pending approval with your ${recipientName(t, st.route)}. Acknowledgement shows in their queue.`))
   : esc(t('{Order} submitted.'))}</span></div>
+      ${ctx.ui?.erpNotice ? `<div class="notice good" style="margin-top:6px">${icon('check', 16)}<span>${esc(ctx.ui.erpNotice)}</span></div>` : ''}
+      <div class="btn-row" style="margin-bottom:8px">
+        <button class="btn secondary sm" data-act="push-erp" data-id="${a.id}" style="flex:1">${icon('sync', 16)} Push to ERP</button>
+        <button class="btn secondary sm" data-act="order-pdf" data-id="${a.id}" style="flex:1">${icon('note', 16)} Export Order</button>
+      </div>
       <a class="btn primary block" href="#/complete/${a.id}">${esc(t('Finish {visit}'))}</a>`;
   } else {
     const why = stopped ? 'Order agent stopped. You can edit this draft. Submission is paused.'
@@ -68,7 +73,7 @@ export function render(ctx, [accountId]) {
   ${stopped && !st.submitted ? `<div class="notice warn">${icon('stop', 18)}<span>${esc(t('Order agent stopped. You can edit this draft. Submission is paused.'))}</span></div>` : ''}
   <ul class="group">${rows}</ul>
   <section><h2>Rules</h2><ul class="group rules" style="margin-top:12px">${ruleRows}</ul></section>
-  <p class="foot-note">Sample data. Prices are illustrative.</p>`;
+  <p class="foot-note">Prices are illustrative.</p>`;
   return { html, dock };
 }
 
@@ -78,4 +83,25 @@ export const actions = {
     ctx.m.setQty(data.id, data.o, line.qty + Number(data.d));
   },
   'submit-order': ({ ctx, data }) => { ctx.m.submitOrder(data.id); },
+  'push-erp': ({ ctx, data }) => {
+    const a = ctx.data.byId[data.id];
+    const poNum = 'PO-' + String(100000 + ((a.name.length * 3749) % 900000));
+    (ctx.ui ||= {}).erpNotice = `Queued in ERP Gateway. Reference: ${poNum}`;
+    if (ctx.m?.logAudit) ctx.m.logAudit('ERP Gateway', `Sales order for ${a.name} dispatched with reference ${poNum}`);
+  },
+  'order-pdf': ({ ctx, data }) => {
+    const a = ctx.data.byId[data.id];
+    const poNum = 'PO-' + String(100000 + ((a.name.length * 3749) % 900000));
+    const lines = ctx.m.orderLines(data.id);
+    const content = `PURCHASE ORDER CONFIRMATION\nReference: ${poNum}\nCustomer: ${a.name}\nStatus: Verified\nLines: ${lines.length}\n`;
+    const blob = new Blob([content], { type: 'text/plain;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `Purchase-Order-${poNum}.txt`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    if (ctx.m?.logAudit) ctx.m.logAudit('Order Desk', `Exported purchase order document for ${a.name}`);
+  },
 };

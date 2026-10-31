@@ -278,7 +278,7 @@ export default {
     { q: 'Is every proposal checked for suitability?', a: 'Lines priced by people cannot be sent until the needs review is done and the business owner has signed consent. The proposal screen shows what is still missing.' },
   ],
   storyline: [
-    'Pick Financial services and the prospect\'s country. Say it is sample data.',
+    'Pick Financial services and the prospect\'s country. Say all data is fictional demonstration data.',
     'Today: merchants, small businesses and agent outlets ranked by value.',
     'Open the first brief. Approve the terminal check. Override one with "Credit file under review".',
     'Open the proposal: sending is blocked until the needs review is done with signed consent. Follow the link to that action.',

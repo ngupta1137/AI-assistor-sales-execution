@@ -41,7 +41,7 @@ export default {
       { id: 'k8', title: 'How do I run an in-service session?', text: 'Use the approved deck, let each attendee handle the device, and collect signatures on the attendance sheet. Log the session the same day.' },
       { id: 'k9', title: 'When is a trial allowed?', text: 'Only under the approved trial agreement and a signed evaluation form. Nothing beyond the agreed trial terms is offered.' },
       { id: 'k10', title: 'What do I do if a case is cancelled?', text: 'Tell the contracts and logistics teams, return unused sets, and use Mark closed today on the route if a {visit} depended on it.' },
-      { id: 'k11', title: 'Which expenses are allowed for instrument transport?', text: 'Courier and tolls for instrument sets, inside the sample limits. Keep the receipt and the case reference. Anything unusual needs your {manager} first.' },
+      { id: 'k11', title: 'Which expenses are allowed for instrument transport?', text: 'Courier and tolls for instrument sets, inside the policy limits. Keep the receipt and the case reference. Anything unusual needs your {manager} first.' },
     ],
     pitchTemplates: [
       { id: 'p1', uses: ['kpi'], text: 'On {kpi}, {name} is at {kpiValue} against a target of {kpiTarget}. Ask {person} what is getting in the way and offer to review it together.' },
@@ -51,7 +51,7 @@ export default {
     valueStoryTemplates: [
       { id: 's1', title: 'Supply that follows the schedule', uses: ['share', 'orderCount'], text: '{name} has reached {share} of its estimated potential. Across the last {orderCount} {orders}, the pattern follows the operating schedule. The next step is to agree par levels and instrument sets for the weeks ahead.' },
       { id: 's2', title: 'Training and support', uses: ['offer', 'trend'], text: 'The last {order} was {trend}. An in-service session on {offer} gives {person} and the team the approved instructions and a signed record of who attended.' },
-      { id: 's3', title: 'A plan for the year', uses: ['potential', 'share'], text: 'The estimate for {name} is {potential} a year, and the current figure is {current}. The difference of {whitespace} is a sample estimate. It is a prompt for a conversation with {person}, not a statement about any result.' },
+      { id: 's3', title: 'A plan for the year', uses: ['potential', 'share'], text: 'The estimate for {name} is {potential} a year, and the current figure is {current}. The difference of {whitespace} is a benchmark estimate. It is a prompt for a conversation with {person}, not a statement about any result.' },
     ],
     resourcePlans: [
       { id: 'r1', name: 'New system training round', startWeek: 1, weeks: 3, perWeek: 5 },

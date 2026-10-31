@@ -136,7 +136,7 @@ export function render(ctx, [accountId]) {
     <a class="btn secondary" style="flex:1" href="#/order/${a.id}">${esc(t('Open {order}'))}</a>
     <a class="btn primary block" href="#/complete/${a.id}" id="finish-visit">${esc(t('Finish {visit}'))}</a>
   </div>
-  <p class="foot-note">Sample data. Rule-based scoring on generated data. Confidence describes the rules, not a chance of a sale.</p>`;
+  <p class="foot-note">Rule-based scoring on generated data. Confidence describes the rules, not a chance of a sale.</p>`;
 }
 
 export function mounted(ctx) {

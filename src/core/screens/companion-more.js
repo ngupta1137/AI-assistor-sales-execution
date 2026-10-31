@@ -20,7 +20,7 @@ export function wellbeing(ctx) {
   const team = MOODS.map((m, i) => ({ m, n: i < 2 ? r.int(0, 2) : i === 2 ? r.int(0, 1) : 0 }));
   const low = mood === 'Low' || mood === 'Struggling';
   const tips = [`Take a ${BREAK_MINUTES} minute break after about ${FATIGUE_MINUTES} minutes of driving.`, 'Drink water and eat at regular times, even on a full day.', 'Keep one buffer slot in the day for the unexpected.', 'Switch the phone to quiet for the last hour before sleep.', t('Say so early if a {visit} plan is too much. Your {manager} can re-plan it.')];
-  return head(ctx, { title: 'Wellbeing hub', lead: 'A short daily check-in and a few practical tips. Sample content.' }) + `
+  return head(ctx, { title: 'Wellbeing hub', lead: 'A short daily check-in and a few practical tips.' }) + `
   <div class="notice">${icon('flag', 18)}<span>This is not medical or counselling advice and it is not a support service. If you need help, talk to your ${esc(t('{manager}'))} or the support line your company provides.</span></div>
   <section class="card" data-card="checkin"><h2>How are you today?</h2>
     <div class="radios" role="radiogroup" aria-label="Check-in">${MOODS.map((m) => `<button class="seg${mood === m ? ' on' : ''}" style="min-height:48px;text-align:left" data-act="mood-set" data-m="${m}" role="radio" aria-checked="${mood === m}">${m}</button>`).join('')}</div>
@@ -28,8 +28,7 @@ export function wellbeing(ctx) {
   </section>
   <section class="card"><h2>Tips for the day</h2><ul class="bullets">${tips.map((x) => `<li class="small">${esc(x)}</li>`).join('')}</ul>
     <a class="btn secondary sm" href="#/companion/journey">${icon('route', 18)}See the break prompt on today's route</a></section>
-  ${persona !== 'rep' ? `<section class="card" id="team-checkins"><h2>Team check-ins this week</h2><p class="small muted">Sample and anonymous: counts only, no names.</p><ul class="kpi-list">${team.map((x) => `<li><span class="small">${x.m}</span><span class="kv"><b>${x.n}</b></span></li>`).join('')}</ul></section>` : ''}
-  <p class="foot-note">Sample data.</p>`;
+  ${persona !== 'rep' ? `<section class="card" id="team-checkins"><h2>Team check-ins this week</h2><p class="small muted">Anonymous: counts only, no names.</p><ul class="kpi-list">${team.map((x) => `<li><span class="small">${x.m}</span><span class="kv"><b>${x.n}</b></span></li>`).join('')}</ul></section>` : ''}`;
 }
 
 // ---- Complaint and feedback portal --------------------------------------------------
@@ -50,10 +49,10 @@ export function feedback(ctx) {
     ${f.error ? `<div class="notice warn" id="fb-error" role="alert">${icon('flag', 18)}<span>${esc(f.error)}</span></div>` : ''}
     ${f.done ? `<div class="notice good" id="fb-done" role="status">${icon('check', 18)}<span>${esc(f.done)}</span></div>` : ''}
     <button class="btn primary block" data-act="fb-submit" id="fb-submit">Send</button></section>`;
-  return head(ctx, { title: 'Complaints and feedback', lead: 'Tell the team what is not working or what would help. You can send it without your name. Sample data.' }) + `
+  return head(ctx, { title: 'Complaints and feedback', lead: 'Tell the team what is not working or what would help. You can send it without your name.' }) + `
   ${persona === 'rep' ? form : ''}
   <section><h2>${persona === 'rep' ? 'Your messages' : 'Messages from the team'}</h2><ul class="group" style="margin-top:12px" id="fb-list">${list(persona === 'rep' ? mine : [...mine, ...sampleTeam], persona !== 'rep') || '<li class="empty">No messages yet.</li>'}</ul></section>
-  <p class="foot-note">Sample data. Nothing is sent outside this page.</p>`;
+  <p class="foot-note">Nothing is sent outside this page.</p>`;
 }
 
 // ---- Travel planner and mileage log ---------------------------------------------------
@@ -67,7 +66,7 @@ export function travel(ctx) {
   const trip = (ui.trip ||= { city: country.cities.find((c) => c.name !== data.city.name)?.name || country.cities[0].name, nights: 1, saved: null });
   const lodging = country.expenseLimits.lodging;
   const rows = stops.map((st) => `<li class="row"><span class="row-main"><b>${esc(data.byId[st.accountId].name)}</b><small>${esc(fmt.time(st.start))} · ${esc(dist(ctx, st.km))}</small></span></li>`).join('');
-  return head(ctx, { title: 'Travel and mileage', lead: `Today's trips from the route plan, in ${country.mileageUnit === 'mi' ? 'miles' : 'kilometres'}, and a plan for an overnight trip. Sample data.` }) + `
+  return head(ctx, { title: 'Travel and mileage', lead: `Today's trips from the route plan, in ${country.mileageUnit === 'mi' ? 'miles' : 'kilometres'}, and a plan for an overnight trip.` }) + `
   <section class="card tight"><div class="facts"><div><small>Today's route</small><b id="trip-today">${esc(dist(ctx, todayKm))}</b></div><div><small>In the mileage log</small><b id="trip-total">${esc(dist(ctx, total))}</b></div></div></section>
   <section><h2>Today's trips</h2><ul class="group" style="margin-top:12px">${rows || '<li class="empty">No trips on today\'s route.</li>'}</ul>
     <button class="btn primary block" style="margin-top:12px" data-act="trip-log" id="trip-log">Add today's trips to the mileage log</button>
@@ -75,8 +74,8 @@ export function travel(ctx) {
   <section class="card"><h2>Overnight trip</h2>
     <label class="field">Destination<select id="trip-city" data-input="trip-field" data-field="city">${country.cities.map((c) => `<option${trip.city === c.name ? ' selected' : ''}>${esc(c.name)}</option>`).join('')}</select></label>
     <label class="field">Nights<select id="trip-nights" data-input="trip-field" data-field="nights">${[1, 2, 3, 4].map((n) => `<option${Number(trip.nights) === n ? ' selected' : ''}>${n}</option>`).join('')}</select></label>
-    <p class="small muted" id="trip-estimate">Sample hotel limit: ${esc(fmt.price(lodging))} a night, ${esc(fmt.price(lodging * Number(trip.nights)))} in total.</p></section>
-  <p class="foot-note">Sample data. Distances are straight-line estimates. Mileage is shown in ${country.mileageUnit === 'mi' ? 'miles' : 'kilometres'} for ${esc(country.name)}.</p>`;
+    <p class="small muted" id="trip-estimate">Hotel limit: ${esc(fmt.price(lodging))} a night, ${esc(fmt.price(lodging * Number(trip.nights)))} in total.</p></section>
+  <p class="foot-note">Distances are straight-line estimates. Mileage is shown in ${country.mileageUnit === 'mi' ? 'miles' : 'kilometres'} for ${esc(country.name)}.</p>`;
 }
 
 // ---- Onboarding checklist with e-signature ---------------------------------------------
@@ -98,11 +97,11 @@ export function onboarding(ctx) {
       ${ready ? `<canvas class="sign" id="onb-pad" width="320" height="120" aria-label="Signature pad"></canvas>
       ${ui.onbError ? '<p class="small warn-text" id="onb-error">Sign in the box first.</p>' : ''}
       <div class="btn-row"><button class="btn secondary sm" data-act="onb-clear">Clear</button><button class="btn primary sm" data-act="onb-sign" id="onb-sign">Sign as ${esc(data.rep.name)}</button></div>` : '<p class="small muted" id="onb-wait">Finish every step to unlock the signature.</p>'}`;
-  return head(ctx, { title: 'Onboarding checklist', lead: 'Five steps and an e-signature. Sample data and a demo signature, not a legal record.' }) + `
+  return head(ctx, { title: 'Onboarding checklist', lead: 'Five steps and an e-signature. A demo signature, not a legal record.' }) + `
   <section class="card tight"><div class="stat-row"><span class="small muted">Progress</span><b>${done} of ${STEPS.length}</b></div><div class="bar"><span style="width:${(done / STEPS.length) * 100}%"></span></div></section>
   <ul class="group" id="onb-steps">${rows}</ul>
   <section class="card" id="onb-sign-card"><h2>Acknowledgement</h2>${sign}</section>
-  <p class="foot-note">Sample data. The signature is kept on this page only.</p>`;
+  <p class="foot-note">The signature is kept on this page only.</p>`;
 }
 
 export function mountedOnboarding() {
@@ -133,7 +132,7 @@ export function library(ctx) {
     return `<section class="card" data-stage="${i + 1}"><h2>${i + 1}. ${esc(t(title))}</h2><ul class="bullets">${points.map((p) => `<li class="small">${esc(t(p))}</li>`).join('')}</ul>
       ${hit ? `<p class="small muted">From your knowledge base: <a href="#/companion/learning" data-act="jump" data-id="kb">${esc(t(hit.e.title))}</a></p>` : ''}</section>`;
   }).join('');
-  return head(ctx, { title: 'Call fundamentals', lead: 'Six steps for a good {visit}, with a pointer to your own knowledge base for each. Sample content.' }) + cards + '<p class="foot-note">Sample data.</p>';
+  return head(ctx, { title: 'Call fundamentals', lead: 'Six steps for a good {visit}, with a pointer to your own knowledge base for each.' }) + cards;
 }
 
 // ---- Actions ---------------------------------------------------------------------------
@@ -161,7 +160,7 @@ export const actions = {
   'trip-field': ({ ctx, data, value }) => {
     (ctx.ui.trip ||= {})[data.field] = value;
     const box = document.getElementById('trip-estimate');
-    if (box) { const l = ctx.country.expenseLimits.lodging; box.textContent = `Sample hotel limit: ${ctx.fmt.price(l)} a night, ${ctx.fmt.price(l * Number(ctx.ui.trip.nights || 1))} in total.`; }
+    if (box) { const l = ctx.country.expenseLimits.lodging; box.textContent = `Hotel limit: ${ctx.fmt.price(l)} a night, ${ctx.fmt.price(l * Number(ctx.ui.trip.nights || 1))} in total.`; }
     return false;
   },
   'onb-step': ({ ctx, data, el }) => { ctx.cm.tickStep(data.id, el.checked); },

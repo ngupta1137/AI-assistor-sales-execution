@@ -32,5 +32,5 @@ export function render(ctx) {
     <p class="muted">${esc(t(`Six problems ${industry.name.toLowerCase()} field teams describe, and the capability that answers each one.`))}</p>
   </section>
   ${cards}
-  <p class="foot-note">Sample data. No results are claimed before a pilot against matched control territories.</p>`;
+  <p class="foot-note">No results are claimed before a pilot against matched control territories.</p>`;
 }

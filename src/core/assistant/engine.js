@@ -67,7 +67,7 @@ function run(ctx, c, id) {
     const key = id.slice(7);
     const tpl = ctx.industry.assistantAnswers?.[key];
     if (!tpl) return null;
-    return { text: ctx.t(tpl, pickFocus(ctx, c)), basedOn: `${ctx.industry.name} pack guidance, ${ctx.data.city.name} sample territory`, links: [] };
+    return { text: ctx.t(tpl, pickFocus(ctx, c)), basedOn: `${ctx.industry.name} pack guidance, ${ctx.data.city.name} territory`, links: [] };
   }
   if (id.startsWith('qa:')) {
     const item = ctx.industry.assistant?.[Number(id.slice(3))];

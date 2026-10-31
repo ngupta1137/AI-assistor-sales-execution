@@ -51,7 +51,7 @@ export default {
     valueStoryTemplates: [
       { id: 's1', title: 'A crib that runs itself', uses: ['share', 'orderCount'], text: '{name} has captured {share} of its estimated potential. Across the last {orderCount} {orders}, many were urgent single boxes. The next step is to agree minimum levels together and look again at the next {visit}.' },
       { id: 's2', title: 'A new item on a real job', uses: ['offer', 'trend'], text: 'The last {order} was {trend}. A trial of {offer} on one job gives {person} a way to test it without changing the contract range.' },
-      { id: 's3', title: 'Ready for the stop', uses: ['potential', 'share'], text: 'Estimated potential at {name} is {potential} a year and the current figure is {current}. The gap of {whitespace} is an estimate from sample data. It is the reason to plan the next stop together.' },
+      { id: 's3', title: 'Ready for the stop', uses: ['potential', 'share'], text: 'Estimated potential at {name} is {potential} a year and the current figure is {current}. The gap of {whitespace} is an estimate from benchmark data. It is the reason to plan the next stop together.' },
     ],
     resourcePlans: [
       { id: 'r1', name: 'Shutdown season support', startWeek: 1, weeks: 4, perWeek: 5 },
@@ -59,7 +59,7 @@ export default {
     ],
     guardrails: [
       { id: 'ig1', text: 'Rating, load and pressure statements come only from the maker datasheet and the technical desk. The Companion never writes its own.', blocked: ['rated for', 'safe working load', 'will hold', 'guarantee', 'no risk', 'certified for'] },
-      { id: 'ig2', text: 'Prices follow the contract list. Value stories use sample data and say so, and never claim a result.', blocked: ['proven to', 'doubles output', 'will boost', 'risk free', 'special price', 'under the table'] },
+      { id: 'ig2', text: 'Prices follow the contract list. Value stories use benchmark data and say so, and never claim a result.', blocked: ['proven to', 'doubles output', 'will boost', 'risk free', 'special price', 'under the table'] },
     ],
   },
 };

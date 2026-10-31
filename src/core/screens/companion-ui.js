@@ -3,13 +3,13 @@
 
 import { esc, icon, pill, CAPABILITIES } from '../ui.js';
 
-export const TAGS = '<span class="sample-tag">Sample data</span><span class="concept-tag">Concept</span>';
+export const TAGS = '';
 
 /** Back link to the hub, then the title and a lead line. */
 export function head(ctx, { title, lead, back = '#/companion', backLabel = 'Sales Companion' }) {
   return `<a class="back" href="${back}">${icon('back', 18)} ${esc(ctx.t(backLabel))}</a>
   <section class="page-head"><span class="eyebrow">Sales Companion</span><h1>${esc(ctx.t(title))}</h1>
-    ${lead ? `<p class="small muted">${esc(ctx.t(lead))}</p>` : ''}<p class="tags">${TAGS}</p></section>`;
+    ${lead ? `<p class="small muted">${esc(ctx.t(lead))}</p>` : ''}${TAGS ? `<p class="tags">${TAGS}</p>` : ""}</section>`;
 }
 
 /** The account this screen is about: the route argument, or the next {account} on today's plan. */

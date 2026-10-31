@@ -20,7 +20,7 @@ export function renderPresenter(app, ctx, { INDUSTRIES, COUNTRIES, PERSONAS, sha
   <div class="presenter-backdrop" data-act="presenter-close"></div>
   <section class="presenter" role="dialog" aria-modal="true" aria-label="Presenter menu" data-region="presenter">
     <header class="presenter-head">
-      <div><b>Presenter menu</b><span class="sample-tag">Sample data</span></div>
+      <div><b>Presenter menu</b></div>
       <button class="icon-btn" data-act="presenter-close" aria-label="Close">${icon('x', 20)}</button>
     </header>
     <div class="presenter-body">
@@ -28,6 +28,12 @@ export function renderPresenter(app, ctx, { INDUSTRIES, COUNTRIES, PERSONAS, sha
         <select data-change="p-industry" id="p-industry">${configured ? '' : '<option value="">Choose</option>'}${opt(INDUSTRIES, c.industryId)}</select></label>
       <label class="field"><span>Country</span>
         <select data-change="p-country" id="p-country">${configured ? '' : '<option value="">Choose</option>'}${opt(COUNTRIES, c.countryId)}</select></label>
+      <label class="field"><span>Device viewport</span>
+        <select data-change="p-viewport" id="p-viewport">
+          <option value="phone"${(app.vp || 'phone') === 'phone' ? ' selected' : ''}>Phone (390 px - field)</option>
+          <option value="tablet"${app.vp === 'tablet' ? ' selected' : ''}>Tablet (768 px - iPad)</option>
+          <option value="desktop"${app.vp === 'desktop' ? ' selected' : ''}>Desktop Portal (100% width)</option>
+        </select></label>
       <label class="field"><span>Persona</span>
         <select data-change="p-persona" id="p-persona">${PERSONAS.map((p) => `<option value="${p}"${p === c.persona ? ' selected' : ''}>${personaName[p]}</option>`).join('')}</select></label>
       <label class="field"><span>Prepared for (optional)</span>
@@ -40,13 +46,13 @@ export function renderPresenter(app, ctx, { INDUSTRIES, COUNTRIES, PERSONAS, sha
         ${configured ? `<button class="btn secondary" data-act="p-chat-reset" id="p-chat-reset">${icon('route', 20)}Reset chat</button>` : ''}
         <button class="btn secondary" data-act="p-setup">${icon('config', 20)}Open setup screen</button>
         ${configured ? `<hr>${app.confirmReset
-    ? `<p class="small">Clear every decision, outcome and ${esc(ctx ? ctx.t('{order}') : 'order')} in ${esc(INDUSTRIES.find((i) => i.id === c.industryId)?.name || '')}, ${esc(COUNTRIES.find((x) => x.id === c.countryId)?.name || '')} and all other scenarios? The sample data itself stays the same.</p>
+    ? `<p class="small">Clear every decision, outcome and ${esc(ctx ? ctx.t('{order}') : 'order')} in ${esc(INDUSTRIES.find((i) => i.id === c.industryId)?.name || '')}, ${esc(COUNTRIES.find((x) => x.id === c.countryId)?.name || '')} and all other scenarios? The demo data itself stays the same.</p>
         <div class="btn-row" style="flex-wrap:nowrap"><button class="btn secondary" style="flex:1" data-act="p-reset-cancel">Cancel</button>
         <button class="btn danger" style="flex:1" data-act="p-reset-confirm" id="p-reset-confirm">Reset demo</button></div>`
     : `<button class="btn danger" data-act="p-reset" id="p-reset">${icon('route', 20)}Reset demo</button>`}` : ''}
       </div>
       ${app.copied === true ? '<p class="small ok-text" role="status">Link copied.</p>' : app.copied === 'failed' ? '<p class="small warn-text" role="status">Copy failed. Select the link and copy it.</p>' : ''}
-      <p class="small muted">All names, places and numbers are generated sample data. Nothing here describes a real company or a real result. Shortcut: Shift+D.</p>
+      <p class="small muted">All names, places and numbers are generated for demonstration. Nothing here describes a real company or a real result. Shortcut: Shift+D.</p>
     </div>
   </section>`;
 }
@@ -60,7 +66,7 @@ export function renderNotes(app, ctx) {
   if (current < 0) current = routes.findIndex((r) => r.split('/')[1] === hash.split('/')[1]);
   const steps = ctx.industry.storyline.map((s, i) => `<li${i === current ? ' class="current" aria-current="step"' : ''}><a href="${routes[i] || '#/today'}">${esc(ctx.t(s))}</a></li>`).join('');
   return `<div class="side-inner" data-region="notes">
-    <div class="side-head"><b>Presenter notes</b><span class="sample-tag">Sample data</span></div>
+    <div class="side-head"><b>Presenter notes</b></div>
     <p class="small muted">${esc(ctx.industry.name)} · ${esc(ctx.country.name)}. Presenter notes are visible beside the app, so hide them before you share this window.</p>
     <ol class="story">${steps}</ol>
     <div class="side-switch">

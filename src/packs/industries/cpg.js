@@ -81,7 +81,7 @@ export default {
       id: 'display', type: 'Secure a display', agent: 'gap', effort: 15, evidence: 'photo', value: [300, 1500], uses: 'focus', segments: ['super', 'conv'],
       title: 'Secure an aisle-end display for {product}',
       saw: 'No secondary display for {product} in the last {weeks} weeks of visit photos.',
-      compared: 'Stores in this group with a display sold {pct}% more of the line in display weeks (sample data).',
+      compared: 'Stores in this group with a display sold {pct}% more of the line in display weeks.',
       why: [
         '{event} is {eventDays} days away and display space gets booked early.',
         'The retailer agreement allows one supplier display per aisle end.',
@@ -277,7 +277,7 @@ export default {
     { q: 'How sure is the agent about this gap?', a: 'Each item shows a confidence level. Low confidence means the data is thin. Check the shelf before acting.' },
   ],
   storyline: [
-    'Pick Consumer goods and the prospect\'s country. Mention it is sample data.',
+    'Pick Consumer goods and the prospect\'s country. Mention all data is fictional demonstration data.',
     'Today: the rep\'s stores, ranked by value, in local currency and cities.',
     'Open the first visit brief. Approve the out-of-stock fix. Override the display with "Not allowed under the retailer agreement".',
     'Open an action: the why, the talking points, the guardrail on displays.',

@@ -59,7 +59,7 @@ export default {
     ],
     guardrails: [
       { id: 'ahg1', text: 'No dosage, diagnosis, or clinical efficacy claims. Prescription pharmaceuticals dispense strictly under veterinary oversight. Information adheres to the registered label.', blocked: ['cures all symptoms', 'promised clinical recovery', 'prescribe without doctor', 'diagnose sick livestock', 'off label miracle'] },
-      { id: 'ahg2', text: 'Practice volume projections rely on sample planning benchmarks. Presentations never promise commercial livestock yields or clinic retail revenue.', blocked: ['doubles dairy milk yield', 'promised clinic profits', 'risk free animal remedy', 'secret farm formula', 'unregistered medicine claim'] },
+      { id: 'ahg2', text: 'Practice volume projections rely on benchmark planning models. Presentations never promise commercial livestock yields or clinic retail revenue.', blocked: ['doubles dairy milk yield', 'promised clinic profits', 'risk free animal remedy', 'secret farm formula', 'unregistered medicine claim'] },
     ],
   },
 };

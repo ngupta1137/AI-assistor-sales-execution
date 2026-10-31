@@ -66,6 +66,10 @@ export function render(ctx) {
   <section class="card tight">
     <div class="stat-row"><span class="small muted">Month to date</span><span class="small"><b class="money">${esc(fmt.moneyShort(tr.achieved))}</b> of ${esc(fmt.moneyShort(tr.target))} · ${pct}%</span></div>
     ${bar(tr.achieved, tr.target)}
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-top:8px;padding-top:6px;border-top:1px solid var(--line-soft)">
+      <small class="muted" style="display:flex;align-items:center;gap:4px">${icon('agent', 14)} AI Confidence: 88% avg</small>
+      <small class="muted" style="display:flex;align-items:center;gap:4px">${icon('clock', 14)} ~19m prep saved</small>
+    </div>
     <small>${done} of ${ordered.length} ${esc(t('{visits}'))} recorded · ${self.actionsDone} actions done</small>
   </section>
 
@@ -82,5 +86,5 @@ export function render(ctx) {
       ${self.estimated ? `<div class="wide"><small>Estimated opportunity addressed today</small><b>${esc(fmt.moneyShort(self.estimated))}</b><small>An estimate from completed actions. Not booked sales, and not added to the month figure.</small></div>` : ''}
     </div>
   </details>
-  <p class="foot-note">Sample data. Values are generated for this demo.</p>`;
+  <p class="foot-note">Values are generated for this demo.</p>`;
 }

@@ -146,7 +146,7 @@ export default {
       id: 'promo', type: 'Build a promotion display', agent: 'gap', effort: 15, evidence: 'photo', value: [300, 1200], uses: 'focus', segments: ['offtrade'],
       title: 'Build the {event} display for {product}',
       saw: 'The {event} promotion starts soon and no display is booked here.',
-      compared: 'Display weeks in {peers} similar stores last year (sample data).',
+      compared: 'Display weeks in {peers} similar stores last year.',
       why: [
         'Holiday shoppers buy for groups and trade up.',
         'The promotion price is agreed with the retailer.',
@@ -284,7 +284,7 @@ export default {
     { q: 'Does the app know the local licensing rules?', a: 'The guardrails reflect them in principle. Local rules in this demo are sample settings.' },
   ],
   storyline: [
-    'Pick Beverages and the prospect\'s country. Say it is sample data.',
+    'Pick Beverages and the prospect\'s country. Say all data is fictional demonstration data.',
     'Today: the brand rep\'s outlets, ranked by value, bars and stores side by side.',
     'Open the first brief. Approve the draught check. Override one with "Exclusive supply contract with another brand".',
     'Open the activation action: why now, talking points, the responsible marketing guardrail.',

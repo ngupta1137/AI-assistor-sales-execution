@@ -89,7 +89,7 @@ button, input, select, textarea { font: inherit; color: inherit; }
 .logo { display: flex; align-items: center; gap: var(--s2); background: none; border: 0; padding: 0; min-height: var(--tap); cursor: pointer; color: var(--ink); -webkit-user-select: none; user-select: none; -webkit-touch-callout: none; touch-action: manipulation; border-radius: var(--radius-sm); }
 .mark { display: grid; place-items: center; width: 30px; height: 30px; border-radius: var(--radius-sm); background: var(--accent); color: #fff; }
 .brand { font-weight: 700; font-size: var(--text-md); white-space: nowrap; }
-.who { display: flex; align-items: center; gap: var(--s2); min-width: 0; }
+.who { display: flex; align-items: center; gap: var(--s2); min-width: var(--tap); min-height: var(--tap); background: none; border: 0; padding: 2px 0; cursor: pointer; color: var(--ink); border-radius: var(--radius-sm); text-align: right; }
 .who-text { display: flex; flex-direction: column; text-align: right; min-width: 0; max-width: 170px; }
 .who-text b { font-size: 13px; line-height: 18px; font-weight: 600; overflow-wrap: anywhere; }
 .who-text small { font-size: var(--text-xs); line-height: 16px; overflow-wrap: anywhere; }
@@ -422,6 +422,12 @@ details[open] > summary::after { transform: rotate(-135deg); }
 .as-cursor { display: inline-block; width: 7px; height: 14px; margin-left: 2px; vertical-align: -1px; background: var(--accent); border-radius: 1px; animation: as-blink .75s infinite; }
 @keyframes as-blink { 0%, 100% { opacity: 1; } 50% { opacity: 0; } }
 .as-typewriter { cursor: pointer; }
+.as-lang-bar { display: inline-flex; gap: 4px; background: var(--surface-soft, #f1f5f9); padding: 2px; border-radius: var(--radius-sm, 6px); }
+.pill-btn { display: inline-flex; align-items: center; justify-content: center; border: 1px solid transparent; background: transparent; padding: 4px 12px; border-radius: var(--radius-xs, 4px); font-size: var(--text-xs, 12px); font-weight: 600; cursor: pointer; color: var(--muted, #64748b); min-height: var(--tap, 44px); min-width: var(--tap, 44px); }
+.pill-btn.active { background: var(--surface, #ffffff); color: var(--text, #0f172a); border-color: var(--line, #e2e8f0); box-shadow: 0 1px 2px rgba(0,0,0,0.05); }
+.pill-btn.sm { min-height: var(--tap, 44px); min-width: var(--tap, 44px); padding: 4px 10px; font-size: 11px; }
+.screen-pills { display: flex; gap: 4px; overflow-x: auto; max-width: 100%; padding-bottom: 2px; }
+.screen-pills .pill-btn { min-height: var(--tap, 44px); min-width: var(--tap, 44px); }
 .screen { scroll-padding-bottom: 72px; }
 
 /* ---- Sales Companion ---- */
@@ -471,3 +477,31 @@ details.evi > summary { min-height: var(--tap); }
 .lead-sm { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
 
 .choice .txt small { display: -webkit-box; -webkit-line-clamp: 1; -webkit-box-orient: vertical; overflow: hidden; }
+
+/* ---- Enterprise UI Enhancements ---- */
+.btn.good { background: var(--surface); color: var(--good); border-color: var(--good); }
+.btn.good:active { background: var(--good-bg); }
+.sync-dot { display: inline-block; width: 7px; height: 7px; border-radius: 50%; background: var(--good, #16a34a); box-shadow: 0 0 0 2px rgba(22, 163, 74, 0.2); }
+.sla-badge { font-variant-numeric: tabular-nums; }
+
+@media (min-width: 760px) {
+  .stage { transition: padding var(--motion-base) var(--ease-standard); }
+  .stage[data-viewport="tablet"] .phone {
+    width: 768px;
+    height: min(960px, calc(100dvh - 48px));
+    border-radius: 24px;
+    transition: width var(--motion-base) var(--ease-standard);
+  }
+  .stage[data-viewport="desktop"] .phone {
+    width: 100%;
+    max-width: 1220px;
+    height: calc(100dvh - 48px);
+    border-radius: 16px;
+    border: 1px solid var(--line);
+    transition: width var(--motion-base) var(--ease-standard);
+  }
+  .stage[data-viewport="tablet"] .phone-inner,
+  .stage[data-viewport="desktop"] .phone-inner {
+    border-radius: 12px;
+  }
+}

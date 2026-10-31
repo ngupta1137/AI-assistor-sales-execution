@@ -45,8 +45,8 @@ export function render({ app, INDUSTRIES, COUNTRIES, buildContext }) {
       <header class="setup-head">
         <div class="setup-brand"><span class="mark">${icon('agent', 18)}</span>AI Assistor</div>
         <h1>AI Assistor Sales Execution</h1>
-        <p class="muted small">Plans each rep's day, ranks what to do in every visit, and shows what happened. Choose a sample scenario.</p>
-        <span><span class="sample-tag">Sample data. All names are fictional.</span></span>
+        <p class="muted small">Plans each rep's day, ranks what to do in every visit, and shows what happened. Choose a scenario.</p>
+        <span><span class="sample-tag">All names are fictional.</span></span>
       </header>
       ${app.notice ? `<div class="notice warn">${icon('flag', 18)}<span>${esc(app.notice)}</span></div>` : ''}
       <section><h2 class="setup-step">Industry</h2><ul class="choice-list tiles">${tiles}</ul></section>
@@ -65,7 +65,7 @@ export function render({ app, INDUSTRIES, COUNTRIES, buildContext }) {
     <div class="setup-foot">
       ${chosen ? `<p class="small"><b>${esc(chosen)}</b></p>` : ''}
       ${preview}
-      <span class="small warn-text">Sample data</span>
+      
       <button class="btn primary block" data-act="setup-start" id="start-demo" ${ready ? '' : 'disabled'}>${ready ? 'Start demo' : 'Choose an industry and a country'}</button>
     </div>
   </div>`;

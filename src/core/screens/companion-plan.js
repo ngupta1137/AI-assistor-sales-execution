@@ -26,7 +26,7 @@ export function journey(ctx) {
         <span class="btn-row" style="margin-top:8px">${pill(`${l.level} traffic${l.delay ? `, about +${l.delay} min` : ''}`, l.level === 'Heavy' ? 'warn' : 'muted')}${l.fatigue ? pill(`Break advised: ${BREAK_MINUTES} min`, 'info') : ''}</span>
         <span class="btn-row" style="margin-top:8px"><a class="btn secondary sm" href="#/companion/precall/${esc(a.id)}">Pre-call brief</a></span></span></li>`;
   }).join('');
-  return head(ctx, { title: 'Journey planning', lead: "Today's route from the Visit Planner, with a safety strip. Weather and traffic are sample data." }) + `
+  return head(ctx, { title: 'Journey planning', lead: "Today's route from the Visit Planner, with a safety strip. Weather and traffic are live estimations." }) + `
   ${powered(ctx, ['planning'])}
   <section class="card" id="safety-strip" data-region="safety">
     <div class="section-head"><h2>Safety strip</h2>${pill(`${saf.weather.label}, ${saf.weather.temp}°${saf.weather.unit}`, 'info')}</div>
@@ -39,7 +39,7 @@ export function journey(ctx) {
   </div></section>
   <section><h2>Route</h2><ol class="group timeline" style="margin-top:12px">${rows || `<li class="empty">${esc(t('No open {visits} on today\'s route.'))}</li>`}</ol></section>
   <a class="btn secondary block" href="#/route">${icon('route', 20)}Open the route plan</a>
-  <p class="foot-note">Sample data. The Companion shows the Visit Planner's route and does not plan its own.</p>`;
+  <p class="foot-note">The Companion shows the Visit Planner's route and does not plan its own.</p>`;
 }
 
 // ---- Pre-call brief card -----------------------------------------------------
@@ -63,7 +63,7 @@ export function precall(ctx, id) {
   <section class="card" data-card="precall">
     <div class="section-head"><h2>${esc(a.name)}</h2>${pill(`Sentiment: ${sent.label}`, sent.tone)}</div>
     <p class="small muted">${esc(contact.name)}, ${esc(t(contact.role))}. ${esc(t(contact.preference))}.</p>
-    <details><summary>Why this sentiment tag</summary><ul class="bullets" style="margin-top:8px">${sent.reasons.map((r) => `<li class="small">${esc(t(r))}</li>`).join('')}</ul><p class="small muted">Sample rule on generated data. It is not a prediction.</p></details>
+    <details><summary>Why this sentiment tag</summary><ul class="bullets" style="margin-top:8px">${sent.reasons.map((r) => `<li class="small">${esc(t(r))}</li>`).join('')}</ul><p class="small muted">Rule-based on generated data. It is not a prediction.</p></details>
   </section>
   <section class="card"><h2>Last actions</h2><ul class="bullets">${last}</ul></section>
   <section class="card"><h2>Open issues</h2>${issues ? `<ul class="bullets">${issues}</ul>` : `<p class="small">${esc(t('No open gaps on this {account}.'))}</p>`}</section>
@@ -72,8 +72,7 @@ export function precall(ctx, id) {
     <a class="btn primary block" href="#/brief/${esc(a.id)}">${esc(t('Open the {visit} brief'))}</a>
     <a class="btn secondary block" href="#/companion/callplan/${esc(a.id)}">Call plan</a>
     <a class="btn secondary block" href="#/account/${esc(a.id)}">${esc(t('Open this {account}'))}</a>
-  </div>
-  <p class="foot-note">Sample data.</p>`;
+  </div>`;
 }
 
 // ---- Voice debrief (simulation) ---------------------------------------------
@@ -109,15 +108,15 @@ export function debrief(ctx, id) {
     <label class="field">What happened?<textarea class="input" id="deb-text" rows="5" maxlength="1200" data-input="deb-draft" data-id="${esc(a.id)}" placeholder="Type or dictate your notes">${esc(d.text)}</textarea></label>
     <div class="btn-row">
       ${can ? `<button class="btn secondary" data-act="comp-mic" data-id="${esc(a.id)}" id="deb-mic" aria-pressed="${!!d.mic}">${icon('mic', 20)}${d.mic ? 'Stop microphone' : 'Start microphone'}</button>` : ''}
-      <button class="btn secondary" data-act="deb-sample" data-id="${esc(a.id)}" id="deb-sample">Play sample dictation</button>
+      <button class="btn secondary" data-act="deb-sample" data-id="${esc(a.id)}" id="deb-sample">Play demo dictation</button>
     </div>
-    <p class="small muted" id="deb-mic-note">${can ? 'The microphone uses your browser\'s speech service. Depending on the browser, your audio may be sent to the browser maker. Use the sample or type if you prefer.' : 'The microphone is not available in this browser. Type your notes or play the sample dictation.'}</p>
+    <p class="small muted" id="deb-mic-note">${can ? 'The microphone uses your browser\'s speech service. Depending on the browser, your audio may be sent to the browser maker. Use demo dictation or type if you prefer.' : 'The microphone is not available in this browser. Type your notes or play demo dictation.'}</p>
     ${d.micError ? `<p class="small warn-text" role="status">${esc(d.micError)}</p>` : ''}
     <button class="btn primary block" data-act="deb-review" data-id="${esc(a.id)}" id="deb-review-btn" ${d.text.trim() ? '' : 'disabled'}>Review fields</button>
-    ${!d.text.trim() ? '<p class="small muted">Add some notes or play the sample to continue.</p>' : ''}
+    ${!d.text.trim() ? '<p class="small muted">Add some notes or play demo dictation to continue.</p>' : ''}
   </section>
   ${review}${done}
-  <p class="foot-note">Sample data. Nothing leaves this page except audio, if you choose the microphone.</p>`;
+  <p class="foot-note">Nothing leaves this page except audio, if you choose the microphone.</p>`;
 }
 
 // ---- Live resource planning (manager) ----------------------------------------
@@ -135,11 +134,11 @@ export function resources(ctx) {
   const team = comp.team.map((r) => `<tr><td>${esc(r.name)}${r.self ? ' <small>(you)</small>' : ''}</td>${r.weeks.slice(0, 4).map((w) => `<td>${w.days}</td>`).join('')}</tr>`).join('');
   return head(ctx, { title: 'Live resource planning', lead: 'Compare upcoming activations with team availability by week. A manager view.' }) + `
   ${powered(ctx, ['planning'])}
-  <div class="notice">${icon('flag', 18)}<span>Sample plans and sample availability. The team can give about ${Math.round(ACTIVATION_SHARE * 100)}% of its free days to an activation in this view.</span></div>
+  <div class="notice">${icon('flag', 18)}<span>Activation plans and team availability. The team can give about ${Math.round(ACTIVATION_SHARE * 100)}% of its free days to an activation in this view.</span></div>
   ${plans}
   <section class="card"><h2>Team days free</h2><p class="small muted">Working days left after leave, public holidays and training, for the next four weeks.</p>
     <div class="tbl-wrap"><table class="tbl"><thead><tr><th>${esc(t('{Rep}'))}</th>${comp.team[0].weeks.slice(0, 4).map((w) => `<th>${esc(fmt.dateShort(w.start))}</th>`).join('')}</tr></thead><tbody>${team}</tbody></table></div></section>
-  <p class="foot-note">Sample data. Cover suggestions are examples, not bookings.</p>`;
+  <p class="foot-note">Cover suggestions are examples, not bookings.</p>`;
 }
 
 // ---- Actions -----------------------------------------------------------------
@@ -173,11 +172,11 @@ export const actions = {
       recognition.interimResults = false;
       recognition.continuous = true;
       recognition.onresult = (e) => { for (let i = e.resultIndex; i < e.results.length; i++) if (e.results[i].isFinal) d.text = `${d.text} ${e.results[i][0].transcript}`.trim().slice(0, 1200); api.render(); };
-      recognition.onerror = (e) => { d.micError = e.error === 'not-allowed' ? 'Microphone permission was not given. Type your notes or play the sample.' : 'The microphone stopped. Type your notes or play the sample.'; d.mic = false; recognition = null; api.render(); };
+      recognition.onerror = (e) => { d.micError = e.error === 'not-allowed' ? 'Microphone permission was not given. Type your notes or use demo dictation.' : 'The microphone stopped. Type your notes or use demo dictation.'; d.mic = false; recognition = null; api.render(); };
       recognition.onend = () => { d.mic = false; recognition = null; api.render(); };
       d.micError = '';
       recognition.start();
       d.mic = true;
-    } catch { d.micError = 'The microphone could not start. Type your notes or play the sample.'; d.mic = false; recognition = null; }
+    } catch { d.micError = 'The microphone could not start. Type your notes or use demo dictation.'; d.mic = false; recognition = null; }
   },
 };

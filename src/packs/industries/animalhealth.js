@@ -136,7 +136,7 @@ export default {
       id: 'precalvingorder', type: 'Coordinate seasonal herd replenishment', agent: 'order', effort: 14, evidence: 'note', value: [260, 1300], uses: 'core', segments: ['farms'],
       title: 'Coordinate preventative herd health replenishment for {event}',
       saw: 'Calving and breeding schedules indicate peak herd treatment requirements around {event}, {eventDays} days away.',
-      compared: 'Historical treatment replenishment volumes recorded during previous seasonal management cycles (sample data).',
+      compared: 'Historical treatment replenishment volumes recorded during previous seasonal management cycles.',
       why: [
         'Timely immunization prior to calving transfers essential maternal antibodies to newborn calves.',
         'Securing adequate bulk volumes prevents costly emergency treatment shipments during weather events.',
@@ -257,7 +257,7 @@ export default {
     { q: 'What does a low confidence indicator signify on an action item?', a: 'It reflects limited recent animal census or purchasing history, advising the specialist to confirm herd numbers with the practitioner before finalizing order suggestions.' },
   ],
   storyline: [
-    'Select Animal health and the target country. Remind participants that all clinical records and numbers represent sample demonstration data.',
+    'Select Animal health and the target country. Remind participants that all clinical records and numbers represent fictional demonstration data.',
     'Today view: explore the territory account specialist clinical agenda, prioritized by therapeutic demand and local animal health vocabulary.',
     'Open the initial clinical consultation brief. Approve the biological cold chain inspection. Override the retail merchandising task with reason code.',
     'Review an action card: inspect the rationale, talking points, and the clear guardrail against unauthorized clinical diagnosis.',

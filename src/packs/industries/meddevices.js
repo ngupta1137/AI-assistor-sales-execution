@@ -131,7 +131,7 @@ export default {
       why: [
         'A lapse means repairs are billed one by one.',
         'Pricing comes from the contracts team, not the agent.',
-        'Device uptime has been above target this year (sample data).',
+        'Device uptime has been above target this year.',
       ],
       talk: [
         'Confirm the device list with {person}.',
@@ -297,7 +297,7 @@ export default {
     { q: 'How sure is the agent about the consignment gap?', a: 'Each item shows a confidence level. Low confidence means the usage data is incomplete. Count before acting.' },
   ],
   storyline: [
-    'Pick Medical devices and the prospect\'s country. Say it is sample data.',
+    'Pick Medical devices and the prospect\'s country. Say all data is fictional demonstration data.',
     'Today: the territory manager\'s visits across hospitals, surgery centers and labs, ranked by value.',
     'Open the first brief. Approve the case support item. Override one with "Contract under negotiation".',
     'Open an action: why it matters, talking points, and the guardrail on clinical decisions.',

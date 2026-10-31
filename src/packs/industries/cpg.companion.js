@@ -51,7 +51,7 @@ export default {
     valueStoryTemplates: [
       { id: 's1', title: 'Shelf and sell-through', uses: ['share', 'orderCount'], text: '{name} has captured {share} of its estimated potential. Across the last {orderCount} {orders}, the shelf has kept the same core lines. The next step is to close the gaps we found together, one at a time, and look again at the next {visit}.' },
       { id: 's2', title: 'A range that grows with the shelf', uses: ['offer', 'trend'], text: 'The last {order} was {trend}. Adding {offer} in a small trial gives {person} a new line to test without giving up space, and the next {order} will show how it sells.' },
-      { id: 's3', title: 'Space for the season', uses: ['potential', 'share'], text: 'Estimated potential at {name} is {potential} a year and the current figure is {current}. The gap of {whitespace} is an estimate from sample data. It is the reason to plan the season display together.' },
+      { id: 's3', title: 'Space for the season', uses: ['potential', 'share'], text: 'Estimated potential at {name} is {potential} a year and the current figure is {current}. The gap of {whitespace} is an estimate from benchmark data. It is the reason to plan the season display together.' },
     ],
     resourcePlans: [
       { id: 'r1', name: 'Holiday display launch', startWeek: 1, weeks: 3, perWeek: 5 },
@@ -59,7 +59,7 @@ export default {
     ],
     guardrails: [
       { id: 'cg1', text: 'Display terms and prices follow each retailer agreement. The Companion never promises a price, a margin or a sales result.', blocked: ['guarantee', 'free goods', 'extra margin', 'price match', 'will increase', 'side deal', 'under the table'] },
-      { id: 'cg2', text: 'Value stories use sample data and say so. They never claim a performance result.', blocked: ['proven to', 'always sells', 'doubles sales', 'will boost', 'risk free'] },
+      { id: 'cg2', text: 'Value stories use benchmark data and say so. They never claim a performance result.', blocked: ['proven to', 'always sells', 'doubles sales', 'will boost', 'risk free'] },
     ],
   },
 };

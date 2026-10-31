@@ -101,7 +101,7 @@ export default {
       id: 'spec', type: 'Hand over the spec sheet', agent: 'gap', effort: 8, evidence: 'signature', value: [60, 320], uses: 'focus',
       title: 'Hand over the spec sheet for {product}',
       saw: 'The kitchen asked about {product} and no spec sheet is on file for this venue.',
-      compared: 'Venues that hold the spec sheet reorder more steadily than those that do not (sample data).',
+      compared: 'Venues that hold the spec sheet reorder more steadily than those that do not.',
       why: [
         'Kitchens need allergen and storage details in writing before a new line goes on a menu.',
         'The sheet is the only source for allergen statements. The rep does not improvise them.',
@@ -147,7 +147,7 @@ export default {
       id: 'trial', type: 'Offer a tasting trial', agent: 'gap', effort: 15, evidence: 'note', value: [100, 500], uses: 'new', segments: ['dining', 'hotels'],
       title: 'Offer a tasting trial of {product}',
       saw: '{product} launched {weeks} weeks ago and this kitchen has not tried it.',
-      compared: 'Trial-to-order rate for venues of this type in {area} and nearby (sample data).',
+      compared: 'Trial-to-order rate for venues of this type in {area} and nearby.',
       why: [
         'Chefs decide on taste and yield, not on a brochure.',
         'A small trial case carries little risk for the venue.',
@@ -178,7 +178,7 @@ export default {
       id: 'seasonal', type: 'Plan the seasonal stock-up', agent: 'order', effort: 12, evidence: 'note', value: [250, 1400], uses: 'focus', segments: ['hotels', 'canteens'],
       title: 'Plan the stock-up for {event}',
       saw: 'Banquet and cycle-menu bookings show higher covers in the weeks around {event}.',
-      compared: 'This venue\'s order volumes in the same weeks last year (sample data).',
+      compared: 'This venue\'s order volumes in the same weeks last year.',
       why: [
         'Bookings are known weeks ahead, so stock can be planned, not rushed.',
         '{product} is on the seasonal menu.',
@@ -280,7 +280,7 @@ export default {
     { q: 'Should I trust a low confidence item?', a: 'Each item shows a confidence level. Low confidence means thin data, so check the store room before acting.' },
   ],
   storyline: [
-    'Pick Foodservice distribution and the prospect\'s country. Say it is sample data.',
+    'Pick Foodservice distribution and the prospect\'s country. Say all data is fictional demonstration data.',
     'Today: the rep\'s venues, ranked by value, with local cities and currency.',
     'Open the first visit brief. Approve the menu action. Override the next with "Not allowed under the supply contract".',
     'Open an action: the reasons, the talking points and the spec sheet guardrail.',

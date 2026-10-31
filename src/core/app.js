@@ -11,6 +11,7 @@ import { icon } from './icons.js';
 import { initials } from './ui.js';
 import { SCREENS, ACTIONS } from './screens/index.js';
 import { renderPresenter, renderNotes, presenterActions } from './presenter.js';
+import { renderSyncModal, syncActions } from './telemetry.js';
 import { renderAssistant, syncContext, afterRender, onKeydown, newAssistantState } from './assistant/ui.js';
 import { LIVE_ENABLED } from './assistant/provider.js';
 
@@ -28,6 +29,7 @@ const app = {
   presenterOpen: false,
   assistant: null,         // conversation state, see assistant/ui.js
   assistantEnabled: true,
+  vp: 'phone',
   liveEndpoint: '',
   notesOpen: false,
   notice: '',
@@ -185,7 +187,7 @@ export function render() {
     const out = SCREENS[name].render(ctx, route.args);
     html = shell(ctx, name, out);
   }
-  root.innerHTML = html + renderAssistant(app, ctx, { name: ctx ? (SCREENS[route.name] && route.name !== 'setup' ? route.name : HOME[ctx.persona]) : 'setup' }) + renderPresenter(app, ctx, { INDUSTRIES, COUNTRIES, PERSONAS, shareLink: shareLink() });
+  root.innerHTML = html + renderAssistant(app, ctx, { name: ctx ? (SCREENS[route.name] && route.name !== 'setup' ? route.name : HOME[ctx.persona]) : 'setup' }) + renderPresenter(app, ctx, { INDUSTRIES, COUNTRIES, PERSONAS, shareLink: shareLink() }) + renderSyncModal(app, ctx);
   const side = document.getElementById('side');
   if (side) side.innerHTML = renderNotes(app, ctx);
   document.body.classList.toggle('notes-open', app.notesOpen && !!ctx);
@@ -215,7 +217,7 @@ function shell(ctx, name, result) {
       <button class="logo" id="logo" aria-label="AI Assistor home">
         <span class="mark">${icon(ctx.industry.icon, 18)}</span><span class="brand">AI Assistor</span>
       </button>
-      <div class="who"><span class="who-text"><b>${esc(user.name)}</b><small>${esc(t(user.title))}</small></span><span class="avatar" aria-hidden="true">${esc(initials(user.name))}</span></div>
+      <button class="who" data-act="open-sync-modal" aria-haspopup="dialog" aria-label="Enterprise sync telemetry and user profile"><span class="who-text"><b>${esc(user.name)}</b><small><span class="sync-dot" aria-hidden="true"></span> ${esc(t(user.title))}</small></span><span class="avatar" aria-hidden="true">${esc(initials(user.name))}</span></button>
     </header>${prepared}
     <main class="screen" id="screen" data-region="screen">${out}</main>
     ${dock ? `<div class="dock" data-region="dock">${dock}</div>` : ''}
@@ -229,7 +231,7 @@ function handle(e, type) {
   const el = e.target.closest(`[data-${type}]`);
   if (!el) return;
   const name = el.dataset[type];
-  const fn = ACTIONS[name] || presenterActions[name];
+  const fn = ACTIONS[name] || presenterActions[name] || syncActions[name] || (name === 'set-vp' ? (({ app, data, api }) => { app.vp = data.vp; api.render(); }) : null);
   if (!fn) return;
   if (type === 'act' && el.tagName === 'A') e.preventDefault();
   const ctx = app.config ? buildContext(app.config.industryId, app.config.countryId) : null;

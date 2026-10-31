@@ -314,7 +314,7 @@ export default {
     { q: 'Can I extend credit to a dealer?', a: 'No. Credit terms and limits stay with finance. You can share the statement and agree a payment date.' },
   ],
   storyline: [
-    'Pick Building materials and paints and the prospect\'s country. Say it is sample data.',
+    'Pick Building materials and paints and the prospect\'s country. Say all data is fictional demonstration data.',
     'Today: dealers, contractors and projects in one ranked day, in local currency.',
     'Open the first brief. Approve the stock plan. Override one with "Project put on hold".',
     'Open the project lead: why now, talking points, the no-discount guardrail.',

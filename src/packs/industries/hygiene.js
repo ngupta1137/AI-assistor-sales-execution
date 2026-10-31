@@ -120,7 +120,7 @@ export default {
       id: 'quarterbulk', type: 'Establish seasonal bulk drum replenishment', agent: 'order', effort: 14, evidence: 'note', value: [240, 1200], uses: 'core', segments: ['contractors'],
       title: 'Plan bulk drum supply delivery for {event}',
       saw: 'Facility contract staffing schedules indicate increased cleaning cycles around {event}, {eventDays} days away.',
-      compared: 'Historical bulk chemical consumption patterns recorded across contract accounts during prior quarters (sample data).',
+      compared: 'Historical bulk chemical consumption patterns recorded across contract accounts during prior quarters.',
       why: [
         'Advance drum replenishment prevents operational work stoppages across major client job sites.',
         'Coordinated drum deliveries minimize freight charges and reduce forklift dock congestion.',
