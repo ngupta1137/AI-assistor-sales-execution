@@ -8,9 +8,89 @@ import { getProvider } from './provider.js';
 
 export const SAMPLE_LINE = "Sample data. Answers come from configured rules and this scenario's data, not a live model.";
 
-export const newAssistantState = () => ({ open: false, history: [], draft: '', pending: null, why: {}, last: null, c: null, focus: null });
+export const newAssistantState = () => ({
+  open: false,
+  history: [],
+  draft: '',
+  pending: null,
+  why: {},
+  last: null,
+  c: null,
+  focus: null,
+  typewriterTimer: null,
+});
 
 export const stateOf = (app) => (app.assistant ||= newAssistantState());
+
+/** Clears any active typewriter interval and reveals the full text immediately. */
+export function finishTypewriter(app, api) {
+  const st = stateOf(app);
+  if (st.typewriterTimer) {
+    clearInterval(st.typewriterTimer);
+    st.typewriterTimer = null;
+  }
+  const last = st.history.at(-1);
+  if (last && last.typing) {
+    last.typing = false;
+    last.typed = (last.res?.text || '').length;
+    if (api) api.render();
+  }
+}
+
+function shouldAnimateTypewriter() {
+  if (typeof window === 'undefined') return false;
+  const params = new URLSearchParams(window.location.search);
+  const flag = params.get('typewriter');
+  if (flag === 'off' || flag === '0') return false;
+  if (flag === 'normal' || flag === 'on' || flag === '1') return true;
+  if (typeof navigator !== 'undefined' && navigator.webdriver) return false;
+  if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) return false;
+  return true;
+}
+
+function startTypewriter(app, api, item) {
+  const st = stateOf(app);
+  if (!shouldAnimateTypewriter()) {
+    item.typing = false;
+    item.typed = (item.res?.text || '').length;
+    st.history.push(item);
+    api.render();
+    return;
+  }
+
+  item.typing = true;
+  item.typed = 0;
+  st.history.push(item);
+  api.render();
+
+  const fullText = item.res?.text || '';
+  const stepMs = 16;
+  let idx = 0;
+
+  st.typewriterTimer = setInterval(() => {
+    if (app.assistant !== st || !item.typing) {
+      clearInterval(st.typewriterTimer);
+      st.typewriterTimer = null;
+      return;
+    }
+    idx += 1;
+    item.typed = idx;
+    const span = document.querySelector('.as-tw-text');
+    if (span) {
+      span.textContent = fullText.slice(0, idx);
+    }
+    const log = document.getElementById('as-log') || document.getElementById('chat');
+    if (log) log.scrollTop = log.scrollHeight;
+
+    if (idx >= fullText.length) {
+      clearInterval(st.typewriterTimer);
+      st.typewriterTimer = null;
+      item.typing = false;
+      item.typed = fullText.length;
+      api.render();
+    }
+  }, stepMs);
+}
 
 /** Updates the context for this render. The Ask page reuses the last screen's context. */
 export function syncContext(app, ctx, route, persona) {
@@ -30,19 +110,27 @@ const delayFor = (q) => {
 /** Sends a question. The reply appears after a short typing indicator, 400 to 700 ms, the same each time. */
 export function submit(ctx, app, api, q, intent) {
   const st = stateOf(app);
+  finishTypewriter(app, api);
   const text = String(q || '').trim().slice(0, 200);
   if (!text || st.pending) return false;
   const c = st.c;
   const started = Date.now();
   st.pending = { q: text };
   st.draft = '';
+  api.render();
   getProvider(app).answer(ctx, text, c, { intent }).then((res) => {
     const wait = Math.max(0, delayFor(text) - (Date.now() - started));
     setTimeout(() => {
       if (app.assistant !== st) return;
-      st.history.push({ q: text, res, screen: c.screen, persona: c.persona });
       st.pending = null;
-      if (res.go) { st.open = false; st.focus = 'launcher'; api.navigate(res.go); } else api.render();
+      if (res.go) {
+        st.history.push({ q: text, res, screen: c.screen, persona: c.persona });
+        st.open = false;
+        st.focus = 'launcher';
+        api.navigate(res.go);
+        return;
+      }
+      startTypewriter(app, api, { q: text, res, screen: c.screen, persona: c.persona });
     }, wait);
   });
   return true;
@@ -50,6 +138,13 @@ export function submit(ctx, app, api, q, intent) {
 
 function renderMessage(ctx, st, item, i) {
   const r = item.res;
+  if (item.typing) {
+    const typedText = (r.text || '').slice(0, item.typed || 0);
+    return `<div class="msg me"><small>You</small><div class="bubble">${esc(item.q)}</div></div>
+      <div class="msg ai" data-typing role="status"><small>AI Assistor</small>
+        <div class="bubble as-typewriter" data-act="as-skip-type" title="Click to reveal all"><span class="as-tw-text">${esc(typedText)}</span><span class="as-cursor" aria-hidden="true"></span></div>
+      </div>`;
+  }
   const links = (r.links || []).map((l) => `<a class="btn secondary sm" href="${esc(l.href)}" data-act="as-link">${esc(l.label)}</a>`).join('');
   const why = r.refusal ? `
     <button class="btn text sm" data-act="as-why" data-i="${i}" aria-expanded="${!!st.why[i]}" aria-controls="as-why-${i}">Why can't you answer that?</button>
@@ -122,7 +217,7 @@ export function afterRender(app) {
 export function onKeydown(app, e, api) {
   const st = app.assistant;
   if (!st?.open) return false;
-  if (e.key === 'Escape') { e.preventDefault(); st.open = false; st.focus = 'launcher'; api.render(); return true; }
+  if (e.key === 'Escape') { e.preventDefault(); finishTypewriter(app, api); st.open = false; st.focus = 'launcher'; api.render(); return true; }
   if (e.key === 'Tab') {
     const sheet = document.querySelector('.as-sheet');
     if (!sheet) return false;
@@ -138,7 +233,7 @@ export function onKeydown(app, e, api) {
 
 export const assistantActions = {
   'as-open': ({ app }) => { const st = stateOf(app); st.open = true; st.focus = 'input'; },
-  'as-close': ({ app }) => { const st = stateOf(app); st.open = false; st.focus = 'launcher'; },
+  'as-close': ({ app, api }) => { finishTypewriter(app, api); const st = stateOf(app); st.open = false; st.focus = 'launcher'; },
   'as-q': ({ ctx, app, api, data }) => submit(ctx, app, api, data.q, data.intent),
   'ask-q': ({ ctx, app, api, data }) => submit(ctx, app, api, data.q, data.intent),
   'as-send': ({ ctx, app, api }) => { const st = stateOf(app); if (!submit(ctx, app, api, document.getElementById('as-input')?.value ?? st.draft)) return false; st.focus = 'input'; },
@@ -146,5 +241,6 @@ export const assistantActions = {
   'as-draft': ({ app, value }) => { stateOf(app).draft = value.slice(0, 200); return false; },
   'ask-draft': ({ app, value }) => { stateOf(app).draft = value.slice(0, 200); return false; },
   'as-why': ({ app, data }) => { const st = stateOf(app); st.why[data.i] = !st.why[data.i]; },
-  'as-link': ({ app, api, el }) => { const st = stateOf(app); st.open = false; st.focus = null; api.navigate(el.getAttribute('href')); return 'nav'; },
+  'as-link': ({ app, api, el }) => { finishTypewriter(app, api); const st = stateOf(app); st.open = false; st.focus = null; api.navigate(el.getAttribute('href')); return 'nav'; },
+  'as-skip-type': ({ app, api }) => finishTypewriter(app, api),
 };

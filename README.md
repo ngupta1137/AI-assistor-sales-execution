@@ -15,11 +15,11 @@ An AI field sales app that tells every field rep which customers to visit, what 
 | Area | State |
 |---|---|
 | P0 requirements (PRD section 9): rep R1 to R7, manager M1 and M2, agents G1 and G2, configuration C1 and C2 | Built and tested |
-| 14 industry packs, 11 country packs, all 154 combinations | Built and tested |
+| 20 industry packs, 11 country packs, all 220 combinations | Built and tested |
 | Setup screen, URL parameters, presenter menu (Shift+D, long press), seeded data | Built and tested |
 | P1: route plan (R8), Ask AI (R9), coaching prompts (M3), coverage (M4), audit log (G3), prospect branding | Built and tested |
 | Assistant on every screen: context-aware, rule-based, grounded in live state, with guardrails and an audit trail (PRD R9) | Built and tested |
-| Sales Companion (concept): growth (plan and sell), productivity (leave, expenses, HR), learning, for all 14 industries and 11 countries (PRD 9.6) | Built and tested, including the P1 items |
+| Sales Companion (concept): growth (plan and sell), productivity (leave, expenses, HR), learning, for all 20 industries and 11 countries (PRD 9.6) | Built and tested, including the P1 items |
 | P2: offline sync, pack editor, translated UI, partner view | Not built |
 | Real integrations, real models, user accounts | Not built (out of scope for v1) |
 
@@ -62,9 +62,8 @@ This builds, then runs the static checks and the browser checks. The browser che
 | `...#/brief/A03` | Goes straight to a screen (hash routes below) |
 | no parameters | Setup screen |
 
-- **Industries:** `cpg`, `pharma`, `meddevices`, `beverages`, `building` (also `paints`), `agri`, `telecom`, `electronics`, `autoparts`, `finserv` (also `fs`).
+- **Industries:** `cpg`, `pharma`, `meddevices`, `beverages`, `building` (also `paints`), `agri`, `telecom`, `electronics`, `autoparts`, `finserv` (also `fs`), `foodservice`, `industrial`, `apparel`, `energy`, `insurance`, `animalhealth`, `hygiene`, `logistics`, `education`, `packaging`.
 - **Countries:** `US`, `UK` (also `GB`), `DE`, `FR`, `AU`, `NZ`, `IN`, `BR`, `ID`, `MX`, `AE` (also `UAE`). Case does not matter. ANZ is two packs, `AU` and `NZ`, because the two have different currencies, holidays and cities.
-- **Industries:** `cpg`, `pharma`, `meddevices`, `beverages`, `building`, `agri`, `telecom`, `electronics`, `autoparts`, `finserv`, `foodservice`, `industrial`, `apparel`, `energy`.
 - **Personas:** `rep`, `manager`, `admin`.
 - **Hash routes:** `#/today`, `#/brief/<id>`, `#/account/<id>`, `#/action/<actionId>`, `#/order/<id>`, `#/complete/<id>`, `#/route`, `#/ask`, `#/manager`, `#/agents`, `#/config`, `#/problems`, `#/setup`.
 - An unknown industry or country opens the setup screen with a short note. It does not show an error.
@@ -197,7 +196,7 @@ Screens never contain industry nouns. They write `{account}`, `{contact}`, `{vis
 9. Run `npm test`. The validator reports anything missing. The duplicate-text check fails if you copied sentences from another pack, so rewrite them in the new industry's own words. The browser checks then open the new industry in all 8 countries.
 10. Run `npm run build` and commit `docs/index.html`.
 
-Update the count check in `tests/static.mjs` (`expected 14 industries`, and the country count) when you add one.
+Update the count check in `tests/static.mjs` (`expected 20 industries`, and the country count) when you add one.
 
 ## Add a country pack
 
@@ -225,27 +224,27 @@ Update the count check in `tests/static.mjs` (`expected 14 industries`, and the 
    - No sentence copied between industries.
    - No industry nouns hard-coded in `src/core`.
    - US spelling in source.
-   - Generation is deterministic for all 154 combinations: 24 to 30 accounts, 6 to 8 visits, 3 to 6 actions, every visit inside opening hours.
+   - Generation is deterministic for all 220 combinations: 24 to 30 accounts, 6 to 8 visits, 3 to 6 actions, every visit inside opening hours.
    - Country formatting: lakh and crore, comma decimals, date orders.
-3. **Browser checks** (`tests/e2e.mjs`, Playwright against the built file, about 80 seconds with 4 workers). For each of the 154 combinations, the rep flow opens every brief, action, account, order and complete screen. It also:
+3. **Browser checks** (`tests/e2e.mjs`, Playwright against the built file, about 80 seconds with 4 workers). For each of the 220 combinations, the rep flow opens every brief, action, account, order and complete screen. It also:
    - Runs approve, adjust and override and checks the live counts.
    - Captures the typed evidence, including drawing a signature.
    - Triggers the order rules: approval threshold, and the sample limit block.
    - Closes the visit and switches to manager through the presenter menu, then checks the override and its note are in the exception queue.
    - Checks coaching prompts and coverage, then stops and resumes the Order agent and checks paused items and the audit log.
    - Opens config, problems, route re-plan and Ask AI.
-   - Opens manager and admin direct links for all 154 combinations, and starts the demo from the setup screen for all 154.
+   - Opens manager and admin direct links for all 220 combinations, and starts the demo from the setup screen for all 220.
    - Edge cases: bad links, aliases, HTML escaping of "Prepared for", the contrast guard, the same data after a reload, long press, switch time and reset.
 
 Any console error, leftover `{token}`, `undefined` or `NaN`, or one of the pack's forbidden words (for example "store" in pharma or financial services) fails the run. `E2E_ONLY=pharma:IN npm run test:e2e` runs one combination. `E2E_WORKERS=8` runs more in parallel.
 
 Regression checks from the October 2026 functional review are part of the suite: proposals blocked until the needs review has signed consent (F01), sample requests never shown as signed drops (F02), month actuals unchanged by estimates (F03), override notes kept through save (F04), closed visits leaving coverage gaps (F05), the stored approver named everywhere (F06), honest stopped-agent copy (F07) and done actions leaving open gaps (F08). Layout checks open every screen at 320 and 390 px wide and fail on sideways scroll or any tap target under 44 px.
 
-**Companion checks.** `tests/companion-unit.mjs` (about 7,800 checks, no browser) validates every pack, runs the sample data, the debrief parser, the leave and expense rules with manager approval, the learning chatbot under every guardrail, and checks authored text against its own blocked patterns. `tests/companion.mjs` opens every Companion screen in all 154 combinations for the rep and the manager, and in each combination completes the voice debrief sample, submits a leave request and an expense, approves both as the manager and sees the result as the rep. It also covers a restricted claim refused in all 10 industries, the microphone fallbacks (unsupported, denied, working), flagged renewals and resource gaps cross-checked against the engine, and layout at 320 and 390 px.
+**Companion checks.** `tests/companion-unit.mjs` (about 7,800 checks, no browser) validates every pack, runs the sample data, the debrief parser, the leave and expense rules with manager approval, the learning chatbot under every guardrail, and checks authored text against its own blocked patterns. `tests/companion.mjs` opens every Companion screen in all 220 combinations for the rep and the manager, and in each combination completes the voice debrief sample, submits a leave request and an expense, approves both as the manager and sees the result as the rep. It also covers a restricted claim refused in all 20 industries, the microphone fallbacks (unsupported, denied, working), flagged renewals and resource gaps cross-checked against the engine, and layout at 320 and 390 px.
 
-**Assistant checks.** `tests/assistant-unit.mjs` answers every suggested question on every screen for every persona, industry and country without a browser (249,720 checks). `tests/assistant.mjs` (about 10 minutes with 4 workers; it uses Playwright's controlled clock for the 400 to 700 ms typing delay) opens every screen in all 154 combinations for the rep and the manager, clicks every suggested question and checks for an answer, a "Based on" line, no leftover token, no wrong-industry word and no console error. It also covers the guardrail refusals and audit entries, an answer that reflects an override, the focus trap, Escape and tap targets, navigation that never submits, the shared conversation, the presenter toggle, `?assistant=off`, the Setup questions, and that the live provider is absent from the build.
+**Assistant checks.** `tests/assistant-unit.mjs` answers every suggested question on every screen for every persona, industry and country without a browser (249,720 checks). `tests/assistant.mjs` (about 10 minutes with 4 workers; it uses Playwright's controlled clock for the 400 to 700 ms typing delay) opens every screen in all 220 combinations for the rep and the manager, clicks every suggested question and checks for an answer, a "Based on" line, no leftover token, no wrong-industry word and no console error. It also covers the guardrail refusals and audit entries, an answer that reflects an override, the focus trap, Escape and tap targets, navigation that never submits, the shared conversation, the presenter toggle, `?assistant=off`, the Setup questions, and that the live provider is absent from the build.
 
-Last full run: static 164,617 checks; assistant engine 444,345; Companion engine 20,320; browser suite 154 combinations, 3 personas, 11,285 screens, 43,637 assertions; assistant suite 15,708 questions, 278,506 assertions; Companion suite 6,160 screens, 154 flows, 36,366 assertions. All passing.
+Last full run: static 193,616 checks; assistant engine 609,372; Companion engine 29,028; browser suite 220 combinations, 3 personas, 16,250 screens, 62,663 assertions; assistant suite 22,440 questions, 380,806 assertions; Companion suite 8,800 screens, 220 flows, 51,816 assertions. All passing.
 
 ## Publish on GitHub Pages
 
