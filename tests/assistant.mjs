@@ -281,6 +281,19 @@ async function behaviour(browser) {
     ok(!!(await page.$('#as-launcher')), 'behaviour: the presenter toggle must show it again');
     await page.goto(`${BASE}?industry=cpg&country=US&persona=rep&assistant=off#/today`);
     ok(!(await page.$('#as-launcher')), 'behaviour: ?assistant=off must hide the launcher');
+    // Typewriter effect: character streaming and click-to-skip.
+    await page.goto(`${BASE}?industry=cpg&country=US&persona=rep&typewriter=normal#/ask`);
+    await page.click('[data-act="ask-q"] >> nth=0');
+    await page.clock.runFor(900);
+    ok(!!(await page.$('.as-cursor')), 'typewriter: cursor must appear during character streaming');
+    ok(!!(await page.$('.as-typewriter')), 'typewriter: typing bubble marked with as-typewriter');
+    await page.clock.runFor(100);
+    const early = await page.innerText('.as-tw-text');
+    ok(early.length > 0, 'typewriter: characters visible during typing');
+    await page.click('.as-typewriter');
+    ok(!!(await page.$('[data-answer]')), 'typewriter: answer present after click to skip');
+    ok(!(await page.$('.as-cursor')), 'typewriter: cursor must disappear once typing completes');
+    ok((await page.$eval('[data-answer]', (e) => e.innerText.length)) > 20, 'typewriter: answer has full text after skip');
     // Setup: About this demo with 3 questions.
     await page.goto(`${BASE}#/setup`);
     const label = await page.innerText('#as-launcher');
