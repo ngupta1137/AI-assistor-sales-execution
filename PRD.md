@@ -94,7 +94,7 @@ Generic entities, renamed by each industry pack:
 
 Each capability can run alone; together they close the loop (gaps become actions, actions link to order lines, outcomes retrain everything).
 
-## 6. Industry packs (v1: ten)
+## 6. Industry packs (twenty)
 
 | Industry | Account (the "store") | Contacts | Rep title | What is sold or ordered | Typical actions | Headline KPI | Guardrail |
 |---|---|---|---|---|---|---|---|
@@ -112,6 +112,12 @@ Each capability can run alone; together they close the loop (gaps become actions
 | Industrial supplies | Plants, machine and fabrication shops, contractors | Maintenance lead, plant engineer | Sales engineer | Safety gear, bearings, lubricants, tools, instruments | Set up a restock bin, plan stock for a shutdown, replace a discontinued item, flag calibration due dates | Contract items bought | Rating and load questions go to the technical desk; quotes from the pricing desk |
 | Apparel and footwear | Department stores, boutiques, online sellers | Fashion buyer, owner | Wholesale rep | Styles by size run, curve or carton | Restore a broken size run, take an in-season reorder, take the pre-season order, review aged stock | Sell-through this season | Retailer sets its own resale prices; orders within the agreed order budget |
 | Solar and home energy | Installers, electrical wholesalers, home builders | Technical buyer, project lead | Territory rep | Panels, inverters, storage, charging, monitoring | Plan stock for the project list, book maker training, check compatibility, set up a counter display | Core range stocked | No savings, payback or output figures; design and sizing by a qualified person |
+| Insurance distribution | Independent agencies, brokers, bank branches | Agency principal, commercial lines manager | Agency development manager | Policy product allocations | Address stalled quote conversion, review underwriting appetite, provide approved brochure, confirm binder plan | Commercial retention rate | Agents never give personal advice, quote a premium or approve a claim; facts from approved brochure only |
+| Animal health | Vet clinics, livestock farms, pet stores | Veterinary surgeon, herd manager | Territory account specialist | Vaccines, therapeutics, feed supplements | Review seasonal parasite protocol, inspect biological cold chain, deliver label monographs, plan herd replenishment | Biological protocol compliance | No dosage, diagnosis or clinical efficacy claims; prescription items only through vet; follow label |
+| Hygiene and cleaning supplies | Hotels, offices, care homes, contract cleaners | Executive housekeeper, facilities director | Hygiene account specialist | Cleaning concentrates, sanitizers, dilution dispensers | Inspect station safety data sheets, calibrate dilution dispenser, resolve washroom soap shortages, plan bulk drum delivery | Dispenser operational uptime | Chemical safety questions go to technical desk and safety data sheet; no mixing advice |
+| Logistics and courier services | Online sellers, SMEs, wholesalers | Shipping supervisor, dispatch coordinator | Commercial logistics executive | Express parcel, ground freight, pallet LTL | Extend evening pickup cutoff, audit carton dimensional weight, deliver filed rate card, plan peak shipping capacity | On-time collection performance | Rates come from the rate card; agents never promise delivery times or claims outcomes |
+| School and education supplies | Schools, training providers, bookshops | School bursar, curriculum coordinator | Educational sales consultant | Textbooks, lab starter kits, student packs | Align course materials with revised curriculum, provide evaluation specimen kit, finalize back-to-school requisition, verify tender compliance | Curriculum framework adoption | Child data stays out of the product; no claims about learning outcomes; tenders follow procurement rules |
+| Packaging and print | Food makers, retailers, manufacturers | Packaging engineer, brand director | Packaging sales specialist | Corrugated shippers, barrier films, folding cartons, tooling | Inspect food-contact compliance certificates, audit tray lidding seal integrity, review compostability test reports, secure CAD die sign-off | Tray seal integrity compliance | Food-contact claims only from certificate on file; no sustainability claims without test report |
 
 Each pack contains: vocabulary, account types and segments, 8 to 12 offerings, an action catalogue (8 to 12 action types with evidence type and default effort), KPIs, guardrails, 6 problem statements in the prospect's language, AI assistant Q&A, and a demo storyline.
 
@@ -258,19 +264,19 @@ Pack content: each industry pack supplies `companion` (roles, expense categories
 | Devices | Mobile-first (phone frame on desktop), works on tablet and desktop |
 | Performance | Industry or country switch re-renders in under 1 second |
 | Extensibility | Adding an industry or country = adding one pack file, no screen code changes |
-| Quality | No console errors; every screen works in all 80 industry-country combinations |
+| Quality | No console errors; every screen works in all 220 industry-country combinations |
 | Confidentiality | No real company names, logos, data or internal terms from any employer |
 | Accessibility | Readable contrast, tap targets of at least 44 px |
 
 ## 13. Prototype acceptance criteria
 
-1. Setup screen lists 14 industries, 11 countries and 3 personas; "Start demo" works for all combinations.
+1. Setup screen lists 20 industries, 11 countries and 3 personas; "Start demo" works for all combinations.
 2. URL parameters open the right pack directly; Shift+D opens the presenter menu.
 3. In every industry, all screen labels use that industry's words (no "store" in pharma, no "SKU" in financial services).
 4. Switching country changes currency, number format, cities, names, addresses, distance unit and local events.
 5. P0 requirements in section 9 all work; the visit brief approve, adjust and override flow updates counts on screen.
 6. Agent controls show industry guardrails and the stop button works.
-7. Automated check (headless browser) loads all 154 combinations and every P0 screen without errors.
+7. Automated check (headless browser) loads all 220 combinations and every P0 screen without errors.
 
 ## 14. Demo storyline (same arc in every industry)
 

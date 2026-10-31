@@ -51,7 +51,7 @@ export default {
       style: 'Merchandising and back-to-school replenishment review with the bookshop manager, auditing study guide displays, art supplies and stationery shelving.',
       annualValue: [14000, 54000], hours: [9 * 60, 19 * 60], orderQty: [4, 20],
       types: [
-        { type: 'Educational bookshop', naming: 'business', words: { en: ['Campus Bookstore', 'Scholastic Books', 'Academic Stationers'], pt: ['Livraria Acadêmica', 'Papelaria Universitária'], es: ['Librería Académica', 'Papelería Escolar'], de: ['Universitätsbuchhandlung', 'Schulbedarf'], id: ['Toko Buku Akademik', 'Alat Tulis Sekolah'], fr: ['Librairie Universitaire', 'Papeterie d’Études'] } },
+        { type: 'Educational bookshop', naming: 'business', words: { en: ['Campus Bookstore', 'Collegiate Books', 'Academic Stationers'], pt: ['Livraria Acadêmica', 'Papelaria Universitária'], es: ['Librería Académica', 'Papelería Escolar'], de: ['Universitätsbuchhandlung', 'Schulbedarf'], id: ['Toko Buku Akademik', 'Alat Tulis Sekolah'], fr: ['Librairie Universitaire', 'Papeterie d’Études'] } },
       ],
       roles: ['Bookshop manager', 'Retail buyer', 'Store supervisor'],
     },

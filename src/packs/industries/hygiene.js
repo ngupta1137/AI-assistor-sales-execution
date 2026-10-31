@@ -266,3 +266,4 @@ export default {
   ],
   forbidden: ['patient bedside', 'veterinary', 'livestock', 'crop harvest', 'brokerage policy', 'auto warranty', 'mortgage loan'],
 };
+

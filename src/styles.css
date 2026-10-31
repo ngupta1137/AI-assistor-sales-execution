@@ -186,7 +186,7 @@ textarea.input { min-height: 88px; resize: vertical; }
 .radio:has(input:checked) { background: var(--accent-soft); border-color: var(--accent); }
 .radio input { width: 20px; height: 20px; accent-color: var(--accent); flex: none; margin: 0; }
 .seg-ctl { display: flex; flex-wrap: wrap; gap: var(--s1); padding: var(--s1); background: var(--surface-inset); border-radius: var(--radius-md); }
-.seg { flex: 1 1 auto; min-height: var(--tap); padding: 0 var(--s3); border-radius: var(--radius-sm); border: 1px solid transparent; background: transparent; font-size: var(--text-sm); font-weight: 600; color: var(--ink-2); cursor: pointer; }
+.seg { flex: 1 1 auto; min-width: var(--tap); min-height: var(--tap); padding: 0 var(--s3); border-radius: var(--radius-sm); border: 1px solid transparent; background: transparent; font-size: var(--text-sm); font-weight: 600; color: var(--ink-2); cursor: pointer; }
 .seg.on { background: var(--surface); border-color: var(--line); box-shadow: var(--shadow-1); color: var(--ink); }
 details > summary { list-style: none; cursor: pointer; display: flex; align-items: center; justify-content: space-between; gap: var(--s2); min-height: var(--tap); font-weight: 600; font-size: var(--text-sm); color: var(--ink-2); }
 details > summary::-webkit-details-marker { display: none; }
