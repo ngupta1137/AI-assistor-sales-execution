@@ -2,7 +2,7 @@
 // All answer logic lives in src/core/assistant/. This screen only renders it.
 
 import { esc, icon } from '../ui.js';
-import { renderLog, renderChips, stateOf, assistantActions } from '../assistant/ui.js';
+import { renderLog, stateOf, assistantActions } from '../assistant/ui.js';
 import { suggestionsFor } from '../assistant/engine.js';
 
 export function render(ctx) {
@@ -18,10 +18,9 @@ export function render(ctx) {
     <p class="small muted">Sample data. Answers come from configured rules and this scenario's data, not a live model. Same conversation as the Ask button on every screen.</p>
   </section>
   <div class="chat" id="chat"${hasLog ? '' : ' hidden'} role="log" aria-live="polite">${renderLog(ctx, app)}</div>
-  <section>
-    <h2 class="small" style="margin-bottom:8px">Suggested questions</h2>
-    <div class="chips-q">${list.slice(0, 3).map(chip).join('')}</div>
-    ${list.length > 3 ? `<details><summary>Show all questions</summary><div class="chips-q">${list.slice(3).map(chip).join('')}</div></details>` : ''}
+  <section class="ask-faqs">
+    <h2 class="small" style="margin-bottom:8px">Frequently Asked Questions</h2>
+    <div class="chips-q">${list.map(chip).join('')}</div>
   </section>
   <p class="foot-note">The assistant never gives clinical, credit, pricing or agronomic advice.</p>`;
   const dock = `<form class="ask-row" onsubmit="return false">

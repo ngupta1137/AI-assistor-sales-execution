@@ -43,8 +43,8 @@ function shouldAnimateTypewriter() {
   const flag = params.get('typewriter');
   if (flag === 'off' || flag === '0') return false;
   if (flag === 'normal' || flag === 'on' || flag === '1') return true;
-  if (typeof navigator !== 'undefined' && navigator.webdriver) return false;
-  if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) return false;
+  // In automated Playwright sweeps over file:// without query parameter, skip animation
+  if (typeof navigator !== 'undefined' && navigator.webdriver && location.protocol === 'file:' && !flag) return false;
   return true;
 }
 
@@ -64,7 +64,8 @@ function startTypewriter(app, api, item) {
   api.render();
 
   const fullText = item.res?.text || '';
-  const stepMs = 16;
+  // Balanced typing speed: ~25ms per character, so every character is distinctly seen
+  const stepMs = Math.max(20, Math.min(32, Math.floor(2500 / Math.max(1, fullText.length))));
   let idx = 0;
 
   st.typewriterTimer = setInterval(() => {
@@ -75,12 +76,14 @@ function startTypewriter(app, api, item) {
     }
     idx += 1;
     item.typed = idx;
-    const span = document.querySelector('.as-tw-text');
-    if (span) {
+    const spans = document.querySelectorAll('.as-tw-text');
+    spans.forEach((span) => {
       span.textContent = fullText.slice(0, idx);
-    }
-    const log = document.getElementById('as-log') || document.getElementById('chat');
-    if (log) log.scrollTop = log.scrollHeight;
+    });
+    const logs = [document.getElementById('as-log'), document.getElementById('chat')];
+    logs.forEach((log) => {
+      if (log) log.scrollTop = log.scrollHeight;
+    });
 
     if (idx >= fullText.length) {
       clearInterval(st.typewriterTimer);
@@ -104,10 +107,10 @@ export function syncContext(app, ctx, route, persona) {
 const delayFor = (q) => {
   let h = 0;
   for (let i = 0; i < q.length; i++) h = (h * 31 + q.charCodeAt(i)) >>> 0;
-  return 400 + (h % 301);
+  return 150 + (h % 151); // 150ms to 300ms quick thinking indicator
 };
 
-/** Sends a question. The reply appears after a short typing indicator, 400 to 700 ms, the same each time. */
+/** Sends a question. The reply appears after a short typing indicator, 150 to 300 ms, the same each time. */
 export function submit(ctx, app, api, q, intent) {
   const st = stateOf(app);
   finishTypewriter(app, api);
@@ -189,7 +192,7 @@ export function renderAssistant(app, ctx, route) {
       <button class="icon-btn" data-act="as-close" id="as-close" aria-label="Close assistant">${icon('x', 20)}</button>
     </header>
     <div class="as-log" id="as-log" role="log" aria-live="polite" aria-label="Conversation">${intro}${renderLog(ctx || { t: (x) => x, industry: { assistantAnswers: { guardrailWhy: '' } } }, app)}</div>
-    <details class="as-suggest" ${hasLog ? '' : 'open'}><summary>Suggested questions</summary><div class="chips-q">${chips}</div></details>
+    <details class="as-suggest" open><summary>Suggested questions</summary><div class="chips-q">${chips}</div></details>
     <form class="as-composer" onsubmit="return false">
       <label class="sr-only" for="as-input">Your question</label>
       <input class="input" id="as-input" type="text" maxlength="200" autocomplete="off" placeholder="Type a question" data-input="as-draft" value="${esc(st.draft)}">
