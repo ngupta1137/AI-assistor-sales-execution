@@ -95,10 +95,14 @@ export function render(ctx) {
     <p class="small muted">Event dates are approximate.</p>
   </details>
   <a class="btn secondary block" href="#/problems" id="open-problems">${icon('bulb', 20)}Problems we solve</a>
-  <div class="notice good">${icon('check', 18)}<span><b>This is a configuration, not a custom build.</b> Adding an industry or a country means adding one pack file.</span></div>`;
+  <div class="notice good">${icon('check', 18)}<span><b>This is a configuration, not a custom build.</b> Adding an industry or a country means adding one pack file.</span></div>
+  <div style="margin-top:16px">
+    <button class="btn secondary block" data-act="logout-setup" style="min-height:var(--tap)">${icon('config', 18)} Switch persona or scenario</button>
+  </div>`;
 }
 
 export const actions = {
+  'logout-setup': ({ api }) => { api.navigate('#/setup'); return 'nav'; },
   jump: ({ data }) => { const el = document.getElementById(data.id); if (el) { el.open = true; el.scrollIntoView({ block: 'start' }); } return false; },
   'download-audit-csv': ({ ctx }) => { exportAuditCsv(ctx); return false; },
 };
