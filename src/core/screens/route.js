@@ -40,17 +40,32 @@ export function render(ctx) {
 
   const mapSvg = `
   <div class="card tight" style="margin-bottom:var(--s4);padding:var(--s3)">
-    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;gap:6px;flex-wrap:wrap">
       <b>GPS driving path (${stops.length} stops)</b>
-      <button class="btn secondary sm" data-act="nav-gps" style="font-size:12px;min-height:var(--tap)">${icon('route', 16)} Open navigation</button>
+      <div style="display:flex;gap:6px">
+        <button class="btn secondary sm" data-act="toggle-heatmap" style="font-size:12px;min-height:var(--tap)">${ctx.ui?.showHeatmap ? 'Hide heatmap' : 'Show heatmap'}</button>
+        <button class="btn secondary sm" data-act="nav-gps" style="font-size:12px;min-height:var(--tap)">${icon('route', 16)} Open navigation</button>
+      </div>
     </div>
     <svg viewBox="0 0 ${mapW} ${mapH}" style="width:100%;height:auto;background:var(--surface-inset,#f8fafc);border-radius:var(--radius-sm);border:1px solid var(--line)" role="img" aria-label="Route map">
       <defs>
         <pattern id="grid" width="34" height="22" patternUnits="userSpaceOnUse">
           <path d="M 34 0 L 0 0 0 22" fill="none" stroke="var(--line-soft,#e2e8f0)" stroke-width="0.8"/>
         </pattern>
+        <radialGradient id="heatA" cx="50%" cy="50%" r="50%">
+          <stop offset="0%" stop-color="#ef4444" stop-opacity="0.38"/>
+          <stop offset="100%" stop-color="#ef4444" stop-opacity="0"/>
+        </radialGradient>
+        <radialGradient id="heatB" cx="50%" cy="50%" r="50%">
+          <stop offset="0%" stop-color="#f59e0b" stop-opacity="0.25"/>
+          <stop offset="100%" stop-color="#f59e0b" stop-opacity="0"/>
+        </radialGradient>
       </defs>
       <rect width="${mapW}" height="${mapH}" fill="url(#grid)"/>
+      ${ctx.ui?.showHeatmap ? pts.map((p) => {
+        const isHigh = data.byId[p.accountId]?.tier === 'A';
+        return `<circle cx="${p.x}" cy="${p.y}" r="${isHigh ? 44 : 28}" fill="url(${isHigh ? '#heatA' : '#heatB'})"/>`;
+      }).join('') : ''}
       <path d="${pathD}" fill="none" stroke="var(--accent)" stroke-width="3" stroke-dasharray="5 3"/>
       ${pts.map((p) => `
         <g>
@@ -60,6 +75,12 @@ export function render(ctx) {
         </g>
       `).join('')}
     </svg>
+    ${ctx.ui?.showHeatmap ? `
+      <div style="display:flex;align-items:center;justify-content:space-between;font-size:11px;margin-top:8px;color:var(--muted)">
+        <span>${icon('bulb', 12)} Density clusters:</span>
+        <span style="display:flex;align-items:center;gap:4px"><span style="width:8px;height:8px;border-radius:50%;background:#ef4444"></span> High potential cluster</span>
+        <span style="display:flex;align-items:center;gap:4px"><span style="width:8px;height:8px;border-radius:50%;background:#f59e0b"></span> Secondary cluster</span>
+      </div>` : ''}
     ${ctx.ui?.gpsToast ? `<div class="notice good" style="margin-top:8px">${icon('check', 16)}<span>${esc(ctx.ui.gpsToast)}</span></div>` : ''}
   </div>`;
 
@@ -133,6 +154,9 @@ export function render(ctx) {
 }
 
 export const actions = {
+  'toggle-heatmap': ({ ctx }) => {
+    (ctx.ui ||= {}).showHeatmap = !ctx.ui.showHeatmap;
+  },
   'log-safety-check': ({ ctx }) => {
     (ctx.ui ||= {}).safetyToast = 'Vehicle and journey safety inspection logged.';
     if (ctx.m?.logAudit) ctx.m.logAudit('Safety Advisory', 'Vehicle pre-trip safety checklist verified by field driver');

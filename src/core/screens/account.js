@@ -130,6 +130,9 @@ export function render(ctx, [accountId]) {
       <span>${icon('check', 12)} Terms: Approved 30-day</span>
     </div>
     <p class="small">${esc(a.address)} · Open ${esc(fmt.time(a.hours[0]))} to ${esc(fmt.time(a.hours[1]))} · ${last === 0 ? esc(t('Visited today')) : `last ${esc(t('{visit}'))} ${esc(fmt.daysAgo(last))}`}</p>
+    <div style="margin-top:10px">
+      <button class="btn secondary sm" data-act="download-dossier" data-id="${a.id}" style="min-height:var(--tap);width:100%;display:flex;align-items:center;justify-content:center;gap:6px">${icon('note', 16)} Export Account 360 executive dossier (Text)</button>
+    </div>
   </section>
 
   <section><div class="section-head"><h2>Open gaps</h2>${p ? pill(`${open.length} open`, open.length ? 'warn' : 'good') : ''}</div>
@@ -232,6 +235,57 @@ export function render(ctx, [accountId]) {
 }
 
 export const actions = {
+  'download-dossier': ({ ctx, data }) => {
+    const a = ctx.data.byId[data.id];
+    const fmt = ctx.fmt;
+    const hist = a.orderHistory || [];
+    const totalSpend = hist.reduce((sum, o) => sum + o.total, 0);
+    const avgOrder = hist.length ? Math.round(totalSpend / hist.length) : 0;
+    const content = [
+      '========================================================================',
+      'EXECUTIVE ACCOUNT 360 DOSSIER',
+      `Customer: ${a.name}`,
+      `Address: ${a.address}, ${a.city}`,
+      `Category Tier: Tier ${a.tier} | CRM ID: ACC-${10000 + (a.name.length * 47) % 90000} | ERP Master: KNA1-${20000 + (a.name.length * 83) % 90000}`,
+      `Operating Hours: ${fmt.time(a.hours[0])} - ${fmt.time(a.hours[1])}`,
+      '========================================================================',
+      '',
+      '1. COMMERCIAL VALUE AND VELOCITY',
+      `   - Annual Potential: ${fmt.money(a.potential)}`,
+      `   - Current Captured Volume: ${fmt.money(a.current)}`,
+      `   - Identified Whitespace Opportunity: ${fmt.money(a.whiteSpace)}`,
+      `   - Average Order Value: ${fmt.money(avgOrder)} across ${hist.length} orders`,
+      `   - Total Lifetime Invoiced: ${fmt.money(totalSpend)}`,
+      '',
+      '2. MASTER CONTRACT AND CREDIT FACILITY',
+      `   - Master Contract: AGR-2026-${1000 + (a.name.length * 97) % 9000}`,
+      `   - Credit Limit: ${fmt.money(a.potential * 0.25)} | Utilized: ${fmt.money(a.current * 0.15)}`,
+      '   - Payment Terms: Net 30 Days (Prepaid freight terms)',
+      `   - Volume Schedule: 5% at ${fmt.money(500)}, 10% at ${fmt.money(2000)}`,
+      '',
+      '3. BUYER INFLUENCE AND CONTACT MATRIX',
+      ...a.contacts.map((c) => `   - ${c.name} (${c.role}): ${c.primary ? 'Decision Maker' : 'Influencer'}, Phone: ${c.phone}, Preference: ${c.preference}`),
+      '',
+      '4. COMPETITIVE INTELLIGENCE AND MARKET SHARE',
+      '   - Our Portfolio Penetration: 64%',
+      '   - Competing Brand Share: 36% (Regional Competitor)',
+      '   - Strategic Focus: Convert focus lines and capture non-core whitespace voids',
+      '========================================================================',
+      'CONFIDENTIAL - FOR INTERNAL COMMERCIAL EXECUTION ONLY',
+      `Generated on: ${new Date().toISOString()}`
+    ].join('\r\n');
+
+    const blob = new Blob([content], { type: 'text/plain;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `Account-360-Dossier-${a.name.replace(/\s+/g, '-')}.txt`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    (ctx.ui ||= {}).accountToast = `Exported Account 360 executive dossier for ${a.name}.`;
+    if (ctx.m?.logAudit) ctx.m.logAudit('Account 360', `Exported full executive dossier for ${a.name}`);
+  },
   'log-competitor-intel': ({ ctx, data }) => {
     (ctx.ui ||= {}).accountToast = `Competitor field observation logged for ${data.acc}.`;
     if (ctx.m?.logAudit) ctx.m.logAudit('Market Intelligence', `Logged competitor promotion and pricing observation at ${data.acc}`);

@@ -109,6 +109,48 @@ export function render(ctx) {
       })()}
     </div>
   </section>
+  <section class="card" id="policy-tuner" style="margin-top:var(--s4)">
+    <div class="section-head">
+      <h2>Commercial operations policy tuner</h2>
+      ${pill('Corporate strategy', 'good')}
+    </div>
+    <p class="small muted" style="margin-bottom:8px">Tune corporate algorithmic objective weights across the territory agent fleet. Recommendations adapt deterministically.</p>
+    
+    <div style="display:flex;flex-direction:column;gap:10px">
+      <div>
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px">
+          <small style="font-weight:600">Margin vs volume objective weight:</small>
+          <b>${ctx.ui?.policyWeight || '65% Margin / 35% Volume'}</b>
+        </div>
+        <div class="seg-ctl" role="group" aria-label="Objective weight">
+          <button class="seg ${(ctx.ui?.policyWeight || '65/35') === '50/50' ? 'on' : ''}" data-act="set-policy-weight" data-v="50/50" style="min-height:var(--tap);min-width:var(--tap)">50 / 50 Balanced</button>
+          <button class="seg ${(ctx.ui?.policyWeight || '65/35') === '65/35' ? 'on' : ''}" data-act="set-policy-weight" data-v="65/35" style="min-height:var(--tap);min-width:var(--tap)">65 / 35 Margin focus</button>
+          <button class="seg ${(ctx.ui?.policyWeight || '65/35') === '80/20' ? 'on' : ''}" data-act="set-policy-weight" data-v="80/20" style="min-height:var(--tap);min-width:var(--tap)">80 / 20 Max margin</button>
+        </div>
+      </div>
+
+      <div>
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px">
+          <small style="font-weight:600">Minimum gross margin hurdle rate:</small>
+          <b>${ctx.ui?.policyHurdle || '18%'}</b>
+        </div>
+        <div class="seg-ctl" role="group" aria-label="Hurdle rate">
+          <button class="seg ${(ctx.ui?.policyHurdle || '18%') === '15%' ? 'on' : ''}" data-act="set-policy-hurdle" data-v="15%" style="min-height:var(--tap);min-width:var(--tap)">15% Standard</button>
+          <button class="seg ${(ctx.ui?.policyHurdle || '18%') === '18%' ? 'on' : ''}" data-act="set-policy-hurdle" data-v="18%" style="min-height:var(--tap);min-width:var(--tap)">18% Target</button>
+          <button class="seg ${(ctx.ui?.policyHurdle || '18%') === '22%' ? 'on' : ''}" data-act="set-policy-hurdle" data-v="22%" style="min-height:var(--tap);min-width:var(--tap)">22% Premium</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="facts" style="margin-top:10px;grid-template-columns:repeat(auto-fit,minmax(80px,1fr))">
+      <div><small>Projected lift</small><b class="good-text">+14.2%</b></div>
+      <div><small>Sensitivity</small><b>High margin</b></div>
+      <div><small>Policy code</small><b>POL-2026-Q4</b></div>
+    </div>
+
+    <button class="btn good sm" data-act="publish-policy" style="min-height:var(--tap);width:100%;margin-top:10px">${icon('check', 14)} Publish strategy weights to territory fleet</button>
+    ${ctx.ui?.policyToast ? `<div class="notice good" style="margin-top:8px">${icon('check', 14)}<span>${esc(ctx.ui.policyToast)}</span></div>` : ''}
+  </section>
   <details class="fold" id="audit"${m.audit().length ? ' open' : ''}>
     <summary>Audit log<span class="sum-end">${m.audit().length}</span></summary>
     <p class="small muted">Approvals, overrides, outcomes, evidence and agent stops in this session.</p>
@@ -118,6 +160,18 @@ export function render(ctx) {
 }
 
 export const actions = {
+  'set-policy-weight': ({ ctx, data }) => {
+    (ctx.ui ||= {}).policyWeight = data.v;
+  },
+  'set-policy-hurdle': ({ ctx, data }) => {
+    (ctx.ui ||= {}).policyHurdle = data.v;
+  },
+  'publish-policy': ({ ctx }) => {
+    (ctx.ui ||= {}).policyToast = 'Commercial strategy weights published to territory fleet.';
+    if (ctx.m?.logAudit) {
+      ctx.m.logAudit('Commercial Operations', `Updated policy: Weight=${ctx.ui.policyWeight || '65/35'}, Hurdle=${ctx.ui.policyHurdle || '18%'}`);
+    }
+  },
   'toggle-agent': ({ ctx, data }) => { ctx.m.toggleAgent(data.id); },
   'test-prompt': ({ ctx, data }) => {
     (ctx.ui ||= {}).guardrailTest = data.q;
