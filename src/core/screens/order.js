@@ -71,10 +71,32 @@ export function render(ctx, [accountId]) {
     <p class="small muted" style="margin-top:8px">${esc(t(`Draft with ${lines.length} suggested lines. Change any quantity. Nothing is sent until you submit.`))}</p>
   </section>
   ${stopped && !st.submitted ? `<div class="notice warn">${icon('stop', 18)}<span>${esc(t('Order agent stopped. You can edit this draft. Submission is paused.'))}</span></div>` : ''}
-  <div style="display:flex;justify-content:space-between;align-items:center;margin-top:12px;margin-bottom:8px">
+  <div style="display:flex;justify-content:space-between;align-items:center;margin-top:12px;margin-bottom:8px;gap:8px;flex-wrap:wrap">
     <h2 style="margin:0">Suggested lines</h2>
-    <button class="btn secondary sm" data-act="toggle-scanner" data-id="${a.id}" style="min-height:var(--tap);display:inline-flex;align-items:center;gap:6px">${icon('scan', 16)} Line scanner</button>
+    <div style="display:flex;gap:6px">
+      <button class="btn secondary sm" data-act="toggle-van-stock" data-id="${a.id}" style="min-height:var(--tap);display:inline-flex;align-items:center;gap:6px">${icon('cart', 16)} Vehicle inventory</button>
+      <button class="btn secondary sm" data-act="toggle-scanner" data-id="${a.id}" style="min-height:var(--tap);display:inline-flex;align-items:center;gap:6px">${icon('scan', 16)} Line scanner</button>
+    </div>
   </div>
+  ${ctx.ui?.vanStockOpen ? `
+  <section class="card tight" style="margin-bottom:var(--s3);border:1px solid var(--line)">
+    <div class="section-head" style="margin-bottom:6px">
+      <h3>Vehicle and field trunk inventory</h3>
+      ${pill('Direct delivery stock', 'good')}
+    </div>
+    <p class="small muted" style="margin-bottom:8px">On-hand vehicle inventory available for immediate customer handover without warehouse logistics delay.</p>
+    
+    <div style="display:flex;flex-direction:column;gap:6px">
+      <div style="padding:8px 10px;background:var(--surface-subtle);border:1px solid var(--line);border-radius:var(--radius-sm);display:flex;justify-content:space-between;align-items:center">
+        <div>
+          <b>${lines[0] ? esc(t(lines[0].offering.name)) : 'Core line'}</b>
+          <div class="small muted">Lot #2026-X · 24 units on vehicle · Ambient storage</div>
+        </div>
+        <button class="btn good sm" data-act="allocate-van-stock" data-id="${a.id}" data-o="${lines[0]?.offeringId || ''}" style="min-height:var(--tap)">Allocate 5 units</button>
+      </div>
+    </div>
+    ${ctx.ui?.vanStockNotice ? `<div class="notice good" style="margin-top:8px">${icon('check', 14)}<span>${esc(ctx.ui.vanStockNotice)}</span></div>` : ''}
+  </section>` : ''}
   ${ctx.ui?.scannerOpen ? `
   <section class="card tight" style="margin-bottom:var(--s3);border:1px solid var(--accent)">
     <div class="section-head" style="margin-bottom:6px">
@@ -139,6 +161,21 @@ export function render(ctx, [accountId]) {
 }
 
 export const actions = {
+  'toggle-van-stock': ({ ctx }) => {
+    (ctx.ui ||= {}).vanStockOpen = !ctx.ui.vanStockOpen;
+    ctx.ui.vanStockNotice = null;
+  },
+  'allocate-van-stock': ({ ctx, data }) => {
+    const lines = ctx.m.orderLines(data.id);
+    const line = lines.find((l) => l.offeringId === data.o) || lines[0];
+    if (line) {
+      ctx.m.setQty(data.id, line.offeringId, line.qty + 5);
+      (ctx.ui ||= {}).vanStockNotice = `Allocated 5 units of ${ctx.t(line.offering.name)} directly from vehicle stock.`;
+      if (ctx.m?.logAudit) {
+        ctx.m.logAudit('Vehicle Inventory', `Allocated 5 units of ${ctx.t(line.offering.name)} from vehicle stock to ${ctx.data.byId[data.id]?.name || ''}`);
+      }
+    }
+  },
   'toggle-scanner': ({ ctx }) => {
     (ctx.ui ||= {}).scannerOpen = !ctx.ui.scannerOpen;
     ctx.ui.scannerNotice = null;
