@@ -40,7 +40,35 @@ export function render(ctx) {
     </a></li>`;
   }).join('');
 
-  return `
+  const unplanned = data.accounts.filter((a) => !data.planned.some((p) => p.accountId === a.id)).slice(0, 3);
+  const adhocModal = ctx.ui?.adhocOpen ? `
+  <div class="presenter-backdrop" data-act="close-adhoc" aria-hidden="true"></div>
+  <section class="as-sheet" role="dialog" aria-modal="true" aria-labelledby="adhoc-title" style="height:auto;max-height:85%;overflow-y:auto;z-index:90">
+    <header class="as-head">
+      <div>
+        <h2 id="adhoc-title">${icon('route', 18)} Add ad-hoc customer drop-in</h2>
+        <small>Select an unscheduled account in your territory to insert into today's journey.</small>
+      </div>
+      <button class="icon-btn" data-act="close-adhoc" aria-label="Close dialog">${icon('x', 20)}</button>
+    </header>
+    <div style="padding:var(--s4);display:flex;flex-direction:column;gap:var(--s3)">
+      <ul class="group list">
+        ${unplanned.map((acc) => `<li class="row" style="flex-direction:column;align-items:stretch">
+          <div style="display:flex;align-items:center"><span class="row-main"><b>${esc(acc.name)}</b>
+            <small>${esc(t(acc.type))} · Tier ${acc.tier} · ${esc(acc.area)}</small></span>
+            <span class="row-end"><b class="money small">${esc(fmt.moneyShort(acc.potential))}</b><small>annual potential</small></span>
+          </div>
+          <div style="margin-top:6px;display:flex;justify-content:flex-end">
+            <button class="btn primary sm" data-act="add-adhoc-stop" data-id="${acc.id}" style="min-height:var(--tap)">Add to today</button>
+          </div>
+        </li>`).join('')}
+      </ul>
+      <button class="btn secondary block" data-act="close-adhoc" style="min-height:var(--tap)">Cancel</button>
+    </div>
+  </section>` : '';
+
+  return `${adhocModal}
+  ${ctx.ui?.todayToast ? `<div class="notice good" style="margin-bottom:var(--s3)">${icon('check', 16)}<span>${esc(ctx.ui.todayToast)}</span></div>` : ''}
   <section class="page-head">
     <h1>${greeting()}, ${esc(data.rep.first)}</h1>
     <p class="muted">${esc(fmt.weekday(today))} ${esc(fmt.dateShort(today))} · ${esc(data.city.name)} · ${ordered.length} ${esc(t('{visits}'))} planned</p>
@@ -62,6 +90,7 @@ export function render(ctx) {
     <a class="btn secondary" href="#/route" id="open-route">${icon('route', 20)}Route plan</a>
     <a class="btn secondary" href="#/ask" id="open-ask">${icon('ask', 20)}Ask AI</a>
   </div>
+  <button class="btn secondary sm" data-act="open-adhoc" style="min-height:var(--tap);margin-bottom:var(--s3);width:100%">${icon('route', 16)} Log ad-hoc customer drop-in</button>
 
   <section class="card tight">
     <div class="stat-row"><span class="small muted">Month to date</span><span class="small"><b class="money">${esc(fmt.moneyShort(tr.achieved))}</b> of ${esc(fmt.moneyShort(tr.target))} · ${pct}%</span></div>
@@ -88,3 +117,30 @@ export function render(ctx) {
   </details>
   <p class="foot-note">Values are generated for this demo.</p>`;
 }
+
+export const actions = {
+  'open-adhoc': ({ ctx }) => { (ctx.ui ||= {}).adhocOpen = true; },
+  'close-adhoc': ({ ctx }) => { (ctx.ui ||= {}).adhocOpen = false; },
+  'add-adhoc-stop': ({ ctx, data }) => {
+    const acc = ctx.data.byId[data.id];
+    if (acc) {
+      const exists = ctx.data.planned.some((p) => p.accountId === acc.id);
+      if (!exists) {
+        ctx.data.planned.push({
+          accountId: acc.id,
+          rank: ctx.data.planned.length + 1,
+          km: 1.8,
+          opportunity: Math.round(acc.potential / 12),
+          start: 16 * 60,
+          end: 17 * 60,
+          actions: [],
+          brief: [],
+          order: [],
+        });
+      }
+      (ctx.ui ||= {}).todayToast = `Added ${acc.name} to today's journey plan.`;
+      ctx.ui.adhocOpen = false;
+      if (ctx.m?.logAudit) ctx.m.logAudit('Visit Planner', `Rep added ad-hoc stop for ${acc.name} to today's route`);
+    }
+  },
+};

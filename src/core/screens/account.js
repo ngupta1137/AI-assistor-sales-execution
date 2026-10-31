@@ -26,25 +26,74 @@ export function render(ctx, [accountId]) {
       <small class="${okk ? 'ok-text' : 'warn-text'}">${icon(okk ? 'check' : 'flag', 14)} ${okk ? 'On target' : k.lowerIsBetter ? 'Above limit' : 'Below target'} · ${esc(kpiValue(k, k.target, fmt))}</small></span></li>`;
   }).join('');
 
-  const contacts = a.contacts.map((c) => `<li class="row">
-    <span class="avatar">${esc(c.name.replace(/^\S+\.\s/, '').split(' ').map((w) => w[0]).slice(0, 2).join(''))}</span>
-    <span class="row-main"><b>${esc(c.name)}</b><small>${esc(t(c.role))}${c.primary ? ' · main contact' : ''}</small>
-    <small>${esc(c.phone)} · ${esc(t(c.preference))} · last spoke ${esc(fmt.daysAgo(c.lastContactDays))}</small></span></li>`).join('');
+  const contacts = a.contacts.map((c) => `<li class="row" style="flex-direction:column;align-items:stretch">
+    <div style="display:flex;align-items:center;gap:10px">
+      <span class="avatar">${esc(c.name.replace(/^\S+\.\s/, '').split(' ').map((w) => w[0]).slice(0, 2).join(''))}</span>
+      <span class="row-main"><b>${esc(c.name)}</b>
+        <small>${esc(t(c.role))} · ${c.primary ? pill('Decision Maker', 'accent') : pill('Influencer', 'info')}</small>
+        <small>${esc(c.phone)} · ${esc(t(c.preference))} · last spoke ${esc(fmt.daysAgo(c.lastContactDays))}</small></span>
+    </div>
+    <div style="margin-top:6px;display:flex;justify-content:flex-end">
+      <button class="btn secondary sm" data-act="log-touchpoint" data-contact="${esc(c.name)}" data-acc="${esc(a.name)}" style="min-height:var(--tap)">${icon('note', 14)} Log touchpoint</button>
+    </div></li>`).join('');
 
   const visits = a.history.map((h) => `<li class="row"><span class="row-main">
     <b>${esc(fmt.date(fmt.dayOffset(-h.daysAgo)))}</b><small>${esc(t(h.note, h.vars))}</small></span>
     <small>${esc(fmt.daysAgo(h.daysAgo))}</small></li>`).join('');
 
-  const orders = a.orderHistory.map((o) => `<li class="row"><span class="row-main">
+  const hist = a.orderHistory || [];
+  const totalSpend = hist.reduce((sum, o) => sum + o.total, 0);
+  const avgOrder = hist.length ? Math.round(totalSpend / hist.length) : 0;
+  const maxVal = Math.max(...hist.map((o) => o.total), 1);
+  const chartW = 320;
+  const chartH = 64;
+  const barW = 32;
+  const numBars = hist.length;
+  const totalBarWidth = numBars * barW;
+  const gap = numBars > 1 ? (chartW - totalBarWidth) / (numBars - 1) : 0;
+
+  const chartSvg = hist.length ? `
+    <div style="margin-top:10px;margin-bottom:12px;padding:var(--s3);background:var(--surface-inset);border-radius:var(--radius-sm);border:1px solid var(--line-soft)">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
+        <b>Spend velocity trend</b>
+        ${pill('ERP verified', 'good')}
+      </div>
+      <div class="facts" style="margin-bottom:8px">
+        <div><small>AOV</small><b>${esc(fmt.money(avgOrder))}</b></div>
+        <div><small>Total volume</small><b>${esc(fmt.moneyShort(totalSpend))}</b></div>
+        <div><small>Orders</small><b>${hist.length}</b></div>
+      </div>
+      <svg viewBox="0 0 ${chartW} ${chartH}" style="width:100%;height:auto;overflow:visible" role="img" aria-label="Order spend velocity">
+        ${hist.map((o, i) => {
+          const h = Math.max(6, Math.round((o.total / maxVal) * (chartH - 20)));
+          const x = Math.round(i * (barW + gap));
+          const y = chartH - h - 14;
+          return `
+            <g>
+              <rect x="${x}" y="${y}" width="${barW}" height="${h}" rx="3" fill="var(--accent)" opacity="0.85"/>
+              <text x="${x + barW / 2}" y="${y - 3}" text-anchor="middle" font-size="9" font-weight="600" fill="var(--ink)">${esc(fmt.moneyShort(o.total))}</text>
+              <text x="${x + barW / 2}" y="${chartH - 2}" text-anchor="middle" font-size="8" fill="var(--muted)">-${o.daysAgo}d</text>
+            </g>`;
+        }).join('')}
+      </svg>
+    </div>` : '';
+
+  const orders = chartSvg + a.orderHistory.map((o) => `<li class="row"><span class="row-main">
     <b class="money">${esc(fmt.money(o.total))}</b><small>${o.lines} lines</small></span>
     <small>${esc(fmt.date(fmt.dayOffset(-o.daysAgo)))}</small></li>`).join('');
 
   return `
   <a class="back" href="${p ? `#/brief/${a.id}` : '#/today'}">${icon('back', 18)} ${p ? esc(t('{Visit} brief')) : 'Back'}</a>
+  ${ctx.ui?.accountToast ? `<div class="notice good" style="margin-bottom:var(--s3)">${icon('check', 16)}<span>${esc(ctx.ui.accountToast)}</span></div>` : ''}
   <section class="page-head">
     <span class="eyebrow">${esc(t('{Account} 360'))}</span>
     <h1>${esc(a.name)}</h1>
     <p class="small muted">${esc(typeLine(t, a))} · Tier ${a.tier}</p>
+    <div style="display:flex;gap:12px;flex-wrap:wrap;margin:4px 0 6px;font-size:11px;color:var(--muted)">
+      <span>${icon('sync', 12)} CRM ID: ACC-${10000 + (a.name.length * 47) % 90000}</span>
+      <span>${icon('note', 12)} ERP Master: KNA1-${20000 + (a.name.length * 83) % 90000}</span>
+      <span>${icon('check', 12)} Terms: Approved 30-day</span>
+    </div>
     <p class="small">${esc(a.address)} · Open ${esc(fmt.time(a.hours[0]))} to ${esc(fmt.time(a.hours[1]))} · ${last === 0 ? esc(t('Visited today')) : `last ${esc(t('{visit}'))} ${esc(fmt.daysAgo(last))}`}</p>
   </section>
 
@@ -68,3 +117,10 @@ export function render(ctx, [accountId]) {
   <details class="fold" id="acc-visits"><summary>${esc(t('Last {visits}'))}<span class="sum-end">${a.history.length}</span></summary><ul class="group">${visits}</ul></details>
   <details class="fold" id="acc-orders"><summary>${esc(t('{Order} history'))}<span class="sum-end">${a.orderHistory.length}</span></summary><ul class="group">${orders}</ul></details>`;
 }
+
+export const actions = {
+  'log-touchpoint': ({ ctx, data }) => {
+    (ctx.ui ||= {}).accountToast = `Touchpoint with ${data.contact} logged to CRM activity timeline.`;
+    if (ctx.m?.logAudit) ctx.m.logAudit('CRM Connector', `Logged touchpoint with ${data.contact} at ${data.acc}`);
+  },
+};
