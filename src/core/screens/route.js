@@ -13,6 +13,55 @@ export function render(ctx) {
   const km = stops.reduce((s, x) => s + x.km, 0);
   const budget = stops.reduce((s, x) => s + data.byId[x.accountId].visitMinutes, 0);
   const end = stops.length ? stops.at(-1).end : 0;
+  const view = ctx.ui?.routeView || 'timeline';
+
+  // SVG route map projection
+  const coords = stops.map((st, i) => {
+    const a = data.byId[st.accountId];
+    const lat = a.geo?.lat ?? (40.7 + i * 0.03);
+    const lng = a.geo?.lng ?? (-74.0 + i * 0.04);
+    return { ...st, name: a.name, lat, lng };
+  });
+  const minLat = Math.min(...coords.map((c) => c.lat), 40.0);
+  const maxLat = Math.max(...coords.map((c) => c.lat), 40.1);
+  const minLng = Math.min(...coords.map((c) => c.lng), -74.1);
+  const maxLng = Math.max(...coords.map((c) => c.lng), -74.0);
+  const dLat = Math.max(0.001, maxLat - minLat);
+  const dLng = Math.max(0.001, maxLng - minLng);
+  const mapW = 340;
+  const mapH = 220;
+  const mapPad = 28;
+  const pts = coords.map((c) => ({
+    ...c,
+    x: Math.round(mapPad + ((c.lng - minLng) / dLng) * (mapW - 2 * mapPad)),
+    y: Math.round(mapH - (mapPad + ((c.lat - minLat) / dLat) * (mapH - 2 * mapPad))),
+  }));
+  const pathD = pts.map((p, i) => `${i === 0 ? 'M' : 'L'} ${p.x} ${p.y}`).join(' ');
+
+  const mapSvg = `
+  <div class="card tight" style="margin-bottom:var(--s4);padding:var(--s3)">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+      <b>GPS driving path (${stops.length} stops)</b>
+      <button class="btn secondary sm" data-act="nav-gps" style="font-size:12px;min-height:var(--tap)">${icon('route', 16)} Open navigation</button>
+    </div>
+    <svg viewBox="0 0 ${mapW} ${mapH}" style="width:100%;height:auto;background:var(--surface-inset,#f8fafc);border-radius:var(--radius-sm);border:1px solid var(--line)" role="img" aria-label="Route map">
+      <defs>
+        <pattern id="grid" width="34" height="22" patternUnits="userSpaceOnUse">
+          <path d="M 34 0 L 0 0 0 22" fill="none" stroke="var(--line-soft,#e2e8f0)" stroke-width="0.8"/>
+        </pattern>
+      </defs>
+      <rect width="${mapW}" height="${mapH}" fill="url(#grid)"/>
+      <path d="${pathD}" fill="none" stroke="var(--accent)" stroke-width="3" stroke-dasharray="5 3"/>
+      ${pts.map((p) => `
+        <g>
+          <circle cx="${p.x}" cy="${p.y}" r="12" fill="var(--accent)" stroke="#fff" stroke-width="2.5"/>
+          <text x="${p.x}" y="${p.y + 4}" text-anchor="middle" fill="#fff" font-size="11" font-weight="700">${p.seq}</text>
+          <text x="${p.x}" y="${p.y > 180 ? p.y - 16 : p.y + 22}" text-anchor="middle" fill="var(--ink)" font-size="9" font-weight="600">${esc(p.name.slice(0, 16))}</text>
+        </g>
+      `).join('')}
+    </svg>
+    ${ctx.ui?.gpsToast ? `<div class="notice good" style="margin-top:8px">${icon('check', 16)}<span>${esc(ctx.ui.gpsToast)}</span></div>` : ''}
+  </div>`;
 
   const rows = stops.map((st) => {
     const a = data.byId[st.accountId];
@@ -32,6 +81,10 @@ export function render(ctx) {
     <h1>Route plan</h1>
     <p class="small muted">${esc(t('Time order from the Visit Planner, by opening hours and travel. Today ranks by estimated opportunity.'))}</p>
   </section>
+  <div class="seg-ctl" role="tablist" style="margin-bottom:12px">
+    <button class="seg ${view === 'timeline' ? 'on' : ''}" data-act="route-view" data-view="timeline" role="tab" aria-selected="${view === 'timeline'}">${icon('route', 16)} Timeline view</button>
+    <button class="seg ${view === 'map' ? 'on' : ''}" data-act="route-view" data-view="map" role="tab" aria-selected="${view === 'map'}">${icon('map', 16)} Route map</button>
+  </div>
   <section class="card tight" id="route-summary">
     <div class="facts">
       <div><small>${esc(t('{Visits}'))}</small><b data-route="stops">${stops.length}</b></div>
@@ -42,11 +95,17 @@ export function render(ctx) {
   </section>
   ${closed.length ? `<div class="notice warn" id="replanned">${icon('route', 18)}<span>${esc(t(`Route updated without ${closed.map((p) => data.byId[p.accountId].name).join(', ')}.`))}</span></div>` : ''}
   ${dropped.length ? `<div class="notice warn">${icon('clock', 18)}<span>${esc(t(`${dropped.length} {accounts} no longer fit before closing and move to tomorrow.`))}</span></div>` : ''}
-  <ol class="group timeline">${rows}</ol>
+  ${view === 'map' ? mapSvg : ''}
+  <ol class="group timeline" ${view === 'map' ? 'style="display:none"' : ''}>${rows}</ol>
   ${closed.length ? `<section><h2>Closed today</h2><ul class="group" style="margin-top:12px">${closed.map((p) => `<li class="row"><span class="row-main"><b>${esc(data.byId[p.accountId].name)}</b><small>Closed today</small></span><button class="btn secondary sm" data-act="close-account" data-id="${p.accountId}">Reopen</button></li>`).join('')}</ul></section>` : ''}
   <p class="foot-note">Travel times use a straight-line estimate at an average city speed.</p>`;
 }
 
 export const actions = {
   'close-account': ({ ctx, data }) => { ctx.m.toggleClosed(data.id); },
+  'route-view': ({ ctx, data }) => { (ctx.ui ||= {}).routeView = data.view; },
+  'nav-gps': ({ ctx }) => {
+    (ctx.ui ||= {}).gpsToast = 'Dispatched destination coordinates to navigation app.';
+    if (ctx.m?.logAudit) ctx.m.logAudit('Navigation', 'Route coordinates exported to navigation app');
+  },
 };

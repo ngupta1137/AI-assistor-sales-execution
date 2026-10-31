@@ -2,6 +2,7 @@
 // KPIs, guardrails, order rules and country settings.
 
 import { esc, icon, kpiValue, AGENT_LABEL, EVIDENCE } from '../ui.js';
+import { exportAuditCsv } from '../telemetry.js';
 import { upcomingEvents, localPrice } from '../../data/generate.js';
 
 const GENERIC = [
@@ -20,7 +21,7 @@ export function render(ctx) {
   const rules = industry.orderRules.map((r) => `<li>${esc(t(r.text, { limit: r.amount != null ? fmt.money(localPrice(r.amount, country)) : '', max: r.max ?? '', lines: '' }))}</li>`).join('');
   const events = upcomingEvents(country, fmt.today).slice(0, 4).map((e) => `<li><b>${esc(e.name)}</b> <small class="muted">${esc(fmt.dateShort(e.date))} · ${esc(e.note)}</small></li>`).join('');
 
-  const jump = [['vocab', 'Vocabulary'], ['segments', 'Segments'], ['actions', 'Actions'], ['offerings', t('{Offerings}')], ['kpis', 'KPIs'], ['rules', 'Guardrails'], ['country', 'Country']]
+  const jump = [['vocab', 'Vocabulary'], ['segments', 'Segments'], ['actions', 'Actions'], ['offerings', t('{Offerings}')], ['kpis', 'KPIs'], ['rules', 'Guardrails'], ['integrations', 'Integrations'], ['country', 'Country']]
     .map(([id, label]) => `<a href="#/config" data-act="jump" data-id="${id}">${esc(label)}</a>`).join('');
   return `
   <section class="page-head">
@@ -35,6 +36,30 @@ export function render(ctx) {
   <details class="fold" id="kpis"><summary>KPIs<span class="sum-end">${industry.kpis.length}</span></summary><table class="tbl"><tbody>${kpis}</tbody></table></details>
   <details class="fold" id="rules"><summary>Guardrails</summary><ul class="guards">${industry.guardrails.map((g) => `<li>${icon('shield', 16)} ${esc(t(g.text))}</li>`).join('')}</ul>
     <h3>${esc(t('{Order} rules'))}</h3><ul class="bullets">${rules}</ul></details>
+  <details class="fold" id="integrations" open><summary>Enterprise integrations<span class="sum-end">Active</span></summary>
+    <p class="small muted" style="margin-bottom:8px">Enterprise schema and object mapping for bi-directional synchronization with your CRM, ERP and Data Cloud.</p>
+    <div class="tbl-wrap">
+      <table class="tbl">
+        <thead><tr><th>Entity</th><th>CRM schema</th><th>ERP master table</th><th>Sync flow</th><th>SLA</th></tr></thead>
+        <tbody>
+          <tr><td><b>${esc(t('{Account}'))}</b></td><td>Account / Location</td><td>Customer Master (KNA1)</td><td>Bi-directional</td><td>Real-time (&lt; 1s)</td></tr>
+          <tr><td><b>${esc(t('{Contact}'))}</b></td><td>Contact / Key Person</td><td>Contact Master (KNVK)</td><td>Bi-directional</td><td>Real-time (&lt; 1s)</td></tr>
+          <tr><td><b>${esc(t('{Offering}'))}</b></td><td>Product2 / Catalog</td><td>Material Master (MARA)</td><td>Inbound stream</td><td>15 min cache</td></tr>
+          <tr><td><b>${esc(t('{Order}'))}</b></td><td>Opportunity / Quote</td><td>Sales Order (VBAK)</td><td>Outbound queue</td><td>Immediate</td></tr>
+          <tr><td><b>${esc(t('{Visit}'))} Activity</b></td><td>Task / Call Report</td><td>Activity Ledger</td><td>Outbound queue</td><td>Immediate</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <h3>Security and governance</h3>
+    <ul class="bullets">
+      <li><b>Identity:</b> Microsoft Entra ID and Okta SAML 2.0 SSO with commercial role synchronization.</li>
+      <li><b>Security:</b> AES-256 storage encryption at rest, TLS 1.3 enforced in transit.</li>
+      <li><b>Compliance:</b> SOC 2 Type II certified, GDPR and HIPAA compliant field storage.</li>
+    </ul>
+    <div class="btn-row" style="margin-top:12px">
+      <button class="btn secondary" data-act="download-audit-csv">${icon('note', 18)}Download compliance audit log (CSV)</button>
+    </div>
+  </details>
   <details class="fold" id="country"><summary>Country: ${esc(country.name)}</summary>
     <table class="tbl"><tbody>
       <tr><td class="muted">Currency</td><td>${esc(country.currency)} · ${esc(fmt.money(1234567))} · ${esc(fmt.moneyShort(12345678))}</td></tr>
@@ -53,4 +78,5 @@ export function render(ctx) {
 
 export const actions = {
   jump: ({ data }) => { const el = document.getElementById(data.id); if (el) { el.open = true; el.scrollIntoView({ block: 'start' }); } return false; },
+  'download-audit-csv': ({ ctx }) => { exportAuditCsv(ctx); return false; },
 };

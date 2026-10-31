@@ -28,6 +28,12 @@ export function renderPresenter(app, ctx, { INDUSTRIES, COUNTRIES, PERSONAS, sha
         <select data-change="p-industry" id="p-industry">${configured ? '' : '<option value="">Choose</option>'}${opt(INDUSTRIES, c.industryId)}</select></label>
       <label class="field"><span>Country</span>
         <select data-change="p-country" id="p-country">${configured ? '' : '<option value="">Choose</option>'}${opt(COUNTRIES, c.countryId)}</select></label>
+      <label class="field"><span>Device viewport</span>
+        <select data-change="p-viewport" id="p-viewport">
+          <option value="phone"${(app.vp || 'phone') === 'phone' ? ' selected' : ''}>Phone (390 px - field)</option>
+          <option value="tablet"${app.vp === 'tablet' ? ' selected' : ''}>Tablet (768 px - iPad)</option>
+          <option value="desktop"${app.vp === 'desktop' ? ' selected' : ''}>Desktop Portal (100% width)</option>
+        </select></label>
       <label class="field"><span>Persona</span>
         <select data-change="p-persona" id="p-persona">${PERSONAS.map((p) => `<option value="${p}"${p === c.persona ? ' selected' : ''}>${personaName[p]}</option>`).join('')}</select></label>
       <label class="field"><span>Prepared for (optional)</span>
