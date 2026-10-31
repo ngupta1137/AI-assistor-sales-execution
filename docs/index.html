@@ -433,10 +433,11 @@ details[open] > summary::after { transform: rotate(-135deg); }
 @keyframes as-blink { 0%, 100% { opacity: 1; } 50% { opacity: 0; } }
 .as-typewriter { cursor: pointer; }
 .as-lang-bar { display: inline-flex; gap: 4px; background: var(--surface-soft, #f1f5f9); padding: 2px; border-radius: var(--radius-sm, 6px); }
-.pill-btn { border: 1px solid transparent; background: transparent; padding: 4px 10px; border-radius: var(--radius-xs, 4px); font-size: var(--text-xs, 12px); font-weight: 600; cursor: pointer; color: var(--muted, #64748b); min-height: 28px; }
+.pill-btn { display: inline-flex; align-items: center; justify-content: center; border: 1px solid transparent; background: transparent; padding: 4px 12px; border-radius: var(--radius-xs, 4px); font-size: var(--text-xs, 12px); font-weight: 600; cursor: pointer; color: var(--muted, #64748b); min-height: var(--tap, 44px); min-width: var(--tap, 44px); }
 .pill-btn.active { background: var(--surface, #ffffff); color: var(--text, #0f172a); border-color: var(--line, #e2e8f0); box-shadow: 0 1px 2px rgba(0,0,0,0.05); }
-.pill-btn.sm { padding: 3px 8px; font-size: 11px; min-height: 24px; }
+.pill-btn.sm { min-height: var(--tap, 44px); min-width: var(--tap, 44px); padding: 4px 10px; font-size: 11px; }
 .screen-pills { display: flex; gap: 4px; overflow-x: auto; max-width: 100%; padding-bottom: 2px; }
+.screen-pills .pill-btn { min-height: var(--tap, 44px); min-width: var(--tap, 44px); }
 .screen { scroll-padding-bottom: 72px; }
 
 /* ---- Sales Companion ---- */
