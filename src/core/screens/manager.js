@@ -30,18 +30,21 @@ export function render(ctx) {
       ${(() => {
         const isApproved = e.status === 'approved';
         const isRejected = e.status === 'rejected';
-        const isDecided = isApproved || isRejected || e.acknowledged;
+        const isEscalated = e.status === 'escalated';
         return `<div class="ex-foot">${isApproved
           ? pill('Approved', 'good')
           : isRejected
             ? pill('Rejected', 'bad')
-            : e.acknowledged
-              ? pill('Acknowledged', 'info')
-              : `<div class="btn-row" style="gap:6px;flex-wrap:wrap">
-                  <button class="btn good sm" data-act="ex-approve" data-id="${e.id}">${icon('check', 14)} Approve</button>
-                  <button class="btn danger sm" data-act="ex-reject" data-id="${e.id}">${icon('x', 14)} Reject</button>
-                  <button class="btn secondary sm" data-act="ack" data-id="${e.id}">Acknowledge</button>
-                </div>`}</div>`;
+            : isEscalated
+              ? `<div style="display:flex;align-items:center;gap:6px">${pill('Escalated to VP', 'warn')}<small class="muted" style="font-size:11px">Level 2 review pending</small></div>`
+              : e.acknowledged
+                ? pill('Acknowledged', 'info')
+                : `<div class="btn-row" style="gap:6px;flex-wrap:wrap">
+                    <button class="btn good sm" data-act="ex-approve" data-id="${e.id}" style="min-height:var(--tap)">${icon('check', 14)} Approve</button>
+                    <button class="btn danger sm" data-act="ex-reject" data-id="${e.id}" style="min-height:var(--tap)">${icon('x', 14)} Reject</button>
+                    <button class="btn secondary sm" data-act="ex-escalate" data-id="${e.id}" style="min-height:var(--tap)">${icon('team', 14)} Escalate</button>
+                    <button class="btn secondary sm" data-act="ack" data-id="${e.id}" style="min-height:var(--tap)">Acknowledge</button>
+                  </div>`}</div>`;
       })()}
     </li>`;
   }).join('') : `<li class="empty">No items need review here.</li>`;
@@ -282,6 +285,15 @@ export const actions = {
   },
 
   ack: ({ ctx, data }) => { ctx.m.acknowledge(data.id); },
+  'ex-escalate': ({ ctx, data }) => {
+    const ex = ctx.m.exceptions().find((x) => x.id === data.id);
+    if (ex) {
+      ex.status = 'escalated';
+      ex.acknowledged = true;
+      (ctx.ui ||= {}).managerToast = `Exception ${ex.id} escalated to Level 2 Commercial Operations.`;
+      if (ctx.m.logAudit) ctx.m.logAudit('Manager', `Escalated exception ${ex.id} to Level 2 Commercial Operations: ${ex.title}`);
+    }
+  },
   'ex-approve': ({ ctx, data }) => {
     const ex = ctx.m.exceptions().find((x) => x.id === data.id);
     if (ex) {

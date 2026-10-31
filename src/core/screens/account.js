@@ -169,6 +169,36 @@ export function render(ctx, [accountId]) {
     </div>
   </section>
 
+  <details class="fold" id="acc-agreement"${ctx.ui?.agreementOpen === a.id ? ' open' : ''}>
+    <summary>Commercial agreement and credit terms<span class="sum-end">Tier ${a.tier}</span></summary>
+    <div style="padding:var(--s2) 0">
+      <div class="facts" style="margin-bottom:8px;grid-template-columns:repeat(auto-fit,minmax(80px,1fr))">
+        <div><small>Master agreement</small><b>AGR-${1000 + (a.name.length * 97) % 9000}</b></div>
+        <div><small>Credit limit</small><b class="money">${esc(fmt.money(a.potential * 0.25))}</b></div>
+        <div><small>Available credit</small><b class="money good-text">${esc(fmt.money(a.potential * 0.25 - a.current * 0.15))}</b></div>
+        <div><small>Payment terms</small><b>Net 30</b></div>
+      </div>
+      <p class="small muted" style="margin-bottom:8px">Active enterprise master purchasing agreement with pre-approved volume discount thresholds.</p>
+      <div style="display:flex;flex-direction:column;gap:4px;font-size:12px;margin-bottom:8px">
+        <div style="display:flex;justify-content:space-between">
+          <span>Tier schedule</span>
+          <b>Tier ${a.tier} (5% at ${esc(fmt.money(500))}, 10% at ${esc(fmt.money(2000))})</b>
+        </div>
+        <div style="display:flex;justify-content:space-between">
+          <span>YTD Rebate accrual</span>
+          <b class="money">${esc(fmt.money(a.current * 0.025))} accrued</b>
+        </div>
+        <div style="display:flex;justify-content:space-between">
+          <span>Freight policy</span>
+          <b>Prepaid on standard deliveries</b>
+        </div>
+      </div>
+      <div class="btn-row" style="gap:8px;flex-wrap:wrap">
+        <button class="btn secondary sm" data-act="view-contract-doc" data-id="${a.id}" style="min-height:var(--tap);flex:1;min-width:140px">${icon('note', 14)} Export contract summary</button>
+        <button class="btn secondary sm" data-act="request-credit-increase" data-id="${a.id}" style="min-height:var(--tap);flex:1;min-width:140px">${icon('wallet', 14)} Request credit review</button>
+      </div>
+    </div>
+  </details>
   <details class="fold" id="acc-kpis"><summary>KPIs</summary><ul class="kpi-list">${kpis}</ul></details>
   <details class="fold" id="acc-contacts"><summary>${esc(t('{Contacts}'))}<span class="sum-end">${a.contacts.length}</span></summary><ul class="group">${contacts}</ul></details>
   <details class="fold" id="acc-visits"><summary>${esc(t('Last {visits}'))}<span class="sum-end">${a.history.length}</span></summary>
@@ -181,6 +211,25 @@ export function render(ctx, [accountId]) {
 }
 
 export const actions = {
+  'view-contract-doc': ({ ctx, data }) => {
+    const a = ctx.data.byId[data.id];
+    const poNum = 'AGR-' + String(1000 + (a.name.length * 97) % 9000);
+    const content = `MASTER COMMERCIAL AGREEMENT SUMMARY\nReference: ${poNum}\nAccount: ${a.name}\nTier: ${a.tier}\nTerms: Net 30\nStatus: Active\n`;
+    const blob = new Blob([content], { type: 'text/plain;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `Contract-${poNum}.txt`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    if (ctx.m?.logAudit) ctx.m.logAudit('Commercial Desk', `Exported master agreement summary for ${a.name}`);
+  },
+  'request-credit-increase': ({ ctx, data }) => {
+    const a = ctx.data.byId[data.id];
+    (ctx.ui ||= {}).accountToast = `Credit review request for ${a ? a.name : 'account'} dispatched to Commercial Finance.`;
+    if (ctx.m?.logAudit) ctx.m.logAudit('Credit Operations', `Submitted credit line review request for ${a ? a.name : data.id}`);
+  },
   'convert-whitespace': ({ ctx, data }) => {
     const a = ctx.data.byId[data.id];
     (ctx.ui ||= {}).accountToast = `Category whitespace converted to prioritized action for ${a ? a.name : 'account'}.`;
