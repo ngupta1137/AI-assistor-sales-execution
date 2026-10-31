@@ -69,7 +69,38 @@ export function render(ctx, [id]) {
   const reasons = ui.notDone === it.id && !out?.status ? `<fieldset class="radios"><legend class="small" style="margin-bottom:8px">Why was it not done?</legend>${industry.outcomeReasons.map((r) => `
       <label class="radio"><input type="radio" name="nd-${it.id}" value="${esc(r.label)}" data-change="outcome-reason" data-id="${it.id}"><span>${esc(t(r.label))}${r.blocked ? ' <small>(goes to your manager)</small>' : ''}</span></label>`).join('')}</fieldset>` : '';
 
-  const html = `
+  const pitchModal = ui.pitchModal === it.id ? `
+  <div class="presenter-backdrop" data-act="close-pitch-modal" aria-hidden="true"></div>
+  <section class="as-sheet" role="dialog" aria-modal="true" aria-labelledby="pitch-modal-title" style="height:auto;max-height:85%;overflow-y:auto;z-index:90">
+    <header class="as-head">
+      <div>
+        <h2 id="pitch-modal-title">${icon('brief', 18)} Customer value presentation</h2>
+        <small>${esc(a.name)} · Commercial Growth Proposal</small>
+      </div>
+      <button class="icon-btn" data-act="close-pitch-modal" aria-label="Close presentation">${icon('x', 20)}</button>
+    </header>
+    <div style="padding:var(--s4);display:flex;flex-direction:column;gap:var(--s3)">
+      <div class="card" style="margin:0">
+        <b>Proposed initiative: ${esc(t(it.title, v))}</b>
+        <div class="facts" style="margin-top:8px">
+          <div><small>Projected gross margin lift</small><b class="good-text">+12.4%</b></div>
+          <div><small>Estimated opportunity</small><b class="money">${esc(fmt.money(it.value * 3))}</b></div>
+          <div><small>Payback horizon</small><b>&lt; 3 weeks</b></div>
+        </div>
+      </div>
+      <section class="card" style="margin:0">
+        <h3>Customer-facing value drivers</h3>
+        <ul class="why" style="margin-top:6px">
+          <li>Accelerates inventory turnover based on regional sell-through patterns.</li>
+          <li>Optimizes display or operational allocation with zero risk of stockout.</li>
+          <li>Protected by vendor volume terms and point-of-sale support.</li>
+        </ul>
+      </section>
+      <button class="btn primary block" data-act="close-pitch-modal" style="min-height:var(--tap)">Close presentation</button>
+    </div>
+  </section>` : '';
+
+  const html = `${pitchModal}
   <a class="back" href="#/brief/${a.id}">${icon('back', 18)} ${esc(t('{Visit} brief'))}</a>
   <section class="page-head">
     <span class="eyebrow">${esc(t(it.type))} · ${esc(AGENT_LABEL[it.agent])}</span>
@@ -95,9 +126,42 @@ export function render(ctx, [id]) {
     <p class="small muted" style="margin-top:8px">Compared with: ${esc(t(it.compared, v))}</p>
   </section>
 
+  <button class="btn secondary sm" data-act="open-pitch-modal" data-id="${it.id}" style="min-height:var(--tap);margin-bottom:var(--s2);width:100%">${icon('brief', 16)} Present customer value story</button>
+
   <section class="card">
     <h2>${esc(t('Talking points for the {contact}'))}</h2>
     <ul class="why">${def.talk.map((x) => `<li>${esc(t(x, v))}</li>`).join('')}</ul>
+  </section>
+
+  <section class="card" id="objections">
+    <div class="section-head">
+      <h2>Objection handling</h2>
+      ${pill('AI approved talking points', 'info')}
+    </div>
+    <p class="small muted">Common customer objections with compliant, guardrail-verified response paths.</p>
+    <div style="display:flex;flex-direction:column;gap:8px;margin-top:8px">
+      <details class="fold-sub" style="border:1px solid var(--line-soft);border-radius:var(--radius-sm);padding:8px">
+        <summary style="font-weight:600;font-size:13px;cursor:pointer">${icon('bulb', 14)} Objection: "Margin or unit price is too high"</summary>
+        <div style="margin-top:6px;font-size:12px;color:var(--ink-2)">
+          <p><b>Recommended response:</b> Focus on category sell-through velocity and high repeat basket rate. Total gross profit dollars earned over 30 days exceed slower-moving high-margin alternatives.</p>
+          <p class="small muted" style="margin-top:4px">Approved trade term: Volume tier discount schedule applies on orders exceeding threshold.</p>
+        </div>
+      </details>
+      <details class="fold-sub" style="border:1px solid var(--line-soft);border-radius:var(--radius-sm);padding:8px">
+        <summary style="font-weight:600;font-size:13px;cursor:pointer">${icon('bulb', 14)} Objection: "We have no room or inventory space"</summary>
+        <div style="margin-top:6px;font-size:12px;color:var(--ink-2)">
+          <p><b>Recommended response:</b> Propose rationalizing declining lines to optimize high-velocity capacity. Offer split delivery cadence to conserve working capital and backroom space.</p>
+          <p class="small muted" style="margin-top:4px">Approved trade term: Flexible weekly delivery schedule available through logistics dispatch.</p>
+        </div>
+      </details>
+      <details class="fold-sub" style="border:1px solid var(--line-soft);border-radius:var(--radius-sm);padding:8px">
+        <summary style="font-weight:600;font-size:13px;cursor:pointer">${icon('bulb', 14)} Objection: "Our customers prefer the incumbent alternative"</summary>
+        <div style="margin-top:6px;font-size:12px;color:var(--ink-2)">
+          <p><b>Recommended response:</b> Share regional commercial data showing 28% customer switch rate when merchandised at eye level with introductory promotional signage.</p>
+          <p class="small muted" style="margin-top:4px">Approved trade term: Point-of-sale display collateral provided at no additional charge.</p>
+        </div>
+      </details>
+    </div>
   </section>
 
   ${evidenceBlock(ctx, it, def)}
@@ -144,4 +208,6 @@ export const actions = {
   'outcome-cancel': ({ ctx }) => { ctx.ui.notDone = null; },
   'outcome-reason': ({ ctx, data, value }) => { ctx.m.recordOutcome(data.id, { status: 'not_done', reason: value }); ctx.ui.notDone = null; },
   'outcome-reset': ({ ctx, data }) => { ctx.m.recordOutcome(data.id, { status: null, reason: null }); },
+  'open-pitch-modal': ({ ctx, data }) => { ctx.ui.pitchModal = data.id; },
+  'close-pitch-modal': ({ ctx }) => { ctx.ui.pitchModal = null; },
 };

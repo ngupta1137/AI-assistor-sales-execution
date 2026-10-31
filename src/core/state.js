@@ -53,6 +53,7 @@ export function createModel(ctx) {
   /** meta: { persona, screen } of where the decision was made. Overrides and refusals both record it. */
   const decide = (id, d, meta) => {
     s.decisions[id] = { ...d, at: nowMinutes() };
+    if (ctx.app?.offline) (ctx.app.offlineQueue ||= []).push({ type: 'decision', id, status: d.status, at: nowMinutes() });
     const it = findAction(id);
     const where = meta ? ` (${meta.persona}, ${meta.screen} screen)` : '';
     log(data.rep.name, d.status === 'approved' ? `Approved ${itemText(it)}` : d.status === 'adjusted' ? `Adjusted ${itemText(it)}: ${ctx.t(d.choice)}` : `Overrode ${itemText(it)}. Reason: ${ctx.t(d.reason)}${where}`);
@@ -91,6 +92,7 @@ export function createModel(ctx) {
   const outcome = (id) => s.outcomes[id];
   const recordOutcome = (id, o) => {
     s.outcomes[id] = { ...(s.outcomes[id] || {}), ...o };
+    if (ctx.app?.offline) (ctx.app.offlineQueue ||= []).push({ type: 'outcome', id, status: o.status, at: nowMinutes() });
     const item = findAction(id);
     if (o.status) log(data.rep.name, o.status === 'done' ? `Marked done: ${itemText(item)}` : `Not done: ${itemText(item)}. Reason: ${ctx.t(o.reason)}`);
     s.exceptions = s.exceptions.filter((e) => e.sourceId !== `${id}#blocked`);
@@ -178,6 +180,7 @@ export function createModel(ctx) {
     const rules = all.filter((r) => r.triggered && (r.kind === 'totalAbove' || r.kind === 'humanPrice'));
     st.submitted = true;
     st.needsApproval = rules.length > 0;
+    if (ctx.app?.offline) (ctx.app.offlineQueue ||= []).push({ type: 'order', accountId, at: nowMinutes() });
     st.route = st.needsApproval ? (rules[0].route === 'kam' ? 'kam' : 'manager') : null;
     log(data.rep.name, ctx.t(`${st.needsApproval ? 'Sent for approval' : 'Submitted'}: {order} for ${data.byId[accountId].name}`));
     s.exceptions = s.exceptions.filter((e) => e.sourceId !== `order:${accountId}`);
@@ -194,7 +197,11 @@ export function createModel(ctx) {
 
   // ---- Visits ----
   const visitDone = (accountId) => !!s.visits[accountId];
-  const completeVisit = (accountId) => { s.visits[accountId] = { done: true, at: nowMinutes() }; log(data.rep.name, ctx.t(`Closed the {visit} at ${data.byId[accountId].name}`)); };
+  const completeVisit = (accountId) => {
+    s.visits[accountId] = { done: true, at: nowMinutes() };
+    if (ctx.app?.offline) (ctx.app.offlineQueue ||= []).push({ type: 'visit', accountId, at: nowMinutes() });
+    log(data.rep.name, ctx.t(`Closed the {visit} at ${data.byId[accountId].name}`));
+  };
   /** Days since the last visit, counting a {visit} closed in this session as today. */
   const lastVisitDays = (accountId) => (visitDone(accountId) ? 0 : data.byId[accountId].lastVisitDays);
   /** Open gaps exclude actions recorded done; not done and overridden stay open. */

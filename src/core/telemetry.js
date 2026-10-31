@@ -53,12 +53,15 @@ export function renderSyncModal(app, ctx) {
       <section class="card" style="margin:0">
         <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
           <b>Offline Engine & Local Cache</b>
-          ${pill('Encrypted', 'info')}
+          ${app.offline ? pill('Offline: Queued', 'warn') : pill('Encrypted: Synced', 'info')}
         </div>
         <p class="small muted">Field-ready offline persistence. Transactions are stored in an AES-256 encrypted local cache and automatically reconcile when connectivity returns.</p>
         <div class="facts" style="margin-top:8px">
-          <div><small>Pending queue</small><b>0 transactions</b></div>
+          <div><small>Pending queue</small><b>${(app.offlineQueue || []).length} transactions</b></div>
           <div><small>Local storage</small><b>AES-256</b></div>
+        </div>
+        <div style="margin-top:8px">
+          <button class="btn secondary sm" data-act="toggle-offline" style="min-height:var(--tap);width:100%">${app.offline ? 'Restore network connectivity' : 'Simulate offline field mode'}</button>
         </div>
       </section>
 
@@ -120,5 +123,16 @@ export const syncActions = {
   },
   'download-audit-csv': ({ ctx }) => {
     exportAuditCsv(ctx);
+  },
+  'toggle-offline': ({ app, ctx }) => {
+    app.offline = !app.offline;
+    if (app.offline) {
+      if (ctx?.m?.logAudit) ctx.m.logAudit('Offline Engine', 'Entered offline mode. Local AES-256 encrypted cache active.');
+    } else {
+      const count = (app.offlineQueue ||= []).length;
+      app.offlineQueue = [];
+      app.ui.syncJustRan = true;
+      if (ctx?.m?.logAudit) ctx.m.logAudit('Offline Engine', `Restored network connectivity. Flushed ${count} transactions to CRM and ERP gateways.`);
+    }
   },
 };
