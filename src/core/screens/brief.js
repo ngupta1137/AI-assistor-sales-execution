@@ -111,7 +111,39 @@ export function render(ctx, [accountId]) {
   const bump = (k) => (prev && prev[k] !== c[k] ? ' class="bump"' : '');
   ui.prevCounts = { ...(ui.prevCounts || {}), [a.id]: c };
 
-  return `
+  const collateralModal = ui.collateralOpen ? `
+  <div class="presenter-backdrop" data-act="close-collateral" aria-hidden="true"></div>
+  <section class="as-sheet" role="dialog" aria-modal="true" aria-labelledby="collateral-title" style="height:auto;max-height:85%;overflow-y:auto;z-index:90">
+    <header class="as-head">
+      <div>
+        <h2 id="collateral-title">${icon('brief', 18)} Sales collateral and documents</h2>
+        <small>${esc(ctx.industry.name)} · Approved Commercial Collateral</small>
+      </div>
+      <button class="icon-btn" data-act="close-collateral" aria-label="Close collateral">${icon('x', 20)}</button>
+    </header>
+    <div style="padding:var(--s4);display:flex;flex-direction:column;gap:var(--s3)">
+      <div class="card" style="margin:0">
+        <div style="display:flex;justify-content:space-between;align-items:center">
+          <b>Commercial Catalog and Specification</b>
+          ${pill('PDF · 1.4 MB', 'info')}
+        </div>
+        <p class="small muted" style="margin-top:4px">Quarterly approved price schedules, technical specifications, and bulk volume terms.</p>
+        <button class="btn secondary sm" data-act="share-doc" data-doc="Commercial Catalog" data-to="${esc(contact.name)}" style="min-height:var(--tap);margin-top:8px;width:100%">${icon('brief', 14)} Share with ${esc(contact.name)}</button>
+      </div>
+      <div class="card" style="margin:0">
+        <div style="display:flex;justify-content:space-between;align-items:center">
+          <b>Regulatory Compliance and Certificate</b>
+          ${pill('PDF · 820 KB', 'good')}
+        </div>
+        <p class="small muted" style="margin-top:4px">Certificate of analysis, safety compliance data sheets, and verified regulatory clearances.</p>
+        <button class="btn secondary sm" data-act="share-doc" data-doc="Compliance Certificate" data-to="${esc(contact.name)}" style="min-height:var(--tap);margin-top:8px;width:100%">${icon('shield', 14)} Share with ${esc(contact.name)}</button>
+      </div>
+      <button class="btn primary block" data-act="close-collateral" style="min-height:var(--tap)">Close</button>
+    </div>
+  </section>` : '';
+
+  return `${collateralModal}
+  ${ui.briefToast ? `<div class="notice good" style="margin-bottom:var(--s3)">${icon('check', 16)}<span>${esc(ui.briefToast)}</span></div>` : ''}
   <a class="back" href="#/today">${icon('back', 18)} ${esc(t('Today'))}</a>
   <section class="brief-head">
     <span class="eyebrow">${esc(t('{Visit} brief'))} · prepared overnight</span>
@@ -119,6 +151,10 @@ export function render(ctx, [accountId]) {
     <p class="small muted">${esc(typeLine(t, a))} · ${esc(a.area)} · Tier ${a.tier}</p>
     <p class="small">${esc(fmt.time(p.start))} · ${a.visitMinutes} min · ${esc(contact.name)}, ${esc(t(contact.role))}</p>
   </section>
+  <div style="display:flex;gap:8px;margin-bottom:12px">
+    <button class="btn secondary sm" data-act="open-collateral" style="flex:1;min-height:var(--tap)">${icon('brief', 16)} Sales collateral</button>
+    <a class="btn secondary sm" href="#/account/${a.id}" style="flex:1;min-height:var(--tap);display:flex;align-items:center;justify-content:center">${icon('note', 16)} ${esc(t('{Account} 360'))}</a>
+  </div>
 
   <div class="counts tight" id="counts" aria-live="polite">
     <span data-count="approved"${bump('approved')}><b>${c.approved}</b>Approved</span>

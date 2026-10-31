@@ -73,11 +73,53 @@ export function render(ctx, [accountId]) {
   ${stopped && !st.submitted ? `<div class="notice warn">${icon('stop', 18)}<span>${esc(t('Order agent stopped. You can edit this draft. Submission is paused.'))}</span></div>` : ''}
   <ul class="group">${rows}</ul>
   <section><h2>Rules</h2><ul class="group rules" style="margin-top:12px">${ruleRows}</ul></section>
+
+  ${(() => {
+    const subtotal = total;
+    const discountRate = subtotal >= 500 ? 0.05 : 0;
+    const discountAmount = Math.round(subtotal * discountRate);
+    const taxRate = 0.08;
+    const estimatedTax = Math.round((subtotal - discountAmount) * taxRate);
+    const finalTotal = subtotal - discountAmount + estimatedTax;
+
+    return `
+    <section class="card tight" style="margin-top:var(--s3)">
+      <div class="section-head" style="margin-bottom:6px">
+        <h3>Commercial pricing and tax breakdown</h3>
+        ${discountRate > 0 ? pill('Volume tier applied', 'good') : pill('Standard terms', 'info')}
+      </div>
+      <div class="facts" style="grid-template-columns:repeat(auto-fit,minmax(75px,1fr))">
+        <div><small>Subtotal</small><b class="money">${esc(fmt.money(subtotal))}</b></div>
+        <div><small>Volume tier</small><b>${discountRate > 0 ? '-5%' : '0%'}</b></div>
+        <div><small>Est. tax</small><b>${esc(fmt.money(estimatedTax))}</b></div>
+        <div><small>Net total</small><b class="money">${esc(fmt.money(finalTotal))}</b></div>
+      </div>
+      ${subtotal < 500
+        ? `<small class="muted" style="display:block;margin-top:6px">${icon('bulb', 12)} Add ${esc(fmt.money(500 - subtotal))} to qualify for 5% volume discount tier.</small>`
+        : `<small class="good-text" style="display:block;margin-top:6px">${icon('check', 12)} Qualified for 5% volume discount tier (- ${esc(fmt.money(discountAmount))}).</small>`}
+      <div style="margin-top:8px;padding-top:6px;border-top:1px solid var(--line-soft);font-size:11px;color:var(--muted)">
+        ${icon('route', 12)} Standard 48h distribution dispatch · Prepaid freight terms verified
+      </div>
+      ${ctx.ui?.promoNotice ? `<div class="notice good" style="margin-top:8px">${icon('check', 14)}<span>${esc(ctx.ui.promoNotice)}</span></div>` : ''}
+      <div style="display:flex;gap:8px;align-items:center;margin-top:8px">
+        <input type="text" placeholder="Commercial contract code" class="input" style="flex:1;height:var(--tap)" id="order-promo-input">
+        <button class="btn secondary sm" data-act="apply-promo" data-id="${a.id}" style="min-height:var(--tap)">Apply code</button>
+      </div>
+    </section>`;
+  })()}
   <p class="foot-note">Prices are illustrative.</p>`;
   return { html, dock };
 }
 
 export const actions = {
+  'apply-promo': ({ ctx, data }) => {
+    const input = document.getElementById('order-promo-input');
+    const val = (input?.value || '').trim();
+    if (val) {
+      (ctx.ui ||= {}).promoNotice = `Applied contract terms for code ${val}.`;
+      if (ctx.m?.logAudit) ctx.m.logAudit('Order Desk', `Applied commercial contract code "${val}" to order for ${ctx.data.byId[data.id]?.name || ''}`);
+    }
+  },
   qty: ({ ctx, data }) => {
     const line = ctx.m.orderLines(data.id).find((l) => l.offeringId === data.o);
     ctx.m.setQty(data.id, data.o, line.qty + Number(data.d));

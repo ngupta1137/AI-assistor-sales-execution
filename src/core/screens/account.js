@@ -82,7 +82,42 @@ export function render(ctx, [accountId]) {
     <b class="money">${esc(fmt.money(o.total))}</b><small>${o.lines} lines</small></span>
     <small>${esc(fmt.date(fmt.dayOffset(-o.daysAgo)))}</small></li>`).join('');
 
-  return `
+  const crmNoteModal = ctx.ui?.crmNoteOpen === a.id ? `
+  <div class="presenter-backdrop" data-act="close-crm-note" aria-hidden="true"></div>
+  <section class="as-sheet" role="dialog" aria-modal="true" aria-labelledby="crm-note-title" style="height:auto;max-height:85%;overflow-y:auto;z-index:90">
+    <header class="as-head">
+      <div>
+        <h2 id="crm-note-title">${icon('note', 18)} Add CRM visit note</h2>
+        <small>${esc(a.name)} · Activity Timeline Logger</small>
+      </div>
+      <button class="icon-btn" data-act="close-crm-note" aria-label="Close dialog">${icon('x', 20)}</button>
+    </header>
+    <div style="padding:var(--s4);display:flex;flex-direction:column;gap:var(--s3)">
+      <label class="field"><span>Interaction type</span>
+        <select id="crm-note-type" style="height:var(--tap)">
+          <option>In-person visit</option>
+          <option>Phone check-in</option>
+          <option>Commercial review</option>
+        </select>
+      </label>
+      <label class="field"><span>Customer sentiment</span>
+        <select id="crm-note-sentiment" style="height:var(--tap)">
+          <option>Positive - Ready to expand</option>
+          <option>Neutral - Standard replenishment</option>
+          <option>Cautious - Budget constraint</option>
+        </select>
+      </label>
+      <label class="field"><span>Key discussion and commitments</span>
+        <textarea class="input" rows="3" id="crm-note-text" placeholder="Record key customer insights, commercial commitments, and agreed follow-ups..."></textarea>
+      </label>
+      <div class="btn-row">
+        <button class="btn secondary" data-act="close-crm-note" style="min-height:var(--tap);flex:1">Cancel</button>
+        <button class="btn primary" data-act="save-crm-note" data-id="${a.id}" style="min-height:var(--tap);flex:1">Save to CRM</button>
+      </div>
+    </div>
+  </section>` : '';
+
+  return `${crmNoteModal}
   <a class="back" href="${p ? `#/brief/${a.id}` : '#/today'}">${icon('back', 18)} ${p ? esc(t('{Visit} brief')) : 'Back'}</a>
   ${ctx.ui?.accountToast ? `<div class="notice good" style="margin-bottom:var(--s3)">${icon('check', 16)}<span>${esc(ctx.ui.accountToast)}</span></div>` : ''}
   <section class="page-head">
@@ -114,11 +149,31 @@ export function render(ctx, [accountId]) {
 
   <details class="fold" id="acc-kpis"><summary>KPIs</summary><ul class="kpi-list">${kpis}</ul></details>
   <details class="fold" id="acc-contacts"><summary>${esc(t('{Contacts}'))}<span class="sum-end">${a.contacts.length}</span></summary><ul class="group">${contacts}</ul></details>
-  <details class="fold" id="acc-visits"><summary>${esc(t('Last {visits}'))}<span class="sum-end">${a.history.length}</span></summary><ul class="group">${visits}</ul></details>
+  <details class="fold" id="acc-visits"><summary>${esc(t('Last {visits}'))}<span class="sum-end">${a.history.length}</span></summary>
+    <ul class="group">${visits}</ul>
+    <div style="margin-top:8px">
+      <button class="btn secondary sm" data-act="open-crm-note" data-id="${a.id}" style="min-height:var(--tap);width:100%">${icon('note', 16)} Add CRM visit note</button>
+    </div>
+  </details>
   <details class="fold" id="acc-orders"><summary>${esc(t('{Order} history'))}<span class="sum-end">${a.orderHistory.length}</span></summary><ul class="group">${orders}</ul></details>`;
 }
 
 export const actions = {
+  'open-crm-note': ({ ctx, data }) => { (ctx.ui ||= {}).crmNoteOpen = data.id; },
+  'close-crm-note': ({ ctx }) => { (ctx.ui ||= {}).crmNoteOpen = null; },
+  'save-crm-note': ({ ctx, data }) => {
+    const textEl = document.getElementById('crm-note-text');
+    const typeEl = document.getElementById('crm-note-type');
+    const text = (textEl?.value || '').trim() || 'Completed interaction review.';
+    const type = typeEl?.value || 'Visit';
+    const a = ctx.data.byId[data.id];
+    if (a) {
+      a.history.unshift({ daysAgo: 0, note: `${type}: ${text.slice(0, 80)}`, vars: {} });
+      (ctx.ui ||= {}).accountToast = `CRM note recorded for ${a.name}.`;
+      if (ctx.m?.logAudit) ctx.m.logAudit('CRM Activity', `Logged ${type} for ${a.name}: "${text.slice(0, 60)}"`);
+    }
+    ctx.ui.crmNoteOpen = null;
+  },
   'log-touchpoint': ({ ctx, data }) => {
     (ctx.ui ||= {}).accountToast = `Touchpoint with ${data.contact} logged to CRM activity timeline.`;
     if (ctx.m?.logAudit) ctx.m.logAudit('CRM Connector', `Logged touchpoint with ${data.contact} at ${data.acc}`);
