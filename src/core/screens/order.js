@@ -161,6 +161,13 @@ export function render(ctx, [accountId]) {
 }
 
 export const actions = {
+  'request-credit-override': ({ ctx, data }) => {
+    (ctx.ui ||= {}).creditBreachRequested = true;
+    (ctx.ui ||= {}).promoNotice = 'Expedited credit line override queued for District Manager approval.';
+    if (ctx.m?.logAudit) {
+      ctx.m.logAudit('Credit Operations', `Requested expedited credit line override for ${ctx.data.byId[data.id]?.name || ''}`);
+    }
+  },
   'toggle-van-stock': ({ ctx }) => {
     (ctx.ui ||= {}).vanStockOpen = !ctx.ui.vanStockOpen;
     ctx.ui.vanStockNotice = null;
