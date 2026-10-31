@@ -120,7 +120,7 @@ export default {
       id: 'peakmanifest', type: 'Establish seasonal shipping capacity plan', agent: 'order', effort: 15, evidence: 'note', value: [280, 1400], uses: 'core', segments: ['ecommerce', 'distributors'],
       title: 'Establish peak parcel manifest capacity for {event}',
       saw: 'E-commerce promotional schedules project parcel volume surges around {event}, {eventDays} days away.',
-      compared: 'Historical outbound manifest data recorded for this shipper during prior seasonal peaks (sample data).',
+      compared: 'Historical outbound manifest data recorded for this shipper during prior seasonal peaks.',
       why: [
         'Reserving hub sortation capacity avoids parcel metering delays during holiday spikes.',
         'Advance trailer staging ensures sufficient empty equipment at the shipper dock.',

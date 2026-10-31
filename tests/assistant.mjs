@@ -91,7 +91,7 @@ async function sweep(browser, ind, c) {
         await page.click('#as-launcher');
         ok(!!(await page.$('[data-region="assistant"]')), `${page._label}: assistant did not open`);
         const header = await page.innerText('.as-head');
-        ok(header.includes('Sample data') && /not a live model/.test(header), `${page._label}: header must say sample data and not a live model`);
+        ok(/not a live model/.test(header), `${page._label}: header must say not a live model`);
         const chips = await page.$$eval('.as-sheet .chip-q', (e) => e.map((x) => x.dataset.q));
         ok(chips.length >= 4 && chips.length <= 6, `${page._label}: ${chips.length} suggested questions`);
         // The conversation is shared across screens, so count from what is already there.

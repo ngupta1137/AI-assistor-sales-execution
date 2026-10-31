@@ -79,7 +79,7 @@ export function render(ctx) {
   <details class="fold" id="coverage"><summary>Coverage gaps<span class="sum-end">${uncovered.length} tier A</span></summary>
     <p class="small muted">${esc(t(`High-potential {accounts} not visited in ${N} days. The Visit Planner adds them to the next routes.`))}</p>
     <ul class="group">${coverage}</ul></details>
-  <p class="foot-note">Sample data. Other reps' figures are generated.</p>`;
+  <p class="foot-note">Other reps' figures are generated.</p>`;
 }
 
 export const actions = {

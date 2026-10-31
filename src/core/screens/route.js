@@ -44,7 +44,7 @@ export function render(ctx) {
   ${dropped.length ? `<div class="notice warn">${icon('clock', 18)}<span>${esc(t(`${dropped.length} {accounts} no longer fit before closing and move to tomorrow.`))}</span></div>` : ''}
   <ol class="group timeline">${rows}</ol>
   ${closed.length ? `<section><h2>Closed today</h2><ul class="group" style="margin-top:12px">${closed.map((p) => `<li class="row"><span class="row-main"><b>${esc(data.byId[p.accountId].name)}</b><small>Closed today</small></span><button class="btn secondary sm" data-act="close-account" data-id="${p.accountId}">Reopen</button></li>`).join('')}</ul></section>` : ''}
-  <p class="foot-note">Sample data. Travel times use a straight-line estimate at an average city speed.</p>`;
+  <p class="foot-note">Travel times use a straight-line estimate at an average city speed.</p>`;
 }
 
 export const actions = {

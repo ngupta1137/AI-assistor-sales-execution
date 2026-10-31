@@ -8,12 +8,12 @@ export const COMMON_REFUSALS = [
     id: 'sample-data',
     guardrail: 'sample-data',
     patterns: ['guarantee', 'promise me', 'will i hit', 'will we hit', 'will i make', 'how much will i sell', 'how much more will', 'double my', 'predict my sales', 'forecast my sales', 'what results will', 'prove the roi', 'roi of this'],
-    refusal: 'I cannot promise or predict results. All numbers here are sample data, and no result is claimed before a pilot against matched control territories.',
+    refusal: 'I cannot promise or predict results. All numbers here are demonstration data, and no result is claimed before a pilot against matched control territories.',
     allowed: 'I can show the estimate for an action and how it was worked out.',
   },
 ];
 
-const SAMPLE_GUARDRAIL = 'This prototype runs on sample data and never promises or predicts results. Impact is measured in a pilot against matched control territories.';
+const SAMPLE_GUARDRAIL = 'This prototype runs on demonstration data and never promises or predicts results. Impact is measured in a pilot against matched control territories.';
 
 const esc = (s) => s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 const matches = (text, pattern) => new RegExp(`(^|[^a-z0-9])${esc(pattern.toLowerCase())}`).test(text);

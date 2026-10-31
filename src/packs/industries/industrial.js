@@ -102,7 +102,7 @@ export default {
       id: 'shutdown', type: 'Plan stock for the shutdown', agent: 'order', effort: 15, evidence: 'note', value: [500, 2600], uses: 'core', segments: ['plants'],
       title: 'Plan stock for the shutdown around {event}',
       saw: 'The maintenance calendar shows a planned stop about {eventDays} days out, with a job list for the plant.',
-      compared: 'Consumption in the last planned stop at this plant (sample data).',
+      compared: 'Consumption in the last planned stop at this plant.',
       why: [
         'A planned stop is the one time the plant buys many items at once.',
         'Ordering early lets us reserve stock and book delivery slots.',
@@ -133,7 +133,7 @@ export default {
       id: 'talk', type: 'Run a toolbox talk', agent: 'gap', effort: 20, evidence: 'signature', value: [80, 420], uses: 'focus', segments: ['plants', 'contractors'],
       title: 'Offer a toolbox talk on {product}',
       saw: 'Two near-miss reports mention incorrect use of {product} at this site in the last year.',
-      compared: 'Sites that held a short talk on the item, which had fewer repeat reports (sample data).',
+      compared: 'Sites that held a short talk on the item, which had fewer repeat reports.',
       why: [
         'A ten-minute talk costs little compared with an incident.',
         'The attendance sheet is the record that the talk was held.',
@@ -282,7 +282,7 @@ export default {
     { q: 'When should I doubt an item?', a: 'When it shows low confidence. That means thin data, so count the crib yourself before acting.' },
   ],
   storyline: [
-    'Pick Industrial supplies and the prospect\'s country. Say it is sample data.',
+    'Pick Industrial supplies and the prospect\'s country. Say all data is fictional demonstration data.',
     'Today: the engineer\'s sites, ranked by value, with local cities and currency.',
     'Open the first visit brief. Approve the restock bin. Override the toolbox talk with "Not allowed under the service agreement".',
     'Open an action: the reasons, the talking points and the rating guardrail.',

@@ -48,8 +48,7 @@ export function render(ctx) {
     <p class="small muted">Event dates are approximate.</p>
   </details>
   <a class="btn secondary block" href="#/problems" id="open-problems">${icon('bulb', 20)}Problems we solve</a>
-  <div class="notice good">${icon('check', 18)}<span><b>This is a configuration, not a custom build.</b> Adding an industry or a country means adding one pack file.</span></div>
-  <p class="foot-note">Sample data.</p>`;
+  <div class="notice good">${icon('check', 18)}<span><b>This is a configuration, not a custom build.</b> Adding an industry or a country means adding one pack file.</span></div>`;
 }
 
 export const actions = {

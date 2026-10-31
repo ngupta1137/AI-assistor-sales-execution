@@ -37,10 +37,10 @@ export function learning(ctx) {
       ${c.r.links?.length ? `<div class="btn-row">${c.r.links.map((l) => `<a class="btn secondary sm" href="${esc(l.href)}" data-act="lc-link">${esc(l.label)}</a>`).join('')}</div>` : ''}
       ${c.r.refusal ? `<div class="guardrail" data-why>${icon('shield', 20)}<span><b>Guardrail ${esc(c.r.refusal.guardrailId)}.</b> ${esc(c.r.refusal.guardrailText)}</span></div>` : ''}</div>`).join('');
   const sugg = ['What is due for renewal?', 'How am I doing on my modules?', t(industry.companion.knowledge[0].title)].map((q) => `<button class="chip-q" data-act="lc-q" data-q="${esc(q)}">${esc(q)}</button>`).join('');
-  const team = ctx.persona !== 'rep' ? `<section class="card" id="team-learning"><h2>Team learning progress</h2><p class="small muted">For coaching conversations, not a ranking. Sample data.</p>
+  const team = ctx.persona !== 'rep' ? `<section class="card" id="team-learning"><h2>Team learning progress</h2><p class="small muted">For coaching conversations, not a ranking.</p>
     <ul class="kpi-list">${comp.teamLearning.map((r) => `<li data-team-row><span class="small"><b>${esc(r.rep)}</b>${r.self ? ' (demo rep)' : ''}<br><small>${r.done} of ${r.total} modules${r.certsDue ? `, ${r.certsDue} certification${r.certsDue > 1 ? 's' : ''} due or overdue` : ''}</small></span><span class="kv"><b>${Math.round((r.done / r.total) * 100)}%</b></span></li>`).join('')}</ul></section>` : '';
   const jump = [['cert-tracker', 'Certifications'], ['modules', 'Modules'], ['kb', 'Knowledge base'], ['lc', 'Chatbot']].map(([id, l]) => `<a href="#/companion/learning" data-act="jump" data-id="${id}">${l}</a>`).join('');
-  return head(ctx, { title: 'Learning', lead: 'Certifications, modules, a knowledge base and a chatbot that answers only from them. Sample content.' }) + `
+  return head(ctx, { title: 'Learning', lead: 'Certifications, modules, a knowledge base and a chatbot that answers only from them.' }) + `
   <nav class="jump tight" aria-label="Sections">${jump}</nav>
   ${team}
   <section class="card" id="cert-tracker"><div class="section-head"><h2>Certification tracker</h2>${pill(`${flagged.length} due or overdue`, flagged.length ? 'warn' : 'good')}</div>
@@ -50,13 +50,13 @@ export function learning(ctx) {
     <label class="field">Search<input type="search" id="kb-search" data-input="kb-search" value="${esc(ui.kbQuery || '')}" placeholder="For example: display, expenses, warranty" autocomplete="off"></label>
     <div id="kb-results">${kbHtml(ctx, ui.kbQuery || '')}</div></section>
   <section class="card" id="lc"><h2>Learning chatbot</h2>
-    <div class="notice">${icon('flag', 18)}<span>Rule-based. It answers only from the knowledge base, your modules and your certifications. Sample data. It refuses restricted claims.</span></div>
+    <div class="notice">${icon('flag', 18)}<span>Rule-based. It answers only from the knowledge base, your modules and your certifications. It refuses restricted claims.</span></div>
     <div class="chat" id="lc-log" role="log" aria-live="polite">${chat}</div>
     <div class="chips-q">${sugg}</div>
     <form class="ask-row" onsubmit="return false"><label class="sr-only" for="lc-input">Question</label>
       <input class="input" id="lc-input" type="text" maxlength="200" autocomplete="off" placeholder="Ask about training or how to do something" data-input="lc-draft" value="${esc(ui.lcDraft || '')}">
       <button class="btn primary" data-act="lc-send" id="lc-send">Ask</button></form></section>
-  <p class="foot-note">Sample data. Content is written for the demo and is not approved training material.</p>`;
+  <p class="foot-note">Content is written for the demo and is not approved training material.</p>`;
 }
 
 export function mounted(ctx) {

@@ -69,7 +69,7 @@ export default {
         '{product} is a priority brand this cycle.',
         'The approved leave-behind was updated {weeks} weeks ago and {person} has not seen it.',
         'At an earlier call, {person} asked for the latest approved material.',
-        'Estimated value over the cycle: {amount} (sample data).',
+        'Estimated value over the cycle: {amount}.',
       ],
       talk: [
         'Use only the approved leave-behind. Do not add your own claims.',
@@ -80,7 +80,7 @@ export default {
     },
     {
       id: 'sample', type: 'Log a sample drop within limits', agent: 'gap', effort: 6, evidence: 'signature', value: [60, 250], uses: 'sample', segments: ['clinic'],
-      title: 'Leave {product} within the sample limit',
+      title: 'Leave {product} within the policy limit',
       saw: 'No drop of {product} is logged for {person} this cycle.',
       compared: 'Sample policy: at most two packs of each product per HCP per call, each drop signed and logged.',
       why: [
@@ -300,7 +300,7 @@ export default {
     { q: 'Is the sample log ready for an audit?', a: 'A drop is logged only when the HCP signs the receipt in the app. A sample request on its own is not a drop. In this demo all records are sample data.' },
   ],
   storyline: [
-    'Pick Pharma and the prospect\'s country. Say it is sample data and the names are fictional.',
+    'Pick Pharma and the prospect\'s country. Say all data is fictional demonstration data.',
     'Today: the medical rep\'s calls, ranked by value, across hospitals, clinics and pharmacies.',
     'Open the first call brief. Approve the detailing item. Override one with "Hospital access rules do not allow it".',
     'Open an action: the approved leave-behind, the talking points, the guardrail on clinical claims.',

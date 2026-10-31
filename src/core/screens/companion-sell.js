@@ -38,7 +38,7 @@ export function callplan(ctx, id) {
     <a class="btn primary block" href="#/brief/${esc(a.id)}">${esc(t('Open the {visit} brief'))}</a>
     <a class="btn secondary block" href="#/companion/pitch/${esc(a.id)}">Dynamic pitch</a>
   </div>
-  <p class="foot-note">Sample data. Values are estimates, not booked sales.</p>`;
+  <p class="foot-note">Values are estimates, not booked sales.</p>`;
 }
 
 // ---- Dynamic pitch ---------------------------------------------------------------
@@ -50,7 +50,7 @@ export function pitch(ctx, id) {
   const list = points.map((p) => `<li class="row" data-point="${esc(p.id)}"${p.withheld ? ' data-withheld="true"' : ''}><span class="row-main"><b class="small">${esc(p.text)}</b>
     <small data-source>Source: ${esc(p.sources.join('; '))}</small></span></li>`).join('');
   const own = mine.points.map((x, i) => `<li class="row" data-point="own${i}"><span class="row-main"><b class="small">${esc(x)}</b><small data-source>Source: your own point. It was checked against the restricted claims for this pack. It has not been checked against approved material.</small></span></li>`).join('');
-  return head(ctx, { title: 'Dynamic pitch', lead: "Talking points from this {account}'s sample performance, the current range and the trend. Each shows its source." }) + `
+  return head(ctx, { title: 'Dynamic pitch', lead: "Talking points from this {account}'s performance, the current range and the trend. Each shows its source." }) + `
   ${picker(ctx, 'pitch', a)}
   ${powered(ctx, ['potential', 'gaps'])}
   <ul class="group" id="pitch-points">${list}${own}</ul>
@@ -63,7 +63,7 @@ export function pitch(ctx, id) {
   <div class="guardrail">${icon('shield', 20)}<span><b>Guardrails.</b> ${esc(ctx.industry.companion.guardrails.map((g) => t(g.text)).join(' '))}</span></div>
   <div class="stack"><a class="btn secondary block" href="#/companion/story/${esc(a.id)}">Customer value story</a>
     <a class="btn secondary block" href="#/companion/callplan/${esc(a.id)}">Call plan</a></div>
-  <p class="foot-note">Sample data. Points come from templates and generated data, not a language model.</p>`;
+  <p class="foot-note">Points come from templates and generated data, not a language model.</p>`;
 }
 
 // ---- Local overlay ----------------------------------------------------------------
@@ -86,11 +86,11 @@ export function local(ctx, id) {
   return head(ctx, { title: 'Local overlay', lead: "The nearest {accounts} and how each is performing. Distances are straight-line estimates." }) + `
   ${picker(ctx, 'local', a)}
   ${powered(ctx, ['potential'])}
-  <section class="card" data-card="map"><h2>Map (concept)</h2>
+  <section class="card" data-card="map"><h2>Map</h2>
     <svg class="mini-map" viewBox="0 0 ${W} ${H}" role="img" aria-label="${esc(t('Schematic map of the nearest {accounts}'))}"><rect width="${W}" height="${H}" rx="12" fill="var(--surface-inset)"/>${dots}${focus}</svg>
     <p class="small muted">Schematic only, not to scale. The large dot is ${esc(a.name)}. Green: at least 65% of potential. Grey: 45% to 64%. Amber: under 45%.</p></section>
   <section><h2>Nearby, best performing first</h2><ul class="group" style="margin-top:12px" id="nearby">${rows}</ul></section>
-  <p class="foot-note">Sample data. Performance is share of estimated potential, from generated data.</p>`;
+  <p class="foot-note">Performance is share of estimated potential, from generated data.</p>`;
 }
 
 // ---- Customer value story ----------------------------------------------------------
@@ -108,7 +108,7 @@ export function story(ctx, id) {
     <p id="story-text"${cur.withheld ? ' data-withheld="true"' : ''}>${esc(cur.text)}</p></section>
   <section class="card"><h2>Data used</h2><ul class="kpi-list" id="story-data">${cur.used.map((u) => `<li><span class="small">${esc(u.label)}<br><small>${esc(u.source)}</small></span><span class="kv"><b>${esc(u.value)}</b></span></li>`).join('')}</ul></section>
   <div class="guardrail">${icon('shield', 20)}<span><b>Guardrails.</b> ${esc(ctx.industry.companion.guardrails.map((g) => t(g.text)).join(' '))}</span></div>
-  <p class="foot-note">Sample data. Estimates, not booked sales and not a promise of a result.</p>`;
+  <p class="foot-note">Estimates, not booked sales and not a promise of a result.</p>`;
 }
 
 // ---- Customer self-service (mock-up) -------------------------------------------------
@@ -142,7 +142,7 @@ export function selfservice(ctx, id) {
       ${track}
     </div>
   </div>
-  <p class="foot-note">Sample data. The mock-up writes nothing outside this page.</p>`;
+  <p class="foot-note">The mock-up writes nothing outside this page.</p>`;
 }
 
 // ---- Actions -----------------------------------------------------------------------

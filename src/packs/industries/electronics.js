@@ -265,7 +265,7 @@ export default {
     { q: 'Do I need permission to photograph a competitor display?', a: 'Ask the store manager first. Log only what is on display.' },
   ],
   storyline: [
-    'Pick Consumer electronics and the prospect\'s country. Say it is sample data.',
+    'Pick Consumer electronics and the prospect\'s country. Say all data is fictional demonstration data.',
     'Today: superstores and multi-brand outlets ranked by value.',
     'Open the first brief. Approve the demo unit fix. Override one with "Not allowed by the retailer agreement".',
     'Open the promoter training action: why now, approved claims guardrail.',

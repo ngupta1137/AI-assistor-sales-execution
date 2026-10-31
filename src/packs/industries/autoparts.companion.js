@@ -40,7 +40,7 @@ export default {
       { id: 'k7', title: 'Which lines should a rack always have?', text: 'The fast movers for the local vehicle mix. The draft shows days left on each line. Agree a minimum level for the top five lines with the {contact}.' },
       { id: 'k8', title: 'When are workshops free to talk?', text: 'Early, before the first car is on the lift, or in the lull after lunch. A {visit} in the middle of a job wastes the owner\'s time.' },
       { id: 'k9', title: 'What if the {contact} asks for a cheaper part outside the spec?', text: 'Explain that you only supply parts that match the vehicle maker\'s specification, and show the nearest genuine option. Never suggest a substitute.' },
-      { id: 'k10', title: 'Which training costs can I claim?', text: 'Materials for an approved fitting session within the sample limit, with a receipt and the session reference.' },
+      { id: 'k10', title: 'Which training costs can I claim?', text: 'Materials for an approved fitting session within the policy limit, with a receipt and the session reference.' },
       { id: 'k11', title: 'How should I handle a suspect pack?', text: 'Do not remove or sell it. Photograph the pack, scan the code, tell the {contact} why and report it so brand protection can follow up.' },
     ],
     pitchTemplates: [
@@ -51,7 +51,7 @@ export default {
     valueStoryTemplates: [
       { id: 's1', title: 'A rack that matches the jobs', uses: ['share', 'orderCount'], text: '{name} has reached {share} of its estimated potential. Across the last {orderCount} {orders}, the fast movers have set the pace. The next step is to agree minimum levels on the top lines.' },
       { id: 's2', title: 'A new part to try', uses: ['offer', 'trend'], text: 'The last {order} was {trend}. A few units of {offer}, with the fitment list for local vehicles, let {person} test demand with little risk.' },
-      { id: 's3', title: 'Planning the year', uses: ['potential', 'share'], text: 'The estimate for {name} is {potential} a year, and the current figure is {current}. The difference of {whitespace} is a sample estimate. It is a reason to plan stock and training with {person}.' },
+      { id: 's3', title: 'Planning the year', uses: ['potential', 'share'], text: 'The estimate for {name} is {potential} a year, and the current figure is {current}. The difference of {whitespace} is a benchmark estimate. It is a reason to plan stock and training with {person}.' },
     ],
     resourcePlans: [
       { id: 'r1', name: 'Fitting session tour', startWeek: 1, weeks: 3, perWeek: 5 },

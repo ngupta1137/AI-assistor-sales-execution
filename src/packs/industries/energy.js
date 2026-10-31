@@ -84,7 +84,7 @@ export default {
       id: 'training', type: 'Book product training', agent: 'gap', effort: 20, evidence: 'signature', value: [100, 600], uses: 'focus', segments: ['installers', 'wholesalers'],
       title: 'Book a product training on {product}',
       saw: 'Nobody at this {account} appears on the maker training list for {product}.',
-      compared: 'Partners with trained staff, which log fewer support calls on the product (sample data).',
+      compared: 'Partners with trained staff, which log fewer support calls on the product.',
       why: [
         'Trained crews commission faster and call support less.',
         'The training is run by the maker. The rep only books it.',
@@ -116,7 +116,7 @@ export default {
       id: 'deadline', type: 'Stock up before a deadline', agent: 'order', effort: 12, evidence: 'note', value: [250, 1800], uses: 'core',
       title: 'Plan stock ahead of {event}',
       saw: 'Enquiries at this {account} are rising ahead of {event}, which is {eventDays} days away.',
-      compared: 'This partner\'s volumes in the same weeks last year (sample data).',
+      compared: 'This partner\'s volumes in the same weeks last year.',
       why: [
         'Demand bunches up before a known date, and lead times stretch.',
         'Orders placed early are filled from stock, not from the next shipment.',
@@ -146,7 +146,7 @@ export default {
       id: 'counter', type: 'Set up a counter display', agent: 'gap', effort: 15, evidence: 'photo', value: [100, 600], uses: 'focus', segments: ['wholesalers'],
       title: 'Set up a counter display for {product}',
       saw: 'The last counter photo shows no demo or sample of {product}.',
-      compared: 'Branches with a counter display, which sold more of the line over the same weeks (sample data).',
+      compared: 'Branches with a counter display, which sold more of the line over the same weeks.',
       why: [
         'Installers pick up what they can see and touch at the counter.',
         'The display unit and price cards are approved and in the car.',
@@ -279,7 +279,7 @@ export default {
     { q: 'How much should I trust a low confidence item?', a: 'Each item shows a confidence level. Low confidence means thin data, so check the partner\'s project list before acting.' },
   ],
   storyline: [
-    'Pick Solar and home energy and the prospect\'s country. Say it is sample data.',
+    'Pick Solar and home energy and the prospect\'s country. Say all data is fictional demonstration data.',
     'Today: the rep\'s partners, ranked by value, with local cities and currency.',
     'Open the first visit brief. Approve the stock plan. Override the training with "Not allowed under the channel agreement".',
     'Open an action: the reasons, the talking points and the guardrail on savings claims.',

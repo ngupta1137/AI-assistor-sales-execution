@@ -7,7 +7,7 @@ import { contextFor } from './router.js';
 import { getProvider } from './provider.js';
 import { getCountryLanguage, translateQuestion, translateAnswer, translateBasedOn } from './i18n.js';
 
-export const SAMPLE_LINE = "Sample data. Answers come from configured rules and this scenario's data, not a live model.";
+export const SAMPLE_LINE = "Answers come from configured rules and this scenario's data, not a live model.";
 
 export const newAssistantState = () => ({
   open: false,

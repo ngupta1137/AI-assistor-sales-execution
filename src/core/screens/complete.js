@@ -55,8 +55,7 @@ export function render(ctx, [accountId]) {
   ${c.overridden ? `<div class="notice">${icon('flag', 18)}<span>${esc(t(`${c.overridden} override${c.overridden > 1 ? 's' : ''} sent with your reasons. Each goes to the person its reason routes to.`))}</span></div>` : ''}
   ${!done && open.length ? `<div class="notice warn">${icon('flag', 18)}<span>${esc(t(`${open.length} actions have no recorded outcome.`))}</span></div>` : ''}
   <section><h2>Actions</h2><ul class="group" style="margin-top:12px">${list}</ul></section>
-  ${!nextAcc && done ? `<div class="notice good">${esc(t('All {visits} done for today.'))}</div>` : ''}
-  <p class="foot-note">Sample data.</p>`;
+  ${!nextAcc && done ? `<div class="notice good">${esc(t('All {visits} done for today.'))}</div>` : ''}`;
   return { html, dock };
 }
 

@@ -94,7 +94,7 @@ export function safetyFor(ctx, stops) {
     return { ...st, level, delay, drive, fatigue };
   });
   const heavy = legs.filter((l) => l.level === 'Heavy');
-  if (heavy.length) alerts.push({ tone: 'warn', text: `Heavy traffic on ${heavy.length === 1 ? 'one leg' : `${heavy.length} legs`}. Sample delay up to ${Math.max(...heavy.map((l) => l.delay))} minutes.` });
+  if (heavy.length) alerts.push({ tone: 'warn', text: `Heavy traffic on ${heavy.length === 1 ? 'one leg' : `${heavy.length} legs`}. Estimated delay up to ${Math.max(...heavy.map((l) => l.delay))} minutes.` });
   if (fatigueAt) alerts.push({ tone: 'info', text: `After about ${FATIGUE_MINUTES} minutes of driving, take a ${BREAK_MINUTES} minute break before the next drive. You reach that point on the leg marked below (${fatigueAt.drive} minutes so far).` });
   return { weather: { label: cond.label, temp: toTemp(c, country.tempUnit), unit: country.tempUnit }, alerts, legs, totalDrive: drive };
 }
@@ -134,8 +134,8 @@ export function generateCompanion(ctx) {
     return { id: `PS${k}`, month: new Intl.DateTimeFormat('en', { month: 'long', year: 'numeric' }).format(d), base, allowance, deduct, net: base + allowance - deduct };
   });
   const documents = [
-    { id: 'D1', title: 'Employment letter', kind: 'Sample document' }, { id: 'D2', title: 'Expense policy summary', kind: 'Sample document' },
-    { id: 'D3', title: 'Leave policy summary', kind: 'Sample document' }, { id: 'D4', title: 'Annual summary', kind: 'Sample document' },
+    { id: 'D1', title: 'Employment letter', kind: 'Demonstration document' }, { id: 'D2', title: 'Expense policy summary', kind: 'Demonstration document' },
+    { id: 'D3', title: 'Leave policy summary', kind: 'Demonstration document' }, { id: 'D4', title: 'Annual summary', kind: 'Demonstration document' },
   ];
 
   // Certifications: some due soon, one just outside the 30 day window, one overdue
@@ -166,7 +166,7 @@ export function generateCompanion(ctx) {
       const gap = Math.max(0, Math.round((need - capacity) * 10) / 10);
       const cover = gap > 0 ? [
         { kind: 'internal', text: `Ask ${free.slice().sort((a, b) => b.days - a.days)[0].name}, who has ${free.slice().sort((a, b) => b.days - a.days)[0].days} days free that week, to take ${Math.min(Math.ceil(gap), 2)} extra day${Math.ceil(gap) > 1 ? 's' : ''}.` },
-        { kind: 'external', text: `Third-party cover (sample): ${vendor()}, up to ${Math.ceil(gap)} day${Math.ceil(gap) > 1 ? 's' : ''}.` },
+        { kind: 'external', text: `Third-party cover: ${vendor()}, up to ${Math.ceil(gap)} day${Math.ceil(gap) > 1 ? 's' : ''}.` },
       ] : [];
       return { week: w, start: addDays(today, w * 7), need, capacity, gap, cover };
     });

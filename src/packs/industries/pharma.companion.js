@@ -41,7 +41,7 @@ export default {
       { id: 'k7', title: 'Can I invite a {contact} to a meeting?', text: 'Only to approved education meetings, using the approved invitation. Attendance is logged. Hospitality stays inside the industry code. Never offer anything outside it.' },
       { id: 'k8', title: 'How do I get consent for approved emails?', text: 'Explain what the {contact} will receive and how to opt out, then record a signature. Consent is renewed every twelve months. Never assume or pre-tick consent.' },
       { id: 'k9', title: 'What do I check for near-expiry packs?', text: 'Scan packs with fewer than ninety days left, agree with the pharmacist which go back to the wholesaler and log the batch codes. Rotate newer packs to the back.' },
-      { id: 'k10', title: 'Which expenses can I claim for a meeting?', text: 'Approved room hire and travel inside the sample limits. Meals for the {contact} are not claimable unless the industry code allows them for that event. Ask your {manager} first.' },
+      { id: 'k10', title: 'Which expenses can I claim for a meeting?', text: 'Approved room hire and travel inside the policy limits. Meals for the {contact} are not claimable unless the industry code allows them for that event. Ask your {manager} first.' },
       { id: 'k11', title: 'How should I prepare for a hospital {visit}?', text: 'Open the brief, read the top actions, bring the approved material and the formulary file, and check open requests from the last {visit}. Keep the {visit} to the time agreed.' },
     ],
     pitchTemplates: [
@@ -52,7 +52,7 @@ export default {
     valueStoryTemplates: [
       { id: 's1', title: 'Availability and reach', uses: ['share', 'orderCount'], text: '{name} has reached {share} of its estimated potential. Across the last {orderCount} {orders}, supply of the core range has been steady. The next step is to confirm availability and agree a date for the next {visit}.' },
       { id: 's2', title: 'Approved information on request', uses: ['offer', 'trend'], text: 'The last {order} was {trend}. Approved information on {offer} is available for {person} on request, and any question it does not cover goes to Medical Information.' },
-      { id: 's3', title: 'Regular {visits}, clear next steps', uses: ['potential', 'share'], text: 'The estimate for {name} is {potential} a year, and the current figure is {current}. The difference of {whitespace} is a sample estimate. It is a reason to keep {visits} regular, not a statement about any outcome.' },
+      { id: 's3', title: 'Regular {visits}, clear next steps', uses: ['potential', 'share'], text: 'The estimate for {name} is {potential} a year, and the current figure is {current}. The difference of {whitespace} is a benchmark estimate. It is a reason to keep {visits} regular, not a statement about any outcome.' },
     ],
     resourcePlans: [
       { id: 'r1', name: 'Hospital listing support round', startWeek: 1, weeks: 3, perWeek: 5 },

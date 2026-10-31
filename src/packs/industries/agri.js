@@ -83,7 +83,7 @@ export default {
       why: [
         'Neighbors decide after they see the plot with their own eyes.',
         'Photos at each stage build the record.',
-        'Plot results are sample observations, never a yield promise.',
+        'Plot results are field observations, never a yield promise.',
       ],
       talk: [
         'Walk the plot with {person} and any neighbors who come.',
@@ -156,7 +156,7 @@ export default {
     {
       id: 'program', type: 'Agree a member program', agent: 'gap', effort: 25, evidence: 'note', value: [800, 3000], uses: 'focus', segments: ['coop'],
       title: 'Agree the member program for {product}',
-      saw: 'Cooperative members grew more of this crop this season (sample data).',
+      saw: 'Cooperative members grew more of this crop this season.',
       compared: 'Member purchase history over two seasons.',
       why: [
         'A program with the cooperative reaches many farmers at once.',
@@ -277,7 +277,7 @@ export default {
     { q: 'Do the demo plot results promise a yield?', a: 'No. They are observations from one field, shown as sample data in this demo.' },
   ],
   storyline: [
-    'Pick Agri inputs and the prospect\'s country. Say it is sample data.',
+    'Pick Agri inputs and the prospect\'s country. Say all data is fictional demonstration data.',
     'Today: dealers, a cooperative and farms, ranked by value in local currency.',
     'Open the first brief. Approve the pre-season stock plan. Override one with "Rain stopped field work".',
     'Open the label advice action: the label guardrail, talking points, evidence.',

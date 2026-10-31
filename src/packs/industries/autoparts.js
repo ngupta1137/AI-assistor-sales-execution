@@ -279,7 +279,7 @@ export default {
     { q: 'Can I recommend this oil for any engine?', a: 'Only where it matches the vehicle maker\'s specification on the approved data sheet.' },
   ],
   storyline: [
-    'Pick Auto parts and the prospect\'s country. Say it is sample data.',
+    'Pick Auto parts and the prospect\'s country. Say all data is fictional demonstration data.',
     'Today: workshops, parts retailers and a fleet, ranked by value.',
     'Open the first brief. Approve the fast movers. Override one with "Fleet contract under review".',
     'Open the warranty action: why it matters, the warranty guardrail.',

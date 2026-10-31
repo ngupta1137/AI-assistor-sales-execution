@@ -51,7 +51,7 @@ export default {
     valueStoryTemplates: [
       { id: 's1', title: 'Counter and site together', uses: ['share', 'orderCount'], text: '{name} has reached {share} of its estimated potential. Across the last {orderCount} {orders}, counter sales have set the pace. The next step is to agree stock for about four weeks and refresh the display.' },
       { id: 's2', title: 'A new finish to try', uses: ['offer', 'trend'], text: 'The last {order} was {trend}. A trial of {offer}, with a finished sample and the data sheet, lets {person} see how it works before committing.' },
-      { id: 's3', title: 'The repaint season', uses: ['potential', 'share'], text: 'The estimate for {name} is {potential} a year, and the current figure is {current}. The difference of {whitespace} is a sample estimate. It is a reason to plan the season with {person}, with no promise attached.' },
+      { id: 's3', title: 'The repaint season', uses: ['potential', 'share'], text: 'The estimate for {name} is {potential} a year, and the current figure is {current}. The difference of {whitespace} is a benchmark estimate. It is a reason to plan the season with {person}, with no promise attached.' },
     ],
     resourcePlans: [
       { id: 'r1', name: 'Shade collection refresh', startWeek: 1, weeks: 3, perWeek: 5 },

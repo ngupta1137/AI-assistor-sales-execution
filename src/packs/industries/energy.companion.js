@@ -59,7 +59,7 @@ export default {
     ],
     guardrails: [
       { id: 'eg1', text: 'Savings, payback and output figures come from a qualified designer. The Companion never writes them.', blocked: ['will save', 'payback in', 'cut your bill', 'guarantee', 'zero bills', 'pays for itself'] },
-      { id: 'eg2', text: 'Prices follow the channel list. Value stories use sample data and say so, and never claim a result.', blocked: ['proven to', 'doubles output', 'will boost', 'risk free', 'special price', 'under the table'] },
+      { id: 'eg2', text: 'Prices follow the channel list. Value stories use benchmark data and say so, and never claim a result.', blocked: ['proven to', 'doubles output', 'will boost', 'risk free', 'special price', 'under the table'] },
     ],
   },
 };

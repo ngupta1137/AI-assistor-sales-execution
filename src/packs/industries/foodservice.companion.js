@@ -51,7 +51,7 @@ export default {
     valueStoryTemplates: [
       { id: 's1', title: 'A steady kitchen supply', uses: ['share', 'orderCount'], text: '{name} has captured {share} of its estimated potential. Across the last {orderCount} {orders}, the core lines were steady. The next step is to close the delivery gaps we found, one at a time, and review them together at the next {visit}.' },
       { id: 's2', title: 'A menu that moves with the season', uses: ['offer', 'trend'], text: 'The last {order} was {trend}. A trial of {offer} lets {person} test a new dish without changing the whole range, and the next {order} will show how it went.' },
-      { id: 's3', title: 'Ready for the busy weeks', uses: ['potential', 'share'], text: 'Estimated potential at {name} is {potential} a year and the current figure is {current}. The gap of {whitespace} is an estimate from sample data. It is the reason to plan the busy weeks together.' },
+      { id: 's3', title: 'Ready for the busy weeks', uses: ['potential', 'share'], text: 'Estimated potential at {name} is {potential} a year and the current figure is {current}. The gap of {whitespace} is an estimate from benchmark data. It is the reason to plan the busy weeks together.' },
     ],
     resourcePlans: [
       { id: 'r1', name: 'Seasonal menu launch', startWeek: 1, weeks: 3, perWeek: 5 },
@@ -59,7 +59,7 @@ export default {
     ],
     guardrails: [
       { id: 'fg1', text: 'Allergen and nutrition statements come only from the current spec sheet. The Companion never writes its own.', blocked: ['allergen free', 'gluten free', 'safe for allergies', 'nut free', 'guarantee', 'no allergens'] },
-      { id: 'fg2', text: 'Prices and terms follow the contract price list. Value stories use sample data and say so, and never claim a result.', blocked: ['proven to', 'doubles sales', 'will boost', 'risk free', 'side deal', 'under the table'] },
+      { id: 'fg2', text: 'Prices and terms follow the contract price list. Value stories use benchmark data and say so, and never claim a result.', blocked: ['proven to', 'doubles sales', 'will boost', 'risk free', 'side deal', 'under the table'] },
     ],
   },
 };

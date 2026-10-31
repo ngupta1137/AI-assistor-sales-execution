@@ -38,7 +38,7 @@ export default {
       { id: 'k6', title: 'How do I set up a device demo?', text: 'Charge the unit, switch on store demo mode and keep it on the counter. Show three points from the approved feature sheet and nothing more.' },
       { id: 'k7', title: 'What can I say about coverage?', text: 'Only what the published coverage map shows. For a complaint, log the street and time and tell the {contact} when the network team will reply.' },
       { id: 'k8', title: 'How do I prepare for a festival offer?', text: 'Place the offer card where customers queue, brief staff on the published terms and check float and SIM stock before the peak.' },
-      { id: 'k9', title: 'Which branding items can I claim?', text: 'Signage and danglers needed to replace faded items, inside the sample limit, with a receipt and a photo of the result.' },
+      { id: 'k9', title: 'Which branding items can I claim?', text: 'Signage and danglers needed to replace faded items, inside the policy limit, with a receipt and a photo of the result.' },
       { id: 'k10', title: 'When is the evening peak?', text: 'Most outlets are busiest after work. A {visit} before the peak leaves the counter ready, and a top-up lands before the busiest hours.' },
       { id: 'k11', title: 'What if a customer has no ID with them?', text: 'The answer is always no. Explain what the customer needs to bring and that the rule protects them as well.' },
     ],
@@ -50,7 +50,7 @@ export default {
     valueStoryTemplates: [
       { id: 's1', title: 'A counter ready for the peak', uses: ['share', 'orderCount'], text: '{name} has reached {share} of its estimated potential. Across the last {orderCount} {orders}, float and SIM stock have followed the evening pattern. The next step is to keep both ready before the peak.' },
       { id: 's2', title: 'A new line for customers', uses: ['offer', 'trend'], text: 'The last {order} was {trend}. {offer} gives {person} something new to offer, explained from the published tariff and matched to what each customer needs.' },
-      { id: 's3', title: 'Planning for the season', uses: ['potential', 'share'], text: 'The estimate for {name} is {potential} a year, and the current figure is {current}. The difference of {whitespace} is a sample estimate. It is a reason to plan the season with {person}.' },
+      { id: 's3', title: 'Planning for the season', uses: ['potential', 'share'], text: 'The estimate for {name} is {potential} a year, and the current figure is {current}. The difference of {whitespace} is a benchmark estimate. It is a reason to plan the season with {person}.' },
     ],
     resourcePlans: [
       { id: 'r1', name: 'Festival offer launch', startWeek: 1, weeks: 3, perWeek: 5 },

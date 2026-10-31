@@ -17,13 +17,13 @@ const FEATURES = [
   { id: 'debrief', pillar: 'growth', icon: 'mic', title: 'Voice debrief', text: 'Dictate or type, then confirm the fields.', powered: [], view: plan.debrief, account: true },
   { id: 'resources', pillar: 'growth', icon: 'team', title: 'Live resource planning', text: 'Activations against team availability, by week. For managers.', powered: ['planning'], view: plan.resources },
   { id: 'callplan', pillar: 'growth', icon: 'note', title: 'Call plan', text: "A one-page summary of the {visit}: goals, time, {order} draft.", powered: ['ranking', 'planning'], view: sell.callplan, account: true },
-  { id: 'pitch', pillar: 'growth', icon: 'bulb', title: 'Dynamic pitch', text: 'Talking points from sample performance, with the source of each.', powered: ['potential', 'gaps'], view: sell.pitch, account: true },
+  { id: 'pitch', pillar: 'growth', icon: 'bulb', title: 'Dynamic pitch', text: 'Talking points from account performance, with the source of each.', powered: ['potential', 'gaps'], view: sell.pitch, account: true },
   { id: 'local', pillar: 'growth', icon: 'map', title: 'Local overlay', text: 'The nearest {accounts} and what is performing there.', powered: ['potential'], view: sell.local, account: true },
   { id: 'story', pillar: 'growth', icon: 'heart', title: 'Customer value story', text: "A short narrative in the {account}'s terms, with the data used.", powered: ['potential'], view: sell.story, account: true },
   { id: 'selfservice', pillar: 'growth', icon: 'cart', title: 'Customer self-service (mock-up)', text: 'What the {account} could browse, order and track. A mock-up.', powered: ['order'], view: sell.selfservice, account: true },
   { id: 'leave', pillar: 'productivity', icon: 'calendar', title: 'Leave', text: 'Apply, track, and approve as a manager.', powered: [], view: work.leave, badge: 'leave' },
   { id: 'expenses', pillar: 'productivity', icon: 'wallet', title: 'Expense claims', text: 'Receipt photo (mock), category, local currency, policy check.', powered: [], view: work.expenses, badge: 'expenses' },
-  { id: 'hr', pillar: 'productivity', icon: 'note', title: 'HR and pay', text: 'Sample pay slips and documents.', powered: [], view: work.hr },
+  { id: 'hr', pillar: 'productivity', icon: 'note', title: 'HR and pay', text: 'Pay slips and documents.', powered: [], view: work.hr },
   { id: 'wellbeing', pillar: 'productivity', icon: 'heart', title: 'Wellbeing hub', text: 'A daily check-in and practical tips.', powered: [], view: more.wellbeing },
   { id: 'feedback', pillar: 'productivity', icon: 'note', title: 'Complaints and feedback', text: 'Tell the team what is not working. You can stay anonymous.', powered: [], view: more.feedback },
   { id: 'travel', pillar: 'productivity', icon: 'map', title: 'Travel and mileage', text: "Today's trips in local units and an overnight trip plan.", powered: ['planning'], view: more.travel },
@@ -52,10 +52,9 @@ function hub(ctx) {
   return `
   <section class="page-head"><span class="eyebrow">Field enabler</span><h1>Sales Companion</h1>
     <p class="small muted">${esc(t('One place for the {rep} and the {manager}: planning, selling, daily admin and learning. It shows what the five capabilities produce and links to their screens.'))}</p>
-    <p class="tags">${TAGS}</p></section>
-  <div class="notice">${icon('flag', 18)}<span>Concept. Leave, expenses, pay slips and learning use sample data only. Nothing here is real HR or pay information.</span></div>
-  ${cards}
-  <p class="foot-note">Sample data.</p>`;
+    ${TAGS ? `<p class="tags">${TAGS}</p>` : ""}</section>
+  <div class="notice">${icon('flag', 18)}<span>Leave, expenses, pay slips and learning. Nothing here is real HR or pay information.</span></div>
+  ${cards}`;
 }
 
 /** For managers: how many requests wait for a decision. */

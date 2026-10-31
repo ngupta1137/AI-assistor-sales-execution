@@ -85,7 +85,7 @@ H['brief.whyfirst'] = (ctx, c) => {
   if (!top) return { text: 'This {account} has no prepared actions today.', basedOn: `the plan for ${acct.name}`, links: [link.account(acct.id)] };
   const rest = plan.actions[1];
   return {
-    text: `"${title(ctx, top)}" is ranked first. Its estimated value is ${fmt.money(top.value)} for ${top.effort} minutes at ${Math.round(top.confidence * 100)}% confidence, which gives the highest value per minute once confidence is applied.${rest ? ` The next one, "${title(ctx, rest)}", scores lower.` : ''} ${decisionWord(m.decision(top.id)) || 'You have not decided on it yet.'} The ranking uses rules on sample data, not a forecast.`,
+    text: `"${title(ctx, top)}" is ranked first. Its estimated value is ${fmt.money(top.value)} for ${top.effort} minutes at ${Math.round(top.confidence * 100)}% confidence, which gives the highest value per minute once confidence is applied.${rest ? ` The next one, "${title(ctx, rest)}", scores lower.` : ''} ${decisionWord(m.decision(top.id)) || 'You have not decided on it yet.'} The ranking uses configured rules, not a forecast.`,
     basedOn: `the brief for ${acct.name}, ${plural(plan.actions.length, 'ranked action', 'ranked actions')}, value, effort and confidence`,
     links: [link.action(top.id)],
   };
@@ -210,7 +210,7 @@ H['action.value'] = (ctx, c) => {
   const { acct, action, none } = needAction(ctx, c, 'value');
   if (none) return none;
   return {
-    text: `The estimate is ${fmt.money(action.value)}. It starts from the reference range for this type of action, scaled by ${acct.name}'s potential score (${acct.score} of 100), the size of its segment and the local price level. It is an estimate from rules on sample data. It is not booked sales and not a forecast.`,
+    text: `The estimate is ${fmt.money(action.value)}. It starts from the reference range for this type of action, scaled by ${acct.name}'s potential score (${acct.score} of 100), the size of its segment and the local price level. It is an estimate from configured rules. It is not booked sales and not a forecast.`,
     basedOn: `action "${title(ctx, action)}", potential score, segment size, price level`,
     links: [link.action(action.id)],
   };
@@ -584,7 +584,7 @@ H['nav.draftorder'] = (ctx, c) => {
 // ---- Setup (About this demo) -------------------------------------------------
 export const ABOUT = {
   'about.what': { text: 'AI Assistor Sales Execution plans each field rep\'s day, ranks what to do in every visit, drafts the order or proposal, and shows managers what happened. Agents prepare, the rep approves, adjusts or overrides, and a person owns the result.', basedOn: 'the product description' },
-  'about.sample': { text: 'No. Every name, place, product and number is generated sample data, and the products and accounts are fictional. No result is claimed before a pilot.', basedOn: 'the demo data rules' },
+  'about.sample': { text: 'No. Every name, place, product and number is generated demonstration data, and the products and accounts are fictional. No result is claimed before a pilot.', basedOn: 'the demo data rules' },
   'about.config': { text: 'Pick an industry and a country. The words, segments, actions, KPIs, guardrails, currency, dates and cities all come from configuration. The workflow stays the same in every industry, so it reads as one product with different words.', basedOn: 'the industry and country packs' },
   'about.custom': { text: 'A new industry or country is one configuration file, not a custom build. Real integrations, such as a CRM, are a separate step and are not part of this prototype.', basedOn: 'the product scope' },
 };

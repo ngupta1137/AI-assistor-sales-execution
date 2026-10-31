@@ -34,7 +34,7 @@ export function checkRequest(ctx, text) {
   }
   const common = COMMON_BLOCKED.find((p) => hit(t, p));
   if (common) {
-    return { text: 'I cannot promise or predict results. All numbers here are sample data, and nothing in the Companion claims a result.', guardrailId: 'sample-data', guardrailText: 'The Companion runs on sample data and never promises or predicts results.' };
+    return { text: 'I cannot promise or predict results. All numbers here are demonstration data, and nothing in the Companion claims a result.', guardrailId: 'sample-data', guardrailText: 'The Companion runs on demonstration data and never promises or predicts results.' };
   }
   const a = assistantCheck(ctx, text);
   return a ? { text: a.text, guardrailId: a.guardrailId, guardrailText: a.guardrailText } : null;

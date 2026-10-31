@@ -103,7 +103,7 @@ export function render(ctx, [id]) {
   ${evidenceBlock(ctx, it, def)}
 
   <section class="card" id="outcome"><div class="section-head"><h2>Outcome</h2>${status}</div>${reasons}</section>
-  <p class="foot-note">Sample data. Photo and scan are demo captures.</p>`;
+  <p class="foot-note">Photo and scan are demo captures.</p>`;
   return { html, dock };
 }
 

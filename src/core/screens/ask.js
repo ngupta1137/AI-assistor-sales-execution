@@ -57,7 +57,7 @@ export function render(ctx) {
   </div>
   <section class="page-head">
     <h1>Ask AI</h1>
-    <p class="small muted">Sample data. Answers come from configured rules and this scenario's data, not a live model. Select a screen topic or pick an FAQ below.</p>
+    <p class="small muted">Answers come from configured rules and this scenario's data, not a live model. Select a screen topic or pick an FAQ below.</p>
   </section>
   <div class="chat" id="chat"${hasLog ? '' : ' hidden'} role="log" aria-live="polite">${renderLog(ctx, app)}</div>
   <section class="ask-faqs">

@@ -72,7 +72,7 @@ export default {
       id: 'quoteconv', type: 'Examine quoted submission conversion', agent: 'gap', effort: 14, evidence: 'note', value: [220, 1100], uses: 'core',
       title: 'Analyze quote turnaround on {product}',
       saw: 'The producer submitted {n} quotes for {product} with low binder issuance in the past 60 days.',
-      compared: 'Peer distribution partners in {city} converting quotes into bound coverage at higher rates (sample data).',
+      compared: 'Peer distribution partners in {city} converting quotes into bound coverage at higher rates.',
       why: [
         'Unbound quotes expire and represent unmonetized underwriting effort.',
         'Identifying competitive rate gaps helps clarify current carrier appetite.',
@@ -121,7 +121,7 @@ export default {
       id: 'volplan', type: 'Establish quarterly binder plan', agent: 'order', effort: 15, evidence: 'note', value: [300, 1600], uses: 'core', segments: ['agencies', 'brokers'],
       title: 'Establish seasonal binder plan for {product}',
       saw: 'Commercial policy renewals and property additions peak around {event}, {eventDays} days away.',
-      compared: 'Historical binder activity for this partner during corresponding prior renewal seasons (sample data).',
+      compared: 'Historical binder activity for this partner during corresponding prior renewal seasons.',
       why: [
         'Proactive capacity reservation ensures underwriting bandwidth during peak renewal weeks.',
         'Agreed binder projections assist regional reinsurance allocation planning.',

@@ -82,5 +82,5 @@ export function render(ctx) {
       ${self.estimated ? `<div class="wide"><small>Estimated opportunity addressed today</small><b>${esc(fmt.moneyShort(self.estimated))}</b><small>An estimate from completed actions. Not booked sales, and not added to the month figure.</small></div>` : ''}
     </div>
   </details>
-  <p class="foot-note">Sample data. Values are generated for this demo.</p>`;
+  <p class="foot-note">Values are generated for this demo.</p>`;
 }

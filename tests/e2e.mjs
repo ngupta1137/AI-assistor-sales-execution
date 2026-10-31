@@ -244,7 +244,7 @@ async function repFlow(browser, ind, c) {
     // Presenter menu: switch persona to manager in the same session.
     await page.keyboard.press('Shift+D');
     ok(!!(await page.$('[data-region="presenter"]')), `${label}: Shift+D did not open the presenter menu`);
-    ok((await page.innerText('[data-region="presenter"]')).includes('Sample data'), `${label}: presenter menu must say Sample data`);
+    ok((await page.innerText('[data-region="presenter"]')).includes('Presenter menu'), `${label}: presenter menu must render`);
     await page.selectOption('#p-persona', 'manager');
     await page.waitForSelector('[data-screen="manager"]');
     const mgr = await checkText(page, ind, `${label} manager`);
@@ -321,7 +321,7 @@ async function setupAll(browser, combos) {
     await page.waitForSelector('[data-region="setup"]');
     const setupText = await page.innerText('[data-region="setup"]');
     ok(setupText.includes('AI Assistor Sales Execution'), 'setup: full product name');
-    ok(/Sample data/.test(setupText), 'setup: Sample data label');
+    ok(/fictional/i.test(setupText), 'setup: fictional data label');
     ok((await page.$$('[data-act="setup-industry"]')).length === 20, 'setup: 20 industries');
     ok((await page.$$('[data-act="setup-country"]')).length === 11, 'setup: 11 countries');
     ok((await page.$$('[data-act="setup-persona"]')).length === 3, 'setup: 3 personas');

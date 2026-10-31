@@ -273,7 +273,7 @@ export default {
     { q: 'Where do coverage complaints go?', a: 'To the network team, logged with the streets and times customers gave.' },
   ],
   storyline: [
-    'Pick Telecom retail and the prospect\'s country. Say it is sample data.',
+    'Pick Telecom retail and the prospect\'s country. Say all data is fictional demonstration data.',
     'Today: recharge outlets and franchise stores ranked by value, in local currency.',
     'Open the first brief. Approve the float top-up. Override the KYC audit with "Outlet under KYC review".',
     'Open the KYC action: why it matters, talking points, the no-ID guardrail.',

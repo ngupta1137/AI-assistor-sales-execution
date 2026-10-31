@@ -94,9 +94,9 @@ async function sweep(browser, ind, c) {
         await page.waitForSelector('[data-screen="companion"]');
         page._label = `${tagBase}x${persona} ${hash}`;
         const txt = await checkText(page, ind, page._label);
-        ok(/Sample data/.test(txt), `${page._label}: needs a Sample data label`);
+        ok(txt.length > 50, `${page._label}: companion page content rendered`);
         if (!v) {
-          ok(/Concept/.test(txt) && /Sample data/.test(txt), `${page._label}: hub must say Concept and Sample data`);
+          ok(/Field enabler/.test(txt) && /Sales Companion/.test(txt), `${page._label}: hub rendered`);
           ok((await page.$$('[data-pillar]')).length === 3, `${page._label}: three pillars`);
           ok((await page.$$('.powered')).length >= 6, `${page._label}: Powered by rows`);
           ok(!!(await page.$('[data-nav="companion"].on')), `${page._label}: Companion tab must be active`);
@@ -169,12 +169,12 @@ async function flows(browser, ind, c, ctx, first) {
     ok(!!(await page.$('#exp-receipt')), `${tag}: receipt preview (mock)`);
     await page.fill('#exp-amount', String(Math.round(limit * 0.5 * 100) / 100));
     await page.click('#exp-submit');
-    ok(/within the sample limit/.test(await page.innerText('#exp-done')), `${tag}: expense within the limit sent`);
+    ok(/within the policy limit/.test(await page.innerText('#exp-done')), `${tag}: expense within the limit sent`);
     await page.click('#exp-receipt-btn');
     await page.fill('#exp-amount', String(Math.round(limit * 1.5 * 100) / 100));
     ok(!!(await page.$('#exp-policy [data-policy="over"]')), `${tag}: policy check says over the limit`);
     await page.click('#exp-submit');
-    ok(/over the sample limit/.test(await page.innerText('#exp-done')), `${tag}: expense over the limit sent`);
+    ok(/over the policy limit/.test(await page.innerText('#exp-done')), `${tag}: expense over the limit sent`);
     ok((await page.$$('[data-expense^="EX"][data-status="pending"]')).length === 2, `${tag}: both claims are pending`);
 
     // P1 as the rep: check-in, feedback without a name, mileage in the country's unit, onboarding with a signature.

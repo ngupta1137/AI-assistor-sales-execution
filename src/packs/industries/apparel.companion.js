@@ -51,7 +51,7 @@ export default {
     valueStoryTemplates: [
       { id: 's1', title: 'A range that sells through', uses: ['share', 'orderCount'], text: '{name} has captured {share} of its estimated potential. Across the last {orderCount} {orders}, the core sizes sold best. The next step is to repair the sizes we found missing and look at sell-through again at the next {visit}.' },
       { id: 's2', title: 'A new style for the floor', uses: ['offer', 'trend'], text: 'The last {order} was {trend}. A first run of {offer} lets {person} test a new look in the core sizes without changing the rest of the range.' },
-      { id: 's3', title: 'Ready for the season', uses: ['potential', 'share'], text: 'Estimated potential at {name} is {potential} a year and the current figure is {current}. The gap of {whitespace} is an estimate from sample data. It is the reason to plan the season together.' },
+      { id: 's3', title: 'Ready for the season', uses: ['potential', 'share'], text: 'Estimated potential at {name} is {potential} a year and the current figure is {current}. The gap of {whitespace} is an estimate from benchmark data. It is the reason to plan the season together.' },
     ],
     resourcePlans: [
       { id: 'r1', name: 'Pre-season showroom days', startWeek: 1, weeks: 3, perWeek: 6 },
@@ -59,7 +59,7 @@ export default {
     ],
     guardrails: [
       { id: 'ag1', text: 'The retailer sets its own resale prices. The Companion never recommends a price or a markdown.', blocked: ['sell it at', 'retail price of', 'mark it down', 'guarantee', 'price match', 'under the table'] },
-      { id: 'ag2', text: 'Value stories use sample data and say so. They never claim a result for a season.', blocked: ['proven to', 'doubles sales', 'will boost', 'risk free', 'will sell out', 'side deal'] },
+      { id: 'ag2', text: 'Value stories use benchmark data and say so. They never claim a result for a season.', blocked: ['proven to', 'doubles sales', 'will boost', 'risk free', 'will sell out', 'side deal'] },
     ],
   },
 };

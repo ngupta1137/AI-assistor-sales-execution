@@ -68,7 +68,7 @@ export function render(ctx, [accountId]) {
   ${stopped && !st.submitted ? `<div class="notice warn">${icon('stop', 18)}<span>${esc(t('Order agent stopped. You can edit this draft. Submission is paused.'))}</span></div>` : ''}
   <ul class="group">${rows}</ul>
   <section><h2>Rules</h2><ul class="group rules" style="margin-top:12px">${ruleRows}</ul></section>
-  <p class="foot-note">Sample data. Prices are illustrative.</p>`;
+  <p class="foot-note">Prices are illustrative.</p>`;
   return { html, dock };
 }
 
