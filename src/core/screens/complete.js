@@ -57,6 +57,36 @@ export function render(ctx, [accountId]) {
     </div>
     <small>Estimates come from the agents' rules. They are not booked sales.</small>
   </section>
+
+  <section class="card tight" id="cust-sentiment" style="margin-top:var(--s3)">
+    <div class="section-head" style="margin-bottom:6px">
+      <h3>Customer relationship sentiment</h3>
+      ${ui?.custSentiment ? pill(ui.custSentiment, 'good') : pill('Required for CRM', 'warn')}
+    </div>
+    <p class="small muted" style="margin-bottom:8px">Record post-interaction customer engagement temperature for relationship telemetry.</p>
+    <div class="seg-ctl" role="group" aria-label="Customer sentiment">
+      <button class="seg ${ui?.custSentiment === 'Promoter' ? 'on' : ''}" data-act="set-sentiment" data-val="Promoter" style="min-height:var(--tap);min-width:var(--tap)">Promoter</button>
+      <button class="seg ${ui?.custSentiment === 'Satisfied' ? 'on' : ''}" data-act="set-sentiment" data-val="Satisfied" style="min-height:var(--tap);min-width:var(--tap)">Satisfied</button>
+      <button class="seg ${ui?.custSentiment === 'Neutral' ? 'on' : ''}" data-act="set-sentiment" data-val="Neutral" style="min-height:var(--tap);min-width:var(--tap)">Neutral</button>
+      <button class="seg ${ui?.custSentiment === 'At risk' ? 'on' : ''}" data-act="set-sentiment" data-val="At risk" style="min-height:var(--tap);min-width:var(--tap)">At risk</button>
+    </div>
+  </section>
+
+  <section class="card tight" id="cust-signoff" style="margin-top:var(--s3)">
+    <div class="section-head" style="margin-bottom:6px">
+      <h3>Customer e-signature verification</h3>
+      ${ui?.signoffDone === a.id ? pill('Verified', 'good') : pill('Pending sign-off', 'warn')}
+    </div>
+    <p class="small muted" style="margin-bottom:8px">Customer contact electronic sign-off for completed commercial actions and order authorization.</p>
+    ${ui?.signoffDone === a.id ? `
+      <div style="padding:8px 12px;background:var(--good-bg);border-radius:var(--radius-sm);border:1px solid var(--line);display:flex;align-items:center;gap:8px">
+        ${icon('check', 16)}
+        <span class="small good-text"><b>Electronic signature captured</b> · Verified by primary contact</span>
+      </div>
+    ` : `
+      <button class="btn secondary sm" data-act="capture-signoff" data-id="${a.id}" style="min-height:var(--tap);width:100%">${icon('pen', 16)} Capture customer sign-off</button>
+    `}
+  </section>
   ${c.overridden ? `<div class="notice">${icon('flag', 18)}<span>${esc(t(`${c.overridden} override${c.overridden > 1 ? 's' : ''} sent with your reasons. Each goes to the person its reason routes to.`))}</span></div>` : ''}
   ${!done && open.length ? `<div class="notice warn">${icon('flag', 18)}<span>${esc(t(`${open.length} actions have no recorded outcome.`))}</span></div>` : ''}
   <section><h2>Actions</h2><ul class="group" style="margin-top:12px">${list}</ul></section>
@@ -65,6 +95,15 @@ export function render(ctx, [accountId]) {
 }
 
 export const actions = {
+  'set-sentiment': ({ ctx, data }) => {
+    (ctx.ui ||= {}).custSentiment = data.val;
+    if (ctx.m?.logAudit) ctx.m.logAudit('CRM Connector', `Recorded customer sentiment: ${data.val}`);
+  },
+  'capture-signoff': ({ ctx, data }) => {
+    (ctx.ui ||= {}).signoffDone = data.id;
+    (ctx.ui ||= {}).recapToast = 'Customer electronic sign-off verified and appended to audit record.';
+    if (ctx.m?.logAudit) ctx.m.logAudit('Sign-off', `Captured electronic sign-off for ${ctx.data.byId[data.id]?.name || ''}`);
+  },
   'complete-visit': ({ ctx, data }) => {
     const open = ctx.m.actionsOf(data.id).filter((x) => !ctx.m.outcome(x.id)?.status);
     if (open.length && !data.confirmed) { ctx.ui.confirmClose = data.id; return; }

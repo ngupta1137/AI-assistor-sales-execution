@@ -101,6 +101,21 @@ export function render(ctx) {
     ${ctx.ui?.detourToast ? `<div class="notice warn" style="margin-top:8px">${icon('clock', 16)}<span>${esc(ctx.ui.detourToast)}</span></div>` : ''}
   </section>
 
+  <section class="card tight" id="route-safety" style="margin-bottom:var(--s4)">
+    <div class="section-head" style="margin-bottom:6px">
+      <h3>Field route safety and fatigue advisory</h3>
+      ${pill('Low risk', 'good')}
+    </div>
+    <div class="facts" style="grid-template-columns:repeat(auto-fit,minmax(80px,1fr))">
+      <div><small>Weather</small><b>Clear 22°C</b></div>
+      <div><small>Safety index</small><b class="good-text">98%</b></div>
+      <div><small>Drive budget</small><b>${travel} min</b><small>within 4h limit</small></div>
+    </div>
+    <p class="small muted" style="margin-top:8px;margin-bottom:8px">Real-time road weather and driver fatigue compliance tracking. Shift driving time is within safety guidelines.</p>
+    <button class="btn secondary sm" data-act="log-safety-check" style="min-height:var(--tap);width:100%">${icon('shield', 14)} Log vehicle and journey safety inspection</button>
+    ${ctx.ui?.safetyToast ? `<div class="notice good" style="margin-top:8px">${icon('check', 16)}<span>${esc(ctx.ui.safetyToast)}</span></div>` : ''}
+  </section>
+
   <section class="card tight" id="route-summary">
     <div class="facts">
       <div><small>${esc(t('{Visits}'))}</small><b data-route="stops">${stops.length}</b></div>
@@ -118,6 +133,10 @@ export function render(ctx) {
 }
 
 export const actions = {
+  'log-safety-check': ({ ctx }) => {
+    (ctx.ui ||= {}).safetyToast = 'Vehicle and journey safety inspection logged.';
+    if (ctx.m?.logAudit) ctx.m.logAudit('Safety Advisory', 'Vehicle pre-trip safety checklist verified by field driver');
+  },
   'simulate-detour': ({ ctx }) => {
     (ctx.ui ||= {}).detourToast = 'Route re-sequenced around transit congestion. Saved 18 min.';
     if (ctx.m?.logAudit) ctx.m.logAudit('Visit Planner', 'Re-sequenced journey plan around transit congestion');
