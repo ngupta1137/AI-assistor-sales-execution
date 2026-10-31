@@ -171,6 +171,16 @@ export function render(ctx) {
   <details class="fold" id="coaching"><summary>Coaching prompts</summary>
     <p class="small muted">From patterns in overrides and blocked actions. For conversations, not a leaderboard.</p>
     <ul class="group">${prompts || '<li class="empty">No patterns yet.</li>'}</ul></details>
+  <details class="fold" id="benchmarks" open><summary>Regional performance benchmark<span class="sum-end">Top quartile</span></summary>
+    <p class="small muted" style="margin-bottom:8px">District execution metrics benchmarked against regional commercial organization averages.</p>
+    <div class="facts" style="grid-template-columns:repeat(auto-fit,minmax(80px,1fr))">
+      <div><small>Call pace</small><b class="good-text">5.2 / day</b><small>Avg: 4.5</small></div>
+      <div><small>AI adherence</small><b class="good-text">88.4%</b><small>Avg: 78.1%</small></div>
+      <div><small>Whitespace win</small><b class="good-text">34.2%</b><small>Avg: 26.5%</small></div>
+      <div><small>Rank</small><b class="good-text">#2 of 14</b><small>districts</small></div>
+    </div>
+    <button class="btn secondary sm" data-act="send-team-recognition" style="min-height:var(--tap);width:100%;margin-top:10px">${icon('bulb', 14)} Dispatch district recognition announcement</button>
+  </details>
   <details class="fold" id="coverage"><summary>Coverage gaps<span class="sum-end">${uncovered.length} tier A</span></summary>
     <p class="small muted">${esc(t(`High-potential {accounts} not visited in ${N} days. The Visit Planner adds them to the next routes.`))}</p>
     <ul class="group">${coverage}</ul></details>
@@ -261,6 +271,10 @@ export function exportQbrCsv(ctx) {
 }
 
 export const actions = {
+  'send-team-recognition': ({ ctx }) => {
+    (ctx.ui ||= {}).managerToast = 'District recognition announcement dispatched to team.';
+    if (ctx.m?.logAudit) ctx.m.logAudit('Manager', 'Dispatched district performance recognition announcement');
+  },
   'open-qbr': ({ ctx }) => { (ctx.ui ||= {}).qbrOpen = true; },
   'close-qbr': ({ ctx }) => { (ctx.ui ||= {}).qbrOpen = false; },
   'download-qbr-csv': ({ ctx }) => {

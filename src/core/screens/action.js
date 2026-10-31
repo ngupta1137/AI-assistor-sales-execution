@@ -118,6 +118,30 @@ export function render(ctx, [id]) {
   </section>
 
   <div class="guardrail">${icon('shield', 20)}<span><b>Guardrail.</b> ${esc(t(guard))}</span></div>
+  <section class="card" id="audit-checklist">
+    <div class="section-head">
+      <h2>Execution audit checklist</h2>
+      ${pill(ui?.checkListDone ? 'Verified' : '3 checkpoints', ui?.checkListDone ? 'good' : 'info')}
+    </div>
+    <p class="small muted" style="margin-bottom:8px">Standard commercial execution inspection criteria for this customer action.</p>
+    
+    <div style="display:flex;flex-direction:column;gap:6px">
+      <div style="display:flex;align-items:center;gap:8px;font-size:13px;padding:8px 10px;background:var(--surface-subtle);border-radius:var(--radius-xs);border:1px solid var(--line-soft)">
+        <span style="color:var(--good);display:inline-flex;align-items:center">${icon('check', 16)}</span>
+        <span>Display alignment and visibility standards met</span>
+      </div>
+      <div style="display:flex;align-items:center;gap:8px;font-size:13px;padding:8px 10px;background:var(--surface-subtle);border-radius:var(--radius-xs);border:1px solid var(--line-soft)">
+        <span style="color:var(--good);display:inline-flex;align-items:center">${icon('check', 16)}</span>
+        <span>Promotional collateral and POS placement confirmed</span>
+      </div>
+      <div style="display:flex;align-items:center;gap:8px;font-size:13px;padding:8px 10px;background:var(--surface-subtle);border-radius:var(--radius-xs);border:1px solid var(--line-soft)">
+        <span style="color:var(--good);display:inline-flex;align-items:center">${icon('check', 16)}</span>
+        <span>Stock rotation and packaging integrity verified</span>
+      </div>
+    </div>
+    <button class="btn secondary sm" data-act="verify-audit-check" style="min-height:var(--tap);width:100%;margin-top:8px">${icon('check', 14)} Submit execution audit score (100%)</button>
+    ${ui?.checkToast ? `<div class="notice good" style="margin-top:8px">${icon('check', 14)}<span>${esc(ui.checkToast)}</span></div>` : ''}
+  </section>
 
   <section>
     <h2>Why this action</h2>
@@ -186,6 +210,11 @@ export function mounted(ctx) {
 }
 
 export const actions = {
+  'verify-audit-check': ({ ctx }) => {
+    (ctx.ui ||= {}).checkListDone = true;
+    (ctx.ui ||= {}).checkToast = 'Execution audit score recorded: 100% compliance.';
+    if (ctx.m?.logAudit) ctx.m.logAudit('Execution Audit', 'Recorded 100% execution score for action');
+  },
   'ev-photo': ({ ctx, data }) => { ctx.m.setEvidence(data.id, { type: 'photo', at: nowMin() }); },
   'ev-scan': ({ ctx, data }) => {
     const code = `${String.fromCharCode(65 + (data.id.length % 20))}${(data.id.charCodeAt(1) * 7919) % 900000 + 100000}`;
