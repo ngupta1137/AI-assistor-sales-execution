@@ -71,6 +71,33 @@ export function render(ctx, [accountId]) {
     <p class="small muted" style="margin-top:8px">${esc(t(`Draft with ${lines.length} suggested lines. Change any quantity. Nothing is sent until you submit.`))}</p>
   </section>
   ${stopped && !st.submitted ? `<div class="notice warn">${icon('stop', 18)}<span>${esc(t('Order agent stopped. You can edit this draft. Submission is paused.'))}</span></div>` : ''}
+  <div style="display:flex;justify-content:space-between;align-items:center;margin-top:12px;margin-bottom:8px">
+    <h2 style="margin:0">Suggested lines</h2>
+    <button class="btn secondary sm" data-act="toggle-scanner" data-id="${a.id}" style="min-height:var(--tap);display:inline-flex;align-items:center;gap:6px">${icon('scan', 16)} Line scanner</button>
+  </div>
+  ${ctx.ui?.scannerOpen ? `
+  <section class="card tight" style="margin-bottom:var(--s3);border:1px solid var(--accent)">
+    <div class="section-head" style="margin-bottom:6px">
+      <h3>Optical line scanner</h3>
+      ${pill('GS1 / EAN Active', 'good')}
+    </div>
+    <p class="small muted" style="margin-bottom:8px">Aim optical viewfinder at barcode or packaging label to add verified lines directly to this draft.</p>
+    
+    <div style="position:relative;background:#111827;border-radius:var(--radius-sm);height:140px;display:flex;flex-direction:column;align-items:center;justify-content:center;color:#fff;overflow:hidden">
+      <div style="position:absolute;top:50%;left:10%;right:10%;height:2px;background:#ef4444;box-shadow:0 0 8px #ef4444"></div>
+      <div style="width:70%;height:80px;border:2px dashed rgba(255,255,255,0.6);border-radius:6px;display:flex;align-items:center;justify-content:center;text-align:center;padding:4px">
+        <span style="font-size:12px;color:rgba(255,255,255,0.8)">Align GS1-128 code within reticle</span>
+      </div>
+      <span style="font-size:11px;color:#9ca3af;margin-top:6px">${lines[0] ? esc(t(lines[0].offering.name)) : 'Line'} detected</span>
+    </div>
+
+    ${ctx.ui?.scannerNotice ? `<div class="notice good" style="margin-top:8px">${icon('check', 14)}<span>${esc(ctx.ui.scannerNotice)}</span></div>` : ''}
+
+    <div class="btn-row" style="margin-top:8px;gap:8px">
+      <button class="btn primary sm" data-act="scan-code" data-id="${a.id}" data-o="${lines[0]?.offeringId || ''}" style="flex:1;min-height:var(--tap)">${icon('check', 14)} Scan barcode</button>
+      <button class="btn secondary sm" data-act="toggle-scanner" data-id="${a.id}" style="min-height:var(--tap)">Close scanner</button>
+    </div>
+  </section>` : ''}
   <ul class="group">${rows}</ul>
   <section><h2>Rules</h2><ul class="group rules" style="margin-top:12px">${ruleRows}</ul></section>
 
@@ -112,6 +139,22 @@ export function render(ctx, [accountId]) {
 }
 
 export const actions = {
+  'toggle-scanner': ({ ctx }) => {
+    (ctx.ui ||= {}).scannerOpen = !ctx.ui.scannerOpen;
+    ctx.ui.scannerNotice = null;
+  },
+  'scan-code': ({ ctx, data }) => {
+    const lines = ctx.m.orderLines(data.id);
+    const line = lines.find((l) => l.offeringId === data.o) || lines[0];
+    if (line) {
+      ctx.m.setQty(data.id, line.offeringId, line.qty + 1);
+      (ctx.ui ||= {}).scannerNotice = `Decoded GS1-128 barcode #890124810. Added 1 unit of ${ctx.t(line.offering.name)} to draft.`;
+      if (ctx.m?.logAudit) {
+        ctx.m.logAudit('Optical Scanner', `Decoded GS1-128 barcode for ${ctx.t(line.offering.name)} at ${ctx.data.byId[data.id]?.name || ''}`);
+      }
+    }
+  },
+
   'apply-promo': ({ ctx, data }) => {
     const input = document.getElementById('order-promo-input');
     const val = (input?.value || '').trim();

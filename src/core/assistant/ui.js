@@ -161,10 +161,17 @@ function renderMessage(ctx, st, item, i) {
   const why = r.refusal ? `
     <button class="btn text sm" data-act="as-why" data-i="${i}" aria-expanded="${!!st.why[i]}" aria-controls="as-why-${i}">Why can't you answer that?</button>
     ${st.why[i] ? `<div class="guardrail" id="as-why-${i}" data-why>${icon('shield', 20)}<span><b>Guardrail ${esc(r.refusal.guardrailId)}.</b> ${esc(ctx.t(ctx.industry.assistantAnswers.guardrailWhy))} ${esc(r.refusal.guardrailText)}</span></div>` : ''}` : '';
+  const actionsRow = `
+    <div style="display:flex;align-items:center;gap:6px;margin-top:6px;flex-wrap:wrap">
+      <button class="pill-btn sm" data-act="as-copy" data-i="${i}" style="min-height:36px;font-size:11px" title="Copy answer">${st.copiedIdx === i ? `${icon('check', 12)} Copied` : `${icon('note', 12)} Copy`}</button>
+      <button class="pill-btn sm" data-act="as-crm" data-i="${i}" style="min-height:36px;font-size:11px" title="Save to CRM">${st.crmIdx === i ? `${icon('check', 12)} Saved to CRM` : `${icon('brief', 12)} Save to CRM`}</button>
+      <button class="pill-btn sm" data-act="as-rate" data-i="${i}" style="min-height:36px;font-size:11px;margin-left:auto" title="Mark helpful">${st.ratedIdx === i ? `${icon('check', 12)} Helpful` : `${icon('check', 12)} Helpful`}</button>
+    </div>`;
+
   return `<div class="msg me"><small>You</small><div class="bubble">${esc(item.q)}</div></div>
     <div class="msg ai"><small>AI Assistor</small><div class="bubble" data-answer>${esc(ansText)}</div>
       ${basedText ? `<p class="based" data-based>${esc(basedText)}</p>` : ''}
-      ${links ? `<div class="btn-row">${links}</div>` : ''}${why}</div>`;
+      ${links ? `<div class="btn-row">${links}</div>` : ''}${actionsRow}${why}</div>`;
 }
 
 /** The conversation, shared by the sheet and the Ask page. */
@@ -265,6 +272,42 @@ export function onKeydown(app, e, api) {
 }
 
 export const assistantActions = {
+  'as-copy': ({ app, api, data }) => {
+    const st = stateOf(app);
+    st.copiedIdx = Number(data.i);
+    const item = st.history[Number(data.i)];
+    if (item && navigator.clipboard) {
+      navigator.clipboard.writeText(item.res?.text || '');
+    }
+    api.render();
+  },
+  'as-crm': ({ ctx, app, api, data }) => {
+    const st = stateOf(app);
+    st.crmIdx = Number(data.i);
+    const item = st.history[Number(data.i)];
+    if (ctx && ctx.m?.logAudit) {
+      ctx.m.logAudit('CRM Activity', `Saved AI response to CRM timeline: "${(item?.res?.text || '').slice(0, 60)}"`);
+    }
+    api.render();
+  },
+  'as-rate': ({ ctx, app, api, data }) => {
+    const st = stateOf(app);
+    st.ratedIdx = Number(data.i);
+    if (ctx && ctx.m?.logAudit) {
+      ctx.m.logAudit('Ask AI', 'User rated response helpful');
+    }
+    api.render();
+  },
+  'as-voice': ({ ctx, app, api }) => {
+    const prompts = [
+      'What should I do first today?',
+      'Why this sequence of stops?',
+      'What changed since the last visit?',
+      'How was the time budget used?',
+    ];
+    const pick = prompts[Math.floor(Math.random() * prompts.length)];
+    submit(ctx, app, api, pick);
+  },
   'as-open': ({ app }) => { const st = stateOf(app); st.open = true; st.focus = 'input'; },
   'as-close': ({ app, api }) => { finishTypewriter(app, api); const st = stateOf(app); st.open = false; st.focus = 'launcher'; },
   'as-q': ({ ctx, app, api, data }) => submit(ctx, app, api, data.q, data.intent),
