@@ -163,9 +163,10 @@ function renderMessage(ctx, st, item, i) {
     ${st.why[i] ? `<div class="guardrail" id="as-why-${i}" data-why>${icon('shield', 20)}<span><b>Guardrail ${esc(r.refusal.guardrailId)}.</b> ${esc(ctx.t(ctx.industry.assistantAnswers.guardrailWhy))} ${esc(r.refusal.guardrailText)}</span></div>` : ''}` : '';
   const actionsRow = `
     <div style="display:flex;align-items:center;gap:6px;margin-top:6px;flex-wrap:wrap">
-      <button class="pill-btn sm" data-act="as-copy" data-i="${i}" style="min-height:36px;font-size:11px" title="Copy answer">${st.copiedIdx === i ? `${icon('check', 12)} Copied` : `${icon('note', 12)} Copy`}</button>
-      <button class="pill-btn sm" data-act="as-crm" data-i="${i}" style="min-height:36px;font-size:11px" title="Save to CRM">${st.crmIdx === i ? `${icon('check', 12)} Saved to CRM` : `${icon('brief', 12)} Save to CRM`}</button>
-      <button class="pill-btn sm" data-act="as-rate" data-i="${i}" style="min-height:36px;font-size:11px;margin-left:auto" title="Mark helpful">${st.ratedIdx === i ? `${icon('check', 12)} Helpful` : `${icon('check', 12)} Helpful`}</button>
+      <button class="pill-btn sm" data-act="as-speak" data-i="${i}" style="min-height:var(--tap);font-size:11px" title="Read answer aloud">${st.speakingIdx === i ? `${icon('mic', 12)} Stop audio` : `${icon('mic', 12)} Read aloud`}</button>
+      <button class="pill-btn sm" data-act="as-copy" data-i="${i}" style="min-height:var(--tap);font-size:11px" title="Copy answer">${st.copiedIdx === i ? `${icon('check', 12)} Copied` : `${icon('note', 12)} Copy`}</button>
+      <button class="pill-btn sm" data-act="as-crm" data-i="${i}" style="min-height:var(--tap);font-size:11px" title="Save to CRM">${st.crmIdx === i ? `${icon('check', 12)} Saved to CRM` : `${icon('brief', 12)} Save to CRM`}</button>
+      <button class="pill-btn sm" data-act="as-rate" data-i="${i}" style="min-height:var(--tap);font-size:11px;margin-left:auto" title="Mark helpful">${st.ratedIdx === i ? `${icon('check', 12)} Helpful` : `${icon('check', 12)} Helpful`}</button>
     </div>`;
 
   return `<div class="msg me"><small>You</small><div class="bubble">${esc(item.q)}</div></div>
@@ -272,6 +273,43 @@ export function onKeydown(app, e, api) {
 }
 
 export const assistantActions = {
+  'as-speak': ({ ctx, app, api, data }) => {
+    const st = stateOf(app);
+    const idx = Number(data.i);
+    if (st.speakingIdx === idx) {
+      if (typeof window !== 'undefined' && 'speechSynthesis' in window) {
+        window.speechSynthesis.cancel();
+      }
+      st.speakingIdx = null;
+      api.render();
+      return;
+    }
+    st.speakingIdx = idx;
+    api.render();
+    const item = st.history[idx];
+    const lang = st.lang || 'en';
+    const text = lang !== 'en' ? translateAnswer(item?.res?.text || '', lang) : (item?.res?.text || '');
+    if (typeof window !== 'undefined' && 'speechSynthesis' in window && text) {
+      window.speechSynthesis.cancel();
+      const utter = new SpeechSynthesisUtterance(text);
+      const langMap = { de: 'de-DE', fr: 'fr-FR', pt: 'pt-BR', es: 'es-MX', id: 'id-ID', ar: 'ar-AE', hi: 'hi-IN', en: 'en-US' };
+      utter.lang = langMap[lang] || 'en-US';
+      utter.rate = 1.0;
+      utter.onend = () => { st.speakingIdx = null; api.render(); };
+      utter.onerror = () => { st.speakingIdx = null; api.render(); };
+      window.speechSynthesis.speak(utter);
+    } else {
+      setTimeout(() => {
+        if (st.speakingIdx === idx) {
+          st.speakingIdx = null;
+          api.render();
+        }
+      }, 3000);
+    }
+    if (ctx && ctx.m?.logAudit) {
+      ctx.m.logAudit('Voice Assistant', `Spoke audio briefing for "${(item?.q || '').slice(0, 50)}"`);
+    }
+  },
   'as-copy': ({ app, api, data }) => {
     const st = stateOf(app);
     st.copiedIdx = Number(data.i);
