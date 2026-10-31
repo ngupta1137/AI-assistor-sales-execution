@@ -55,9 +55,12 @@ export function render(ctx) {
   // M4 Coverage: high-potential accounts not visited in N days, counting visits closed in this session.
   const N = 21;
   const uncovered = data.accounts.filter((a) => a.tier === 'A' && m.lastVisitDays(a.id) > N).sort((a, b) => b.potential - a.potential);
-  const coverage = uncovered.length ? uncovered.slice(0, 5).map((a) => `<li class="row"><span class="row-main"><b>${esc(a.name)}</b>
+  const coverage = uncovered.length ? uncovered.slice(0, 5).map((a) => `<li class="row" style="flex-direction:column;align-items:stretch"><div style="display:flex;align-items:center"><span class="row-main"><b>${esc(a.name)}</b>
       <small>${esc(t(a.type))} · ${esc(a.area)} · last ${esc(t('{visit}'))} ${m.lastVisitDays(a.id)} days ago</small></span>
-      <span class="row-end"><b class="money small">${esc(fmt.moneyShort(a.whiteSpace))}</b><small>white space</small></span></li>`).join('')
+      <span class="row-end"><b class="money small">${esc(fmt.moneyShort(a.whiteSpace))}</b><small>white space</small></span></div>
+      <div style="margin-top:6px;display:flex;justify-content:flex-end">
+        <button class="btn secondary sm" data-act="schedule-gap" data-id="${a.id}" style="min-height:var(--tap)">${icon('route', 14)} Schedule in next cycle</button>
+      </div></li>`).join('')
     : `<li class="empty">${esc(t(`Every tier A {account} was visited in the last ${N} days.`))}</li>`;
 
   // M3 Coaching prompts from patterns in overrides and blocked actions. Coaching, not policing.
@@ -70,10 +73,14 @@ export function render(ctx) {
       : list[0].kind === 'blocked' ? 'Remove the blocker or reset expectations with the {rep}.'
         : list[0].kind === 'approval' ? 'Decide quickly so the {rep} can confirm with the {contact}.'
           : 'Ask what the agent is missing. The override may be right.';
-    return `<li class="coach">${icon('bulb', 18)}<span><b>${list.length} × "${esc(r)}"</b> from ${esc(names.join(', '))}. ${esc(t(ask))}</span></li>`;
+    return `<li class="coach" style="flex-direction:column;align-items:stretch"><div>${icon('bulb', 18)}<span><b>${list.length} × "${esc(r)}"</b> from ${esc(names.join(', '))}. ${esc(t(ask))}</span></div>
+      <div style="margin-top:6px;display:flex;justify-content:flex-end">
+        <button class="btn secondary sm" data-act="send-coaching" data-rep="${esc(names[0])}" style="min-height:var(--tap)">${icon('note', 14)} Send coaching guidance</button>
+      </div></li>`;
   }).join('');
 
   return `
+  ${ui?.managerToast ? `<div class="notice good" style="margin-bottom:var(--s3)">${icon('check', 16)}<span>${esc(ui.managerToast)}</span></div>` : ''}
   <section class="page-head">
     <h1>Team today</h1>
     <p class="small muted">${esc(data.manager.name)} · ${esc(t(data.manager.title))} · ${esc(data.city.name)}</p>
@@ -128,4 +135,13 @@ export const actions = {
     }
   },
   'ex-filter': ({ ctx, data }) => { ctx.ui.exFilter = data.id; },
+  'schedule-gap': ({ ctx, data }) => {
+    const a = ctx.data.byId[data.id];
+    (ctx.ui ||= {}).managerToast = `Scheduled ${a ? a.name : 'account'} into tomorrow's itinerary.`;
+    if (ctx.m?.logAudit) ctx.m.logAudit('Manager', `Scheduled priority visit for ${a ? a.name : data.id} in next journey cycle`);
+  },
+  'send-coaching': ({ ctx, data }) => {
+    (ctx.ui ||= {}).managerToast = `Coaching guidance dispatched to ${data.rep}.`;
+    if (ctx.m?.logAudit) ctx.m.logAudit('Manager', `Dispatched coaching note to ${data.rep} regarding override patterns`);
+  },
 };

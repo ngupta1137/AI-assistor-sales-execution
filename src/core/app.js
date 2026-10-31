@@ -30,6 +30,8 @@ const app = {
   assistant: null,         // conversation state, see assistant/ui.js
   assistantEnabled: true,
   vp: 'phone',
+  offline: false,
+  offlineQueue: [],
   liveEndpoint: '',
   notesOpen: false,
   notice: '',
@@ -217,8 +219,8 @@ function shell(ctx, name, result) {
       <button class="logo" id="logo" aria-label="AI Assistor home">
         <span class="mark">${icon(ctx.industry.icon, 18)}</span><span class="brand">AI Assistor</span>
       </button>
-      <button class="who" data-act="open-sync-modal" aria-haspopup="dialog" aria-label="Enterprise sync telemetry and user profile"><span class="who-text"><b>${esc(user.name)}</b><small><span class="sync-dot" aria-hidden="true"></span> ${esc(t(user.title))}</small></span><span class="avatar" aria-hidden="true">${esc(initials(user.name))}</span></button>
-    </header>${prepared}
+      <button class="who" data-act="open-sync-modal" aria-haspopup="dialog" aria-label="Enterprise sync telemetry and user profile"><span class="who-text"><b>${esc(user.name)}</b><small><span class="sync-dot ${app.offline ? 'offline' : ''}" aria-hidden="true"></span> ${app.offline ? 'Offline' : esc(t(user.title))}</small></span><span class="avatar" aria-hidden="true">${esc(initials(user.name))}</span></button>
+    </header>${app.offline ? `<div class="offline-strip" id="offline-strip">${icon('sync', 16)} <span>Offline mode active. Local AES-256 encrypted storage.</span><button class="pill-btn sm" data-act="toggle-offline" style="margin-left:auto;background:rgba(255,255,255,0.2);color:#fff;min-height:36px">Go online</button></div>` : ''}${prepared}
     <main class="screen" id="screen" data-region="screen">${out}</main>
     ${dock ? `<div class="dock" data-region="dock">${dock}</div>` : ''}
     <nav class="tabs" aria-label="Main">${nav}</nav>

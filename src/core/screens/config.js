@@ -21,7 +21,7 @@ export function render(ctx) {
   const rules = industry.orderRules.map((r) => `<li>${esc(t(r.text, { limit: r.amount != null ? fmt.money(localPrice(r.amount, country)) : '', max: r.max ?? '', lines: '' }))}</li>`).join('');
   const events = upcomingEvents(country, fmt.today).slice(0, 4).map((e) => `<li><b>${esc(e.name)}</b> <small class="muted">${esc(fmt.dateShort(e.date))} · ${esc(e.note)}</small></li>`).join('');
 
-  const jump = [['vocab', 'Vocabulary'], ['segments', 'Segments'], ['actions', 'Actions'], ['offerings', t('{Offerings}')], ['kpis', 'KPIs'], ['rules', 'Guardrails'], ['integrations', 'Integrations'], ['country', 'Country']]
+  const jump = [['vocab', 'Vocabulary'], ['segments', 'Segments'], ['actions', 'Actions'], ['offerings', t('{Offerings}')], ['kpis', 'KPIs'], ['rules', 'Guardrails'], ['integrations', 'Integrations'], ['ops', 'Commercial Ops'], ['country', 'Country']]
     .map(([id, label]) => `<a href="#/config" data-act="jump" data-id="${id}">${esc(label)}</a>`).join('');
   return `
   <section class="page-head">
@@ -58,6 +58,28 @@ export function render(ctx) {
     </ul>
     <div class="btn-row" style="margin-top:12px">
       <button class="btn secondary" data-act="download-audit-csv">${icon('note', 18)}Download compliance audit log (CSV)</button>
+    </div>
+  </details>
+  <details class="fold" id="ops" open><summary>Commercial Operations &amp; AI Fleet Rollup<span class="sum-end">Telemetry</span></summary>
+    <p class="small muted" style="margin-bottom:8px">Multi-district pipeline rollup, operational SLA compliance and autonomous agent reliability across the commercial organization.</p>
+    <div class="facts" style="margin-top:12px">
+      <div><small>North District</small><b>96% of quota</b><small>$482k pipeline</small></div>
+      <div><small>Central District</small><b>91% of quota</b><small>$410k pipeline</small></div>
+      <div><small>South District</small><b>88% of quota</b><small>$395k pipeline</small></div>
+      <div><small>Compliance score</small><b class="good-text">100%</b><small>0 policy breaches</small></div>
+    </div>
+    <div style="margin-top:14px">
+      <h3>AI Agent Fleet Telemetry</h3>
+      <table class="tbl" style="margin-top:6px;width:100%;font-size:12px">
+        <thead>
+          <tr><th style="text-align:left">Agent</th><th style="text-align:left">Scope</th><th style="text-align:right">Reliability</th><th style="text-align:right">Acceptance</th></tr>
+        </thead>
+        <tbody>
+          <tr><td><b>Visit Planner</b></td><td>Journey and routing</td><td style="text-align:right">99.1%</td><td style="text-align:right">92%</td></tr>
+          <tr><td><b>Gap Detection</b></td><td>Whitespace and voids</td><td style="text-align:right">98.6%</td><td style="text-align:right">84%</td></tr>
+          <tr><td><b>Order Verification</b></td><td>Pricing and limits</td><td style="text-align:right">99.8%</td><td style="text-align:right">96%</td></tr>
+        </tbody>
+      </table>
     </div>
   </details>
   <details class="fold" id="country"><summary>Country: ${esc(country.name)}</summary>
