@@ -142,7 +142,81 @@ export function render(ctx, [accountId]) {
     </div>
   </section>` : '';
 
-  return `${collateralModal}
+
+  const deckSlide = ui.deckSlide || 1;
+  const deckModal = ui.pitchDeckOpen ? `
+  <div class="presenter-backdrop" data-act="close-deck" aria-hidden="true"></div>
+  <section class="as-sheet enterprise-modal" role="dialog" aria-modal="true" aria-labelledby="deck-title" style="height:auto;max-height:88%;overflow-y:auto;z-index:90">
+    <header class="as-head" style="align-items:center">
+      <div>
+        <h2 id="deck-title" style="display:flex;align-items:center;gap:8px">
+          ${icon('screen', 20)} Commercial Growth Proposal
+        </h2>
+        <small>${esc(a.name)} · Prepared for ${esc(contact.name)}</small>
+      </div>
+      <button class="icon-btn" data-act="close-deck" aria-label="Close presentation" style="min-height:var(--tap);min-width:var(--tap)">${icon('x', 20)}</button>
+    </header>
+
+    <div style="padding:var(--s4);display:flex;flex-direction:column;gap:var(--s3)">
+      <div style="display:flex;justify-content:space-between;align-items:center">
+        ${pill(`Slide ${deckSlide} of 3`, 'info')}
+        <div class="btn-row" style="gap:6px">
+          <button class="btn secondary sm" data-act="deck-prev" style="min-height:var(--tap);min-width:var(--tap)" ${deckSlide <= 1 ? 'disabled' : ''}>${icon('back', 16)} Prev</button>
+          <button class="btn secondary sm" data-act="deck-next" style="min-height:var(--tap);min-width:var(--tap)" ${deckSlide >= 3 ? 'disabled' : ''}>Next ${icon('chevron', 16)}</button>
+        </div>
+      </div>
+
+      ${deckSlide === 1 ? `
+        <section class="card" style="margin:0;background:var(--surface-subtle)">
+          <div class="section-head">
+            <h3>Customer category growth potential</h3>
+            ${pill('Territory benchmark', 'good')}
+          </div>
+          <div class="facts" style="grid-template-columns:repeat(auto-fit,minmax(80px,1fr));margin-top:8px">
+            <div><small>Annual turnover</small><b class="money">${esc(fmt.moneyShort(a.current))}</b></div>
+            <div><small>Market potential</small><b class="money good-text">${esc(fmt.moneyShort(a.potential))}</b></div>
+            <div><small>Growth upside</small><b class="money">+${esc(fmt.moneyShort(a.whiteSpace))}</b></div>
+          </div>
+          <p class="small muted" style="margin-top:10px">Based on comparable commercial accounts in ${esc(a.city)}, this customer can expand category throughput by +12.4% with optimized assortment allocation.</p>
+        </section>
+      ` : deckSlide === 2 ? `
+        <section class="card" style="margin:0;background:var(--surface-subtle)">
+          <div class="section-head">
+            <h3>Prioritized portfolio expansion</h3>
+            ${pill('High margin velocity', 'good')}
+          </div>
+          <div class="card tight" style="margin-top:8px">
+            <b>${esc(t(items[0]?.title || 'Featured Commercial Offering', items[0]?.vars))}</b>
+            <p class="small muted" style="margin-top:4px">Optimizes category display density and captures immediate unmet buyer demand.</p>
+            <div class="facts" style="grid-template-columns:repeat(auto-fit,minmax(80px,1fr));margin-top:6px">
+              <div><small>Margin uplift</small><b class="good-text">+14.8%</b></div>
+              <div><small>Estimated upside</small><b class="money">${esc(fmt.money(items[0]?.value || 1200))}</b></div>
+              <div><small>Risk profile</small><b>Low</b></div>
+            </div>
+          </div>
+        </section>
+      ` : `
+        <section class="card" style="margin:0;background:var(--surface-subtle)">
+          <div class="section-head">
+            <h3>Commercial pricing terms and fulfillment</h3>
+            ${pill('Approved contract', 'good')}
+          </div>
+          <ul class="bullets small" style="margin-top:8px">
+            <li><b>Volume Rebate Schedule:</b> 5% discount at ${esc(fmt.money(500))}, 10% discount at ${esc(fmt.money(2000))}.</li>
+            <li><b>Payment Facility:</b> Approved Net 30 payment terms with zero credit surcharge.</li>
+            <li><b>Logistics Guarantee:</b> 48-hour distribution dispatch with prepaid freight.</li>
+          </ul>
+          <div style="margin-top:10px">
+            <a class="btn primary block" href="#/order/${a.id}" style="min-height:var(--tap);display:flex;align-items:center;justify-content:center">${icon('cart', 16)} Open order draft</a>
+          </div>
+        </section>
+      `}
+
+      <button class="btn secondary block" data-act="close-deck" style="min-height:var(--tap);margin-top:4px">Exit presentation mode</button>
+    </div>
+  </section>` : '';
+
+  return `${collateralModal}${deckModal}
   ${ui.briefToast ? `<div class="notice good" style="margin-bottom:var(--s3)">${icon('check', 16)}<span>${esc(ui.briefToast)}</span></div>` : ''}
   <a class="back" href="#/today">${icon('back', 18)} ${esc(t('Today'))}</a>
   <section class="brief-head">
@@ -151,9 +225,10 @@ export function render(ctx, [accountId]) {
     <p class="small muted">${esc(typeLine(t, a))} · ${esc(a.area)} · Tier ${a.tier}</p>
     <p class="small">${esc(fmt.time(p.start))} · ${a.visitMinutes} min · ${esc(contact.name)}, ${esc(t(contact.role))}</p>
   </section>
-  <div style="display:flex;gap:8px;margin-bottom:12px">
-    <button class="btn secondary sm" data-act="open-collateral" style="flex:1;min-height:var(--tap)">${icon('brief', 16)} Sales collateral</button>
-    <a class="btn secondary sm" href="#/account/${a.id}" style="flex:1;min-height:var(--tap);display:flex;align-items:center;justify-content:center">${icon('note', 16)} ${esc(t('{Account} 360'))}</a>
+  <div style="display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap">
+    <button class="btn secondary sm" data-act="open-deck" style="flex:1;min-height:var(--tap);min-width:140px">${icon('screen', 16)} In-call pitch mode</button>
+    <button class="btn secondary sm" data-act="open-collateral" style="flex:1;min-height:var(--tap);min-width:140px">${icon('brief', 16)} Sales collateral</button>
+    <a class="btn secondary sm" href="#/account/${a.id}" style="flex:1;min-height:var(--tap);min-width:140px;display:flex;align-items:center;justify-content:center">${icon('note', 16)} ${esc(t('{Account} 360'))}</a>
   </div>
 
   <div class="counts tight" id="counts" aria-live="polite">
@@ -191,6 +266,10 @@ const currentNote = (ctx, id) => {
 };
 
 export const actions = {
+  'open-deck': ({ ctx }) => { (ctx.ui ||= {}).pitchDeckOpen = true; ctx.ui.deckSlide = 1; },
+  'close-deck': ({ ctx }) => { (ctx.ui ||= {}).pitchDeckOpen = false; },
+  'deck-prev': ({ ctx }) => { const ui = (ctx.ui ||= {}); ui.deckSlide = Math.max(1, (ui.deckSlide || 1) - 1); },
+  'deck-next': ({ ctx }) => { const ui = (ctx.ui ||= {}); ui.deckSlide = Math.min(3, (ui.deckSlide || 1) + 1); },
   decide: ({ ctx, data }) => { ctx.m.decide(data.id, { status: data.status }); ctx.ui.panel = null; },
   panel: ({ ctx, data }) => { ctx.ui.panel = { id: data.id, kind: data.kind }; },
   'panel-close': ({ ctx }) => { ctx.ui.panel = null; },
