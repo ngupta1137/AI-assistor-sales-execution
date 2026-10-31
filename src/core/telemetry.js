@@ -1,7 +1,7 @@
 // Enterprise Integration & System Telemetry modal.
 // Displays CRM, ERP, Offline Engine, Security & SSO status, and allows downloading the compliance audit log.
 
-import { esc, icon, pill } from './ui.js';
+import { esc, icon, pill, initials } from './ui.js';
 
 export function renderSyncModal(app, ctx) {
   if (!app.ui || !app.ui.syncModalOpen) return '';
@@ -22,6 +22,42 @@ export function renderSyncModal(app, ctx) {
     </header>
 
     <div style="padding:var(--s4);display:flex;flex-direction:column;gap:var(--s3)">
+      ${(() => {
+        const user = ctx ? (ctx.persona === 'rep' ? ctx.data.rep : ctx.persona === 'manager' ? ctx.data.manager : ctx.data.admin) : null;
+        if (!user) return '';
+        return `
+        <section class="card" style="margin:0;background:var(--surface-subtle);border:1px solid var(--line)">
+          <div style="display:flex;align-items:center;justify-content:space-between;gap:8px">
+            <div style="display:flex;align-items:center;gap:10px">
+              <span class="avatar" style="width:38px;height:38px;font-size:15px">${esc(initials(user.name))}</span>
+              <div>
+                <b style="font-size:14px;display:block">${esc(user.name)}</b>
+                <small class="muted">${esc(ctx.t(user.title))} · ${esc(ctx.data.city.name)}</small>
+              </div>
+            </div>
+            <button class="btn secondary sm" data-act="logout-setup" style="min-height:var(--tap);font-size:12px">${icon('config', 14)} Log out</button>
+          </div>
+          
+          <div style="margin-top:12px;padding-top:10px;border-top:1px solid var(--line-soft)">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
+              <small class="muted" style="font-weight:600">Switch demo persona:</small>
+              ${pill(ctx.persona === 'rep' ? 'Field rep view' : ctx.persona === 'manager' ? 'Manager view' : 'Admin view', 'good')}
+            </div>
+            <div class="seg-ctl" role="tablist" style="margin-top:4px">
+              <button class="seg ${ctx.persona === 'rep' ? 'on' : ''}" data-act="switch-persona" data-persona="rep" role="tab" aria-selected="${ctx.persona === 'rep'}" style="min-height:var(--tap)">
+                Field Rep
+              </button>
+              <button class="seg ${ctx.persona === 'manager' ? 'on' : ''}" data-act="switch-persona" data-persona="manager" role="tab" aria-selected="${ctx.persona === 'manager'}" style="min-height:var(--tap)">
+                Manager
+              </button>
+              <button class="seg ${ctx.persona === 'admin' ? 'on' : ''}" data-act="switch-persona" data-persona="admin" role="tab" aria-selected="${ctx.persona === 'admin'}" style="min-height:var(--tap)">
+                Sales Ops
+              </button>
+            </div>
+            <p class="small muted" style="margin-top:6px;font-size:11px">In production, roles are provisioned via enterprise SSO. For demonstrations, switch personas to view rep, manager, and administrative surfaces.</p>
+          </div>
+        </section>`;
+      })()}
       ${syncSuccess ? `<div class="notice good" role="status">${icon('check', 18)}<span>Bi-directional sync completed. Price books, account balances and inventory updated.</span></div>` : ''}
 
       <section class="card" style="margin:0">
@@ -106,6 +142,16 @@ export function exportAuditCsv(ctx) {
 }
 
 export const syncActions = {
+  'switch-persona': ({ app, data, api }) => {
+    app.ui.syncModalOpen = false;
+    api.configure({ persona: data.persona }, { home: true });
+    return 'nav';
+  },
+  'logout-setup': ({ app, api }) => {
+    app.ui.syncModalOpen = false;
+    api.navigate('#/setup');
+    return 'nav';
+  },
   'open-sync-modal': ({ app }) => {
     app.ui.syncModalOpen = true;
     app.ui.syncJustRan = false;
