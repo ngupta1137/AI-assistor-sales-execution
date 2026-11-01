@@ -63,6 +63,14 @@ export function render({ app, INDUSTRIES, COUNTRIES, buildContext }) {
       </details>
     </div>
     <div class="setup-foot">
+      <div style="margin-bottom:8px">
+        <small class="muted" style="font-weight:600;display:block;margin-bottom:4px">Enterprise demo quick-start presets:</small>
+        <div style="display:flex;gap:6px;flex-wrap:wrap">
+          <button class="btn secondary sm" data-act="preset-demo" data-ind="cpg" data-ctry="US" data-role="rep" style="min-height:var(--tap);flex:1;font-size:11px">Consumer Goods (US)</button>
+          <button class="btn secondary sm" data-act="preset-demo" data-ind="pharma" data-ctry="DE" data-role="manager" style="min-height:var(--tap);flex:1;font-size:11px">Pharma Manager (DE)</button>
+          <button class="btn secondary sm" data-act="preset-demo" data-ind="medtech" data-ctry="UK" data-role="admin" style="min-height:var(--tap);flex:1;font-size:11px">MedTech Ops (UK)</button>
+        </div>
+      </div>
       ${chosen ? `<p class="small"><b>${esc(chosen)}</b></p>` : ''}
       ${preview}
       
@@ -72,6 +80,13 @@ export function render({ app, INDUSTRIES, COUNTRIES, buildContext }) {
 }
 
 export const actions = {
+  'preset-demo': ({ app, data, api }) => {
+    app.ui.setup.industry = data.ind;
+    app.ui.setup.country = data.ctry;
+    app.ui.setup.persona = data.role;
+    api.configure({ industryId: data.ind, countryId: data.ctry, persona: data.role }, { home: true });
+    return 'nav';
+  },
   'setup-industry': ({ app, data }) => { app.ui.setup.industry = data.id; },
   'setup-country': ({ app, data }) => { app.ui.setup.country = data.id; },
   'setup-persona': ({ app, data }) => { app.ui.setup.persona = data.id; },

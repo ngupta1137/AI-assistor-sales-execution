@@ -143,6 +143,19 @@ export function render(ctx, [id]) {
     ${ui?.checkToast ? `<div class="notice good" style="margin-top:8px">${icon('check', 14)}<span>${esc(ui.checkToast)}</span></div>` : ''}
   </section>
 
+  <section class="card tight" id="action-followup" style="margin-top:var(--s3)">
+    <div class="section-head" style="margin-bottom:6px">
+      <h3>Commercial follow-up task</h3>
+      ${ui?.followupScheduled ? pill('Scheduled', 'good') : pill('Optional', 'muted')}
+    </div>
+    <p class="small muted" style="margin-bottom:8px">Queue a commercial follow-up reminder for the next itinerary cycle.</p>
+    ${ui?.followupScheduled ? `
+      <div class="notice good">${icon('check', 14)}<span>Follow-up action queued for next cycle. Logged to CRM timeline.</span></div>
+    ` : `
+      <button class="btn secondary sm" data-act="schedule-followup" data-id="${it.id}" style="min-height:var(--tap);width:100%">${icon('calendar', 14)} Schedule commercial follow-up</button>
+    `}
+  </section>
+
   <section>
     <h2>Why this action</h2>
     <ul class="why" style="margin-top:12px">${why.slice(0, 2).map((w) => `<li>${esc(w)}</li>`).join('')}</ul>
@@ -210,6 +223,11 @@ export function mounted(ctx) {
 }
 
 export const actions = {
+  'schedule-followup': ({ ctx, data }) => {
+    (ctx.ui ||= {}).followupScheduled = true;
+    (ctx.ui ||= {}).checkToast = 'Follow-up commercial task scheduled for next cycle.';
+    if (ctx.m?.logAudit) ctx.m.logAudit('CRM Activity', `Scheduled commercial follow-up task for action ${data.id}`);
+  },
   'verify-audit-check': ({ ctx }) => {
     (ctx.ui ||= {}).checkListDone = true;
     (ctx.ui ||= {}).checkToast = 'Execution audit score recorded: 100% compliance.';
