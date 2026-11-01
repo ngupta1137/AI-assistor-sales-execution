@@ -235,7 +235,41 @@ export function render(ctx, [accountId]) {
       </div>
     </div>
   </details>
-    <details class="fold" id="acc-group"${ctx.ui?.groupOpen === a.id ? ' open' : ''}>
+      <details class="fold" id="acc-entity">
+    <summary>Commercial trade network and multi-tier structure<span class="sum-end">Multi-Tier</span></summary>
+    <div style="padding:var(--s2) 0">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
+        <b>Enterprise Commercial Hierarchy</b>
+        ${pill('Trade Network Mapped', 'good')}
+      </div>
+      <p class="small muted" style="margin-bottom:8px">Multi-tier mapping of contracting entity, invoice payer, physical delivery site, and wholesale fulfillment stockist.</p>
+      <div style="display:flex;flex-direction:column;gap:6px;font-size:12px;margin-bottom:8px">
+        <div style="padding:6px 8px;background:var(--surface-subtle);border-radius:4px;border:1px solid var(--line-soft)">
+          <span class="muted">1. Contracting Parent / Legal Entity:</span>
+          <b>${esc(a.name.split(' ')[0])} Corporate Group LLC (Master Agreement AGR-9821)</b>
+        </div>
+        <div style="padding:6px 8px;background:var(--surface-subtle);border-radius:4px;border:1px solid var(--line-soft)">
+          <span class="muted">2. Invoicing Payer Account:</span>
+          <b>Central Invoicing ACC-${10000 + (a.name.length * 47) % 90000} · Credit: Net 30 Days</b>
+        </div>
+        <div style="padding:6px 8px;background:var(--surface-subtle);border-radius:4px;border:1px solid var(--line-soft)">
+          <span class="muted">3. Physical Delivery Ship-To Site:</span>
+          <b>${esc(a.name)} (${esc(a.address)}) · Dock 2 (08:00 - 15:30)</b>
+        </div>
+        <div style="padding:6px 8px;background:var(--surface-subtle);border-radius:4px;border:1px solid var(--line-soft)">
+          <span class="muted">4. Wholesale Stockist Channel:</span>
+          <b>Regional Distribution Partner Depot #402 · Standard Beat 4B Delivery</b>
+        </div>
+      </div>
+      <div class="facts" style="grid-template-columns:repeat(auto-fit,minmax(80px,1fr))">
+        <div><small>Trade flow</small><b>Direct contract</b></div>
+        <div><small>Fulfillment</small><b>Wholesale depot</b></div>
+        <div><small>Sell-in</small><b class="good-text">Invoiced</b></div>
+        <div><small>Sell-out</small><b>POS tracked</b></div>
+      </div>
+    </div>
+  </details>
+  <details class="fold" id="acc-group"${ctx.ui?.groupOpen === a.id ? ' open' : ''}>
     <summary>Key account banner and multi-location rollup<span class="sum-end">Network Group</span></summary>
     <div style="padding:var(--s2) 0">
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">

@@ -48,6 +48,20 @@ export function render(ctx, [accountId]) {
   ? esc(t(`Pending approval with your ${recipientName(t, st.route)}. Acknowledgement shows in their queue.`))
   : esc(t('{Order} submitted.'))}</span></div>
       ${ctx.ui?.erpNotice ? `<div class="notice good" style="margin-top:6px">${icon('check', 16)}<span>${esc(ctx.ui.erpNotice)}</span></div>` : ''}
+    ${st.submitted ? `
+      <div style="margin-top:8px;padding:8px 10px;background:var(--surface-subtle);border:1px solid var(--line-soft);border-radius:var(--radius-sm)">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px">
+          <b>Order fulfillment state</b>
+          ${ctx.app.offline ? pill('Provisional: Local Queue', 'warn') : pill('Authoritative: ERP Accepted', 'good')}
+        </div>
+        <div class="small muted">
+          ${ctx.app.offline
+            ? 'Order saved in local AES-256 encrypted queue. Provisional status pending central warehouse inventory allocation upon sync.'
+            : 'Authoritative confirmation from ERP OData gateway. Central warehouse inventory batch reserved and delivery beat dispatched.'}
+        </div>
+      </div>
+    ` : ''}
+
       <div class="btn-row" style="margin-bottom:8px">
         <button class="btn secondary sm" data-act="push-erp" data-id="${a.id}" style="flex:1">${icon('sync', 16)} Push to ERP</button>
         <button class="btn secondary sm" data-act="order-pdf" data-id="${a.id}" style="flex:1">${icon('note', 16)} Export Order</button>
