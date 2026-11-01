@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>AI Assistor for Sales Execution — Executive Pitch Deck</title>
+  <title>AI Assistor for Sales Execution  -  Executive Pitch Deck</title>
   <style>
     :root {
       --bg: #0b0f19;
@@ -403,14 +403,34 @@
                 <span class="pill warn">Monthly</span>
               </div>
               <ul style="font-size:12px;line-height:1.5">
-                <li><b>Daily View:</b> Intraday completion curve (08:00–17:00). Today visits (4 of 5), $18,400 opportunity addressed, pace on track.</li>
-                <li><b>Weekly View:</b> 7-day call trajectory line chart (Mon–Sat). Week quota pacing at 108% (+8% ahead of target).</li>
+                <li><b>Daily View:</b> Intraday completion curve (08:00 to 17:00). Today visits (4 of 5), $18,400 opportunity addressed, pace on track.</li>
+                <li><b>Weekly View:</b> 7-day call trajectory line chart (Mon to Sat). Week quota pacing at 108% (+8% ahead of target).</li>
                 <li><b>Monthly View:</b> Month-to-date attainment progress bar ($38.4k of $42k target, 91.4% achieved, projected 106% finish).</li>
               </ul>
-              <svg viewBox="0 0 280 40" style="width:100%;height:auto;margin-top:6px" role="img">
-                <line x1="10" y1="28" x2="270" y2="18" stroke="var(--muted)" stroke-dasharray="3,3"/>
-                <polyline points="10,32 55,28 100,24 145,18 190,14 235,10 270,6" fill="none" stroke="var(--accent)" stroke-width="2"/>
-                <circle cx="270" cy="6" r="3" fill="var(--good)"/>
+              <svg viewBox="0 0 280 65" style="width:100%;height:auto;margin-top:6px;overflow:visible" role="img" aria-label="Field Rep Intraday S-Curve">
+                <defs>
+                  <linearGradient id="pitchRepGrad" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0%" stop-color="var(--accent)" stop-opacity="0.3"/>
+                    <stop offset="100%" stop-color="var(--accent)" stop-opacity="0.0"/>
+                  </linearGradient>
+                </defs>
+                <line x1="30" y1="12" x2="270" y2="12" stroke="var(--line-soft)" stroke-dasharray="2,2"/>
+                <text x="24" y="15" font-size="7" fill="var(--muted)" text-anchor="end">$20k</text>
+                <line x1="30" y1="34" x2="270" y2="34" stroke="var(--line-soft)" stroke-dasharray="2,2"/>
+                <text x="24" y="37" font-size="7" fill="var(--muted)" text-anchor="end">$10k</text>
+                <line x1="30" y1="54" x2="270" y2="54" stroke="var(--line-soft)"/>
+                <text x="24" y="56" font-size="7" fill="var(--muted)" text-anchor="end">$0</text>
+                <line x1="32" y1="54" x2="265" y2="12" stroke="var(--muted)" stroke-width="1.2" stroke-dasharray="3,3"/>
+                <polygon points="32,54 65,46 110,36 145,36 195,24 235,16 235,54" fill="url(#pitchRepGrad)"/>
+                <polyline points="32,54 65,46 110,36 145,36 195,24 235,16" fill="none" stroke="var(--accent)" stroke-width="2"/>
+                <circle cx="65" cy="46" r="2.5" fill="var(--accent)"/>
+                <text x="65" y="42" font-size="6" fill="var(--muted)" text-anchor="middle">$3.4k</text>
+                <circle cx="110" cy="36" r="2.5" fill="var(--accent)"/>
+                <text x="110" y="32" font-size="6" fill="var(--muted)" text-anchor="middle">$7.8k</text>
+                <circle cx="195" cy="24" r="2.5" fill="var(--accent)"/>
+                <text x="195" y="20" font-size="6" fill="var(--muted)" text-anchor="middle">$15.6k</text>
+                <circle cx="235" cy="16" r="3.5" fill="var(--good)"/>
+                <text x="235" y="10" font-size="7" font-weight="700" fill="var(--good)" text-anchor="middle">$18.4k (80%)</text>
               </svg>
             </div>
           </div>
@@ -440,10 +460,28 @@
                 <li><b>Weekly View:</b> Week-to-date strike rate vs plan across 14 reps (105.2% target pace, 3.8% exception rate).</li>
                 <li><b>Monthly View:</b> 12-week district quota attainment ($1.42M actual vs $1.35M target, +$70k ahead of plan).</li>
               </ul>
-              <svg viewBox="0 0 280 40" style="width:100%;height:auto;margin-top:6px" role="img">
-                <line x1="10" y1="28" x2="270" y2="16" stroke="var(--muted)" stroke-dasharray="3,3"/>
-                <polyline points="10,32 50,28 100,24 150,18 200,12 240,8 270,4" fill="none" stroke="var(--good)" stroke-width="2"/>
-                <circle cx="270" cy="4" r="3" fill="var(--good)"/>
+              <svg viewBox="0 0 280 65" style="width:100%;height:auto;margin-top:6px;overflow:visible" role="img" aria-label="District 12-week Attainment with W6 Inflection">
+                <defs>
+                  <linearGradient id="pitchMgrGrad" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0%" stop-color="var(--good)" stop-opacity="0.3"/>
+                    <stop offset="100%" stop-color="var(--good)" stop-opacity="0.0"/>
+                  </linearGradient>
+                </defs>
+                <line x1="30" y1="14" x2="270" y2="14" stroke="var(--line-soft)" stroke-dasharray="2,2"/>
+                <text x="24" y="17" font-size="7" fill="var(--muted)" text-anchor="end">$180k</text>
+                <line x1="30" y1="36" x2="270" y2="36" stroke="var(--line-soft)" stroke-dasharray="2,2"/>
+                <text x="24" y="39" font-size="7" fill="var(--muted)" text-anchor="end">$120k</text>
+                <line x1="30" y1="56" x2="270" y2="56" stroke="var(--line-soft)"/>
+                <text x="24" y="58" font-size="7" fill="var(--muted)" text-anchor="end">$80k</text>
+                <!-- W6 Intervention line -->
+                <line x1="140" y1="8" x2="140" y2="58" stroke="var(--warn)" stroke-width="1.2" stroke-dasharray="2,2"/>
+                <text x="140" y="6" font-size="6" font-weight="700" fill="var(--warn)" text-anchor="middle">W6 Rollout</text>
+                <polygon points="34,54 58,52 82,50 106,53 124,49 140,42 165,34 190,26 215,20 240,16 265,10 265,56 34,56" fill="url(#pitchMgrGrad)"/>
+                <polyline points="34,54 58,52 82,50 106,53 124,49 140,42 165,34 190,26 215,20 240,16 265,10" fill="none" stroke="var(--good)" stroke-width="2"/>
+                <circle cx="106" cy="53" r="2.5" fill="var(--warn)"/>
+                <text x="106" y="62" font-size="6" fill="var(--muted)" text-anchor="middle">W4 Lag</text>
+                <circle cx="265" cy="10" r="3.5" fill="var(--good)"/>
+                <text x="265" y="6" font-size="7" font-weight="700" fill="var(--good)" text-anchor="middle">$1.42M (105%)</text>
               </svg>
             </div>
           </div>
@@ -473,10 +511,31 @@
                 <li><b>Weekly View:</b> Wholesale sell-in vs sell-out POS scan tracking ($28.5k/wk, 96% scan match).</li>
                 <li><b>Monthly View:</b> Multi-month Joint Business Plan quarterly trajectory ($320k commitment, 94% pacing).</li>
               </ul>
-              <svg viewBox="0 0 280 40" style="width:100%;height:auto;margin-top:6px" role="img">
-                <line x1="10" y1="26" x2="270" y2="14" stroke="var(--muted)" stroke-dasharray="3,3"/>
-                <polyline points="10,32 75,26 140,20 205,14 270,8" fill="none" stroke="var(--accent)" stroke-width="2"/>
-                <circle cx="270" cy="8" r="3" fill="var(--good)"/>
+              <svg viewBox="0 0 280 65" style="width:100%;height:auto;margin-top:6px;overflow:visible" role="img" aria-label="KAM JBP Trajectory">
+                <defs>
+                  <linearGradient id="pitchKamGrad" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0%" stop-color="var(--accent)" stop-opacity="0.3"/>
+                    <stop offset="100%" stop-color="var(--accent)" stop-opacity="0.0"/>
+                  </linearGradient>
+                </defs>
+                <line x1="30" y1="14" x2="270" y2="14" stroke="var(--line-soft)" stroke-dasharray="2,2"/>
+                <text x="24" y="17" font-size="7" fill="var(--muted)" text-anchor="end">$120k</text>
+                <line x1="30" y1="36" x2="270" y2="36" stroke="var(--line-soft)" stroke-dasharray="2,2"/>
+                <text x="24" y="39" font-size="7" fill="var(--muted)" text-anchor="end">$80k</text>
+                <line x1="30" y1="56" x2="270" y2="56" stroke="var(--line-soft)"/>
+                <text x="24" y="58" font-size="7" fill="var(--muted)" text-anchor="end">$40k</text>
+                <!-- Stair-step target -->
+                <line x1="32" y1="34" x2="100" y2="34" stroke="var(--muted)" stroke-width="1.2" stroke-dasharray="3,3"/>
+                <line x1="100" y1="28" x2="180" y2="28" stroke="var(--muted)" stroke-width="1.2" stroke-dasharray="3,3"/>
+                <line x1="180" y1="18" x2="265" y2="18" stroke="var(--muted)" stroke-width="1.2" stroke-dasharray="3,3"/>
+                <polygon points="34,40 68,36 100,38 140,24 180,20 220,25 255,22 255,56 34,56" fill="url(#pitchKamGrad)"/>
+                <polyline points="34,40 68,36 100,38 140,24 180,20 220,25 255,22" fill="none" stroke="var(--accent)" stroke-width="2"/>
+                <circle cx="68" cy="36" r="2.5" fill="var(--muted)"/>
+                <text x="68" y="32" font-size="6" fill="var(--muted)" text-anchor="middle">M1: $88k</text>
+                <circle cx="140" cy="24" r="3" fill="var(--good)"/>
+                <text x="140" y="19" font-size="6" font-weight="700" fill="var(--good)" text-anchor="middle">M2 Promo: $116k</text>
+                <circle cx="255" cy="22" r="3.5" fill="var(--accent)"/>
+                <text x="255" y="16" font-size="7" font-weight="700" fill="var(--accent)" text-anchor="middle">QTD: $301k (94%)</text>
               </svg>
             </div>
           </div>
@@ -502,6 +561,31 @@
           </table>
           <div class="grid-2" style="margin-top:10px;font-size:12px">
             <div><b>Parallel Pre-Trends:</b> Verified ($p = 0.42$, confirming no pre-treatment differential drift).</div>
+          <div style="margin-top:10px;padding:8px 12px;background:var(--surface-subtle);border-radius:var(--radius-sm);border:1px solid var(--line-soft)">
+            <div style="display:flex;justify-content:space-between;align-items:center;font-size:11px;margin-bottom:4px">
+              <b>Longitudinal DiD Attributable Lift (Test vs Matched Control)</b>
+              <span class="pill good" style="font-size:9px">p &lt; 0.008 Significant</span>
+            </div>
+            <svg viewBox="0 0 280 50" style="width:100%;height:auto;overflow:visible" role="img" aria-label="DiD Causal Lift">
+              <line x1="25" y1="10" x2="270" y2="10" stroke="var(--line-soft)" stroke-dasharray="2,2"/>
+              <text x="20" y="13" font-size="6" fill="var(--muted)" text-anchor="end">+10%</text>
+              <line x1="25" y1="28" x2="270" y2="28" stroke="var(--line-soft)" stroke-dasharray="2,2"/>
+              <text x="20" y="31" font-size="6" fill="var(--muted)" text-anchor="end">+5%</text>
+              <line x1="25" y1="44" x2="270" y2="44" stroke="var(--line-soft)"/>
+              <text x="20" y="46" font-size="6" fill="var(--muted)" text-anchor="end">0%</text>
+              
+              <line x1="135" y1="6" x2="135" y2="46" stroke="var(--warn)" stroke-width="1" stroke-dasharray="2,2"/>
+              <text x="135" y="5" font-size="6" font-weight="700" fill="var(--warn)" text-anchor="middle">W6 Rollout</text>
+              
+              <polyline points="30,40 65,41 100,39 135,36 170,30 205,24 240,18 265,12" fill="none" stroke="var(--good)" stroke-width="2"/>
+              <polyline points="30,41 65,41 100,40 135,37 170,37 205,37 240,37 265,37" fill="none" stroke="var(--muted)" stroke-width="1.5" stroke-dasharray="3,3"/>
+              
+              <circle cx="265" cy="12" r="3" fill="var(--good)"/>
+              <text x="265" y="8" font-size="7" font-weight="700" fill="var(--good)" text-anchor="middle">+9.2% Test</text>
+              <circle cx="265" cy="37" r="2.5" fill="var(--muted)"/>
+              <text x="265" y="44" font-size="6" fill="var(--muted)" text-anchor="middle">+2.8% Control</text>
+            </svg>
+          </div>
             <div><b>Synthetic Control:</b> 8-dimension covariate balance across volume, density, and distributor distance.</div>
           </div>
         `,
@@ -546,7 +630,7 @@
             <div class="card" style="border-left:4px solid var(--good)">
               <h4 style="color:#34d399">AI Assistor Intelligence Overlay</h4>
               <ul>
-                <li><b>Cost:</b> <b>$216 / rep / year ($18 / rep / month)</b> — 10x savings.</li>
+                <li><b>Cost:</b> <b>$216 / rep / year ($18 / rep / month)</b>  -  10x savings.</li>
                 <li><b>Timeline:</b> <b>3 to 5 weeks</b> pilot deployment.</li>
                 <li><b>Risk:</b> Zero disruption; connects as an API sidecar to existing CRM.</li>
                 <li><b>Data Exit Guarantee:</b> Complete portable JSON/CSV export at any time.</li>
@@ -600,16 +684,16 @@
         content: `
           <div class="grid-3">
             <div class="card">
-              <h4>Weeks 1–4: Onboarding</h4>
+              <h4>Weeks 1 to 4: Onboarding</h4>
               <ul>
-                <li>Select 1 district (40–60 reps).</li>
+                <li>Select 1 district (40 to 60 reps).</li>
                 <li>Match with control territory.</li>
                 <li>Pre-register FP&amp;A metrics.</li>
                 <li>Ingest customer &amp; route masters.</li>
               </ul>
             </div>
             <div class="card">
-              <h4>Weeks 5–8: Execution</h4>
+              <h4>Weeks 5 to 8: Execution</h4>
               <ul>
                 <li>Field reps execute with overlay.</li>
                 <li>Dock window &amp; substitute solver active.</li>
@@ -618,7 +702,7 @@
               </ul>
             </div>
             <div class="card">
-              <h4>Weeks 9–12: Causal Audit</h4>
+              <h4>Weeks 9 to 12: Causal Audit</h4>
               <ul>
                 <li>DiD parallel trends evaluation.</li>
                 <li>Executive QBR presentation.</li>
