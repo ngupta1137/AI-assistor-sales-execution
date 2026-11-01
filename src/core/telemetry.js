@@ -133,6 +133,32 @@ export function renderSyncModal(app, ctx) {
         </div>
       </section>
 
+            <section class="card" style="margin:0">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
+          <b>Enterprise Identity &amp; RBAC Governance</b>
+          ${pill('MFA Verified', 'good')}
+        </div>
+        <div style="margin-bottom:8px">
+          <small class="muted" style="font-weight:600;display:block;margin-bottom:4px">Identity Provider:</small>
+          <div class="seg-ctl" role="group" aria-label="Identity Provider">
+            <button class="seg ${(app.ui?.ssoProvider || 'entra') === 'entra' ? 'on' : ''}" data-act="set-sso-provider" data-provider="entra" style="min-height:var(--tap);min-width:var(--tap)">Microsoft Entra ID</button>
+            <button class="seg ${app.ui?.ssoProvider === 'okta' ? 'on' : ''}" data-act="set-sso-provider" data-provider="okta" style="min-height:var(--tap);min-width:var(--tap)">Okta SAML 2.0</button>
+            <button class="seg ${app.ui?.ssoProvider === 'ping' ? 'on' : ''}" data-act="set-sso-provider" data-provider="ping" style="min-height:var(--tap);min-width:var(--tap)">Ping Identity</button>
+          </div>
+        </div>
+        <div class="facts" style="grid-template-columns:repeat(auto-fit,minmax(80px,1fr));margin-bottom:8px">
+          <div><small>Token SHA</small><b>a9f2...84b1</b></div>
+          <div><small>Assurance</small><b class="good-text">FIDO2 MFA</b></div>
+          <div><small>Validity</small><b>7h 40m left</b></div>
+        </div>
+        <div style="font-size:11px;padding:6px 8px;background:var(--surface-subtle);border:1px solid var(--line-soft);border-radius:4px;margin-bottom:8px">
+          <b>Active RBAC Grants (${ctx ? ctx.persona : 'rep'}):</b>
+          <div class="muted">territory.read: ALL · order.create: AUTHORIZED · pricing.override: SUPERVISED</div>
+        </div>
+        <button class="btn secondary sm" data-act="rotate-sso-token" style="min-height:var(--tap);width:100%">${icon('shield', 14)} Rotate security token &amp; re-authenticate</button>
+        ${app.ui?.ssoToast ? `<div class="notice good" style="margin-top:8px">${icon('check', 14)}<span>${esc(app.ui.ssoToast)}</span></div>` : ''}
+      </section>
+
       <section class="card" style="margin:0">
         <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
           <b>Security, Identity & Governance</b>
@@ -174,6 +200,14 @@ export function exportAuditCsv(ctx) {
 }
 
 export const syncActions = {
+  'set-sso-provider': ({ app, data }) => {
+    (app.ui ||= {}).ssoProvider = data.provider;
+    app.ui.ssoToast = `Identity provider switched to ${data.provider === 'entra' ? 'Microsoft Entra ID' : data.provider === 'okta' ? 'Okta SAML 2.0' : 'Ping Identity'}.`;
+  },
+  'rotate-sso-token': ({ app }) => {
+    (app.ui ||= {}).ssoToast = 'Enterprise session token rotated. Cryptographic SHA-256 signature renewed.';
+  },
+
   'toggle-conflict-sim': ({ app }) => {
     (app.ui ||= {}).conflictSimOpen = !app.ui.conflictSimOpen;
   },

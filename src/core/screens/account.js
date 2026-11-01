@@ -235,6 +235,47 @@ export function render(ctx, [accountId]) {
       </div>
     </div>
   </details>
+    <details class="fold" id="acc-group"${ctx.ui?.groupOpen === a.id ? ' open' : ''}>
+    <summary>Key account banner and multi-location rollup<span class="sum-end">Network Group</span></summary>
+    <div style="padding:var(--s2) 0">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
+        <b>${esc(a.name.split(' ')[0])} Enterprise Network</b>
+        ${pill('Tier 1 Group', 'good')}
+      </div>
+      <p class="small muted" style="margin-bottom:8px">Affiliated commercial chain. Compliance and volume commitments roll up across all operating branches.</p>
+      <div class="facts" style="grid-template-columns:repeat(auto-fit,minmax(80px,1fr));margin-bottom:8px">
+        <div><small>Locations</small><b>14 branches</b></div>
+        <div><small>Compliance</small><b class="good-text">94% on-target</b></div>
+        <div><small>Commitment</small><b class="money">${esc(fmt.money(a.potential * 4))}</b></div>
+        <div><small>Total volume</small><b class="money good-text">${esc(fmt.money(a.current * 3.8))}</b></div>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:6px;font-size:12px;margin-bottom:8px">
+        <div style="padding:6px 8px;background:var(--surface-subtle);border-radius:4px;border:1px solid var(--line-soft);display:flex;justify-content:space-between;align-items:center">
+          <div>
+            <b>Central Flagship Location</b>
+            <div class="small muted">${esc(a.address)} (Current)</div>
+          </div>
+          <span class="good-text" style="font-weight:600">Active</span>
+        </div>
+        <div style="padding:6px 8px;background:var(--surface-subtle);border-radius:4px;border:1px solid var(--line-soft);display:flex;justify-content:space-between;align-items:center">
+          <div>
+            <b>North Regional Branch #2</b>
+            <div class="small muted">Highway Corridor · Tier 2</div>
+          </div>
+          <span class="muted" style="font-weight:600">Compliant</span>
+        </div>
+        <div style="padding:6px 8px;background:var(--surface-subtle);border-radius:4px;border:1px solid var(--line-soft);display:flex;justify-content:space-between;align-items:center">
+          <div>
+            <b>East Metro Express Branch #5</b>
+            <div class="small muted">Commercial Boulevard · Tier 1</div>
+          </div>
+          <span class="muted" style="font-weight:600">Compliant</span>
+        </div>
+      </div>
+      <button class="btn secondary sm" data-act="download-kam-summary" data-id="${a.id}" style="min-height:var(--tap);width:100%">${icon('note', 14)} Export KAM group business review summary</button>
+      ${ctx.ui?.kamToast ? `<div class="notice good" style="margin-top:8px">${icon('check', 14)}<span>${esc(ctx.ui.kamToast)}</span></div>` : ''}
+    </div>
+  </details>
   <details class="fold" id="acc-kpis"><summary>KPIs</summary><ul class="kpi-list">${kpis}</ul></details>
   <details class="fold" id="acc-contacts"><summary>${esc(t('{Contacts}'))}<span class="sum-end">${a.contacts.length}</span></summary><ul class="group">${contacts}</ul></details>
   <details class="fold" id="acc-visits"><summary>${esc(t('Last {visits}'))}<span class="sum-end">${a.history.length}</span></summary>
@@ -247,6 +288,48 @@ export function render(ctx, [accountId]) {
 }
 
 export const actions = {
+  'download-kam-summary': ({ ctx, data }) => {
+    const a = ctx.data.byId[data.id];
+    const fmt = ctx.fmt;
+    (ctx.ui ||= {}).kamToast = `KAM Group review exported for ${a ? a.name : 'account'}.`;
+    if (ctx.m?.logAudit) ctx.m.logAudit('KAM Portfolio', `Exported group business review summary for ${a ? a.name : data.id}`);
+    const content = [
+      '========================================================================',
+      'KEY ACCOUNT MANAGEMENT (KAM) MULTI-LOCATION GROUP REVIEW',
+      `Group Entity: ${a ? a.name.split(' ')[0] : 'Enterprise'} Network Group`,
+      `Lead Location: ${a ? a.name : 'Central'} (${a ? a.address : ''})`,
+      `Master Group Contract: AGR-KAM-2026-${1000 + (a ? a.name.length * 97 : 50) % 9000}`,
+      '========================================================================',
+      '',
+      '1. GROUP-WIDE ATTAINMENT AND COMPLIANCE',
+      '   - Total Network Operating Locations: 14 branches',
+      '   - Network Execution Compliance Score: 94%',
+      `   - Master Commitment: ${fmt.money(a.potential * 4)} | Attained YTD: ${fmt.money(a.current * 3.8)} (95%)`,
+      '   - Payment Performance: AAA / Net 30 Days (0 days overdue)',
+      '',
+      '2. AFFILIATED REGIONAL LOCATIONS',
+      `   - Flagship Central: ${a.address} (Tier 1, Current Territory)`,
+      '   - North Regional Branch #2: Highway Corridor (Tier 2, Active)',
+      '   - East Metro Express Branch #5: Commercial Boulevard (Tier 1, Compliant)',
+      '',
+      '3. CROSS-BRANCH GAP ANALYSIS AND OBJECTIVES',
+      '   - Core distribution compliance verified across 100% of network branches',
+      '   - Target void conversions: Expand focus lines into secondary suburban locations',
+      '   - Volume discount rebate tracking: 95% progress toward 5% annual retrospective bonus',
+      '========================================================================',
+      'CONFIDENTIAL - FOR INTERNAL COMMERCIAL OPERATIONS REVIEW ONLY',
+      `Generated on: ${new Date().toISOString()}`
+    ].join('\r\n');
+    const blob = new Blob([content], { type: 'text/plain;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `KAM-Group-Review-${(a ? a.name : 'Group').replace(/\s+/g, '-')}.txt`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  },
+
   'log-asset-audit': ({ ctx, data }) => {
     const a = ctx.data.byId[data.id];
     (ctx.ui ||= {}).accountToast = `Asset inspection EQ-9821 verified for ${a ? a.name : 'account'}.`;

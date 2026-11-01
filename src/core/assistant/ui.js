@@ -21,6 +21,8 @@ export const newAssistantState = () => ({
   typewriterTimer: null,
   lang: 'en',
   askScreen: null,
+  faqQuery: "",
+  voiceListening: false,
 });
 
 export const stateOf = (app) => (app.assistant ||= newAssistantState());
@@ -337,6 +339,30 @@ export const assistantActions = {
     api.render();
   },
   'as-voice': ({ ctx, app, api }) => {
+    const st = stateOf(app);
+    if (typeof window !== 'undefined' && ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window)) {
+      try {
+        const SpeechRec = window.SpeechRecognition || window.webkitSpeechRecognition;
+        const rec = new SpeechRec();
+        rec.lang = st.lang && st.lang !== 'en' ? st.lang : 'en-US';
+        rec.continuous = false;
+        rec.interimResults = false;
+        st.voiceListening = true;
+        api.render();
+        rec.onresult = (ev) => {
+          const transcript = ev.results?.[0]?.[0]?.transcript || '';
+          st.voiceListening = false;
+          if (transcript) submit(ctx, app, api, transcript);
+          else api.render();
+        };
+        rec.onerror = () => { st.voiceListening = false; api.render(); };
+        rec.onend = () => { st.voiceListening = false; api.render(); };
+        rec.start();
+        return;
+      } catch (e) {
+        st.voiceListening = false;
+      }
+    }
     const prompts = [
       'What should I do first today?',
       'Why this sequence of stops?',
@@ -345,6 +371,9 @@ export const assistantActions = {
     ];
     const pick = prompts[Math.floor(Math.random() * prompts.length)];
     submit(ctx, app, api, pick);
+  },
+  'as-faq-search': ({ app, value }) => {
+    stateOf(app).faqQuery = value;
   },
   'as-open': ({ app }) => { const st = stateOf(app); st.open = true; st.focus = 'input'; },
   'as-close': ({ app, api }) => { finishTypewriter(app, api); const st = stateOf(app); st.open = false; st.focus = 'launcher'; },

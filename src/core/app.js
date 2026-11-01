@@ -154,6 +154,8 @@ function applyTheme(ctx) {
   root.setProperty('--accent-pressed', mix(accent, '#000000', 0.2));
   root.setProperty('--accent-soft', mix(accent, '#ffffff', 0.92));
   root.setProperty('--accent-line', mix(accent, '#ffffff', 0.7));
+  root.setProperty('--surface-subtle', mix(accent, '#ffffff', 0.97));
+  root.setProperty('--surface-inset', mix(accent, '#ffffff', 0.93));
 }
 
 /** Remembers the focused control so a re-render does not drop keyboard focus. */

@@ -31,7 +31,11 @@ export function render(ctx) {
     { id: 'route', label: t('Route') },
   ];
 
-  const list = suggestionsFor(ctx, { ...st.c, screen: activeScreen, persona: ctx.persona });
+  let list = suggestionsFor(ctx, { ...st.c, screen: activeScreen, persona: ctx.persona });
+  if (st.faqQuery) {
+    const qNorm = st.faqQuery.toLowerCase();
+    list = list.filter((s) => s.q.toLowerCase().includes(qNorm) || translateQuestion(s.q, currentLang).toLowerCase().includes(qNorm));
+  }
   const chip = (s) => {
     const label = translateQuestion(s.q, currentLang);
     return `<button class="chip-q" data-act="ask-q" data-intent="${esc(s.intent)}" data-q="${esc(s.q)}">${esc(label)}</button>`;
@@ -82,12 +86,17 @@ export function render(ctx) {
     </div>` : ''}
   </div>
   <div class="chat" id="chat"${hasLog ? '' : ' hidden'} role="log" aria-live="polite">${renderLog(ctx, app)}</div>
-  <section class="ask-faqs">
+    <section class="ask-faqs">
+    ${st.voiceListening ? `<div class="notice info" style="margin-bottom:8px">${icon('mic', 16)}<span>Listening... speak your question into your microphone.</span></div>` : ''}
+    <div style="margin-bottom:8px">
+      <label class="sr-only" for="faq-search">Search FAQs</label>
+      <input class="input sm" id="faq-search" type="text" placeholder="Filter questions or topics..." value="${esc(st.faqQuery || '')}" data-input="as-faq-search" style="min-height:var(--tap);width:100%">
+    </div>
     <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;gap:8px;flex-wrap:wrap">
       <h2 class="small" style="margin:0">${currentLang === 'en' ? 'Screen FAQs' : (countryLang.label + ' FAQs')}</h2>
       ${screenPills}
     </div>
-    <div class="chips-q">${list.map(chip).join('')}</div>
+    <div class="chips-q">${list.length ? list.map(chip).join('') : '<p class="small muted" style="padding:12px 0">No matching questions found. Ask any question in the input below.</p>'}</div>
   </section>
   <p class="foot-note">The assistant never gives clinical, credit, pricing or agronomic advice.</p>`;
   const dock = `<form class="ask-row" onsubmit="return false">
