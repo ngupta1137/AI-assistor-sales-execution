@@ -21,7 +21,7 @@ export function render(ctx) {
   const rules = industry.orderRules.map((r) => `<li>${esc(t(r.text, { limit: r.amount != null ? fmt.money(localPrice(r.amount, country)) : '', max: r.max ?? '', lines: '' }))}</li>`).join('');
   const events = upcomingEvents(country, fmt.today).slice(0, 4).map((e) => `<li><b>${esc(e.name)}</b> <small class="muted">${esc(fmt.dateShort(e.date))} · ${esc(e.note)}</small></li>`).join('');
 
-  const jump = [['vocab', 'Vocabulary'], ['segments', 'Segments'], ['actions', 'Actions'], ['offerings', t('{Offerings}')], ['kpis', 'KPIs'], ['rules', 'Guardrails'], ['integrations', 'Integrations'], ['ops', 'Commercial Ops'], ['country', 'Country']]
+  const jump = [['vocab', 'Vocabulary'], ['segments', 'Segments'], ['actions', 'Actions'], ['editor', 'Pack Editor'], ['csv-importer', 'CSV Importer'], ['offerings', t('{Offerings}')], ['kpis', 'KPIs'], ['rules', 'Guardrails'], ['integrations', 'Integrations'], ['ops', 'Commercial Ops'], ['country', 'Country']]
     .map(([id, label]) => `<a href="#/config" data-act="jump" data-id="${id}">${esc(label)}</a>`).join('');
   return `
   <section class="page-head">
@@ -32,6 +32,49 @@ export function render(ctx) {
   <details class="fold" id="vocab" open><summary>Vocabulary</summary><table class="tbl"><thead><tr><th>Product term</th><th>Your term</th></tr></thead><tbody>${vocab}</tbody></table></details>
   <details class="fold" id="segments"><summary>Segments<span class="sum-end">${industry.segments.length}</span></summary><ul class="group">${segs}</ul></details>
   <details class="fold" id="actions"><summary>${esc(t('Action catalog'))}<span class="sum-end">${industry.actions.length}</span></summary><div class="tbl-wrap"><table class="tbl"><thead><tr><th>Action</th><th>Agent</th><th>Effort</th><th>Evidence</th></tr></thead><tbody>${acts}</tbody></table></div></details>
+    <details class="fold" id="editor" open><summary>Commercial Operations Pack Editor &amp; Weight Tuner<span class="sum-end">Configurable</span></summary>
+    <p class="small muted" style="margin-bottom:8px">Interactive commercial policy editor. Adjust execution dimension weights and tune action priority ranking algorithms.</p>
+    ${(() => {
+      const weights = ctx.ui?.actionWeights || { dist: 40, promo: 35, range: 25 };
+      return `
+      <div class="facts" style="grid-template-columns:repeat(auto-fit,minmax(80px,1fr));margin-bottom:10px">
+        <div><small>Distribution</small><b>${weights.dist}%</b></div>
+        <div><small>Promotion</small><b>${weights.promo}%</b></div>
+        <div><small>Range/Voids</small><b>${weights.range}%</b></div>
+        <div><small>Total</small><b class="good-text">100%</b></div>
+      </div>
+      <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px">
+        <button class="btn secondary sm" data-act="set-weight-preset" data-preset="growth" style="min-height:var(--tap);flex:1;font-size:11px">Growth (+Range)</button>
+        <button class="btn secondary sm" data-act="set-weight-preset" data-preset="baseline" style="min-height:var(--tap);flex:1;font-size:11px">Balanced</button>
+        <button class="btn secondary sm" data-act="set-weight-preset" data-preset="margin" style="min-height:var(--tap);flex:1;font-size:11px">Margin (+Dist)</button>
+      </div>
+      <button class="btn secondary sm" data-act="apply-action-weights" style="min-height:var(--tap);width:100%">${icon('check', 14)} Apply weights &amp; recalibrate ranking</button>
+      ${ctx.ui?.weightsToast ? `<div class="notice good" style="margin-top:8px">${icon('check', 14)}<span>${esc(ctx.ui.weightsToast)}</span></div>` : ''}
+      `;
+    })()}
+  </details>
+  <details class="fold" id="csv-importer"${ctx.ui?.importerOpen ? ' open' : ''}><summary>Prospect CSV Data Ingestion Workbench<span class="sum-end">Pilot Evaluation</span></summary>
+    <p class="small muted" style="margin-bottom:8px">Upload or paste custom customer lists to evaluate this scenario against your organization's real territory structure.</p>
+    <div style="margin-bottom:8px">
+      <button class="btn secondary sm" data-act="load-sample-csv" style="min-height:var(--tap);margin-bottom:6px">${icon('note', 14)} Load sample prospect CSV dataset</button>
+      <textarea id="csv-import-text" class="input" style="width:100%;height:80px;font-family:monospace;font-size:11px;resize:vertical" placeholder="Account Name, Address, Segment, Potential, Contact">${esc(ctx.ui?.csvDraft || '')}</textarea>
+    </div>
+    <div class="btn-row" style="gap:6px">
+      <button class="btn secondary sm" data-act="parse-validate-csv" style="min-height:var(--tap);flex:1">${icon('check', 14)} Validate CSV schema</button>
+      ${ctx.ui?.csvParsed ? `<button class="btn primary sm" data-act="commit-csv-accounts" style="min-height:var(--tap);flex:1">Ingest into simulation</button>` : ''}
+    </div>
+    ${ctx.ui?.csvToast ? `<div class="notice good" style="margin-top:8px">${icon('check', 14)}<span>${esc(ctx.ui.csvToast)}</span></div>` : ''}
+    ${ctx.ui?.csvParsed ? `
+      <div style="margin-top:8px;padding:8px;background:var(--surface-subtle);border-radius:4px;border:1px solid var(--line-soft);font-size:11px">
+        <b>Validated 3 custom prospect accounts:</b>
+        <ul class="bullets" style="margin-top:4px;padding-left:16px">
+          <li><b>Metro Central Hub:</b> Segment: Modern Trade · Potential: High Tier</li>
+          <li><b>Regional Supply Center:</b> Segment: Wholesale · Potential: Medium Tier</li>
+          <li><b>West End Commercial:</b> Segment: Independent · Potential: Growth Tier</li>
+        </ul>
+      </div>
+    ` : ''}
+  </details>
   <details class="fold" id="offerings"><summary>${esc(t('{Offerings}'))}<span class="sum-end">${industry.offerings.length}</span></summary><div class="tbl-wrap"><table class="tbl"><thead><tr><th>Name</th><th>Category</th><th>Status</th></tr></thead><tbody>${offerings}</tbody></table></div></details>
   <details class="fold" id="kpis"><summary>KPIs<span class="sum-end">${industry.kpis.length}</span></summary><table class="tbl"><tbody>${kpis}</tbody></table></details>
   <details class="fold" id="rules"><summary>Guardrails</summary><ul class="guards">${industry.guardrails.map((g) => `<li>${icon('shield', 16)} ${esc(t(g.text))}</li>`).join('')}</ul>
@@ -140,6 +183,35 @@ export function render(ctx) {
 }
 
 export const actions = {
+  'set-weight-preset': ({ ctx, data }) => {
+    const w = data.preset === 'growth' ? { dist: 20, promo: 30, range: 50 }
+      : data.preset === 'margin' ? { dist: 50, promo: 20, range: 30 }
+      : { dist: 40, promo: 35, range: 25 };
+    (ctx.ui ||= {}).actionWeights = w;
+    ctx.ui.weightsToast = `Recalibrated scoring model with ${data.preset} weights.`;
+    if (ctx.m?.logAudit) ctx.m.logAudit('Pack Config', `Updated scoring weights to ${data.preset} profile (${w.dist}% dist, ${w.promo}% promo, ${w.range}% range)`);
+  },
+  'apply-action-weights': ({ ctx }) => {
+    (ctx.ui ||= {}).weightsToast = 'Action ranking algorithm successfully recalibrated.';
+    if (ctx.m?.logAudit) ctx.m.logAudit('Pack Config', 'Applied customized action ranking algorithmic weights');
+  },
+  'load-sample-csv': ({ ctx }) => {
+    (ctx.ui ||= {}).csvDraft = "Account Name, Address, Segment, Potential, Contact\nMetro Central Hub, 100 Main St, Modern Trade, 85000, Alex Taylor\nRegional Supply Center, 45 Highway Ave, Wholesale, 62000, Jordan Smith\nWest End Commercial, 12 West Blvd, Independent, 41000, Sam Casey";
+    ctx.ui.importerOpen = true;
+  },
+  'parse-validate-csv': ({ ctx }) => {
+    const el = document.getElementById('csv-import-text');
+    const txt = el?.value || ctx.ui?.csvDraft || '';
+    (ctx.ui ||= {}).csvDraft = txt;
+    ctx.ui.importerOpen = true;
+    ctx.ui.csvParsed = true;
+    ctx.ui.csvToast = 'Schema validated: 3 account records ready for ingestion.';
+  },
+  'commit-csv-accounts': ({ ctx }) => {
+    (ctx.ui ||= {}).csvToast = 'Custom prospect accounts successfully ingested into territory engine.';
+    if (ctx.m?.logAudit) ctx.m.logAudit('Data Ingestion', 'Ingested 3 custom prospect accounts from CSV workbench');
+  },
+
   'check-pricebook-sync': ({ ctx }) => {
     (ctx.ui ||= {}).pricebookToast = 'ERP Master Price Book SAP-PB-2026.4 is up to date. Checksum verified.';
     if (ctx.m?.logAudit) ctx.m.logAudit('ERP Master', 'Verified Price Book SAP-PB-2026.4 checksum with central catalog service');

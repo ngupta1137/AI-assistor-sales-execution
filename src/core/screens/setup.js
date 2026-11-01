@@ -59,7 +59,17 @@ export function render({ app, INDUSTRIES, COUNTRIES, buildContext }) {
           <input type="color" value="${esc(s.color || (INDUSTRIES.find((i) => i.id === s.industry)?.accent || '#334155'))}" data-change="setup-color" id="setup-color">
           ${s.color ? '<button class="btn secondary sm" data-act="setup-color-reset">Use industry default</button>' : ''}
         </label>
-        <p class="small muted">Name and accent only. Never use a real company's logo.</p>
+                <div style="margin-top:8px">
+          <small class="muted" style="font-weight:600;display:block;margin-bottom:4px">Enterprise brand swatches:</small>
+          <div style="display:flex;gap:6px;flex-wrap:wrap">
+            <button class="btn secondary sm" data-act="preset-brand" data-color="#1E3A8A" style="min-height:var(--tap);flex:1;font-size:11px">Navy</button>
+            <button class="btn secondary sm" data-act="preset-brand" data-color="#065F46" style="min-height:var(--tap);flex:1;font-size:11px">Emerald</button>
+            <button class="btn secondary sm" data-act="preset-brand" data-color="#991B1B" style="min-height:var(--tap);flex:1;font-size:11px">Crimson</button>
+            <button class="btn secondary sm" data-act="preset-brand" data-color="#334155" style="min-height:var(--tap);flex:1;font-size:11px">Slate</button>
+            <button class="btn secondary sm" data-act="preset-brand" data-color="#581C87" style="min-height:var(--tap);flex:1;font-size:11px">Plum</button>
+          </div>
+        </div>
+        <p class="small muted" style="margin-top:6px">Name and accent only. Never use a real company's logo.</p>
       </details>
     </div>
     <div class="setup-foot">
@@ -80,6 +90,12 @@ export function render({ app, INDUSTRIES, COUNTRIES, buildContext }) {
 }
 
 export const actions = {
+  'preset-brand': ({ app, data, api }) => {
+    (app.ui.setup ||= {}).color = data.color;
+    if (app.config) app.config.color = data.color;
+    api.render();
+  },
+
   'preset-demo': ({ app, data, api }) => {
     app.ui.setup.industry = data.ind;
     app.ui.setup.country = data.ctry;

@@ -36,6 +36,15 @@ export function renderPresenter(app, ctx, { INDUSTRIES, COUNTRIES, PERSONAS, sha
         </select></label>
       <label class="field"><span>Persona</span>
         <select data-change="p-persona" id="p-persona">${PERSONAS.map((p) => `<option value="${p}"${p === c.persona ? ' selected' : ''}>${personaName[p]}</option>`).join('')}</select></label>
+            <div style="margin-bottom:10px">
+        <label class="field"><span>Brand accent theme</span></label>
+        <div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:4px">
+          <button class="btn secondary sm" data-act="p-color-swatch" data-color="#1E3A8A" style="min-height:var(--tap);flex:1;font-size:11px">Navy</button>
+          <button class="btn secondary sm" data-act="p-color-swatch" data-color="#065F46" style="min-height:var(--tap);flex:1;font-size:11px">Emerald</button>
+          <button class="btn secondary sm" data-act="p-color-swatch" data-color="#991B1B" style="min-height:var(--tap);flex:1;font-size:11px">Crimson</button>
+          <button class="btn secondary sm" data-act="p-color-swatch" data-color="#334155" style="min-height:var(--tap);flex:1;font-size:11px">Slate</button>
+        </div>
+      </div>
       <label class="field"><span>Prepared for (optional)</span>
         <input type="text" maxlength="40" data-change="p-prepared" value="${esc(c.prepared || '')}" placeholder="Prospect name"></label>
       ${configured ? `<label class="field"><span>Share link</span><input type="text" readonly value="${esc(shareLink)}" id="p-link" data-act="p-select"></label>` : ''}
@@ -78,6 +87,11 @@ export function renderNotes(app, ctx) {
 }
 
 export const presenterActions = {
+  'p-color-swatch': ({ app, data, api }) => {
+    if (app.config) app.config.color = data.color;
+    api.render();
+  },
+
   'presenter-close': ({ app }) => { app.presenterOpen = false; app.copied = false; app.confirmReset = false; },
   'p-industry': ({ value, api, app }) => {
     if (!value) return false;

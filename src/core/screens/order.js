@@ -154,6 +154,24 @@ export function render(ctx, [accountId]) {
         <input type="text" placeholder="Commercial contract code" class="input" style="flex:1;height:var(--tap)" id="order-promo-input">
         <button class="btn secondary sm" data-act="apply-promo" data-id="${a.id}" style="min-height:var(--tap)">Apply code</button>
       </div>
+    </section>
+    <section class="card tight" id="partner-fulfillment" style="margin-top:var(--s3)">
+      <div class="section-head" style="margin-bottom:6px">
+        <h3>Partner and distributor fulfillment beat</h3>
+        ${ctx.ui?.partnerBeatConfirmed ? pill('Beat confirmed', 'good') : pill('Beat pending', 'info')}
+      </div>
+      <div class="facts" style="grid-template-columns:repeat(auto-fit,minmax(80px,1fr));margin-bottom:8px">
+        <div><small>Partner</small><b>Depot #402</b></div>
+        <div><small>Stock status</small><b class="good-text">Allocated</b></div>
+        <div><small>Beat slot</small><b>Beat 4B</b></div>
+        <div><small>Queue ID</small><b>ODATA-7749</b></div>
+      </div>
+      <p class="small muted" style="margin-bottom:8px">Regional wholesale partner delivery schedule for bulk replenishment without central warehouse delays.</p>
+      ${ctx.ui?.partnerBeatConfirmed ? `
+        <div class="notice good">${icon('check', 14)}<span>Wholesale fulfillment beat 4B confirmed with partner logistics depot.</span></div>
+      ` : `
+        <button class="btn secondary sm" data-act="confirm-partner-beat" data-id="${a.id}" style="min-height:var(--tap);width:100%">${icon('route', 14)} Confirm wholesale fulfillment beat</button>
+      `}
     </section>`;
   })()}
   <p class="foot-note">Prices are illustrative.</p>`;
@@ -161,6 +179,13 @@ export function render(ctx, [accountId]) {
 }
 
 export const actions = {
+  'confirm-partner-beat': ({ ctx, data }) => {
+    const a = ctx.data.byId[data.id];
+    (ctx.ui ||= {}).partnerBeatConfirmed = true;
+    (ctx.ui ||= {}).promoNotice = 'Wholesale fulfillment beat 4B confirmed with partner depot.';
+    if (ctx.m?.logAudit) ctx.m.logAudit('Partner Logistics', `Confirmed wholesale fulfillment beat 4B for ${a ? a.name : data.id}`);
+  },
+
   'request-credit-override': ({ ctx, data }) => {
     (ctx.ui ||= {}).creditBreachRequested = true;
     (ctx.ui ||= {}).promoNotice = 'Expedited credit line override queued for District Manager approval.';
