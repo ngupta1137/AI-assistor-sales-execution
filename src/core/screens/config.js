@@ -81,6 +81,19 @@ export function render(ctx) {
         </tbody>
       </table>
     </div>
+    <div style="margin-top:14px">
+      <h3>Territory Geography and Density Profiles</h3>
+      <table class="tbl" style="margin-top:6px;width:100%;font-size:12px">
+        <thead>
+          <tr><th style="text-align:left">District Profile</th><th style="text-align:right">Density</th><th style="text-align:right">Avg Transit</th><th style="text-align:right">Visits/Day</th></tr>
+        </thead>
+        <tbody>
+          <tr><td><b>Central Metro</b></td><td style="text-align:right">High</td><td style="text-align:right">2.4 km</td><td style="text-align:right">5.8</td></tr>
+          <tr><td><b>North Regional</b></td><td style="text-align:right">Medium</td><td style="text-align:right">6.8 km</td><td style="text-align:right">4.6</td></tr>
+          <tr><td><b>South Corridor</b></td><td style="text-align:right">Dispersed</td><td style="text-align:right">18.2 km</td><td style="text-align:right">3.8</td></tr>
+        </tbody>
+      </table>
+    </div>
   </details>
   <details class="fold" id="pricebook" open><summary>ERP Master Price Book &amp; Catalog Versioning<span class="sum-end">Verified</span></summary>
     <p class="small muted" style="margin-bottom:8px">Global enterprise pricing schedules, currency conversion tables, and real-time synchronization checksums.</p>
