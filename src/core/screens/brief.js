@@ -262,8 +262,18 @@ export function render(ctx, [accountId]) {
       ${ui.accountAbsentRescheduled ? `
         <div class="notice good">
           ${icon('check', 14)}
-          <span><b>Account closed / Buyer absent.</b> Visit rescheduled for Thursday Route 02-C within 14-day SLA window. Rep score protected.</span>
+          <span><b>Account closed / Buyer absent.</b> First reschedule within 14-day SLA window confirmed. Rep score protected.</span>
         </div>
+        ${ui.rescheduleChainWarning ? `
+          <div class="notice warn" style="margin-top:4px">
+            ${icon('shield', 14)}
+            <span><b>Second reschedule attempted:</b> Requires District Field Manager approval. Score protection suspended until approved.</span>
+          </div>
+        ` : `
+          <button class="btn text sm" data-act="try-second-reschedule" data-id="${a.id}" style="font-size:10px;min-height:36px;padding:0;color:var(--muted)">
+            Need to reschedule again? (Requires manager approval)
+          </button>
+        `}
       ` : `
         <button class="btn secondary sm" data-act="record-absent" data-id="${a.id}" style="min-height:var(--tap);width:100%;font-size:11px">
           ${icon('clock', 12)} Account closed / Buyer absent? Reschedule with SLA protection
@@ -284,6 +294,7 @@ export function render(ctx, [accountId]) {
           ${pill('Highest feasible yield', 'good')}
         </div>
         <p class="small" style="margin-bottom:8px">Streamlined for rushed buyer interactions. Single high-yield verified action and fast replenishment reorder.</p>
+        <small class="muted" style="display:block;margin-bottom:8px;font-size:10px">Supervisory threshold: Reps exceeding 25% Blitz mode over 14 days flagged for territory coaching review.</small>
         <div style="padding:6px 8px;background:var(--surface);border-radius:4px;margin-bottom:8px;border:1px solid var(--line-soft)">
           <b>${esc(t(items[0]?.title || 'Core Priority Action', items[0]?.vars))}</b>
           <div class="small muted">Distributor stock verified · Estimated upside: ${esc(fmt.money(items[0]?.value || 500))}</div>
@@ -337,6 +348,10 @@ const currentNote = (ctx, id) => {
 };
 
 export const actions = {
+  'try-second-reschedule': ({ ctx }) => {
+    (ctx.ui ||= {}).rescheduleChainWarning = true;
+  },
+
   'record-absent': ({ ctx, data }) => {
     const ui = (ctx.ui ||= {});
     ui.accountAbsentRescheduled = true;

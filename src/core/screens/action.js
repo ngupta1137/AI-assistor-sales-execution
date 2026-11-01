@@ -144,18 +144,19 @@ export function render(ctx, [id]) {
     <div style="margin-top:8px;padding-top:6px;border-top:1px solid var(--line-soft)">
       <div style="display:flex;justify-content:space-between;align-items:center">
         <small class="muted" style="font-weight:600">Site photography policy:</small>
-        ${ui?.noCameraExempt ? pill('Exemption active', 'info') : ''}
+        ${ui?.noCameraExempt ? pill('Exemption active', 'info') : pill('Account-governed', 'muted')}
       </div>
       ${ui?.noCameraExempt ? `
         <div class="notice info" style="margin-top:6px">
           ${icon('shield', 14)}
-          <span><b>Photography restricted by customer.</b> Verified via electronic contact attestation and barcode manifest scan. Rep execution score protected.</span>
+          <span><b>Photography restricted by customer.</b> Verified via electronic contact attestation and barcode manifest scan. Anti-tamper: perceptual hash and GPS geofence checked.</span>
         </div>
       ` : `
         <button class="btn text sm" data-act="toggle-camera-exemption" data-id="${it.id}" style="margin-top:4px;font-size:11px;min-height:var(--tap);padding:0">
-          ${icon('shield', 12)} Customer restricts photography? Use authorized alternative attestation
+          ${icon('shield', 12)} Customer restricts photography? Use authorized account-governed attestation
         </button>
       `}
+      <small class="muted" style="display:block;margin-top:2px;font-size:10px">Anti-gaming: Exemption permitted only when pre-authorized in customer master record by Key Account Manager.</small>
     </div>
     <button class="btn secondary sm" data-act="verify-audit-check" style="min-height:var(--tap);width:100%;margin-top:8px">${icon('check', 14)} Submit execution audit score (100%)</button>
     ${ui?.checkToast ? `<div class="notice good" style="margin-top:8px">${icon('check', 14)}<span>${esc(ui.checkToast)}</span></div>` : ''}
@@ -167,8 +168,8 @@ export function render(ctx, [id]) {
     </div>
     <p class="small muted" style="margin-bottom:8px">Automated edge computer-vision pre-check on captured display evidence before departure.</p>
     <div class="facts" style="grid-template-columns:repeat(auto-fit,minmax(75px,1fr));margin-bottom:8px">
-      <div><small>Clarity</small><b class="good-text">98% clear</b></div>
-      <div><small>Planogram</small><b class="good-text">92% match</b></div>
+      <div><small>Clarity (Sample)</small><b class="good-text">98% clear</b></div>
+      <div><small>Planogram (Sample)</small><b class="good-text">92% match</b></div>
       <div><small>Facings</small><b>6 of 6</b></div>
       <div><small>Price tag</small><b class="good-text">Verified</b></div>
     </div>

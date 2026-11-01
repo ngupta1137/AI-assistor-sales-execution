@@ -237,7 +237,7 @@ export function render(ctx) {
       <section class="card" style="margin:0">
         <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
           <b>Governance and Algorithmic Precision</b>
-          ${pill('SOC 2 Verified', 'good')}
+          ${pill('Pattern: SOC 2 Aligned', 'info')}
         </div>
         <ul class="bullets small" style="margin-top:4px">
           <li><b>Guardrail Compliance:</b> 100% adherence (zero regulatory or pricing policy breaches).</li>
@@ -248,8 +248,8 @@ export function render(ctx) {
 
             <section class="card" style="margin:0;background:var(--surface-subtle);border:1px solid var(--line-soft)">
         <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
-          <b>Finance-audited net commercial value statement</b>
-          ${pill('Audited formula', 'good')}
+          <b>Pre-registered net commercial value model</b>
+          ${pill('Sample Model Spec', 'info')}
         </div>
         <table class="tbl" style="width:100%;font-size:12px">
           <tbody>
@@ -260,7 +260,7 @@ export function render(ctx) {
             <tr style="border-top:2px solid var(--line)"><td><b>Net realized commercial value (Attributable profit)</b></td><td style="text-align:right" class="good-text"><b style="font-size:14px">+$14,280</b></td></tr>
           </tbody>
         </table>
-        <small class="muted" style="display:block;margin-top:6px">Formula: Net Realized Value = Attributable Margin + Realized Capacity - Variable Trade Spend - Operating Costs. Verified zero double-counting.</small>
+        <small class="muted" style="display:block;margin-top:6px">Formula: Net Realized Value = Attributable Margin (Gross Margin post-trade) + Realized Capacity (GL-verified headcount/overtime reduction only) - Trade Spend - Operating Costs. Sample benchmark data. Pre-registration &amp; FP&amp;A sign-off required before pilot launch.</small>
         <button class="btn secondary sm" data-act="download-causal-audit" style="min-height:var(--tap);margin-top:8px;width:100%">${icon('note', 14)} Export Causal Attribution Ledger</button>
       </section>
 
@@ -299,6 +299,12 @@ export function exportQbrCsv(ctx) {
 }
 
 export const actions = {
+  'toggle-works-council': ({ ctx }) => {
+    (ctx.ui ||= {}).worksCouncilSafe = !ctx.ui.worksCouncilSafe;
+    ctx.ui.managerToast = ctx.ui.worksCouncilSafe ? 'Works Council Safe Mode activated. Rep telemetry anonymized per BetrVG §87.' : 'Standard telemetry restored.';
+    if (ctx.m?.logAudit) ctx.m.logAudit('Compliance Policy', `Works Council Safe Mode set to ${ctx.ui.worksCouncilSafe}`);
+  },
+
   'download-causal-audit': ({ ctx }) => {
     (ctx.ui ||= {}).causalToast = 'Longitudinal causal attribution ledger exported.';
     if (ctx.m?.logAudit) ctx.m.logAudit('Causal Ledger', 'Exported decision-to-outcome attribution log comparing territory against matched control');

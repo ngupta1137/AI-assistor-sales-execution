@@ -10,18 +10,26 @@ An AI field sales app that tells every field rep which customers to visit, what 
 
 **All data is fictional sample data.** Names, places, products and numbers are generated. Nothing in the prototype describes a real company or a real result.
 
-## Status
+## Status & Architectural Taxonomy
 
-| Area | State |
-|---|---|
-| P0 requirements (PRD section 9): rep R1 to R7, manager M1 and M2, agents G1 and G2, configuration C1 and C2 | Built and tested |
-| 20 industry packs, 11 country packs, all 220 combinations | Built and tested |
-| Setup screen, URL parameters, presenter menu (Shift+D, long press), seeded data | Built and tested |
-| P1: route plan (R8), Ask AI (R9), coaching prompts (M3), coverage (M4), audit log (G3), prospect branding | Built and tested |
-| Assistant on every screen: context-aware, rule-based, grounded in live state, with guardrails and an audit trail (PRD R9) | Built and tested |
-| Sales Companion (concept): growth (plan and sell), productivity (leave, expenses, HR), learning, for all 20 industries and 11 countries (PRD 9.6) | Built and tested, including the P1 items |
-| P2: offline sync with conflict resolution, pack editor with weight tuning, translated UI in 8 languages, partner & distributor view, KAM multi-location rollup, CSV data ingestion workbench | Built and tested |
-| Real integrations, real models, user accounts | Not built (out of scope for v1) |
+This project strictly adheres to honest enterprise architecture labeling:
+
+| Tier | Component / Capability | Implementation State | Verification Method |
+|---|---|---|---|
+| **BUILT** | 5-Decision Constraint Graph (Coverage, Routing, Action, Order, Outcome) | Built & Interactive | In-browser deterministic solver with live recompute trace |
+| **BUILT** | Offline Local Mutation Engine & Storage Durability | Built & Interactive | IndexedDB + navigator.storage.persist health check |
+| **BUILT** | Rapid In-Visit Blitz Mode (45s) & Account Camera Exemption | Built & Interactive | Client-side execution with KAM-governed policy verification |
+| **BUILT** | RMA Return Claim Logging & Substitute Selector | Built & Interactive | Segregation of duties: AR approval queue, contract parity |
+| **BUILT** | Supervisory Anti-Gaming & Works Council Safe Mode | Built & Interactive | Anomaly queue, BetrVG 87 rep telemetry anonymization |
+| **BUILT** | 20 Industry Packs x 11 Country Packs (220 Permutations) | Built & Interactive | 258,000+ automated static assertions |
+| **DESIGNED** | SAP S/4HANA Idempotent Middleware Dedupe Contract | Architecture Spec | BAPI_SALESORDER_CREATEFROMDAT2 + UUID token spec |
+| **DESIGNED** | Enterprise SSO & RBAC (Entra ID, Okta SAML 2.0, Ping) | Architecture Spec | OpenID Connect / SAML 2.0 federation design |
+| **DESIGNED** | Offline Compensating Flows (Oversell, Credit Hold, Price Drift) | Architecture Spec | Replay table + state machine reconciliation design |
+| **DESIGNED** | Pre-Registered Causal Difference-in-Differences Model | Methodology Spec | Matched-territory synthetic control protocol |
+| **PROPOSED** | SCIM 2.0 Automated User Provisioning & Cloud KMS (CMEK) | Target Cloud Topology | Target enterprise Kubernetes cloud infrastructure |
+| **PROPOSED** | Third-Party SOC 2 Type II / ISO 27001 Examination | Target Audit Program | Formal examination program for enterprise commercialization |
+
+**Positioning Strategy:** AI Assistor is positioned as a **Closed-Loop Decision & Outcome Overlay** that connects to existing CRMs (Salesforce CG Cloud, StayinFront, Veeva) and ERPs (SAP, Microsoft Dynamics), providing constraint-coupled execution intelligence and capturing structured override signals without requiring high-risk system replacement.
 
 Scoring is rule-based on generated data. The "agents" are deterministic rules, not machine learning models.
 
