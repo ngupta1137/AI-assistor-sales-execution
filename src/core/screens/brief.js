@@ -257,6 +257,20 @@ export function render(ctx, [accountId]) {
       <p class="small muted" style="margin:0;font-size:11px">Recommendations hard-filtered against receiving dock windows, distributor depot inventory, and customer credit limits.</p>
     </div>
 
+    
+    <div style="margin-top:8px">
+      ${ui.accountAbsentRescheduled ? `
+        <div class="notice good">
+          ${icon('check', 14)}
+          <span><b>Account closed / Buyer absent.</b> Visit rescheduled for Thursday Route 02-C within 14-day SLA window. Rep score protected.</span>
+        </div>
+      ` : `
+        <button class="btn secondary sm" data-act="record-absent" data-id="${a.id}" style="min-height:var(--tap);width:100%;font-size:11px">
+          ${icon('clock', 12)} Account closed / Buyer absent? Reschedule with SLA protection
+        </button>
+      `}
+    </div>
+
     <!-- Rapid In-Visit Blitz Mode Bar -->
     <div style="margin-top:8px;display:flex;justify-content:space-between;align-items:center;gap:8px">
       <button class="btn ${ui.blitzMode ? 'primary' : 'secondary'} sm" data-act="toggle-blitz" style="min-height:var(--tap);flex:1;display:flex;align-items:center;justify-content:center;gap:6px">
@@ -323,6 +337,18 @@ const currentNote = (ctx, id) => {
 };
 
 export const actions = {
+  'record-absent': ({ ctx, data }) => {
+    const ui = (ctx.ui ||= {});
+    ui.accountAbsentRescheduled = true;
+    ui.briefToast = 'Account closed recorded. Stop rescheduled for Thursday Route 02-C within SLA window.';
+    for (const it of ctx.m.briefItems(data.id)) {
+      if (!ctx.m.decision(it.id)) {
+        ctx.m.decide(it.id, { status: 'overridden', reason: 'Buyer absent', note: 'Account closed on arrival. Auto-rescheduled within contractual SLA window.' }, { persona: ctx.persona, screen: 'brief' });
+      }
+    }
+    if (ctx.m?.logAudit) ctx.m.logAudit('SLA Protection', `Recorded closed account for ${ctx.data.byId[data.id]?.name || ''}. Rescheduled stop within 14-day SLA window.`);
+  },
+
   'toggle-blitz': ({ ctx }) => {
     const ui = (ctx.ui ||= {});
     ui.blitzMode = !ui.blitzMode;

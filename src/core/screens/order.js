@@ -23,7 +23,7 @@ export function render(ctx, [accountId]) {
       <b class="row-main" style="font-size:16px">${esc(t(l.offering.name))}</b>
       <small>${esc(t(l.offering.category))} · ${l.unitPrice == null ? esc(t('Price set by people, not the agent')) : l.unitPrice === 0 ? 'No charge' : `${esc(fmt.price(l.unitPrice))} per ${esc(t(l.offering.unit))}`}</small>
       <span class="reason">${icon('agent', 14)}<span>${esc(t(l.reason, l.vars))}</span></span>
-      <div class="line-foot">
+      <div class="line-foot"><button class="btn text sm" data-act="open-substitute" data-id="${a.id}" style="font-size:11px;min-height:var(--tap);padding:0 4px">${icon('sync', 12)} Suggest substitute</button>
         <div class="stepper" role="group" aria-label="${esc(`Quantity of ${t(l.offering.name)}`)}">
           <button class="step" data-act="qty" data-id="${a.id}" data-o="${l.offeringId}" data-d="-1" aria-label="Less" ${st.submitted || l.qty === 0 ? 'disabled' : ''}>−</button>
           <span class="qty" data-qty="${l.offeringId}">${l.qty}</span>
@@ -87,11 +87,69 @@ export function render(ctx, [accountId]) {
   ${stopped && !st.submitted ? `<div class="notice warn">${icon('stop', 18)}<span>${esc(t('Order agent stopped. You can edit this draft. Submission is paused.'))}</span></div>` : ''}
   <div style="display:flex;justify-content:space-between;align-items:center;margin-top:12px;margin-bottom:8px;gap:8px;flex-wrap:wrap">
     <h2 style="margin:0">Suggested lines</h2>
-    <div style="display:flex;gap:6px">
+    <div style="display:flex;gap:6px;flex-wrap:wrap">
       <button class="btn secondary sm" data-act="toggle-van-stock" data-id="${a.id}" style="min-height:var(--tap);display:inline-flex;align-items:center;gap:6px">${icon('cart', 16)} Vehicle inventory</button>
+      <button class="btn secondary sm" data-act="toggle-rma" data-id="${a.id}" style="min-height:var(--tap);display:inline-flex;align-items:center;gap:6px">${icon('wallet', 16)} Returns &amp; RMA</button>
       <button class="btn secondary sm" data-act="toggle-scanner" data-id="${a.id}" style="min-height:var(--tap);display:inline-flex;align-items:center;gap:6px">${icon('scan', 16)} Line scanner</button>
+    </div></div>
+  ${ctx.ui?.rmaOpen ? `
+  <section class="card tight" style="margin-bottom:var(--s3);border:1px solid var(--line);background:var(--surface-subtle)">
+    <div class="section-head" style="margin-bottom:6px">
+      <h3>In-visit returns and RMA credit note</h3>
+      ${ctx.ui?.rmaCreditApplied ? pill('Credit applied', 'good') : pill('RMA pending', 'info')}
     </div>
-  </div>
+    <p class="small muted" style="margin-bottom:8px">Process damaged packaging, expired lots, or authorized returns directly within the visit workflow.</p>
+    
+    <div style="display:flex;flex-direction:column;gap:6px;font-size:12px;margin-bottom:8px">
+      <div style="display:flex;justify-content:space-between;align-items:center;padding:6px 8px;background:var(--surface);border-radius:4px;border:1px solid var(--line-soft)">
+        <span>Return reason:</span>
+        <b>Damaged in transit / packaging defect</b>
+      </div>
+      <div style="display:flex;justify-content:space-between;align-items:center;padding:6px 8px;background:var(--surface);border-radius:4px;border:1px solid var(--line-soft)">
+        <span>Item to credit:</span>
+        <b>${lines[0] ? esc(t(lines[0].offering.name)) : 'Core line'} (2 units)</b>
+      </div>
+      <div style="display:flex;justify-content:space-between;align-items:center;padding:6px 8px;background:var(--surface);border-radius:4px;border:1px solid var(--line-soft)">
+        <span>Estimated credit memo:</span>
+        <b class="money good-text">-${esc(fmt.money(39))} (RMA-2026-781)</b>
+      </div>
+    </div>
+    ${ctx.ui?.rmaCreditApplied ? `
+      <div class="notice good">${icon('check', 14)}<span>RMA credit memo RMA-2026-781 applied. Deducted from customer ledger.</span></div>
+    ` : `
+      <button class="btn secondary sm" data-act="apply-rma-credit" data-id="${a.id}" style="min-height:var(--tap);width:100%">${icon('check', 14)} Authorize and apply RMA credit</button>
+    `}
+  </section>` : ''}
+
+  ${ctx.ui?.subOpen ? `
+  <section class="card tight" style="margin-bottom:var(--s3);border:1px solid var(--accent);background:var(--accent-soft)">
+    <div class="section-head" style="margin-bottom:6px">
+      <h3>Eligible product substitution and split delivery</h3>
+      ${pill('Eligible substitute found', 'good')}
+    </div>
+    <p class="small" style="margin-bottom:8px">Constrained item alternative verified for contract price parity and depot stock availability.</p>
+    
+    <div style="padding:6px 8px;background:var(--surface);border-radius:4px;border:1px solid var(--line-soft);margin-bottom:8px;font-size:12px">
+      <div style="display:flex;justify-content:space-between">
+        <span class="muted">Original constrained line:</span>
+        <span>${lines[0] ? esc(t(lines[0].offering.name)) : 'Requested line'}</span>
+      </div>
+      <div style="display:flex;justify-content:space-between;margin-top:4px">
+        <b>Recommended substitute:</b>
+        <b class="good-text">Premium Alternate (Depot #402 In Stock)</b>
+      </div>
+      <div style="display:flex;justify-content:space-between;margin-top:2px">
+        <span class="muted">Contract price parity:</span>
+        <b>100% matched at Tier discount</b>
+      </div>
+    </div>
+    <div class="btn-row" style="gap:6px">
+      <button class="btn primary sm" data-act="accept-substitute" data-id="${a.id}" style="min-height:var(--tap);flex:1">Swap with substitute</button>
+      <button class="btn secondary sm" data-act="split-backorder" data-id="${a.id}" style="min-height:var(--tap);flex:1">Split backorder shipment</button>
+    </div>
+    ${ctx.ui?.subNotice ? `<div class="notice good" style="margin-top:8px">${icon('check', 14)}<span>${esc(ctx.ui.subNotice)}</span></div>` : ''}
+  </section>` : ''}
+
   ${ctx.ui?.vanStockOpen ? `
   <section class="card tight" style="margin-bottom:var(--s3);border:1px solid var(--line)">
     <div class="section-head" style="margin-bottom:6px">
@@ -208,6 +266,26 @@ export function render(ctx, [accountId]) {
 }
 
 export const actions = {
+  'toggle-rma': ({ ctx }) => {
+    (ctx.ui ||= {}).rmaOpen = !ctx.ui.rmaOpen;
+  },
+  'apply-rma-credit': ({ ctx, data }) => {
+    (ctx.ui ||= {}).rmaCreditApplied = true;
+    ctx.ui.promoNotice = 'RMA Credit memo RMA-2026-781 (-$39.00) authorized and applied.';
+    if (ctx.m?.logAudit) ctx.m.logAudit('RMA Ledger', `Authorized RMA credit note RMA-2026-781 (-$39.00) for ${ctx.data.byId[data.id]?.name || ''}`);
+  },
+  'open-substitute': ({ ctx }) => {
+    (ctx.ui ||= {}).subOpen = !ctx.ui.subOpen;
+  },
+  'accept-substitute': ({ ctx, data }) => {
+    (ctx.ui ||= {}).subNotice = 'Substituted line with in-stock Premium Alternate at contract price parity.';
+    if (ctx.m?.logAudit) ctx.m.logAudit('Order Substitution', `Substituted line with in-stock alternate for ${ctx.data.byId[data.id]?.name || ''}`);
+  },
+  'split-backorder': ({ ctx, data }) => {
+    (ctx.ui ||= {}).subNotice = 'Split delivery confirmed: Available units dispatch tomorrow, backorder on Tuesday cycle.';
+    if (ctx.m?.logAudit) ctx.m.logAudit('Split Delivery', `Split shipment confirmed for ${ctx.data.byId[data.id]?.name || ''}`);
+  },
+
   'confirm-partner-beat': ({ ctx, data }) => {
     const a = ctx.data.byId[data.id];
     (ctx.ui ||= {}).partnerBeatConfirmed = true;

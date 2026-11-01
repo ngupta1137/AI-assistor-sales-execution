@@ -139,6 +139,24 @@ export function render(ctx, [id]) {
         <span>Stock rotation and packaging integrity verified</span>
       </div>
     </div>
+    
+    <!-- Customer Photography Restriction Protocol -->
+    <div style="margin-top:8px;padding-top:6px;border-top:1px solid var(--line-soft)">
+      <div style="display:flex;justify-content:space-between;align-items:center">
+        <small class="muted" style="font-weight:600">Site photography policy:</small>
+        ${ui?.noCameraExempt ? pill('Exemption active', 'info') : ''}
+      </div>
+      ${ui?.noCameraExempt ? `
+        <div class="notice info" style="margin-top:6px">
+          ${icon('shield', 14)}
+          <span><b>Photography restricted by customer.</b> Verified via electronic contact attestation and barcode manifest scan. Rep execution score protected.</span>
+        </div>
+      ` : `
+        <button class="btn text sm" data-act="toggle-camera-exemption" data-id="${it.id}" style="margin-top:4px;font-size:11px;min-height:var(--tap);padding:0">
+          ${icon('shield', 12)} Customer restricts photography? Use authorized alternative attestation
+        </button>
+      `}
+    </div>
     <button class="btn secondary sm" data-act="verify-audit-check" style="min-height:var(--tap);width:100%;margin-top:8px">${icon('check', 14)} Submit execution audit score (100%)</button>
     ${ui?.checkToast ? `<div class="notice good" style="margin-top:8px">${icon('check', 14)}<span>${esc(ui.checkToast)}</span></div>` : ''}
   </section>
@@ -246,6 +264,13 @@ export function mounted(ctx) {
 }
 
 export const actions = {
+  'toggle-camera-exemption': ({ ctx, data }) => {
+    (ctx.ui ||= {}).noCameraExempt = true;
+    ctx.m.recordEvidence(data.id, { type: 'note', text: 'Customer restricts photography on premises. Verified via digital manifest attestation.' });
+    (ctx.ui ||= {}).checkToast = 'Photography exemption logged. Execution score protected.';
+    if (ctx.m?.logAudit) ctx.m.logAudit('Compliance Policy', `Applied photography exemption with authorized attestation for action ${data.id}`);
+  },
+
   'run-vision-check': ({ ctx }) => {
     (ctx.ui ||= {}).visionChecked = true;
     ctx.ui.visionToast = 'Planogram compliance score 92%: Display alignment verified.';

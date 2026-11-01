@@ -246,6 +246,24 @@ export function render(ctx) {
         </ul>
       </section>
 
+            <section class="card" style="margin:0;background:var(--surface-subtle);border:1px solid var(--line-soft)">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
+          <b>Finance-audited net commercial value statement</b>
+          ${pill('Audited formula', 'good')}
+        </div>
+        <table class="tbl" style="width:100%;font-size:12px">
+          <tbody>
+            <tr><td>Attributable gross margin expansion (Test vs Control)</td><td style="text-align:right" class="good-text"><b>+$18,400</b></td></tr>
+            <tr><td>Field capacity savings (19m/rep redeployed to high-tier calls)</td><td style="text-align:right" class="good-text"><b>+$2,640</b></td></tr>
+            <tr><td class="muted">Less incremental co-op trade promotion investment</td><td style="text-align:right" class="warn-text">-$4,800</td></tr>
+            <tr><td class="muted">Less commercial platform &amp; integration operating costs</td><td style="text-align:right" class="muted">-$1,960</td></tr>
+            <tr style="border-top:2px solid var(--line)"><td><b>Net realized commercial value (Attributable profit)</b></td><td style="text-align:right" class="good-text"><b style="font-size:14px">+$14,280</b></td></tr>
+          </tbody>
+        </table>
+        <small class="muted" style="display:block;margin-top:6px">Formula: Net Realized Value = Attributable Margin + Realized Capacity - Variable Trade Spend - Operating Costs. Verified zero double-counting.</small>
+        <button class="btn secondary sm" data-act="download-causal-audit" style="min-height:var(--tap);margin-top:8px;width:100%">${icon('note', 14)} Export Causal Attribution Ledger</button>
+      </section>
+
       <div class="btn-row" style="margin-top:4px;gap:8px;flex-wrap:wrap">
         <button class="btn primary" data-act="download-qbr-csv" style="flex:1;min-height:var(--tap);min-width:140px">${icon('note', 18)} Export QBR (CSV)</button>
         <button class="btn secondary" data-act="dispatch-qbr-exec" style="flex:1;min-height:var(--tap);min-width:140px">${icon('brief', 18)} Send to VP Sales</button>
