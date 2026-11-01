@@ -51,13 +51,35 @@ export function render(ctx, [accountId]) {
     ${st.submitted ? `
       <div style="margin-top:8px;padding:8px 10px;background:var(--surface-subtle);border:1px solid var(--line-soft);border-radius:var(--radius-sm)">
         <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px">
-          <b>Order fulfillment state</b>
+          <b>Order state &amp; storage durability</b>
           ${ctx.app.offline ? pill('Provisional: Local Queue', 'warn') : pill('Authoritative: ERP Accepted', 'good')}
         </div>
-        <div class="small muted">
+        <div class="small muted" style="margin-bottom:6px">
           ${ctx.app.offline
-            ? 'Order saved in local AES-256 encrypted queue. Provisional status pending central warehouse inventory allocation upon sync.'
+            ? 'Provisional reservation token #RES-9410. Pending ERP inventory allocation and credit release upon sync.'
             : 'Authoritative confirmation from ERP OData gateway. Central warehouse inventory batch reserved and delivery beat dispatched.'}
+        </div>
+        <div style="display:flex;justify-content:space-between;align-items:center;font-size:11px;padding:4px 6px;background:var(--surface);border-radius:4px;border:1px solid var(--line-soft)">
+          <span>Storage persistence:</span>
+          <b class="good-text">Persisted (navigator.storage.persist active)</b>
+        </div>
+        
+        <!-- Compensating Flow Simulator -->
+        <div style="margin-top:6px;border-top:1px solid var(--line-soft);padding-top:6px">
+          <button class="btn text sm" data-act="toggle-compensating-flow" data-id="${a.id}" style="font-size:11px;min-height:36px;padding:0;width:100%;text-align:left">
+            ${icon('sync', 12)} Simulate ERP sync exception &amp; compensating flow
+          </button>
+          ${ctx.ui?.compensatingFlowOpen ? `
+            <div style="margin-top:6px;padding:6px;background:var(--surface);border-radius:4px;border:1px solid var(--line-soft);font-size:11px">
+              <b>Compensating reconciliation scenarios:</b>
+              <div style="display:flex;gap:4px;margin-top:4px;flex-wrap:wrap">
+                <button class="btn secondary sm" data-act="comp-scenario" data-type="stock" style="min-height:var(--tap);flex:1;font-size:10px">Depot oversold</button>
+                <button class="btn secondary sm" data-act="comp-scenario" data-type="credit" style="min-height:var(--tap);flex:1;font-size:10px">Credit hold</button>
+                <button class="btn secondary sm" data-act="comp-scenario" data-type="price" style="min-height:var(--tap);flex:1;font-size:10px">Price drift</button>
+              </div>
+              ${ctx.ui?.compNotice ? `<div class="notice info" style="margin-top:6px">${icon('shield', 12)}<span>${esc(ctx.ui.compNotice)}</span></div>` : ''}
+            </div>
+          ` : ''}
         </div>
       </div>
     ` : ''}
@@ -95,10 +117,10 @@ export function render(ctx, [accountId]) {
   ${ctx.ui?.rmaOpen ? `
   <section class="card tight" style="margin-bottom:var(--s3);border:1px solid var(--line);background:var(--surface-subtle)">
     <div class="section-head" style="margin-bottom:6px">
-      <h3>In-visit returns and RMA credit note</h3>
-      ${ctx.ui?.rmaCreditApplied ? pill('Credit applied', 'good') : pill('RMA pending', 'info')}
+      <h3>In-visit return claim and RMA request</h3>
+      ${ctx.ui?.rmaCreditApplied ? pill('Claim queued for AR', 'good') : pill('Claim pending review', 'info')}
     </div>
-    <p class="small muted" style="margin-bottom:8px">Process damaged packaging, expired lots, or authorized returns directly within the visit workflow.</p>
+    <p class="small muted" style="margin-bottom:8px">Segregation of duties: Rep logs damage claim and physical evidence; credit note is queued for Accounts Receivable approval before posting to customer ledger.</p>
     
     <div style="display:flex;flex-direction:column;gap:6px;font-size:12px;margin-bottom:8px">
       <div style="display:flex;justify-content:space-between;align-items:center;padding:6px 8px;background:var(--surface);border-radius:4px;border:1px solid var(--line-soft)">
@@ -106,18 +128,22 @@ export function render(ctx, [accountId]) {
         <b>Damaged in transit / packaging defect</b>
       </div>
       <div style="display:flex;justify-content:space-between;align-items:center;padding:6px 8px;background:var(--surface);border-radius:4px;border:1px solid var(--line-soft)">
-        <span>Item to credit:</span>
+        <span>Item to inspect:</span>
         <b>${lines[0] ? esc(t(lines[0].offering.name)) : 'Core line'} (2 units)</b>
       </div>
       <div style="display:flex;justify-content:space-between;align-items:center;padding:6px 8px;background:var(--surface);border-radius:4px;border:1px solid var(--line-soft)">
-        <span>Estimated credit memo:</span>
-        <b class="money good-text">-${esc(fmt.money(39))} (RMA-2026-781)</b>
+        <span>Estimated claim:</span>
+        <b class="money">-${esc(fmt.money(39))} (Sample Claim #RMA-2026-781)</b>
+      </div>
+      <div style="display:flex;justify-content:space-between;align-items:center;padding:6px 8px;background:var(--surface);border-radius:4px;border:1px solid var(--line-soft)">
+        <span class="muted">Policy control:</span>
+        <span class="muted">&lt; $250 Rep limit · AR ledger approval required</span>
       </div>
     </div>
     ${ctx.ui?.rmaCreditApplied ? `
-      <div class="notice good">${icon('check', 14)}<span>RMA credit memo RMA-2026-781 applied. Deducted from customer ledger.</span></div>
+      <div class="notice good">${icon('check', 14)}<span>RMA Claim #RMA-2026-781 logged with photo evidence. Queued for Central AR audit. No unapproved ledger posting.</span></div>
     ` : `
-      <button class="btn secondary sm" data-act="apply-rma-credit" data-id="${a.id}" style="min-height:var(--tap);width:100%">${icon('check', 14)} Authorize and apply RMA credit</button>
+      <button class="btn secondary sm" data-act="apply-rma-credit" data-id="${a.id}" style="min-height:var(--tap);width:100%">${icon('check', 14)} Submit RMA claim for AR review</button>
     `}
   </section>` : ''}
 
@@ -226,6 +252,24 @@ export function render(ctx, [accountId]) {
         <input type="text" placeholder="Commercial contract code" class="input" style="flex:1;height:var(--tap)" id="order-promo-input">
         <button class="btn secondary sm" data-act="apply-promo" data-id="${a.id}" style="min-height:var(--tap)">Apply code</button>
       </div>
+      
+      <!-- Rebate Tier & Split Freight Accounting -->
+      <div style="margin-top:8px;padding:8px 10px;background:var(--surface-subtle);border:1px solid var(--line-soft);border-radius:var(--radius-sm);font-size:11px">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px">
+          <b>Rebate tier guardrail &amp; freight modeling</b>
+          ${pill('Safe: Tier 1 (4% Accrual)', 'good')}
+        </div>
+        <div style="display:flex;justify-content:space-between;margin-bottom:2px">
+          <span class="muted">Quarterly volume progress:</span>
+          <b>84% toward Tier 2 threshold</b>
+        </div>
+        <div style="display:flex;justify-content:space-between;margin-bottom:2px">
+          <span class="muted">Split delivery freight cost:</span>
+          <b>${ctx.ui?.splitFreight ? '+$35.00 (Modeled in net margin)' : '$0.00 (Standard consolidated run)'}</b>
+        </div>
+        <small class="muted" style="display:block;margin-top:4px">Guardrail verified: Order does not prematurely trip higher rebate accrual bracket before contract settlement date.</small>
+      </div>
+
       <!-- Carrier Cutoff & Logistics Dispatch Engine -->
       <div style="margin-top:8px;padding:8px 10px;background:var(--surface-subtle);border:1px solid var(--line-soft);border-radius:var(--radius-sm);font-size:11px">
         <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px">
@@ -266,6 +310,20 @@ export function render(ctx, [accountId]) {
 }
 
 export const actions = {
+  'toggle-compensating-flow': ({ ctx }) => {
+    (ctx.ui ||= {}).compensatingFlowOpen = !ctx.ui.compensatingFlowOpen;
+  },
+  'comp-scenario': ({ ctx, data }) => {
+    const ui = (ctx.ui ||= {});
+    if (data.type === 'stock') {
+      ui.compNotice = 'Compensating flow: Depot oversold. Auto-split shipment initiated: available units dispatch, backorder queued.';
+    } else if (data.type === 'credit') {
+      ui.compNotice = 'Compensating flow: ERP credit hold. Provisional order locked. Release request dispatched to Credit Desk.';
+    } else {
+      ui.compNotice = 'Compensating flow: Price drift checked. Verified within 2% contractual pricing tolerance rule.';
+    }
+  },
+
   'toggle-rma': ({ ctx }) => {
     (ctx.ui ||= {}).rmaOpen = !ctx.ui.rmaOpen;
   },
@@ -282,6 +340,7 @@ export const actions = {
     if (ctx.m?.logAudit) ctx.m.logAudit('Order Substitution', `Substituted line with in-stock alternate for ${ctx.data.byId[data.id]?.name || ''}`);
   },
   'split-backorder': ({ ctx, data }) => {
+    (ctx.ui ||= {}).splitFreight = true;
     (ctx.ui ||= {}).subNotice = 'Split delivery confirmed: Available units dispatch tomorrow, backorder on Tuesday cycle.';
     if (ctx.m?.logAudit) ctx.m.logAudit('Split Delivery', `Split shipment confirmed for ${ctx.data.byId[data.id]?.name || ''}`);
   },

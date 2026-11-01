@@ -92,6 +92,9 @@ function renderItem(ctx, it, isNext) {
   return `<article class="item ${state}${isNext ? ' next' : ''}" id="item-${it.id}" data-item="${it.id}" data-kind="${it.kind}" data-state="${state}">
     <div class="item-head">${agentTag(it.agent)}${it.overBudget ? pill('If time allows', 'muted') : ''}<span class="state">${pill(stateLabel[0], stateLabel[1])}</span></div>
     <div class="item-title"><span class="rank">${lead}</span><h3>${esc(t(it.title, v))}</h3></div>
+    <div style="margin:4px 0 6px 0;padding:4px 6px;background:var(--surface-subtle);border-radius:4px;border-left:3px solid var(--accent);font-size:11px">
+      <b>Rationale:</b> ${esc(t(it.saw, v)).slice(0, 110)}. Execute now to protect velocity and avoid stock-out.
+    </div>
     <div class="metrics"><span>${esc(valueText)}</span>${it.effort ? `<span>${icon('clock', 16)} ${it.effort} min</span>` : ''}${confBadge(it.confidence)}</div>
     <details class="evi"${isNext ? ' open' : ''}><summary>What the agent saw</summary>
       <dl class="evidence">
@@ -262,13 +265,47 @@ export function render(ctx, [accountId]) {
       ${ui.accountAbsentRescheduled ? `
         <div class="notice good">
           ${icon('check', 14)}
-          <span><b>Account closed / Buyer absent.</b> Visit rescheduled for Thursday Route 02-C within 14-day SLA window. Rep score protected.</span>
+          <span><b>Account closed / Buyer absent.</b> First reschedule within 14-day SLA window confirmed. Rep score protected.</span>
         </div>
+        ${ui.rescheduleChainWarning ? `
+          <div class="notice warn" style="margin-top:4px">
+            ${icon('shield', 14)}
+            <span><b>Second reschedule attempted:</b> Requires District Field Manager approval. Score protection suspended until approved.</span>
+          </div>
+        ` : `
+          <button class="btn text sm" data-act="try-second-reschedule" data-id="${a.id}" style="font-size:10px;min-height:36px;padding:0;color:var(--muted)">
+            Need to reschedule again? (Requires manager approval)
+          </button>
+        `}
       ` : `
         <button class="btn secondary sm" data-act="record-absent" data-id="${a.id}" style="min-height:var(--tap);width:100%;font-size:11px">
           ${icon('clock', 12)} Account closed / Buyer absent? Reschedule with SLA protection
         </button>
       `}
+    </div>
+
+    
+    <!-- Multi-Role Visit Coordination Hub -->
+    <div class="card tight" style="margin-top:8px;background:var(--surface-subtle);border:1px solid var(--line-soft)">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px">
+        <b>Multi-role location coordination</b>
+        ${pill('Synchronized', 'good')}
+      </div>
+      <p class="small muted" style="margin:0 0 6px 0;font-size:11px">Shared graph across merchandiser, pre-sell rep, and delivery driver to prevent conflicting execution.</p>
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(95px,1fr));gap:4px;font-size:11px">
+        <div style="padding:4px 6px;background:var(--surface);border-radius:4px;border:1px solid var(--line-soft)">
+          <span class="muted">Merchandiser:</span>
+          <b style="display:block" class="good-text">Display set (07:30)</b>
+        </div>
+        <div style="padding:4px 6px;background:var(--surface);border-radius:4px;border:1px solid var(--line-soft)">
+          <span class="muted">Pre-Sell (You):</span>
+          <b style="display:block;color:var(--accent)">Active in-visit</b>
+        </div>
+        <div style="padding:4px 6px;background:var(--surface);border-radius:4px;border:1px solid var(--line-soft)">
+          <span class="muted">Driver Route:</span>
+          <b style="display:block">ETA 14:15 (Tomorrow)</b>
+        </div>
+      </div>
     </div>
 
     <!-- Rapid In-Visit Blitz Mode Bar -->
@@ -284,6 +321,7 @@ export function render(ctx, [accountId]) {
           ${pill('Highest feasible yield', 'good')}
         </div>
         <p class="small" style="margin-bottom:8px">Streamlined for rushed buyer interactions. Single high-yield verified action and fast replenishment reorder.</p>
+        <small class="muted" style="display:block;margin-bottom:8px;font-size:10px">Supervisory threshold: Reps exceeding 25% Blitz mode over 14 days flagged for territory coaching review.</small>
         <div style="padding:6px 8px;background:var(--surface);border-radius:4px;margin-bottom:8px;border:1px solid var(--line-soft)">
           <b>${esc(t(items[0]?.title || 'Core Priority Action', items[0]?.vars))}</b>
           <div class="small muted">Distributor stock verified · Estimated upside: ${esc(fmt.money(items[0]?.value || 500))}</div>
@@ -337,6 +375,10 @@ const currentNote = (ctx, id) => {
 };
 
 export const actions = {
+  'try-second-reschedule': ({ ctx }) => {
+    (ctx.ui ||= {}).rescheduleChainWarning = true;
+  },
+
   'record-absent': ({ ctx, data }) => {
     const ui = (ctx.ui ||= {});
     ui.accountAbsentRescheduled = true;

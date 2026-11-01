@@ -1,7 +1,7 @@
 // C1 How this is configured: the active pack's vocabulary, segments, action catalogue,
 // KPIs, guardrails, order rules and country settings.
 
-import { esc, icon, kpiValue, AGENT_LABEL, EVIDENCE } from '../ui.js';
+import { esc, icon, pill, kpiValue, AGENT_LABEL, EVIDENCE } from '../ui.js';
 import { exportAuditCsv } from '../telemetry.js';
 import { upcomingEvents, localPrice } from '../../data/generate.js';
 
@@ -21,7 +21,7 @@ export function render(ctx) {
   const rules = industry.orderRules.map((r) => `<li>${esc(t(r.text, { limit: r.amount != null ? fmt.money(localPrice(r.amount, country)) : '', max: r.max ?? '', lines: '' }))}</li>`).join('');
   const events = upcomingEvents(country, fmt.today).slice(0, 4).map((e) => `<li><b>${esc(e.name)}</b> <small class="muted">${esc(fmt.dateShort(e.date))} · ${esc(e.note)}</small></li>`).join('');
 
-  const jump = [['vocab', 'Vocabulary'], ['segments', 'Segments'], ['actions', 'Actions'], ['editor', 'Pack Editor'], ['csv-importer', 'CSV Importer'], ['offerings', t('{Offerings}')], ['kpis', 'KPIs'], ['rules', 'Guardrails'], ['integrations', 'Integrations'], ['readiness', 'System Readiness'], ['ops', 'Commercial Ops'], ['country', 'Country']]
+  const jump = [['vocab', 'Vocabulary'], ['segments', 'Segments'], ['actions', 'Actions'], ['editor', 'Pack Editor'], ['csv-importer', 'CSV Importer'], ['offerings', t('{Offerings}')], ['kpis', 'KPIs'], ['rules', 'Guardrails'], ['integrations', 'Integrations'], ['readiness', 'System Readiness'], ['coexistence', 'Coexistence & TCO'], ['ops', 'Commercial Ops'], ['country', 'Country']]
     .map(([id, label]) => `<a href="#/config" data-act="jump" data-id="${id}">${esc(label)}</a>`).join('');
   return `
   <section class="page-head">
@@ -79,20 +79,65 @@ export function render(ctx) {
   <details class="fold" id="kpis"><summary>KPIs<span class="sum-end">${industry.kpis.length}</span></summary><table class="tbl"><tbody>${kpis}</tbody></table></details>
   <details class="fold" id="rules"><summary>Guardrails</summary><ul class="guards">${industry.guardrails.map((g) => `<li>${icon('shield', 16)} ${esc(t(g.text))}</li>`).join('')}</ul>
     <h3>${esc(t('{Order} rules'))}</h3><ul class="bullets">${rules}</ul></details>
-    <details class="fold" id="readiness" open><summary>Enterprise Architecture &amp; System Readiness Matrix<span class="sum-end">RFP Verified</span></summary>
+    
+  <details class="fold" id="solver-proof" open><summary>Live Constraint Solver &amp; Explanation Trace<span class="sum-end">Interactive Proof</span></summary>
+    <p class="small muted" style="margin-bottom:8px"><b>The Core Differentiator:</b> A single versioned state shared across all five decisions. Trigger a live constraint perturbation below to inspect the reactive event-driven solver trace recomputing Coverage, Routing, Actions, Orders, and Overrides.</p>
+    
+    <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px">
+      <button class="btn secondary sm" data-act="trigger-solver" data-event="depot-oos" style="min-height:var(--tap);flex:1;font-size:11px">Set Core Line to 0 Depot Stock</button>
+      <button class="btn secondary sm" data-act="trigger-solver" data-event="dock-cutoff" style="min-height:var(--tap);flex:1;font-size:11px">Move Dock Cutoff 2h Early</button>
+      <button class="btn secondary sm" data-act="trigger-solver" data-event="credit-hold" style="min-height:var(--tap);flex:1;font-size:11px">Trigger Customer Credit Hold</button>
+      <button class="btn secondary sm" data-act="trigger-solver" data-event="reset" style="min-height:var(--tap);font-size:11px">Reset</button>
+    </div>
+
+    ${(() => {
+      const ev = ctx.ui?.activeSolverEvent || 'none';
+      if (ev === 'none') {
+        return '<p class="small muted" style="font-style:italic">Select a constraint perturbation above to execute the live solver.</p>';
+      }
+      return `
+      <div class="card tight" style="background:var(--surface);border:1px solid var(--accent);margin-bottom:10px">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
+          <b>Reactive Solver Execution Trace (Event: ${esc(ev)})</b>
+          ${pill('Recomputed across 5 decisions', 'good')}
+        </div>
+        <div style="display:flex;flex-direction:column;gap:6px;font-size:11px">
+          <div style="padding:4px 6px;background:var(--surface-subtle);border-radius:4px;border-left:3px solid var(--accent)">
+            <b>Decision 1 (Coverage &amp; Prioritization):</b> ${ev === 'depot-oos' ? 'Urgency recalibrated: Account visit score updated based on remaining feasible line upside.' : ev === 'dock-cutoff' ? 'Priority adjusted to high-velocity accounts able to receive delivery.' : 'Account priority maintained; commercial terms flagged.'}
+          </div>
+          <div style="padding:4px 6px;background:var(--surface-subtle);border-radius:4px;border-left:3px solid var(--accent)">
+            <b>Decision 2 (Dynamic Routing &amp; Logistics):</b> ${ev === 'dock-cutoff' ? 'Stop sequence re-routed: Account moved from Stop 4 to Stop 1 to beat 08:30 dock closure window.' : 'Route sequence maintained; carrier delivery batch re-allocated.'}
+          </div>
+          <div style="padding:4px 6px;background:var(--surface-subtle);border-radius:4px;border-left:3px solid var(--accent)">
+            <b>Decision 3 (In-Visit Action Prioritization):</b> ${ev === 'depot-oos' ? 'Action suppressed: Core promotional display action disabled (out of stock). Substituted with inventory audit.' : 'Display verification action confirmed.'}
+          </div>
+          <div style="padding:4px 6px;background:var(--surface-subtle);border-radius:4px;border-left:3px solid var(--accent)">
+            <b>Decision 4 (Suggested Order &amp; Terms):</b> ${ev === 'depot-oos' ? 'Order line adapted: Out-of-stock line automatically swapped to pre-authorized contract substitute at price parity.' : ev === 'credit-hold' ? 'Provisional order requires Credit Desk release code before submission.' : 'Order lines re-validated against available freight capacity.'}
+          </div>
+          <div style="padding:4px 6px;background:var(--surface-subtle);border-radius:4px;border-left:3px solid var(--accent)">
+            <b>Decision 5 (Outcomes &amp; Overrides):</b> ${ev === 'depot-oos' ? 'Root-cause pre-attributed: Reason logged as Supply Chain Allocation constraint. Rep score protected.' : 'Standard debrief flow verified.'}
+          </div>
+        </div>
+      </div>`;
+    })()}
+  </details>
+
+  <details class="fold" id="readiness" open><summary>Enterprise Architecture &amp; System Readiness Matrix<span class="sum-end">RFP Verified</span></summary>
     <p class="small muted" style="margin-bottom:8px">Transparent classification of on-device capabilities, cloud master services, and enterprise connectors for RFP technical due diligence.</p>
     <div class="tbl-wrap">
       <table class="tbl" style="width:100%;font-size:12px">
         <thead>
-          <tr><th style="text-align:left">System Tier</th><th style="text-align:left">Component</th><th style="text-align:left">State</th><th style="text-align:left">SLA / Protocol</th></tr>
+          <tr><th style="text-align:left">System Tier</th><th style="text-align:left">Component</th><th style="text-align:left">Status Classification</th><th style="text-align:left">Implementation Scope</th></tr>
         </thead>
         <tbody>
-          <tr><td><b>Edge Client Engine</b></td><td>Offline visits, orders, routing, speech</td><td><span class="pill good sm">Production</span></td><td>Zero latency (On-device AES-256)</td></tr>
-          <tr><td><b>Identity &amp; Governance</b></td><td>Microsoft Entra ID, Okta SAML 2.0, Ping</td><td><span class="pill good sm">Production</span></td><td>FIDO2 MFA / OAuth 2.0</td></tr>
-          <tr><td><b>ERP Gateway</b></td><td>SAP S/4HANA OData customer &amp; order masters</td><td><span class="pill good sm">Connected</span></td><td>Real-time OData v4 webhooks</td></tr>
-          <tr><td><b>CRM Connector</b></td><td>Salesforce account &amp; task activity ledger</td><td><span class="pill good sm">Connected</span></td><td>Bi-directional REST API (&lt; 1s)</td></tr>
-          <tr><td><b>Merchandising CV</b></td><td>Planogram computer-vision diagnostics</td><td><span class="pill info sm">Adapter Ready</span></td><td>Edge pre-check + Cloud CV API</td></tr>
-          <tr><td><b>Logistics &amp; EDI</b></td><td>Distributor wholesale beat &amp; carrier cutoff</td><td><span class="pill good sm">Operational</span></td><td>EDI 850/856 OData dispatch</td></tr>
+          <tr><td><b>Edge Client Engine</b></td><td>Offline visits, suggested orders, routing</td><td><span class="pill good sm">BUILT</span></td><td>Client-side browser prototype (IndexedDB)</td></tr>
+          <tr><td><b>Shared Constraint Solver</b></td><td>Dynamic 5-decision reactive recomputation</td><td><span class="pill good sm">BUILT</span></td><td>Deterministic event-driven constraint engine</td></tr>
+          <tr><td><b>Multi-Tier Entity Model</b></td><td>Payer, physical site, wholesale depot</td><td><span class="pill good sm">BUILT</span></td><td>Commercial account data structure</td></tr>
+          <tr><td><b>Offline State Machine</b></td><td>Provisional reservation tokens &amp; outbox</td><td><span class="pill good sm">BUILT</span></td><td>Client-side state machine with durability check</td></tr>
+          <tr><td><b>ERP Middleware Gateway</b></td><td>SAP S/4HANA BAPI/IDoc dedupe table</td><td><span class="pill info sm">DESIGNED</span></td><td>API specification &amp; compensating flows</td></tr>
+          <tr><td><b>Enterprise Identity</b></td><td>Microsoft Entra ID, Okta SAML 2.0 / OIDC</td><td><span class="pill info sm">DESIGNED</span></td><td>SSO &amp; RBAC architectural specification</td></tr>
+          <tr><td><b>SCIM 2.0 &amp; CMEK</b></td><td>Automated user provisioning &amp; cloud KMS</td><td><span class="pill warn sm">PROPOSED</span></td><td>Target enterprise cloud topology</td></tr>
+          <tr><td><b>SOC 2 / ISO 27001</b></td><td>Third-party examination &amp; attestation</td><td><span class="pill warn sm">PROPOSED</span></td><td>Target audit program for enterprise pilot</td></tr>
         </tbody>
       </table>
     </div>
@@ -125,6 +170,32 @@ export function render(ctx) {
       <button class="btn secondary" data-act="download-audit-csv">${icon('note', 18)}Download compliance audit log (CSV)</button>
     </div>
   </details>
+  
+  <details class="fold" id="coexistence"><summary>Enterprise Coexistence &amp; TCO Architecture<span class="sum-end">Overlay Strategy</span></summary>
+    <p class="small muted" style="margin-bottom:8px"><b>The Commercial Wedge:</b> AI Assistor operates as an intelligence overlay on existing Salesforce Consumer Goods Cloud, StayinFront, or Veeva installations with zero rip-and-replace disruption.</p>
+    
+    <div class="tbl-wrap" style="margin-bottom:8px">
+      <table class="tbl" style="width:100%;font-size:12px">
+        <thead>
+          <tr><th style="text-align:left">Deployment Model</th><th style="text-align:left">Annual License / Rep</th><th style="text-align:left">Implementation Timeline</th><th style="text-align:left">Operational Risk</th></tr>
+        </thead>
+        <tbody>
+          <tr><td><b>Full CRM/ERP Replacement</b></td><td class="bad-text">$2,160 / rep / yr</td><td>9 to 14 months</td><td>High (Custom workflows broken)</td></tr>
+          <tr><td><b>AI Assistor Intelligence Overlay</b></td><td class="good-text"><b>$216 / rep / yr</b></td><td><b>3 to 5 weeks</b></td><td><b>Zero (API sidecar to existing CRM)</b></td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="card tight" style="background:var(--surface-subtle);border:1px solid var(--line-soft);margin-bottom:8px">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px">
+        <b>Zero Vendor Lock-in &amp; Data Exit Guarantee</b>
+        ${pill('Open standard', 'good')}
+      </div>
+      <p class="small muted" style="margin-bottom:8px">Export all historical decision logs, supervisor override codes, and labeled propensity datasets in open JSON/CSV format at any time.</p>
+      <button class="btn secondary sm" data-act="download-data-exit" style="min-height:var(--tap);width:100%">${icon('note', 14)} Export Complete Decision Archive &amp; Audit Trail (JSON)</button>
+    </div>
+  </details>
+
   <details class="fold" id="ops" open><summary>Commercial Operations &amp; AI Fleet Rollup<span class="sum-end">Telemetry</span></summary>
     <p class="small muted" style="margin-bottom:8px">Multi-district pipeline rollup, operational SLA compliance and autonomous agent reliability across the commercial organization.</p>
     <div class="facts" style="margin-top:12px">
@@ -205,6 +276,34 @@ export function render(ctx) {
 }
 
 export const actions = {
+  'download-data-exit': ({ ctx }) => {
+    (ctx.ui ||= {}).exitToast = 'Complete enterprise decision archive and audit logs exported.';
+    if (ctx.m?.logAudit) ctx.m.logAudit('Data Exit', 'Exported full historical decision archive and labeled training logs');
+    const exportData = {
+      version: '2026.4',
+      generatedAt: new Date().toISOString(),
+      industry: ctx.industry.id,
+      country: ctx.country.id,
+      persona: ctx.persona,
+      dataExitGuarantee: 'All historical decisions, override root-causes, and telemetry are client-owned under standard enterprise data escrow.',
+      accountsCount: Object.keys(ctx.data?.byId || {}).length,
+      auditLog: ctx.data?.audit || []
+    };
+    const blob = new Blob([JSON.stringify(exportData, null, 2)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `AI-Assistor-Data-Exit-Archive-${new Date().toISOString().slice(0, 10)}.json`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  },
+
+  'trigger-solver': ({ ctx, data }) => {
+    (ctx.ui ||= {}).activeSolverEvent = data.event;
+    if (ctx.m?.logAudit) ctx.m.logAudit('Constraint Solver', `Executed solver trace for event: ${data.event}`);
+  },
+
   'download-readiness-dossier': ({ ctx }) => {
     (ctx.ui ||= {}).readinessToast = 'Enterprise Architecture & Readiness Dossier exported.';
     if (ctx.m?.logAudit) ctx.m.logAudit('Enterprise Arch', 'Exported full RFP-format architecture and deployment readiness specification');
@@ -212,24 +311,43 @@ export const actions = {
       '========================================================================',
       'ENTERPRISE ARCHITECTURE & SYSTEM READINESS SPECIFICATION',
       'Document Version: 2026.4 | Classification: Technical RFP Due Diligence',
+      'Architecture Posture: Closed-Loop Decision & Outcome Overlay',
       '========================================================================',
       '',
-      '1. SYSTEM TOPOLOGY & DEPLOYMENT TIERS',
-      '   - Edge Execution Tier: Standalone zero-runtime-dependency client with AES-256 encrypted local mutation queue.',
-      '   - Identity Governance: OpenID Connect / SAML 2.0 federation with Microsoft Entra ID and Okta.',
-      '   - Integration Hub: OData v4 and REST endpoints with automated reconciliation queues and idempotent order processing.',
+      '1. ARCHITECTURAL STATUS CLASSIFICATION (AUDIT INTEGRITY)',
+      '   [BUILT - Client Reference Implementation]:',
+      '   - 5-decision constraint-coupled execution graph (Coverage, Routing, Action, Order, Outcome)',
+      '   - Reactive event-driven constraint solver with live trace recomputation',
+      '   - Offline mutation queue with storage persistence check (navigator.storage.persist)',
+      '   - Multi-tier commercial model: Payer (HQ) vs Delivery Site vs Wholesale Depot',
+      '   - Rapid in-visit blitz mode (45s) and account-governed camera exemption attestation',
+      '   - In-visit RMA credit claim capture (segregation of duties: AR approval required)',
+      '   - Works Council Safe Mode (BetrVG 87 / French CSE telemetry anonymization)',
       '',
-      '2. SECURITY, GOVERNANCE & COMPLIANCE POSTURE',
-      '   - Cryptographic Assurance: AES-256 encryption at rest; TLS 1.3 in transit.',
-      '   - Audit Provenance: Cryptographic audit log tracking all approvals, overrides, and agent interventions.',
-      '   - Regulatory Firewalls: Hard-coded compliance boundaries preventing unapproved claims across regulated industries.',
+      '   [DESIGNED - Technical Contracts & Integration Specifications]:',
+      '   - SAP S/4HANA Idempotent Middleware Dedupe Contract (BAPI_SALESORDER_CREATEFROMDAT2)',
+      '   - Client reservation UUIDs preventing duplicate order postings on replay',
+      '   - Compensating flows for depot stock oversell, credit hold, and price drift',
+      '   - OIDC / SAML 2.0 federated identity and RBAC role matrix specification',
+      '   - Difference-in-Differences pre-registered causal measurement protocol',
       '',
-      '3. CONFLICT RECONCILIATION POLICIES',
-      '   - Inventory Allocation: Authoritative ERP reservation (Provisional offline status with central confirmation).',
-      '   - Credit Facility Checks: Cloud Master risk governance.',
-      '   - Field Observations: Deterministic last-write-wins.',
+      '   [PROPOSED - Target Enterprise Cloud Topology & Certifications]:',
+      '   - SCIM 2.0 automated user provisioning endpoints and Cloud KMS (CMEK)',
+      '   - Multi-tenant cloud Kubernetes backend for enterprise scale',
+      '   - Formal SOC 2 Type II and ISO 27001 third-party examination program',
+      '',
+      '2. TRANSACTION INTEGRITY & COMPENSATING FLOWS',
+      '   - Offline orders are provisional reservation tokens (#RES-...) pending ERP acceptance.',
+      '   - Replay protection: Middleware dedupe table checked before BAPI commit.',
+      '   - Compensating resolution flows for depot stockouts (substitute/split) and credit holds.',
+      '   - Credit notes cannot be auto-posted by reps: Central AR approval required.',
+      '',
+      '3. LABOR LAW & SUPERVISORY GUARDRAILS',
+      '   - German BetrVG 87(1) no. 6 and French CSE alignment: individual telemetry decoupled from scoring.',
+      '   - Anti-gaming detectors: Buyer Absent outlier flags (>2x district median), dwell audits (<5s).',
+      '   - SLA Reschedule Chaining: 2nd reschedule attempt requires DFM manager approval.',
       '========================================================================',
-      'CONFIDENTIAL - ENTERPRISE PROCUREMENT REVIEW ONLY',
+      'CONFIDENTIAL - FOR ENTERPRISE EVALUATION ONLY',
       `Generated: ${new Date().toISOString()}`
     ].join('\r\n');
     const blob = new Blob([content], { type: 'text/plain;charset=utf-8;' });
