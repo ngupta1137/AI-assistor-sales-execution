@@ -56,6 +56,11 @@ export function render(ctx, [accountId]) {
       <div class="wide"><small>${esc(t('{Order}'))}</small><b data-sum="order">${esc(orderText)}${sum.orderSubmitted ? ` · ${esc(fmt.money(sum.orderTotal))}` : ''}</b></div>
     </div>
     <small>Estimates come from the agents' rules. They are not booked sales.</small>
+    ${sum.orderSubmitted ? `
+    <div style="margin-top:8px;padding-top:6px;border-top:1px solid var(--line-soft);display:flex;align-items:center;gap:6px;font-size:11px;color:var(--muted)">
+      ${icon('route', 12)}
+      <span>Fulfillment ETA: Standard 48h distribution delivery via Regional Logistics Hub.</span>
+    </div>` : ''}
   </section>
 
   <section class="card tight" id="cust-sentiment" style="margin-top:var(--s3)">
