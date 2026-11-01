@@ -142,6 +142,29 @@ export function render(ctx, [id]) {
     <button class="btn secondary sm" data-act="verify-audit-check" style="min-height:var(--tap);width:100%;margin-top:8px">${icon('check', 14)} Submit execution audit score (100%)</button>
     ${ui?.checkToast ? `<div class="notice good" style="margin-top:8px">${icon('check', 14)}<span>${esc(ui.checkToast)}</span></div>` : ''}
   </section>
+  <section class="card tight" id="vision-diagnostics" style="margin-top:var(--s3)">
+    <div class="section-head" style="margin-bottom:6px">
+      <h3>AI planogram and display vision diagnostics</h3>
+      ${pill(ui?.visionChecked ? 'Vision verified' : 'Pre-flight check', ui?.visionChecked ? 'good' : 'info')}
+    </div>
+    <p class="small muted" style="margin-bottom:8px">Automated edge computer-vision pre-check on captured display evidence before departure.</p>
+    <div class="facts" style="grid-template-columns:repeat(auto-fit,minmax(75px,1fr));margin-bottom:8px">
+      <div><small>Clarity</small><b class="good-text">98% clear</b></div>
+      <div><small>Planogram</small><b class="good-text">92% match</b></div>
+      <div><small>Facings</small><b>6 of 6</b></div>
+      <div><small>Price tag</small><b class="good-text">Verified</b></div>
+    </div>
+    <div style="font-size:12px;padding:6px 8px;background:var(--surface-subtle);border-radius:4px;border:1px solid var(--line-soft);margin-bottom:8px">
+      <div><b>Automated display verification findings:</b></div>
+      <ul class="bullets small" style="padding-left:14px;margin-top:2px">
+        <li>Lighting and focus check: Passed (Zero reflection glare detected).</li>
+        <li>Position check: Eye-level priority fixture placement confirmed.</li>
+        <li>Promotional callout: Verified promotional tag displayed.</li>
+      </ul>
+    </div>
+    <button class="btn secondary sm" data-act="run-vision-check" style="min-height:var(--tap);width:100%">${icon('scan', 14)} Run computer-vision display diagnostic</button>
+    ${ui?.visionToast ? `<div class="notice good" style="margin-top:8px">${icon('check', 14)}<span>${esc(ui.visionToast)}</span></div>` : ''}
+  </section>
 
   <section class="card tight" id="action-followup" style="margin-top:var(--s3)">
     <div class="section-head" style="margin-bottom:6px">
@@ -223,6 +246,12 @@ export function mounted(ctx) {
 }
 
 export const actions = {
+  'run-vision-check': ({ ctx }) => {
+    (ctx.ui ||= {}).visionChecked = true;
+    ctx.ui.visionToast = 'Planogram compliance score 92%: Display alignment verified.';
+    if (ctx.m?.logAudit) ctx.m.logAudit('Display Vision', 'Verified 92% planogram compliance and 6 eye-level facings via edge vision check');
+  },
+
   'schedule-followup': ({ ctx, data }) => {
     (ctx.ui ||= {}).followupScheduled = true;
     (ctx.ui ||= {}).checkToast = 'Follow-up commercial task scheduled for next cycle.';

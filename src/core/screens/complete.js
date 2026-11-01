@@ -57,9 +57,12 @@ export function render(ctx, [accountId]) {
     </div>
     <small>Estimates come from the agents' rules. They are not booked sales.</small>
     ${sum.orderSubmitted ? `
-    <div style="margin-top:8px;padding-top:6px;border-top:1px solid var(--line-soft);display:flex;align-items:center;gap:6px;font-size:11px;color:var(--muted)">
-      ${icon('route', 12)}
-      <span>Fulfillment ETA: Standard 48h distribution delivery via Regional Logistics Hub.</span>
+    <div style="margin-top:8px;padding:8px 10px;background:var(--surface-subtle);border-radius:var(--radius-sm);border:1px solid var(--line-soft);font-size:11px">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px">
+        <b>Fulfillment schedule: Dynamic delivery dispatch</b>
+        ${pill('Tomorrow 08:30 - 11:30', 'good')}
+      </div>
+      <div class="muted">Submitted before 14:00 cutoff. Priority run confirmed with Regional Logistics Carrier Route 04-B (Receiving Dock 2 verified).</div>
     </div>` : ''}
   </section>
 

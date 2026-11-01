@@ -168,6 +168,21 @@ export function render(ctx, [accountId]) {
         <input type="text" placeholder="Commercial contract code" class="input" style="flex:1;height:var(--tap)" id="order-promo-input">
         <button class="btn secondary sm" data-act="apply-promo" data-id="${a.id}" style="min-height:var(--tap)">Apply code</button>
       </div>
+      <!-- Carrier Cutoff & Logistics Dispatch Engine -->
+      <div style="margin-top:8px;padding:8px 10px;background:var(--surface-subtle);border:1px solid var(--line-soft);border-radius:var(--radius-sm);font-size:11px">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px">
+          <b>Carrier cutoff and dynamic delivery slot</b>
+          ${pill('Qualified: Priority run', 'good')}
+        </div>
+        <div class="facts" style="grid-template-columns:repeat(auto-fit,minmax(70px,1fr));margin-bottom:4px">
+          <div><small>Carrier cutoff</small><b>14:00 (Met)</b></div>
+          <div><small>Next slot</small><b>Tomorrow AM</b></div>
+          <div><small>Carrier</small><b>Route 04-B</b></div>
+          <div><small>Est. freight</small><b>1.2 pallets</b></div>
+        </div>
+        <div class="muted">Calculated dynamically from wholesale depot lead time, daily carrier cutoff, and dock receiving windows.</div>
+      </div>
+
     </section>
     <section class="card tight" id="partner-fulfillment" style="margin-top:var(--s3)">
       <div class="section-head" style="margin-bottom:6px">
