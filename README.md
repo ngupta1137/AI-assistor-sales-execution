@@ -20,7 +20,7 @@ An AI field sales app that tells every field rep which customers to visit, what 
 | P1: route plan (R8), Ask AI (R9), coaching prompts (M3), coverage (M4), audit log (G3), prospect branding | Built and tested |
 | Assistant on every screen: context-aware, rule-based, grounded in live state, with guardrails and an audit trail (PRD R9) | Built and tested |
 | Sales Companion (concept): growth (plan and sell), productivity (leave, expenses, HR), learning, for all 20 industries and 11 countries (PRD 9.6) | Built and tested, including the P1 items |
-| P2: offline sync, pack editor, translated UI, partner view | Not built |
+| P2: offline sync with conflict resolution, pack editor with weight tuning, translated UI in 8 languages, partner & distributor view, KAM multi-location rollup, CSV data ingestion workbench | Built and tested |
 | Real integrations, real models, user accounts | Not built (out of scope for v1) |
 
 Scoring is rule-based on generated data. The "agents" are deterministic rules, not machine learning models.
