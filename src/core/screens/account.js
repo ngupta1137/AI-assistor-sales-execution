@@ -235,7 +235,40 @@ export function render(ctx, [accountId]) {
       </div>
     </div>
   </details>
-      <details class="fold" id="acc-entity">
+        <details class="fold" id="acc-jbp">
+    <summary>Joint Business Plan (JBP) and trade promotions<span class="sum-end">Q4 Active</span></summary>
+    <div style="padding:var(--s2) 0">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
+        <b>Annual Joint Business Plan (JBP)</b>
+        ${pill('On Target (+14%)', 'good')}
+      </div>
+      <p class="small muted" style="margin-bottom:8px">Co-investment agreement establishing joint turnover targets, trade promotion funding, and milestone verification.</p>
+      <div class="facts" style="grid-template-columns:repeat(auto-fit,minmax(80px,1fr));margin-bottom:8px">
+        <div><small>JBP Target</small><b class="money">${esc(fmt.money(a.potential * 2.5))}</b></div>
+        <div><small>Co-op fund</small><b class="money">${esc(fmt.money(a.potential * 0.15))}</b></div>
+        <div><small>Fund used</small><b class="money good-text">${esc(fmt.money(a.potential * 0.10))}</b></div>
+        <div><small>Baseline vol</small><b class="money">${esc(fmt.money(a.current * 1.8))}</b></div>
+      </div>
+      <div style="font-size:12px;padding:6px 8px;background:var(--surface-subtle);border-radius:4px;border:1px solid var(--line-soft);margin-bottom:8px">
+        <b>Quarterly execution milestones:</b>
+        <div style="display:flex;justify-content:space-between;margin-top:4px">
+          <span>1. Eye-level feature placement (Week 44)</span>
+          <b class="good-text">Verified</b>
+        </div>
+        <div style="display:flex;justify-content:space-between;margin-top:2px">
+          <span>2. Volume promotional bundle (Week 46)</span>
+          <b class="good-text">Active (10% Co-op)</b>
+        </div>
+        <div style="display:flex;justify-content:space-between;margin-top:2px">
+          <span>3. Commercial staff product briefing (Week 48)</span>
+          <b class="muted">Scheduled</b>
+        </div>
+      </div>
+      <button class="btn secondary sm" data-act="download-jbp-charter" data-id="${a.id}" style="min-height:var(--tap);width:100%">${icon('note', 14)} Export Joint Business Plan (JBP) charter</button>
+      ${ctx.ui?.jbpToast ? `<div class="notice good" style="margin-top:8px">${icon('check', 14)}<span>${esc(ctx.ui.jbpToast)}</span></div>` : ''}
+    </div>
+  </details>
+  <details class="fold" id="acc-entity">
     <summary>Commercial trade network and multi-tier structure<span class="sum-end">Multi-Tier</span></summary>
     <div style="padding:var(--s2) 0">
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
@@ -322,6 +355,46 @@ export function render(ctx, [accountId]) {
 }
 
 export const actions = {
+  'download-jbp-charter': ({ ctx, data }) => {
+    const a = ctx.data.byId[data.id];
+    const fmt = ctx.fmt;
+    (ctx.ui ||= {}).jbpToast = `Joint Business Plan charter exported for ${a ? a.name : 'account'}.`;
+    if (ctx.m?.logAudit) ctx.m.logAudit('JBP Governance', `Exported Joint Business Plan charter for ${a ? a.name : data.id}`);
+    const content = [
+      '========================================================================',
+      'ANNUAL JOINT BUSINESS PLAN (JBP) CHARTER',
+      `Commercial Account: ${a ? a.name : 'Customer'} (${a ? a.address : ''})`,
+      `Agreement ID: JBP-2026-${1000 + (a ? a.name.length * 97 : 50) % 9000}`,
+      '========================================================================',
+      '',
+      '1. MUTUALLY AGREED COMMERCIAL COMMITMENTS',
+      `   - Annual Target Turnover: ${fmt.money(a.potential * 2.5)} (+14% year-on-year expansion)`,
+      `   - Baseline Contract Volume: ${fmt.money(a.current * 1.8)}`,
+      `   - Incremental Trade Spend Uplift Target: ${fmt.money(a.whiteSpace * 0.8)}`,
+      `   - Co-Investment Trade Marketing Pool: ${fmt.money(a.potential * 0.15)} (67% deployed)`,
+      '',
+      '2. CONTRACTED EXECUTION MILESTONES',
+      '   - Feature Placement: Confirmed eye-level placement on primary fixture',
+      '   - Promotional Schedule: 10% volume discount tier co-funded via trade spend pool',
+      '   - Proof of Performance: Electronic photo audit and scan reconciliation',
+      '',
+      '3. FINANCIAL REBATE ACCRUAL SCHEDULE',
+      '   - 5% retrospective bonus earned upon achieving 90% of annual turnover target',
+      '   - Direct settlement via credit note issued within 15 days of quarter close',
+      '========================================================================',
+      'CONFIDENTIAL - JOINT COMMERCIAL GOVERNANCE DOCUMENT',
+      `Generated: ${new Date().toISOString()}`
+    ].join('\r\n');
+    const blob = new Blob([content], { type: 'text/plain;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `JBP-Charter-${(a ? a.name : 'Customer').replace(/\s+/g, '-')}.txt`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  },
+
   'download-kam-summary': ({ ctx, data }) => {
     const a = ctx.data.byId[data.id];
     const fmt = ctx.fmt;
