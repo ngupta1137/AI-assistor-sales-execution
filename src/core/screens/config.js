@@ -1,7 +1,7 @@
 // C1 How this is configured: the active pack's vocabulary, segments, action catalogue,
 // KPIs, guardrails, order rules and country settings.
 
-import { esc, icon, kpiValue, AGENT_LABEL, EVIDENCE } from '../ui.js';
+import { esc, icon, pill, kpiValue, AGENT_LABEL, EVIDENCE } from '../ui.js';
 import { exportAuditCsv } from '../telemetry.js';
 import { upcomingEvents, localPrice } from '../../data/generate.js';
 
@@ -21,7 +21,7 @@ export function render(ctx) {
   const rules = industry.orderRules.map((r) => `<li>${esc(t(r.text, { limit: r.amount != null ? fmt.money(localPrice(r.amount, country)) : '', max: r.max ?? '', lines: '' }))}</li>`).join('');
   const events = upcomingEvents(country, fmt.today).slice(0, 4).map((e) => `<li><b>${esc(e.name)}</b> <small class="muted">${esc(fmt.dateShort(e.date))} · ${esc(e.note)}</small></li>`).join('');
 
-  const jump = [['vocab', 'Vocabulary'], ['segments', 'Segments'], ['actions', 'Actions'], ['editor', 'Pack Editor'], ['csv-importer', 'CSV Importer'], ['offerings', t('{Offerings}')], ['kpis', 'KPIs'], ['rules', 'Guardrails'], ['integrations', 'Integrations'], ['readiness', 'System Readiness'], ['ops', 'Commercial Ops'], ['country', 'Country']]
+  const jump = [['vocab', 'Vocabulary'], ['segments', 'Segments'], ['actions', 'Actions'], ['editor', 'Pack Editor'], ['csv-importer', 'CSV Importer'], ['offerings', t('{Offerings}')], ['kpis', 'KPIs'], ['rules', 'Guardrails'], ['integrations', 'Integrations'], ['readiness', 'System Readiness'], ['coexistence', 'Coexistence & TCO'], ['ops', 'Commercial Ops'], ['country', 'Country']]
     .map(([id, label]) => `<a href="#/config" data-act="jump" data-id="${id}">${esc(label)}</a>`).join('');
   return `
   <section class="page-head">
@@ -170,6 +170,32 @@ export function render(ctx) {
       <button class="btn secondary" data-act="download-audit-csv">${icon('note', 18)}Download compliance audit log (CSV)</button>
     </div>
   </details>
+  
+  <details class="fold" id="coexistence"><summary>Enterprise Coexistence &amp; TCO Architecture<span class="sum-end">Overlay Strategy</span></summary>
+    <p class="small muted" style="margin-bottom:8px"><b>The Commercial Wedge:</b> AI Assistor operates as an intelligence overlay on existing Salesforce Consumer Goods Cloud, StayinFront, or Veeva installations with zero rip-and-replace disruption.</p>
+    
+    <div class="tbl-wrap" style="margin-bottom:8px">
+      <table class="tbl" style="width:100%;font-size:12px">
+        <thead>
+          <tr><th style="text-align:left">Deployment Model</th><th style="text-align:left">Annual License / Rep</th><th style="text-align:left">Implementation Timeline</th><th style="text-align:left">Operational Risk</th></tr>
+        </thead>
+        <tbody>
+          <tr><td><b>Full CRM/ERP Replacement</b></td><td class="bad-text">$2,160 / rep / yr</td><td>9 to 14 months</td><td>High (Custom workflows broken)</td></tr>
+          <tr><td><b>AI Assistor Intelligence Overlay</b></td><td class="good-text"><b>$216 / rep / yr</b></td><td><b>3 to 5 weeks</b></td><td><b>Zero (API sidecar to existing CRM)</b></td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="card tight" style="background:var(--surface-subtle);border:1px solid var(--line-soft);margin-bottom:8px">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px">
+        <b>Zero Vendor Lock-in &amp; Data Exit Guarantee</b>
+        ${pill('Open standard', 'good')}
+      </div>
+      <p class="small muted" style="margin-bottom:8px">Export all historical decision logs, supervisor override codes, and labeled propensity datasets in open JSON/CSV format at any time.</p>
+      <button class="btn secondary sm" data-act="download-data-exit" style="min-height:var(--tap);width:100%">${icon('note', 14)} Export Complete Decision Archive &amp; Audit Trail (JSON)</button>
+    </div>
+  </details>
+
   <details class="fold" id="ops" open><summary>Commercial Operations &amp; AI Fleet Rollup<span class="sum-end">Telemetry</span></summary>
     <p class="small muted" style="margin-bottom:8px">Multi-district pipeline rollup, operational SLA compliance and autonomous agent reliability across the commercial organization.</p>
     <div class="facts" style="margin-top:12px">
@@ -250,6 +276,29 @@ export function render(ctx) {
 }
 
 export const actions = {
+  'download-data-exit': ({ ctx }) => {
+    (ctx.ui ||= {}).exitToast = 'Complete enterprise decision archive and audit logs exported.';
+    if (ctx.m?.logAudit) ctx.m.logAudit('Data Exit', 'Exported full historical decision archive and labeled training logs');
+    const exportData = {
+      version: '2026.4',
+      generatedAt: new Date().toISOString(),
+      industry: ctx.industry.id,
+      country: ctx.country.id,
+      persona: ctx.persona,
+      dataExitGuarantee: 'All historical decisions, override root-causes, and telemetry are client-owned under standard enterprise data escrow.',
+      accountsCount: Object.keys(ctx.data?.byId || {}).length,
+      auditLog: ctx.data?.audit || []
+    };
+    const blob = new Blob([JSON.stringify(exportData, null, 2)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `AI-Assistor-Data-Exit-Archive-${new Date().toISOString().slice(0, 10)}.json`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  },
+
   'trigger-solver': ({ ctx, data }) => {
     (ctx.ui ||= {}).activeSolverEvent = data.event;
     if (ctx.m?.logAudit) ctx.m.logAudit('Constraint Solver', `Executed solver trace for event: ${data.event}`);

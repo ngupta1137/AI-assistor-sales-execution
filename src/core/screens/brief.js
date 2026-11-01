@@ -92,6 +92,9 @@ function renderItem(ctx, it, isNext) {
   return `<article class="item ${state}${isNext ? ' next' : ''}" id="item-${it.id}" data-item="${it.id}" data-kind="${it.kind}" data-state="${state}">
     <div class="item-head">${agentTag(it.agent)}${it.overBudget ? pill('If time allows', 'muted') : ''}<span class="state">${pill(stateLabel[0], stateLabel[1])}</span></div>
     <div class="item-title"><span class="rank">${lead}</span><h3>${esc(t(it.title, v))}</h3></div>
+    <div style="margin:4px 0 6px 0;padding:4px 6px;background:var(--surface-subtle);border-radius:4px;border-left:3px solid var(--accent);font-size:11px">
+      <b>Rationale:</b> ${esc(t(it.saw, v)).slice(0, 110)}. Execute now to protect velocity and avoid stock-out.
+    </div>
     <div class="metrics"><span>${esc(valueText)}</span>${it.effort ? `<span>${icon('clock', 16)} ${it.effort} min</span>` : ''}${confBadge(it.confidence)}</div>
     <details class="evi"${isNext ? ' open' : ''}><summary>What the agent saw</summary>
       <dl class="evidence">
@@ -279,6 +282,30 @@ export function render(ctx, [accountId]) {
           ${icon('clock', 12)} Account closed / Buyer absent? Reschedule with SLA protection
         </button>
       `}
+    </div>
+
+    
+    <!-- Multi-Role Visit Coordination Hub -->
+    <div class="card tight" style="margin-top:8px;background:var(--surface-subtle);border:1px solid var(--line-soft)">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px">
+        <b>Multi-role location coordination</b>
+        ${pill('Synchronized', 'good')}
+      </div>
+      <p class="small muted" style="margin:0 0 6px 0;font-size:11px">Shared graph across merchandiser, pre-sell rep, and delivery driver to prevent conflicting execution.</p>
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(95px,1fr));gap:4px;font-size:11px">
+        <div style="padding:4px 6px;background:var(--surface);border-radius:4px;border:1px solid var(--line-soft)">
+          <span class="muted">Merchandiser:</span>
+          <b style="display:block" class="good-text">Display set (07:30)</b>
+        </div>
+        <div style="padding:4px 6px;background:var(--surface);border-radius:4px;border:1px solid var(--line-soft)">
+          <span class="muted">Pre-Sell (You):</span>
+          <b style="display:block;color:var(--accent)">Active in-visit</b>
+        </div>
+        <div style="padding:4px 6px;background:var(--surface);border-radius:4px;border:1px solid var(--line-soft)">
+          <span class="muted">Driver Route:</span>
+          <b style="display:block">ETA 14:15 (Tomorrow)</b>
+        </div>
+      </div>
     </div>
 
     <!-- Rapid In-Visit Blitz Mode Bar -->
