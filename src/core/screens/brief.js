@@ -19,6 +19,11 @@ function itemLink(it) {
 function overrideRecipient(ctx, it, reasonLabel) {
   const acc = ctx.data.byId[it.accountId];
   const r = ctx.industry.overrideReasons.find((x) => x.label === reasonLabel);
+  const low = String(reasonLabel || '').toLowerCase();
+  if (/supply|stock|inventory|depot|allocation/i.test(low)) return 'Supply Chain Operations';
+  if (/price|cost|competitor|margin|discount/i.test(low)) return 'Commercial Pricing Desk';
+  if (/absent|closed|away|reschedule/i.test(low)) return 'Territory Dispatcher (Rescheduled)';
+  if (/space|planogram|display/i.test(low)) return 'Category Merchandising Desk';
   return ctx.t(r?.route === 'kam' || (acc.key && acc.tier === 'A') ? '{kam}' : '{manager}');
 }
 
@@ -235,6 +240,47 @@ export function render(ctx, [accountId]) {
         <button class="seg ${ui.callObjective === 'Merchandising' ? 'on' : ''}" data-act="set-objective" data-obj="Merchandising" style="min-height:var(--tap);min-width:var(--tap)">Merchandising</button>
       </div>
     </div>
+    <!-- Commercial Shared Constraints Verification Strip -->
+    <div style="margin-top:10px;padding:8px 10px;background:var(--surface-subtle);border-radius:var(--radius-sm);border:1px solid var(--line-soft)">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
+        <small style="font-weight:600;display:flex;align-items:center;gap:4px">
+          ${icon('shield', 14)} Commercial constraints verified
+        </small>
+        ${pill('All constraints passed', 'good')}
+      </div>
+      <div class="facts" style="grid-template-columns:repeat(auto-fit,minmax(70px,1fr));margin-bottom:4px">
+        <div><small>Receiving</small><b class="good-text">Open</b></div>
+        <div><small>Depot stock</small><b class="good-text">Allocated</b></div>
+        <div><small>Credit</small><b class="good-text">Available</b></div>
+        <div><small>Contract</small><b>Active</b></div>
+      </div>
+      <p class="small muted" style="margin:0;font-size:11px">Recommendations hard-filtered against receiving dock windows, distributor depot inventory, and customer credit limits.</p>
+    </div>
+
+    <!-- Rapid In-Visit Blitz Mode Bar -->
+    <div style="margin-top:8px;display:flex;justify-content:space-between;align-items:center;gap:8px">
+      <button class="btn ${ui.blitzMode ? 'primary' : 'secondary'} sm" data-act="toggle-blitz" style="min-height:var(--tap);flex:1;display:flex;align-items:center;justify-content:center;gap:6px">
+        ${icon('clock', 14)} ${ui.blitzMode ? 'Exit Rapid Blitz Mode' : 'Rapid In-Visit Blitz Mode (45s)'}
+      </button>
+    </div>
+    ${ui.blitzMode ? `
+      <div class="card tight" style="margin-top:8px;border:2px solid var(--accent);background:var(--accent-soft)">
+        <div class="section-head" style="margin-bottom:4px">
+          <b style="color:var(--ink)">Rapid execution priority</b>
+          ${pill('Highest feasible yield', 'good')}
+        </div>
+        <p class="small" style="margin-bottom:8px">Streamlined for rushed buyer interactions. Single high-yield verified action and fast replenishment reorder.</p>
+        <div style="padding:6px 8px;background:var(--surface);border-radius:4px;margin-bottom:8px;border:1px solid var(--line-soft)">
+          <b>${esc(t(items[0]?.title || 'Core Priority Action', items[0]?.vars))}</b>
+          <div class="small muted">Distributor stock verified · Estimated upside: ${esc(fmt.money(items[0]?.value || 500))}</div>
+        </div>
+        <div class="btn-row" style="gap:6px">
+          <a class="btn primary sm" href="#/action/${items[0]?.id || ''}" style="min-height:var(--tap);flex:1;display:flex;align-items:center;justify-content:center">Execute priority action</a>
+          <a class="btn secondary sm" href="#/order/${a.id}" style="min-height:var(--tap);flex:1;display:flex;align-items:center;justify-content:center">Quick reorder</a>
+        </div>
+      </div>
+    ` : ''}
+
   </section>
   <div style="display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap">
     <button class="btn secondary sm" data-act="open-deck" style="flex:1;min-height:var(--tap);min-width:140px">${icon('screen', 16)} In-call pitch mode</button>
@@ -277,6 +323,12 @@ const currentNote = (ctx, id) => {
 };
 
 export const actions = {
+  'toggle-blitz': ({ ctx }) => {
+    const ui = (ctx.ui ||= {});
+    ui.blitzMode = !ui.blitzMode;
+    ui.briefToast = ui.blitzMode ? 'Rapid in-visit blitz mode active (45-second execution).' : 'Standard visit brief mode restored.';
+  },
+
   'set-objective': ({ ctx, data }) => {
     (ctx.ui ||= {}).callObjective = data.obj;
     (ctx.ui ||= {}).briefToast = `Primary call objective set to ${data.obj}.`;

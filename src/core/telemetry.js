@@ -120,7 +120,16 @@ export function renderSyncModal(app, ctx) {
                 </div>
               </div>
               <div style="margin-top:8px">
-                <small class="muted" style="font-weight:600;display:block;margin-bottom:4px">Deterministic resolution strategy:</small>
+                
+              <div style="margin-top:8px;padding:6px 8px;background:var(--surface-subtle);border-radius:4px;border:1px solid var(--line-soft);font-size:11px">
+                <b>Transaction-specific reconciliation policies:</b>
+                <ul class="bullets" style="padding-left:14px;margin-top:2px">
+                  <li><b>Inventory allocation:</b> Authoritative ERP reservation (No silent overrides).</li>
+                  <li><b>Credit limits:</b> Cloud Master enforcement (Strict risk limits).</li>
+                  <li><b>Field notes & preferences:</b> Deterministic Last-Write-Wins.</li>
+                </ul>
+              </div>
+                <small class="muted" style="font-weight:600;display:block;margin-bottom:4px;margin-top:8px">Deterministic resolution strategy:</small>
                 <div class="seg-ctl" role="group" aria-label="Resolution strategy">
                   <button class="seg ${(app.ui?.conflictStrategy || 'lww') === 'lww' ? 'on' : ''}" data-act="set-conflict-strat" data-strat="lww" style="min-height:var(--tap);min-width:var(--tap)">Last-write-wins</button>
                   <button class="seg ${app.ui?.conflictStrategy === 'cloud' ? 'on' : ''}" data-act="set-conflict-strat" data-strat="cloud" style="min-height:var(--tap);min-width:var(--tap)">Cloud master</button>
