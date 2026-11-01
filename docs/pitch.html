@@ -1,0 +1,692 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AI Assistor for Sales Execution — Executive Pitch Deck</title>
+  <style>
+    :root {
+      --bg: #0b0f19;
+      --surface: #111827;
+      --surface-card: #1e293b;
+      --surface-subtle: #0f172a;
+      --text: #f8fafc;
+      --muted: #94a3b8;
+      --line: #334155;
+      --line-soft: #1e293b;
+      --accent: #3b82f6;
+      --accent-soft: rgba(59, 130, 246, 0.15);
+      --good: #10b981;
+      --good-soft: rgba(16, 185, 129, 0.15);
+      --warn: #f59e0b;
+      --warn-soft: rgba(245, 158, 11, 0.15);
+      --bad: #ef4444;
+      --radius: 12px;
+      --radius-sm: 6px;
+      --font: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: var(--font);
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      overflow-x: hidden;
+    }
+    header.deck-bar {
+      height: 56px;
+      padding: 0 24px;
+      background: var(--surface);
+      border-bottom: 1px solid var(--line);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      position: sticky;
+      top: 0;
+      z-index: 50;
+    }
+    .logo {
+      font-size: 15px;
+      font-weight: 700;
+      letter-spacing: -0.01em;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .logo span { color: var(--accent); }
+    .controls {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .btn {
+      background: var(--surface-card);
+      color: var(--text);
+      border: 1px solid var(--line);
+      padding: 6px 14px;
+      border-radius: var(--radius-sm);
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      transition: all 0.15s;
+    }
+    .btn:hover { background: var(--line); }
+    .btn.primary { background: var(--accent); border-color: var(--accent); color: #fff; }
+    .btn.primary:hover { background: #2563eb; }
+    .pill {
+      font-size: 11px;
+      font-weight: 600;
+      padding: 2px 8px;
+      border-radius: 999px;
+      display: inline-flex;
+      align-items: center;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+    .pill.good { background: var(--good-soft); color: #34d399; border: 1px solid rgba(16, 185, 129, 0.3); }
+    .pill.accent { background: var(--accent-soft); color: #60a5fa; border: 1px solid rgba(59, 130, 246, 0.3); }
+    .pill.warn { background: var(--warn-soft); color: #fbbf24; border: 1px solid rgba(245, 158, 11, 0.3); }
+    .progress-track {
+      height: 3px;
+      background: var(--line-soft);
+      width: 100%;
+    }
+    .progress-bar {
+      height: 100%;
+      background: var(--accent);
+      width: 8.33%;
+      transition: width 0.25s ease;
+    }
+    main.stage {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 32px 24px;
+    }
+    .slide-viewport {
+      width: 100%;
+      max-width: 1100px;
+      min-height: 600px;
+      background: var(--surface);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+      padding: 44px;
+      display: flex;
+      flex-direction: column;
+      position: relative;
+    }
+    .slide-eyebrow {
+      font-size: 12px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--accent);
+      margin-bottom: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .slide-title {
+      font-size: 28px;
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      line-height: 1.25;
+      margin-bottom: 20px;
+      color: #fff;
+    }
+    .slide-content {
+      flex: 1;
+      font-size: 15px;
+      line-height: 1.6;
+      color: #cbd5e1;
+    }
+    .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+    .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+    .grid-4 { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 14px; }
+    .card {
+      background: var(--surface-card);
+      border: 1px solid var(--line);
+      border-radius: var(--radius-sm);
+      padding: 18px;
+    }
+    .card h4 {
+      font-size: 15px;
+      font-weight: 700;
+      color: #fff;
+      margin-bottom: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .card p { font-size: 13px; color: var(--muted); line-height: 1.5; margin-bottom: 8px; }
+    .card ul { padding-left: 18px; font-size: 13px; color: #cbd5e1; }
+    .card li { margin-bottom: 4px; }
+    .notes-drawer {
+      margin-top: 24px;
+      padding: 14px 18px;
+      background: rgba(30, 41, 59, 0.7);
+      border-left: 3px solid var(--accent);
+      border-radius: 4px;
+      font-size: 13px;
+      color: #94a3b8;
+      display: none;
+    }
+    .notes-drawer.open { display: block; }
+    .notes-drawer b { color: #f8fafc; }
+    table.slide-tbl {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13px;
+      margin: 12px 0;
+    }
+    table.slide-tbl th, table.slide-tbl td {
+      padding: 10px 12px;
+      border: 1px solid var(--line);
+      text-align: left;
+    }
+    table.slide-tbl th { background: var(--surface-subtle); color: #fff; font-weight: 700; }
+    table.slide-tbl td { background: var(--surface-card); }
+    .slide-foot {
+      margin-top: 24px;
+      padding-top: 16px;
+      border-top: 1px solid var(--line-soft);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 12px;
+      color: var(--muted);
+    }
+    .kbd {
+      background: var(--surface-subtle);
+      border: 1px solid var(--line);
+      border-radius: 4px;
+      padding: 2px 6px;
+      font-family: monospace;
+      font-size: 11px;
+    }
+    @media (max-width: 800px) {
+      .grid-2, .grid-3 { grid-template-columns: 1fr; }
+      .slide-viewport { padding: 24px; min-height: 500px; }
+      .slide-title { font-size: 22px; }
+    }
+  </style>
+</head>
+<body>
+  <header class="deck-bar">
+    <div class="logo">
+      <span>◆</span> AI Assistor for Sales Execution
+    </div>
+    <div class="controls">
+      <span id="slide-indicator" style="font-size:13px;color:var(--muted);font-weight:600">Slide 1 / 12</span>
+      <button class="btn" onclick="prevSlide()" id="btn-prev">← Prev</button>
+      <button class="btn" onclick="nextSlide()" id="btn-next">Next →</button>
+      <button class="btn" onclick="toggleNotes()">Speaker Notes</button>
+      <a href="index.html" class="btn primary" target="_blank">Launch Live Demo ↗</a>
+    </div>
+  </header>
+  <div class="progress-track"><div class="progress-bar" id="progress-bar"></div></div>
+
+  <main class="stage">
+    <div class="slide-viewport" id="viewport">
+      <!-- Dynamic slide content injected here -->
+    </div>
+  </main>
+
+  <script>
+    const slides = [
+      {
+        eyebrow: "Executive Presentation · November 2026",
+        title: "AI Assistor for Sales Execution",
+        content: `
+          <div style="display:flex;flex-direction:column;gap:20px;padding:20px 0">
+            <div style="display:flex;align-items:center;gap:10px">
+              <span class="pill accent">Enterprise Intelligence Overlay</span>
+              <span class="pill good">Offline PWA Runtime</span>
+              <span class="pill warn">Closed-Loop Solver</span>
+            </div>
+            <p style="font-size:20px;color:#fff;max-width:800px;line-height:1.4">
+              The closed-loop decision and outcome engine for enterprise field sales. Operating as an intelligent overlay on existing Salesforce, StayinFront, Veeva, and SAP installations.
+            </p>
+            <div class="grid-3" style="margin-top:10px">
+              <div class="card">
+                <h4>5-Decision Solver</h4>
+                <p>Coverage, routing, in-visit priorities, suggested orders, and outcomes share a real-time constraint graph.</p>
+              </div>
+              <div class="card">
+                <h4>Zero Rip-and-Replace</h4>
+                <p>Deploys in 3-5 weeks as an API sidecar at $18/rep/month, coexisting with incumbent enterprise CRMs.</p>
+              </div>
+              <div class="card">
+                <h4>Causal Margin Proof</h4>
+                <p>Difference-in-Differences causal engine proving net margin uplift over matched control territories.</p>
+              </div>
+            </div>
+            <div style="margin-top:10px;font-size:13px;color:var(--muted)">
+              Live Deployment: <code>https://ai-assistor-sales-execution.vercel.app</code> · Fictional sample data throughout
+            </div>
+          </div>
+        `,
+        notes: "Good morning. AI Assistor transforms field execution from passive CRM form-filling into a constraint-coupled decision engine that drives measurable gross-margin expansion without ripping and replacing existing enterprise software."
+      },
+      {
+        eyebrow: "The Enterprise Dilemma",
+        title: "The $2,100/Rep CRM Form Trap",
+        content: `
+          <p style="margin-bottom:16px">Fortune 500 manufacturers spend millions on CRM, yet frontline field reps still spend 68% of their day manually navigating static forms and conflicting instructions.</p>
+          <div class="grid-2">
+            <div class="card" style="border-left:4px solid var(--bad)">
+              <h4 style="color:#f87171">The 5 Disconnected Silos Today</h4>
+              <ul>
+                <li><b>Coverage Planning:</b> Quotas set without visibility into dock receiving hours.</li>
+                <li><b>Route Navigation:</b> Paths optimized without knowing depot stock availability.</li>
+                <li><b>In-Store Tasks:</b> Recommends end-cap display builds for out-of-stock items.</li>
+                <li><b>Order Drafts:</b> Proposed quantities trigger unbudgeted volume rebate brackets.</li>
+                <li><b>Field Overrides:</b> Frontline judgment logged as rep non-compliance.</li>
+              </ul>
+            </div>
+            <div class="card" style="border-left:4px solid var(--good)">
+              <h4 style="color:#34d399">The AI Assistor Difference</h4>
+              <ul>
+                <li><b>Shared Graph:</b> All 5 decisions bound to real-time depot stock and dock hours.</li>
+                <li><b>Rapid Blitz Mode (45s):</b> 3-tap execution for rushed buyer interactions.</li>
+                <li><b>Segregated RMA Claims:</b> Rep logs damage evidence; AR approves credit note.</li>
+                <li><b>Account Camera Policy:</b> Pre-authorized exemption protects rep scores.</li>
+                <li><b>Closed-Loop Overrides:</b> Root causes routed to Pricing & Supply Chain.</li>
+              </ul>
+            </div>
+          </div>
+          <div style="margin-top:16px;padding:12px;background:var(--surface-subtle);border-radius:var(--radius-sm);font-size:13px">
+            <b>The Bottom Line:</b> Replacing incumbent CRMs costs $2,160/rep/yr and takes 14 months. AI Assistor deploys as an overlay for $216/rep/yr in 4 weeks.
+          </div>
+        `,
+        notes: "Every VP of Sales knows this pain: reps arrive at locked receiving docks, or the CRM asks them to merchandise an item that distributor depots don't have. Disconnected decisions destroy rep trust."
+      },
+      {
+        eyebrow: "The Core Engine",
+        title: "The 5-Decision Constraint Graph",
+        content: `
+          <p style="margin-bottom:14px">Rather than independent screens, AI Assistor runs on a single reactive constraint graph sharing live state:</p>
+          <div class="grid-3">
+            <div class="card">
+              <h4>1. Coverage & Priority</h4>
+              <p>Dynamic account ranking based on value-at-risk, whitespace voids, and contractual visit frequencies.</p>
+            </div>
+            <div class="card">
+              <h4>2. Dynamic Routing</h4>
+              <p>Coupled to receiving dock windows, driver HOS limits, and live carrier cutoffs (14:00 countdown).</p>
+            </div>
+            <div class="card">
+              <h4>3. In-Visit Actions</h4>
+              <p>Edge CV planogram check, KAM camera exemption protocol, and 45s Rapid Blitz Mode.</p>
+            </div>
+            <div class="card">
+              <h4>4. Suggested Orders</h4>
+              <p>Depot stock constraints, pre-approved contract substitutes, split backorders, and RMA claims.</p>
+            </div>
+            <div class="card">
+              <h4>5. Closed-Loop Outcomes</h4>
+              <p>Structured override taxonomy (Supply Chain, Pricing Desk, Buyer Absent) closing the corporate loop.</p>
+            </div>
+            <div class="card" style="background:var(--accent-soft);border-color:var(--accent)">
+              <h4>Shared Reactive Solver</h4>
+              <p>When any constraint shifts in the physical world, all downstream decisions instantly recompute.</p>
+            </div>
+          </div>
+        `,
+        notes: "This is our core differentiator: one shared state. A shift in dock windows immediately re-routes the stop, adapts the in-store action, and switches the suggested order to a contract-parity substitute."
+      },
+      {
+        eyebrow: "Architectural Proof",
+        title: "The Live Solver Proof: 'The Test That Settles It'",
+        content: `
+          <p style="margin-bottom:14px">We invite technical evaluators to run the live disturbance test directly inside our application:</p>
+          <table class="slide-tbl">
+            <thead>
+              <tr><th>Perturbation Event</th><th>Decision 1: Coverage</th><th>Decision 2: Routing</th><th>Decision 3: Actions</th><th>Decision 4: Orders</th><th>Decision 5: Overrides</th></tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><b>Depot Stock = 0</b></td>
+                <td>Urgency re-ranked by feasible upside</td>
+                <td>Route maintained; freight adjusted</td>
+                <td>Display build suppressed; audit substituted</td>
+                <td>Auto-swapped to contract-parity substitute</td>
+                <td>Pre-attributed to Supply Chain (Score protected)</td>
+              </tr>
+              <tr>
+                <td><b>Dock Closes 2h Early</b></td>
+                <td>Priority shifted to open docks</td>
+                <td>Stop sequence re-routed: Stop 4 moved to Stop 1</td>
+                <td>Checklist adapted to dock window</td>
+                <td>Expedited delivery batch flagged</td>
+                <td>Transit score protected against delay</td>
+              </tr>
+              <tr>
+                <td><b>Credit Hold Applied</b></td>
+                <td>Credit alert badge shown</td>
+                <td>Collection task flagged</td>
+                <td>Credit interview action added</td>
+                <td>Provisional order locked for release token</td>
+                <td>Escalation routed to Credit Desk</td>
+              </tr>
+            </tbody>
+          </table>
+          <p style="font-size:13px;color:var(--muted)">Tested interactively via System Configuration &gt; Live Constraint Solver &amp; Explanation Trace.</p>
+        `,
+        notes: "This settles the skepticism. In our app, click 'Set Core Line to 0 Depot Stock'. Watch the solver trace recompute across all 5 decisions in real time. It is a genuine graph, not five static screens."
+      },
+      {
+        eyebrow: "Persona 1 · Frontline Field Rep",
+        title: "A Day in the Life: Alex Morgan (Field Rep)",
+        content: `
+          <div class="grid-2">
+            <div class="card">
+              <h4>07:30 — Morning Brief &amp; Cutoffs</h4>
+              <p>Overnight brief ranks visits by value-at-risk. Displays 14:00 carrier cutoff countdown and dock receiving windows.</p>
+              <h4>09:15 — Store 1: 45s Rapid Blitz Mode</h4>
+              <p>Store manager is rushed. Alex triggers Blitz Mode: 1 priority display audit, replenishment reorder, digital signature in 45s.</p>
+              <h4>10:45 — Store 2: Segregated RMA Claim</h4>
+              <p>Damaged case inspected. Rep submits RMA claim slip with photo. Queued for AR approval (<$250 cap, no rogue ledger write).</p>
+            </div>
+            <div class="card">
+              <h4>11:30 — Store 3: Camera Exemption</h4>
+              <p>Customer bans photography. Alex activates KAM-authorized electronic manifest attestation. Compliance score 100% protected.</p>
+              <h4>14:00 — Store 4: Closed / Buyer Absent</h4>
+              <p>Doors locked. 1-tap SLA rescheduling within 14-day window. First reschedule score-protected; prevents rep penalty.</p>
+              <h4>17:00 — Debrief &amp; Dictation</h4>
+              <p>Noise-suppressed voice debrief. Overrides automatically routed to Pricing Desk and Supply Chain Allocation.</p>
+            </div>
+          </div>
+        `,
+        notes: "Alex's day is frictionless. No 15-minute questionnaires. When managers are in a hurry, Blitz Mode executes in 45 seconds. When stores ban cameras, an authorized attestation protects Alex's score."
+      },
+      {
+        eyebrow: "Persona 2 · District Field Manager",
+        title: "A Day in the Life: Jordan Taylor (District Manager)",
+        content: `
+          <div class="grid-2">
+            <div class="card">
+              <h4>Mid-Day Contingency Dispatch</h4>
+              <p>Delivery truck breaks down on Route 02-B at 11:45. Jordan triggers <b>Mid-Day Route Re-Balance</b>:</p>
+              <ul>
+                <li>Solver identifies 3 unvisited high-value stops ($4,200).</li>
+                <li>Intelligently redistributes stops to active nearby reps within 12 km.</li>
+                <li>Preserves customer dock receiving windows without overtime.</li>
+              </ul>
+            </div>
+            <div class="card">
+              <h4>Anti-Gaming Supervisory Guardrails</h4>
+              <p>Jordan's supervisory queue automatically detects gaming:</p>
+              <ul>
+                <li><b>Buyer Absent Outlier:</b> Flags accounts exceeding 2x district median.</li>
+                <li><b>Rubber-Stamp Orders:</b> Flags orders with &lt;5s dwell for variance review.</li>
+                <li><b>SLA Chaining Guard:</b> Second reschedule in 14 days requires DFM approval.</li>
+              </ul>
+            </div>
+          </div>
+          <div class="card" style="margin-top:14px;background:var(--surface-subtle)">
+            <h4>Works Council Safe Mode (German BetrVG §87 / French CSE)</h4>
+            <p>One-click toggle anonymizes rep IDs in telemetry into territory pseudonyms, presenting aggregate district metrics to comply with European labor co-determination laws.</p>
+          </div>
+        `,
+        notes: "Jordan manages exceptions, not forms. Mid-day truck breakdown? The solver rebalances the stops. Reps gaming 'Buyer Absent'? The anomaly queue flags it. Works council requirements? Safe mode anonymizes telemetry."
+      },
+      {
+        eyebrow: "Persona 3 · Key Account Manager & Ops",
+        title: "A Day in the Life: Samira Khan (KAM & Ops Leader)",
+        content: `
+          <div class="grid-3">
+            <div class="card">
+              <h4>Multi-Tier Entity Model</h4>
+              <p>Explicitly separates Payer HQ (contract terms) from Physical Delivery Sites (dock hours) and Wholesaler Depots (carrier cutoff).</p>
+            </div>
+            <div class="card">
+              <h4>JBP &amp; Trade Promotions</h4>
+              <p>Tracks co-op marketing budgets, performance allowances, volume rebate brackets, and executive JBP charter exports.</p>
+            </div>
+            <div class="card">
+              <h4>Rebate-Tier Guardrails</h4>
+              <p>Alerts reps when proposed orders reach 84% of quarterly rebate brackets, protecting gross margins against premature accruals.</p>
+            </div>
+          </div>
+          <div class="grid-2" style="margin-top:14px">
+            <div class="card">
+              <h4>Commercial Weight Tuner</h4>
+              <p>Ops leaders calibrate execution dimension weights (Distribution vs Promotion vs Range/Voids) with live territory score re-ranking.</p>
+            </div>
+            <div class="card">
+              <h4>CSV Ingestion Workbench</h4>
+              <p>Bulk upload prospect customer lists with automatic schema validation and ingestion into the simulation engine.</p>
+            </div>
+          </div>
+        `,
+        notes: "Samira ensures corporate commercial strategy reaches the field. JBP trade spend is governed, and our rebate tier guardrails prevent field reps from giving away unfunded rebate bracket concessions."
+      },
+      {
+        eyebrow: "Persona 4 · VP Sales & Commercial Finance / CFO",
+        title: "The Causal Value Engine & Audited Financial Statement",
+        content: `
+          <p style="margin-bottom:12px">Replaces soft 'time saved' vanity metrics with an FP&amp;A pre-registered net profit waterfall:</p>
+          <table class="slide-tbl">
+            <thead>
+              <tr><th>Commercial Value Waterfall Line</th><th>Test Territory</th><th>Matched Control</th><th>Net Attributable Lift</th></tr>
+            </thead>
+            <tbody>
+              <tr><td>Attributable Gross Margin Expansion</td><td>+9.2% POS Lift</td><td>+2.8% POS Lift</td><td class="good-text"><b>+$18,400</b></td></tr>
+              <tr><td>Realized Capacity Savings (GL-Verified)</td><td>19 min/call</td><td>Baseline</td><td class="good-text"><b>+$2,640</b></td></tr>
+              <tr><td>Less: Incremental Co-op Trade Spend</td><td>Active promo</td><td>Baseline</td><td class="warn-text">-$4,800</td></tr>
+              <tr><td>Less: Platform &amp; Integration Operating Costs</td><td>SaaS fee</td><td>$0</td><td class="muted">-$1,960</td></tr>
+              <tr style="font-weight:700;border-top:2px solid var(--line)"><td>Net Realized Commercial Value (Attributable Profit)</td><td></td><td></td><td class="good-text" style="font-size:15px"><b>+$14,280</b></td></tr>
+            </tbody>
+          </table>
+          <div class="grid-2" style="margin-top:10px;font-size:12px">
+            <div><b>Parallel Pre-Trends:</b> Verified ($p = 0.42$, confirming no pre-treatment differential drift).</div>
+            <div><b>Synthetic Control:</b> 8-dimension covariate balance across volume, density, and distributor distance.</div>
+          </div>
+        `,
+        notes: "CFOs love this slide. We don't claim hypothetical 'time saved' as revenue. We take gross margin lift, add only GL-verified capacity cuts, subtract trade spend, and deliver Net Realized Commercial Value."
+      },
+      {
+        eyebrow: "Technical Architecture · CIO & InfoSec",
+        title: "Enterprise Architecture: Honest Status & Durability",
+        content: `
+          <p style="margin-bottom:12px">Architectural transparency: Every capability classified as BUILT, DESIGNED, or PROPOSED:</p>
+          <table class="slide-tbl">
+            <thead>
+              <tr><th>Component</th><th>Status</th><th>Implementation Scope &amp; Assurance</th></tr>
+            </thead>
+            <tbody>
+              <tr><td><b>5-Decision Constraint Solver</b></td><td><span class="pill good">BUILT</span></td><td>Deterministic client-side reactive recomputation engine</td></tr>
+              <tr><td><b>Offline Durability &amp; Outbox</b></td><td><span class="pill good">BUILT</span></td><td>Provisional reservation tokens (#RES-...); navigator.storage.persist check</td></tr>
+              <tr><td><b>SAP S/4HANA Middleware Dedupe</b></td><td><span class="pill accent">DESIGNED</span></td><td>Idempotent BAPI_SALESORDER contract with client UUID replay guard</td></tr>
+              <tr><td><b>Enterprise Identity &amp; SSO</b></td><td><span class="pill accent">DESIGNED</span></td><td>OpenID Connect / SAML 2.0 federation (Microsoft Entra ID, Okta)</td></tr>
+              <tr><td><b>SCIM 2.0 &amp; Cloud KMS (CMEK)</b></td><td><span class="pill warn">PROPOSED</span></td><td>Target enterprise cloud topology on multi-tenant Kubernetes</td></tr>
+              <tr><td><b>Third-Party SOC 2 Type II</b></td><td><span class="pill warn">PROPOSED</span></td><td>Formal examination program scheduled for enterprise deployment</td></tr>
+            </tbody>
+          </table>
+          <p style="font-size:12px;color:var(--muted)">Compensating flows built for depot stockouts (split/substitute), credit holds, and contractual price drift.</p>
+        `,
+        notes: "We don't overclaim. We tell your CIO exactly what is built in our client runtime, what is designed in our API contracts, and what is proposed for cloud infrastructure. True enterprise candor."
+      },
+      {
+        eyebrow: "Commercial Strategy",
+        title: "The Commercial Wedge: Overlay vs Rip-and-Replace",
+        content: `
+          <div class="grid-2">
+            <div class="card" style="border-left:4px solid var(--bad)">
+              <h4 style="color:#f87171">Rip-and-Replace (Incumbents)</h4>
+              <ul>
+                <li><b>Cost:</b> $1,800 to $2,500 / rep / year in licenses.</li>
+                <li><b>Timeline:</b> 9 to 18 months implementation.</li>
+                <li><b>Risk:</b> Massive disruption; rewriting SAP and custom integrations.</li>
+                <li><b>Change Fatigue:</b> 10,000 reps forced to learn a new CRM interface.</li>
+              </ul>
+            </div>
+            <div class="card" style="border-left:4px solid var(--good)">
+              <h4 style="color:#34d399">AI Assistor Intelligence Overlay</h4>
+              <ul>
+                <li><b>Cost:</b> <b>$216 / rep / year ($18 / rep / month)</b> — 10x savings.</li>
+                <li><b>Timeline:</b> <b>3 to 5 weeks</b> pilot deployment.</li>
+                <li><b>Risk:</b> Zero disruption; connects as an API sidecar to existing CRM.</li>
+                <li><b>Data Exit Guarantee:</b> Complete portable JSON/CSV export at any time.</li>
+              </ul>
+            </div>
+          </div>
+          <div style="margin-top:16px;padding:14px;background:var(--surface-subtle);border-radius:var(--radius-sm);font-size:13px">
+            <b>The Wedge Strategy:</b> Start as a closed-loop decision overlay on top of Salesforce CG Cloud or StayinFront. Pay for the software in 60 days via recovered trade deductions and prevented stock-outs.
+          </div>
+        `,
+        notes: "You don't need to cancel your Salesforce contract. AI Assistor connects to your existing CRM and ERP as an intelligence overlay. At $18 per rep per month, it delivers instant payback."
+      },
+      {
+        eyebrow: "Global Engine",
+        title: "20 Industries x 11 Countries: 220 Pre-Built Permutations",
+        content: `
+          <p style="margin-bottom:14px">Zero industry hardcoding: packs dynamically inject vocabularies, tax rules, units, and regulatory firewalls:</p>
+          <div class="grid-3">
+            <div class="card">
+              <h4>CPG / FMCG &amp; Beverage DSD</h4>
+              <p>Van sales inventory, optical barcode scanning, distributor beats, carrier cutoff countdowns.</p>
+            </div>
+            <div class="card">
+              <h4>Life Sciences &amp; Pharma</h4>
+              <p>Strict 21 CFR 203.31 sample logging; clinical claims blocked by automated regulatory guardrails.</p>
+            </div>
+            <div class="card">
+              <h4>Building &amp; Industrial</h4>
+              <p>Contractor volume tiers, pallet dimensions, job-site delivery windows, trade credit checks.</p>
+            </div>
+            <div class="card">
+              <h4>Telecom &amp; Electronics</h4>
+              <p>IMEI/serial number tracking, prepaid voucher margins, franchise territory boundaries.</p>
+            </div>
+            <div class="card">
+              <h4>Agri-Science</h4>
+              <p>Seasonal planting calendars, chemical application windows, EPA label-only recommendation rules.</p>
+            </div>
+            <div class="card">
+              <h4>Financial Services</h4>
+              <p>Dynamic interest rate tables, regulatory non-advice guardrails, compliance audit trails.</p>
+            </div>
+          </div>
+          <p style="font-size:12px;color:var(--muted);margin-top:10px">Tested across 11 currencies (USD, EUR, GBP, JPY, INR, BRL, IDR, ZAR, MXN, AUD, AED) and 8 localized languages.</p>
+        `,
+        notes: "Our data pack architecture means zero custom code. Adding an industry or country is just adding a configuration file. We already cover 20 verticals across 11 countries with hard regulatory firewalls."
+      },
+      {
+        eyebrow: "Next Steps · Engagement Model",
+        title: "The 90-Day Bounded Pilot Blueprint",
+        content: `
+          <div class="grid-3">
+            <div class="card">
+              <h4>Weeks 1–4: Onboarding</h4>
+              <ul>
+                <li>Select 1 district (40–60 reps).</li>
+                <li>Match with control territory.</li>
+                <li>Pre-register FP&amp;A metrics.</li>
+                <li>Ingest customer &amp; route masters.</li>
+              </ul>
+            </div>
+            <div class="card">
+              <h4>Weeks 5–8: Execution</h4>
+              <ul>
+                <li>Field reps execute with overlay.</li>
+                <li>Dock window &amp; substitute solver active.</li>
+                <li>RMA credit claim logging active.</li>
+                <li>Bi-weekly DFM tuning reviews.</li>
+              </ul>
+            </div>
+            <div class="card">
+              <h4>Weeks 9–12: Causal Audit</h4>
+              <ul>
+                <li>DiD parallel trends evaluation.</li>
+                <li>Executive QBR presentation.</li>
+                <li>Net commercial value verification.</li>
+                <li>Enterprise expansion decision.</li>
+              </ul>
+            </div>
+          </div>
+          <div class="card" style="margin-top:16px;background:var(--accent-soft);border-color:var(--accent);display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px">
+            <div>
+              <b style="font-size:15px;color:#fff">Ready to see the live constraint solver in action?</b>
+              <p style="margin:2px 0 0 0;font-size:13px;color:#94a3b8">Try the live application or export the RFP Architecture Dossier.</p>
+            </div>
+            <div style="display:flex;gap:8px">
+              <a href="index.html" class="btn primary" target="_blank">Open Live Application</a>
+            </div>
+          </div>
+        `,
+        notes: "We propose a bounded 90-day pilot for 40 to 60 reps in one district. We pre-register the measurement with your finance team, run the overlay alongside your existing CRM, and let the causal ledger prove the net value. Thank you."
+      }
+    ];
+
+    let currentSlide = 0;
+    let notesOpen = false;
+
+    function renderSlide() {
+      const s = slides[currentSlide];
+      const vp = document.getElementById('viewport');
+      vp.innerHTML = `
+        <div class="slide-eyebrow">
+          <span>${s.eyebrow}</span>
+          <span class="kbd">${currentSlide + 1} / ${slides.length}</span>
+        </div>
+        <h2 class="slide-title">${s.title}</h2>
+        <div class="slide-content">${s.content}</div>
+        <div class="notes-drawer ${notesOpen ? 'open' : ''}" id="speaker-notes">
+          <b>Speaker Notes:</b> ${s.notes}
+        </div>
+        <div class="slide-foot">
+          <span>AI Assistor for Sales Execution · Confidential Enterprise Briefing</span>
+          <span>Press <span class="kbd">←</span> <span class="kbd">→</span> or <span class="kbd">Space</span> to navigate · <span class="kbd">S</span> for notes</span>
+        </div>
+      `;
+      document.getElementById('slide-indicator').innerText = `Slide ${currentSlide + 1} / ${slides.length}`;
+      document.getElementById('progress-bar').style.width = `${((currentSlide + 1) / slides.length) * 100}%`;
+      document.getElementById('btn-prev').disabled = currentSlide === 0;
+      document.getElementById('btn-next').disabled = currentSlide === slides.length - 1;
+    }
+
+    function nextSlide() {
+      if (currentSlide < slides.length - 1) {
+        currentSlide++;
+        renderSlide();
+      }
+    }
+
+    function prevSlide() {
+      if (currentSlide > 0) {
+        currentSlide--;
+        renderSlide();
+      }
+    }
+
+    function toggleNotes() {
+      notesOpen = !notesOpen;
+      renderSlide();
+    }
+
+    window.addEventListener('keydown', (e) => {
+      if (e.key === 'ArrowRight' || e.key === ' ' || e.key === 'PageDown') {
+        e.preventDefault();
+        nextSlide();
+      } else if (e.key === 'ArrowLeft' || e.key === 'PageUp') {
+        e.preventDefault();
+        prevSlide();
+      } else if (e.key.toLowerCase() === 's') {
+        toggleNotes();
+      }
+    });
+
+    renderSlide();
+  </script>
+</body>
+</html>
+
