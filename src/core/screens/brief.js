@@ -224,6 +224,17 @@ export function render(ctx, [accountId]) {
     <h1>${esc(a.name)}</h1>
     <p class="small muted">${esc(typeLine(t, a))} · ${esc(a.area)} · Tier ${a.tier}</p>
     <p class="small">${esc(fmt.time(p.start))} · ${a.visitMinutes} min · ${esc(contact.name)}, ${esc(t(contact.role))}</p>
+    <div style="margin-top:10px;padding:8px 10px;background:var(--surface-subtle);border-radius:var(--radius-sm);border:1px solid var(--line-soft)">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px">
+        <small style="font-weight:600">Primary call objective:</small>
+        ${pill(ui.callObjective || 'Expand whitespace', 'good')}
+      </div>
+      <div class="seg-ctl" role="group" aria-label="Call objective" style="margin-top:4px">
+        <button class="seg ${(ui.callObjective || 'Expand whitespace') === 'Expand whitespace' ? 'on' : ''}" data-act="set-objective" data-obj="Expand whitespace" style="min-height:var(--tap);min-width:var(--tap)">Expand whitespace</button>
+        <button class="seg ${ui.callObjective === 'Volume reorder' ? 'on' : ''}" data-act="set-objective" data-obj="Volume reorder" style="min-height:var(--tap);min-width:var(--tap)">Volume reorder</button>
+        <button class="seg ${ui.callObjective === 'Merchandising' ? 'on' : ''}" data-act="set-objective" data-obj="Merchandising" style="min-height:var(--tap);min-width:var(--tap)">Merchandising</button>
+      </div>
+    </div>
   </section>
   <div style="display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap">
     <button class="btn secondary sm" data-act="open-deck" style="flex:1;min-height:var(--tap);min-width:140px">${icon('screen', 16)} In-call pitch mode</button>
@@ -266,6 +277,11 @@ const currentNote = (ctx, id) => {
 };
 
 export const actions = {
+  'set-objective': ({ ctx, data }) => {
+    (ctx.ui ||= {}).callObjective = data.obj;
+    (ctx.ui ||= {}).briefToast = `Primary call objective set to ${data.obj}.`;
+    if (ctx.m?.logAudit) ctx.m.logAudit('Call Strategy', `Set primary call objective to ${data.obj} for account`);
+  },
   'open-deck': ({ ctx }) => { (ctx.ui ||= {}).pitchDeckOpen = true; ctx.ui.deckSlide = 1; },
   'close-deck': ({ ctx }) => { (ctx.ui ||= {}).pitchDeckOpen = false; },
   'deck-prev': ({ ctx }) => { const ui = (ctx.ui ||= {}); ui.deckSlide = Math.max(1, (ui.deckSlide || 1) - 1); },

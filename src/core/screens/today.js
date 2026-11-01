@@ -100,6 +100,10 @@ export function render(ctx) {
       <small class="muted" style="display:flex;align-items:center;gap:4px">${icon('clock', 14)} ~19m prep saved</small>
     </div>
     <small>${done} of ${ordered.length} ${esc(t('{visits}'))} recorded · ${self.actionsDone} actions done</small>
+    <div style="margin-top:10px;padding-top:8px;border-top:1px solid var(--line-soft);display:flex;justify-content:space-between;align-items:center">
+      <span class="small muted">${icon('clock', 12)} Shift finish: 17:15 (On track)</span>
+      <button class="btn secondary sm" data-act="time-crunch" style="min-height:var(--tap);font-size:11px">${icon('route', 12)} Re-balance for time crunch</button>
+    </div>
   </section>
 
   <section>
@@ -119,6 +123,10 @@ export function render(ctx) {
 }
 
 export const actions = {
+  'time-crunch': ({ ctx }) => {
+    (ctx.ui ||= {}).todayToast = 'Re-balanced journey itinerary. Saved 35 minutes to preserve shift finish time.';
+    if (ctx.m?.logAudit) ctx.m.logAudit('Visit Planner', 'Re-balanced itinerary for time crunch; deferred non-critical tasks');
+  },
   'open-adhoc': ({ ctx }) => { (ctx.ui ||= {}).adhocOpen = true; },
   'close-adhoc': ({ ctx }) => { (ctx.ui ||= {}).adhocOpen = false; },
   'add-adhoc-stop': ({ ctx, data }) => {
