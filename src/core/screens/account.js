@@ -305,10 +305,46 @@ export function render(ctx, [accountId]) {
   <details class="fold" id="acc-group"${ctx.ui?.groupOpen === a.id ? ' open' : ''}>
     <summary>Key account banner and multi-location rollup<span class="sum-end">Network Group</span></summary>
     <div style="padding:var(--s2) 0">
-      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
-        <b>${esc(a.name.split(' ')[0])} Enterprise Network</b>
-        ${pill('Tier 1 Group', 'good')}
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;flex-wrap:wrap;gap:6px">
+        <div>
+          <b style="font-size:14px">${esc(a.name.split(' ')[0])} Enterprise Network</b>
+          <div class="small muted">Multi-location account rollup &amp; JBP commitments</div>
+        </div>
+        <div class="seg-ctl" role="group" aria-label="KAM analytics timeframe">
+          <button class="seg ${(ctx.ui?.kamTf || 'monthly') === 'daily' ? 'on' : ''}" data-act="set-kam-tf" data-tf="daily" style="min-height:var(--tap);min-width:44px;font-size:11px">Daily</button>
+          <button class="seg ${ctx.ui?.kamTf === 'weekly' ? 'on' : ''}" data-act="set-kam-tf" data-tf="weekly" style="min-height:var(--tap);min-width:44px;font-size:11px">Weekly</button>
+          <button class="seg ${(ctx.ui?.kamTf || 'monthly') === 'monthly' ? 'on' : ''}" data-act="set-kam-tf" data-tf="monthly" style="min-height:var(--tap);min-width:44px;font-size:11px">Monthly</button>
+        </div>
       </div>
+
+      ${(() => {
+        const tf = ctx.ui?.kamTf || 'monthly';
+        if (tf === 'daily') {
+          return `
+          <div class="facts" style="grid-template-columns:repeat(auto-fit,minmax(75px,1fr));margin-bottom:8px">
+            <div><small>Locations</small><b>14 sites</b></div>
+            <div><small>Dock dispatch</small><b class="good-text">100% met</b></div>
+            <div><small>Stock status</small><b class="good-text">Allocated</b></div>
+            <div><small>Daily replenishment</small><b>${esc(fmt.moneyShort(a.current * 0.1))}</b></div>
+          </div>`;
+        } else if (tf === 'weekly') {
+          return `
+          <div class="facts" style="grid-template-columns:repeat(auto-fit,minmax(75px,1fr));margin-bottom:8px">
+            <div><small>Weekly target</small><b>${esc(fmt.moneyShort((a.potential * 4) / 12))}</b></div>
+            <div><small>Wholesale sell-in</small><b class="good-text">${esc(fmt.moneyShort((a.current * 3.8) / 11))}</b></div>
+            <div><small>Sell-out POS</small><b class="good-text">96% scan</b></div>
+            <div><small>Rebate accrual</small><b>4.0%</b></div>
+          </div>`;
+        } else {
+          return `
+          <div class="facts" style="grid-template-columns:repeat(auto-fit,minmax(80px,1fr));margin-bottom:8px">
+            <div><small>Network size</small><b>14 branches</b></div>
+            <div><small>Compliance</small><b class="good-text">94% on-target</b></div>
+            <div><small>Commitment</small><b class="money">${esc(fmt.money(a.potential * 4))}</b></div>
+            <div><small>Total volume</small><b class="money good-text">${esc(fmt.money(a.current * 3.8))}</b></div>
+          </div>`;
+        }
+      })()}
       <p class="small muted" style="margin-bottom:8px">Affiliated commercial chain. Compliance and volume commitments roll up across all operating branches.</p>
       <div class="facts" style="grid-template-columns:repeat(auto-fit,minmax(80px,1fr));margin-bottom:8px">
         <div><small>Locations</small><b>14 branches</b></div>
@@ -355,6 +391,10 @@ export function render(ctx, [accountId]) {
 }
 
 export const actions = {
+  'set-kam-tf': ({ ctx, data }) => {
+    (ctx.ui ||= {}).kamTf = data.tf;
+  },
+
   'download-jbp-charter': ({ ctx, data }) => {
     const a = ctx.data.byId[data.id];
     const fmt = ctx.fmt;

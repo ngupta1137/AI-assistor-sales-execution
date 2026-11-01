@@ -92,15 +92,101 @@ export function render(ctx) {
   </div>
   <button class="btn secondary sm" data-act="open-adhoc" style="min-height:var(--tap);margin-bottom:var(--s3);width:100%">${icon('route', 16)} Log ad-hoc customer drop-in</button>
 
-  <section class="card tight">
+  <!-- Field Rep Analytics Hub: Daily, Weekly, Monthly Views Against Target -->
+  <section class="card tight" style="margin-bottom:var(--s3)">
     <div class="stat-row"><span class="small muted">Month to date</span><span class="small"><b class="money">${esc(fmt.moneyShort(tr.achieved))}</b> of ${esc(fmt.moneyShort(tr.target))} · ${pct}%</span></div>
     ${bar(tr.achieved, tr.target)}
+
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-top:10px;margin-bottom:8px;flex-wrap:wrap;gap:6px;border-top:1px solid var(--line-soft);padding-top:8px">
+      <b>Performance analytics</b>
+      <div class="seg-ctl" role="group" aria-label="Analytics timeframe">
+        <button class="seg ${(ctx.ui?.repTf || 'daily') === 'daily' ? 'on' : ''}" data-act="set-rep-tf" data-tf="daily" style="min-height:var(--tap);min-width:44px;font-size:11px">Daily</button>
+        <button class="seg ${ctx.ui?.repTf === 'weekly' ? 'on' : ''}" data-act="set-rep-tf" data-tf="weekly" style="min-height:var(--tap);min-width:44px;font-size:11px">Weekly</button>
+        <button class="seg ${ctx.ui?.repTf === 'monthly' ? 'on' : ''}" data-act="set-rep-tf" data-tf="monthly" style="min-height:var(--tap);min-width:44px;font-size:11px">Monthly</button>
+      </div>
+    </div>
+
+    ${(() => {
+      const tf = ctx.ui?.repTf || 'daily';
+      if (tf === 'daily') {
+        return `
+        <div class="facts" style="grid-template-columns:repeat(auto-fit,minmax(75px,1fr));margin-bottom:8px">
+          <div><small>Today visits</small><b>${done} of ${ordered.length}</b></div>
+          <div><small>Opportunity</small><b class="money">${esc(fmt.moneyShort(self.estimated || 18400))}</b></div>
+          <div><small>Pace</small><b class="good-text">On track</b></div>
+          <div><small>Actions done</small><b>${self.actionsDone}</b></div>
+        </div>
+        <div style="padding:8px;background:var(--surface-inset);border-radius:4px;border:1px solid var(--line-soft)">
+          <div style="display:flex;justify-content:space-between;font-size:11px;margin-bottom:4px">
+            <span class="muted">Intraday completion curve (08:00 - 17:00)</span>
+            <span class="good-text">80% completed</span>
+          </div>
+          <svg viewBox="0 0 300 45" style="width:100%;height:auto;overflow:visible" role="img" aria-label="Daily progress">
+            <line x1="10" y1="35" x2="290" y2="35" stroke="var(--line-soft)" stroke-width="1.5"/>
+            <polyline points="10,35 70,30 130,22 190,14 250,10 290,8" fill="none" stroke="var(--accent)" stroke-width="2.5"/>
+            <circle cx="250" cy="10" r="4" fill="var(--good)"/>
+            <text x="10" y="44" font-size="8" fill="var(--muted)">08:00</text>
+            <text x="130" y="44" font-size="8" fill="var(--muted)">12:00</text>
+            <text x="250" y="44" font-size="8" fill="var(--muted)">Now</text>
+            <text x="290" y="44" font-size="8" fill="var(--muted)">17:00</text>
+          </svg>
+        </div>`;
+      } else if (tf === 'weekly') {
+        return `
+        <div class="facts" style="grid-template-columns:repeat(auto-fit,minmax(75px,1fr));margin-bottom:8px">
+          <div><small>Week quota</small><b>${esc(fmt.moneyShort(tr.target / 4))}</b></div>
+          <div><small>Actual booked</small><b class="good-text">${esc(fmt.moneyShort(tr.achieved / 3.5))}</b></div>
+          <div><small>Weekly pace</small><b class="good-text">108%</b></div>
+          <div><small>Calls met</small><b>26 of 25</b></div>
+        </div>
+        <div style="padding:8px;background:var(--surface-inset);border-radius:4px;border:1px solid var(--line-soft)">
+          <div style="display:flex;justify-content:space-between;font-size:11px;margin-bottom:4px">
+            <span class="muted">7-day call &amp; revenue run-rate</span>
+            <span class="good-text">+8% ahead</span>
+          </div>
+          <svg viewBox="0 0 300 65" style="width:100%;height:auto;overflow:visible" role="img" aria-label="7-day trajectory">
+            <line x1="10" y1="35" x2="290" y2="25" stroke="var(--muted)" stroke-width="1.5" stroke-dasharray="3,3"/>
+            <polyline points="20,44 65,38 110,32 155,26 200,20 245,16 290,10" fill="none" stroke="var(--accent)" stroke-width="2.5"/>
+            <circle cx="290" cy="10" r="4" fill="var(--good)"/>
+            <text x="20" y="60" text-anchor="middle" font-size="8" fill="var(--muted)">Mon</text>
+            <text x="65" y="60" text-anchor="middle" font-size="8" fill="var(--muted)">Tue</text>
+            <text x="110" y="60" text-anchor="middle" font-size="8" fill="var(--muted)">Wed</text>
+            <text x="155" y="60" text-anchor="middle" font-size="8" fill="var(--muted)">Thu</text>
+            <text x="200" y="60" text-anchor="middle" font-size="8" fill="var(--muted)">Fri</text>
+            <text x="245" y="60" text-anchor="middle" font-size="8" fill="var(--muted)">Sat</text>
+            <text x="290" y="60" text-anchor="middle" font-size="8" font-weight="700" fill="var(--accent)">Today</text>
+          </svg>
+        </div>`;
+      } else {
+        return `
+        <div class="facts" style="grid-template-columns:repeat(auto-fit,minmax(75px,1fr));margin-bottom:8px">
+          <div><small>Month target</small><b>${esc(fmt.moneyShort(tr.target))}</b></div>
+          <div><small>Current pace</small><b class="good-text">106% projected</b></div>
+          <div><small>Days left</small><b>8 days</b></div>
+          <div><small>Rank</small><b class="good-text">#2 in district</b></div>
+        </div>
+        <div style="padding:8px;background:var(--surface-inset);border-radius:4px;border:1px solid var(--line-soft)">
+          <div style="display:flex;justify-content:space-between;font-size:11px;margin-bottom:4px">
+            <span class="muted">Month-to-date trajectory vs target</span>
+            <span class="good-text">91.4% achieved</span>
+          </div>
+          <svg viewBox="0 0 300 45" style="width:100%;height:auto;overflow:visible" role="img" aria-label="Monthly burn-up">
+            <line x1="10" y1="35" x2="290" y2="15" stroke="var(--muted)" stroke-dasharray="3,3"/>
+            <polyline points="10,38 80,32 150,24 220,18 270,12" fill="none" stroke="var(--good)" stroke-width="2.5"/>
+            <circle cx="270" cy="12" r="4" fill="var(--good)"/>
+            <text x="10" y="44" font-size="8" fill="var(--muted)">Week 1</text>
+            <text x="150" y="44" font-size="8" fill="var(--muted)">Week 2</text>
+            <text x="270" y="44" font-size="8" font-weight="700" fill="var(--good)">Current</text>
+          </svg>
+        </div>`;
+      }
+    })()}
+
     <div style="display:flex;align-items:center;justify-content:space-between;margin-top:8px;padding-top:6px;border-top:1px solid var(--line-soft)">
       <small class="muted" style="display:flex;align-items:center;gap:4px">${icon('agent', 14)} AI Confidence: 88% avg</small>
       <small class="muted" style="display:flex;align-items:center;gap:4px">${icon('clock', 14)} ~19m prep saved</small>
     </div>
-    <small>${done} of ${ordered.length} ${esc(t('{visits}'))} recorded · ${self.actionsDone} actions done</small>
-    <div style="margin-top:10px;padding-top:8px;border-top:1px solid var(--line-soft);display:flex;justify-content:space-between;align-items:center">
+    <div style="margin-top:8px;padding-top:6px;border-top:1px solid var(--line-soft);display:flex;justify-content:space-between;align-items:center">
       <span class="small muted">${icon('clock', 12)} Shift finish: 17:15 (On track)</span>
       <button class="btn secondary sm" data-act="time-crunch" style="min-height:var(--tap);font-size:11px">${icon('route', 12)} Re-balance for time crunch</button>
     </div>
@@ -123,6 +209,10 @@ export function render(ctx) {
 }
 
 export const actions = {
+  'set-rep-tf': ({ ctx, data }) => {
+    (ctx.ui ||= {}).repTf = data.tf;
+  },
+
   'time-crunch': ({ ctx }) => {
     (ctx.ui ||= {}).todayToast = 'Re-balanced journey itinerary. Saved 35 minutes to preserve shift finish time.';
     if (ctx.m?.logAudit) ctx.m.logAudit('Visit Planner', 'Re-balanced itinerary for time crunch; deferred non-critical tasks');

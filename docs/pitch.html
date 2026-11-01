@@ -388,24 +388,34 @@
         content: `
           <div class="grid-2">
             <div class="card">
-              <h4>07:30 — Morning Brief &amp; Cutoffs</h4>
-              <p>Overnight brief ranks visits by value-at-risk. Displays 14:00 carrier cutoff countdown and dock receiving windows.</p>
-              <h4>09:15 — Store 1: 45s Rapid Blitz Mode</h4>
-              <p>Store manager is rushed. Alex triggers Blitz Mode: 1 priority display audit, replenishment reorder, digital signature in 45s.</p>
-              <h4>10:45 — Store 2: Segregated RMA Claim</h4>
-              <p>Damaged case inspected. Rep submits RMA claim slip with photo. Queued for AR approval (<$250 cap, no rogue ledger write).</p>
+              <h4>In-Store Workflow Milestones</h4>
+              <p><b>07:30 Briefing:</b> Value-at-risk ranking &amp; 14:00 carrier cutoff countdown.</p>
+              <p><b>09:15 Rapid Blitz Mode (45s):</b> 3-tap execution for rushed store managers.</p>
+              <p><b>10:45 Segregated RMA Claim:</b> Photo damage capture queued for AR approval (&lt;$250 cap).</p>
+              <p><b>11:30 Camera Attestation:</b> Authorized manifest sign-off protects rep score.</p>
+              <p><b>17:00 Noise-Suppressed Debrief:</b> Voice notes routed to corporate desks.</p>
             </div>
-            <div class="card">
-              <h4>11:30 — Store 3: Camera Exemption</h4>
-              <p>Customer bans photography. Alex activates KAM-authorized electronic manifest attestation. Compliance score 100% protected.</p>
-              <h4>14:00 — Store 4: Closed / Buyer Absent</h4>
-              <p>Doors locked. 1-tap SLA rescheduling within 14-day window. First reschedule score-protected; prevents rep penalty.</p>
-              <h4>17:00 — Debrief &amp; Dictation</h4>
-              <p>Noise-suppressed voice debrief. Overrides automatically routed to Pricing Desk and Supply Chain Allocation.</p>
+            <div class="card" style="background:var(--surface-subtle);border-left:4px solid var(--accent)">
+              <h4>Field Rep Analytics Hub (Against Targets)</h4>
+              <div style="display:flex;gap:4px;margin-bottom:8px">
+                <span class="pill accent">Daily</span>
+                <span class="pill good">Weekly</span>
+                <span class="pill warn">Monthly</span>
+              </div>
+              <ul style="font-size:12px;line-height:1.5">
+                <li><b>Daily View:</b> Intraday completion curve (08:00–17:00). Today visits (4 of 5), $18,400 opportunity addressed, pace on track.</li>
+                <li><b>Weekly View:</b> 7-day call trajectory line chart (Mon–Sat). Week quota pacing at 108% (+8% ahead of target).</li>
+                <li><b>Monthly View:</b> Month-to-date attainment progress bar ($38.4k of $42k target, 91.4% achieved, projected 106% finish).</li>
+              </ul>
+              <svg viewBox="0 0 280 40" style="width:100%;height:auto;margin-top:6px" role="img">
+                <line x1="10" y1="28" x2="270" y2="18" stroke="var(--muted)" stroke-dasharray="3,3"/>
+                <polyline points="10,32 55,28 100,24 145,18 190,14 235,10 270,6" fill="none" stroke="var(--accent)" stroke-width="2"/>
+                <circle cx="270" cy="6" r="3" fill="var(--good)"/>
+              </svg>
             </div>
           </div>
         `,
-        notes: "Alex's day is frictionless. No 15-minute questionnaires. When managers are in a hurry, Blitz Mode executes in 45 seconds. When stores ban cameras, an authorized attestation protects Alex's score."
+        notes: "Alex's day is supported by an analytics hub toggling between Daily intraday pace, Weekly 7-day quota trajectory, and Monthly projected attainment."
       },
       {
         eyebrow: "Persona 2 · District Field Manager",
@@ -413,57 +423,61 @@
         content: `
           <div class="grid-2">
             <div class="card">
-              <h4>Mid-Day Contingency Dispatch</h4>
-              <p>Delivery truck breaks down on Route 02-B at 11:45. Jordan triggers <b>Mid-Day Route Re-Balance</b>:</p>
-              <ul>
-                <li>Solver identifies 3 unvisited high-value stops ($4,200).</li>
-                <li>Intelligently redistributes stops to active nearby reps within 12 km.</li>
-                <li>Preserves customer dock receiving windows without overtime.</li>
-              </ul>
+              <h4>Supervisory Governance &amp; Contingency</h4>
+              <p><b>Mid-Day Route Re-Balance:</b> Automatically redistributes stops from incapacitated vehicles to nearby reps within 12 km.</p>
+              <p><b>Anti-Gaming Queue:</b> Flags Buyer Absent outliers (>2x median) and rubber-stamped orders (&lt;5s dwell).</p>
+              <p><b>Works Council Safe Mode:</b> Telemetry anonymized into territory pseudonyms per German BetrVG §87 / French CSE.</p>
             </div>
-            <div class="card">
-              <h4>Anti-Gaming Supervisory Guardrails</h4>
-              <p>Jordan's supervisory queue automatically detects gaming:</p>
-              <ul>
-                <li><b>Buyer Absent Outlier:</b> Flags accounts exceeding 2x district median.</li>
-                <li><b>Rubber-Stamp Orders:</b> Flags orders with &lt;5s dwell for variance review.</li>
-                <li><b>SLA Chaining Guard:</b> Second reschedule in 14 days requires DFM approval.</li>
+            <div class="card" style="background:var(--surface-subtle);border-left:4px solid var(--good)">
+              <h4>District Manager Analytics Hub</h4>
+              <div style="display:flex;gap:4px;margin-bottom:8px">
+                <span class="pill accent">Daily</span>
+                <span class="pill good">Weekly</span>
+                <span class="pill warn">Monthly</span>
+              </div>
+              <ul style="font-size:12px;line-height:1.5">
+                <li><b>Daily View:</b> District execution pace (54 of 68 calls, 79.4% met), 3 exceptions open, 42 min SLA turnaround.</li>
+                <li><b>Weekly View:</b> Week-to-date strike rate vs plan across 14 reps (105.2% target pace, 3.8% exception rate).</li>
+                <li><b>Monthly View:</b> 12-week district quota attainment ($1.42M actual vs $1.35M target, +$70k ahead of plan).</li>
               </ul>
+              <svg viewBox="0 0 280 40" style="width:100%;height:auto;margin-top:6px" role="img">
+                <line x1="10" y1="28" x2="270" y2="16" stroke="var(--muted)" stroke-dasharray="3,3"/>
+                <polyline points="10,32 50,28 100,24 150,18 200,12 240,8 270,4" fill="none" stroke="var(--good)" stroke-width="2"/>
+                <circle cx="270" cy="4" r="3" fill="var(--good)"/>
+              </svg>
             </div>
-          </div>
-          <div class="card" style="margin-top:14px;background:var(--surface-subtle)">
-            <h4>Works Council Safe Mode (German BetrVG §87 / French CSE)</h4>
-            <p>One-click toggle anonymizes rep IDs in telemetry into territory pseudonyms, presenting aggregate district metrics to comply with European labor co-determination laws.</p>
           </div>
         `,
-        notes: "Jordan manages exceptions, not forms. Mid-day truck breakdown? The solver rebalances the stops. Reps gaming 'Buyer Absent'? The anomaly queue flags it. Works council requirements? Safe mode anonymizes telemetry."
+        notes: "Jordan uses the District Analytics Hub to toggle between today's call completion curve, weekly strike rates, and the 12-week quota burn-up line chart."
       },
       {
         eyebrow: "Persona 3 · Key Account Manager & Ops",
         title: "A Day in the Life: Samira Khan (KAM & Ops Leader)",
         content: `
-          <div class="grid-3">
+          <div class="grid-2">
             <div class="card">
-              <h4>Multi-Tier Entity Model</h4>
-              <p>Explicitly separates Payer HQ (contract terms) from Physical Delivery Sites (dock hours) and Wholesaler Depots (carrier cutoff).</p>
+              <h4>HQ-to-Field Commercial Strategy</h4>
+              <p><b>Multi-Tier Model:</b> Payer HQ terms mapped to 14 physical delivery sites and distributor wholesale beats.</p>
+              <p><b>Rebate Guardrails:</b> Alerts field before proposed orders inadvertently trip 84% volume rebate liability thresholds.</p>
+              <p><b>Weight Tuner:</b> Calibrates Distribution vs Promotion vs Voids weights with instant territory re-ranking.</p>
             </div>
-            <div class="card">
-              <h4>JBP &amp; Trade Promotions</h4>
-              <p>Tracks co-op marketing budgets, performance allowances, volume rebate brackets, and executive JBP charter exports.</p>
-            </div>
-            <div class="card">
-              <h4>Rebate-Tier Guardrails</h4>
-              <p>Alerts reps when proposed orders reach 84% of quarterly rebate brackets, protecting gross margins against premature accruals.</p>
-            </div>
-          </div>
-          <div class="grid-2" style="margin-top:14px">
-            <div class="card">
-              <h4>Commercial Weight Tuner</h4>
-              <p>Ops leaders calibrate execution dimension weights (Distribution vs Promotion vs Range/Voids) with live territory score re-ranking.</p>
-            </div>
-            <div class="card">
-              <h4>CSV Ingestion Workbench</h4>
-              <p>Bulk upload prospect customer lists with automatic schema validation and ingestion into the simulation engine.</p>
+            <div class="card" style="background:var(--surface-subtle);border-left:4px solid var(--accent)">
+              <h4>Key Account JBP Analytics Hub</h4>
+              <div style="display:flex;gap:4px;margin-bottom:8px">
+                <span class="pill accent">Daily</span>
+                <span class="pill good">Weekly</span>
+                <span class="pill warn">Monthly</span>
+              </div>
+              <ul style="font-size:12px;line-height:1.5">
+                <li><b>Daily View:</b> 14 branch sites delivery &amp; dock dispatch compliance (100% on-time receipt).</li>
+                <li><b>Weekly View:</b> Wholesale sell-in vs sell-out POS scan tracking ($28.5k/wk, 96% scan match).</li>
+                <li><b>Monthly View:</b> Multi-month Joint Business Plan quarterly trajectory ($320k commitment, 94% pacing).</li>
+              </ul>
+              <svg viewBox="0 0 280 40" style="width:100%;height:auto;margin-top:6px" role="img">
+                <line x1="10" y1="26" x2="270" y2="14" stroke="var(--muted)" stroke-dasharray="3,3"/>
+                <polyline points="10,32 75,26 140,20 205,14 270,8" fill="none" stroke="var(--accent)" stroke-width="2"/>
+                <circle cx="270" cy="8" r="3" fill="var(--good)"/>
+              </svg>
             </div>
           </div>
         `,

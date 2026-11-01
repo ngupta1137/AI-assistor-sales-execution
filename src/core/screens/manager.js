@@ -99,16 +99,90 @@ export function render(ctx) {
     </div>
   </section>
   <section class="card tight" id="ai-impact" style="margin-bottom:var(--s4)">
-    <div class="section-head" style="margin-bottom:6px">
-      <h3>AI value realization</h3>
-      ${pill('Live territory telemetry', 'good')}
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;flex-wrap:wrap;gap:6px">
+      <div>
+        <h3 style="margin:0">District analytics &amp; quota pace</h3>
+        <small class="muted">Live operational performance vs commitments</small>
+      </div>
+      <div class="seg-ctl" role="group" aria-label="District analytics timeframe">
+        <button class="seg ${(ctx.ui?.mgrTf || 'monthly') === 'daily' ? 'on' : ''}" data-act="set-mgr-tf" data-tf="daily" style="min-height:var(--tap);min-width:44px;font-size:11px">Daily</button>
+        <button class="seg ${ctx.ui?.mgrTf === 'weekly' ? 'on' : ''}" data-act="set-mgr-tf" data-tf="weekly" style="min-height:var(--tap);min-width:44px;font-size:11px">Weekly</button>
+        <button class="seg ${(ctx.ui?.mgrTf || 'monthly') === 'monthly' ? 'on' : ''}" data-act="set-mgr-tf" data-tf="monthly" style="min-height:var(--tap);min-width:44px;font-size:11px">Monthly</button>
+      </div>
     </div>
-    <div class="facts" style="grid-template-columns:repeat(auto-fit,minmax(80px,1fr))">
-      <div><small>Time saved</small><b>~19m</b><small>per call</small></div>
-      <div><small>AI adherence</small><b>88%</b><small>accepted</small></div>
-      <div><small>Opportunity addressed</small><b class="money">${esc(fmt.moneyShort(self.estimated || 18400))}</b><small>closed</small></div>
-      <div><small>Model precision</small><b>94%</b><small>calibrated</small></div>
-    </div>
+
+    ${(() => {
+      const tf = ctx.ui?.mgrTf || 'monthly';
+      if (tf === 'daily') {
+        return `
+        <div class="facts" style="grid-template-columns:repeat(auto-fit,minmax(80px,1fr));margin-bottom:8px">
+          <div><small>District calls</small><b>54 of 68</b></div>
+          <div><small>Open exceptions</small><b class="good-text">3 items</b></div>
+          <div><small>SLA turnaround</small><b>42 min</b></div>
+          <div><small>Time saved</small><b>~19m/call</b></div>
+        </div>
+        <div style="padding:8px;background:var(--surface-inset);border-radius:4px;border:1px solid var(--line-soft)">
+          <div style="display:flex;justify-content:space-between;font-size:11px;margin-bottom:4px">
+            <span class="muted">Today team visit execution pace</span>
+            <span class="good-text">79.4% completed</span>
+          </div>
+          <svg viewBox="0 0 320 40" style="width:100%;height:auto;overflow:visible" role="img" aria-label="Daily team pace">
+            <line x1="10" y1="28" x2="310" y2="28" stroke="var(--line-soft)" stroke-width="1.5"/>
+            <polyline points="10,28 80,24 160,18 240,12 280,8" fill="none" stroke="var(--good)" stroke-width="2.5"/>
+            <circle cx="280" cy="8" r="4" fill="var(--good)"/>
+            <text x="10" y="38" font-size="8" fill="var(--muted)">Morning</text>
+            <text x="160" y="38" font-size="8" fill="var(--muted)">Mid-day</text>
+            <text x="280" y="38" font-size="8" fill="var(--muted)">Now (15:00)</text>
+          </svg>
+        </div>`;
+      } else if (tf === 'weekly') {
+        return `
+        <div class="facts" style="grid-template-columns:repeat(auto-fit,minmax(80px,1fr));margin-bottom:8px">
+          <div><small>Weekly quota</small><b>${esc(fmt.moneyShort(1350000 / 12))}</b></div>
+          <div><small>Actual booked</small><b class="good-text">${esc(fmt.moneyShort(1420000 / 12))}</b></div>
+          <div><small>Adherence</small><b class="good-text">88.4%</b></div>
+          <div><small>Exception rate</small><b>3.8%</b></div>
+        </div>
+        <div style="padding:8px;background:var(--surface-inset);border-radius:4px;border:1px solid var(--line-soft)">
+          <div style="display:flex;justify-content:space-between;font-size:11px;margin-bottom:4px">
+            <span class="muted">Week-to-date strike rate vs plan</span>
+            <span class="good-text">105.2% target</span>
+          </div>
+          <svg viewBox="0 0 320 50" style="width:100%;height:auto;overflow:visible" role="img" aria-label="Weekly strike rate">
+            <line x1="20" y1="30" x2="300" y2="20" stroke="var(--muted)" stroke-dasharray="3,3"/>
+            <polyline points="20,38 75,32 135,26 195,20 255,16 300,10" fill="none" stroke="var(--accent)" stroke-width="2.5"/>
+            <circle cx="300" cy="10" r="4" fill="var(--good)"/>
+            <text x="20" y="46" font-size="8" fill="var(--muted)">Mon</text>
+            <text x="135" y="46" font-size="8" fill="var(--muted)">Wed</text>
+            <text x="255" y="46" font-size="8" fill="var(--muted)">Fri</text>
+            <text x="300" y="46" font-size="8" font-weight="700" fill="var(--good)">Current</text>
+          </svg>
+        </div>`;
+      } else {
+        return `
+        <div class="facts" style="grid-template-columns:repeat(auto-fit,minmax(80px,1fr));margin-bottom:8px">
+          <div><small>Quota target</small><b>${esc(fmt.moneyShort(1350000))}</b></div>
+          <div><small>Actual booked</small><b class="good-text">${esc(fmt.moneyShort(1420000))}</b></div>
+          <div><small>Attainment</small><b class="good-text">105.2%</b></div>
+          <div><small>AI attribution</small><b class="money">+${esc(fmt.moneyShort(184200))}</b></div>
+        </div>
+        <div style="padding:8px;background:var(--surface-inset);border-radius:4px;border:1px solid var(--line-soft)">
+          <div style="display:flex;justify-content:space-between;font-size:11px;margin-bottom:4px">
+            <span class="muted">12-week district quota attainment trajectory</span>
+            <span class="good-text">+$70k ahead</span>
+          </div>
+          <svg viewBox="0 0 320 60" style="width:100%;height:auto;overflow:visible" role="img" aria-label="12-week district quota attainment">
+            <line x1="20" y1="45" x2="300" y2="25" stroke="var(--muted)" stroke-width="1.5" stroke-dasharray="4,4"/>
+            <polyline points="20,52 45,48 70,45 95,40 120,36 145,30 170,26 195,22 220,18 245,14 270,12 300,8" fill="none" stroke="var(--good)" stroke-width="2.5"/>
+            <circle cx="300" cy="8" r="4" fill="var(--good)"/>
+            <text x="20" y="58" font-size="8" fill="var(--muted)">W1</text>
+            <text x="95" y="58" font-size="8" fill="var(--muted)">W4</text>
+            <text x="195" y="58" font-size="8" fill="var(--muted)">W8</text>
+            <text x="300" y="58" font-size="8" font-weight="700" fill="var(--good)">W12</text>
+          </svg>
+        </div>`;
+      }
+    })()}
     <div class="btn-row" style="margin-top:10px;gap:8px;flex-wrap:wrap">
       <button class="btn secondary sm" data-act="open-qbr" style="min-height:var(--tap);flex:1;min-width:140px">${icon('note', 14)} Executive QBR report</button>
       <button class="btn secondary sm" data-act="toggle-simulator" style="min-height:var(--tap);flex:1;min-width:140px">${icon('route', 14)} What-if simulator</button>
@@ -331,6 +405,10 @@ export function exportQbrCsv(ctx) {
 }
 
 export const actions = {
+  'set-mgr-tf': ({ ctx, data }) => {
+    (ctx.ui ||= {}).mgrTf = data.tf;
+  },
+
   'toggle-reassign': ({ ctx }) => {
     (ctx.ui ||= {}).showReassign = !ctx.ui.showReassign;
   },
