@@ -193,6 +193,18 @@ export function render(ctx, [accountId]) {
       <button class="btn secondary sm" data-act="log-competitor-intel" data-acc="${esc(a.name)}" style="min-height:var(--tap);width:100%">${icon('flag', 14)} Log competitor field activity</button>
     </div>
   </details>
+  <details class="fold" id="acc-assets"><summary>Field equipment and asset verification<span class="sum-end">1 asset</span></summary>
+    <div style="padding:var(--s2) 0">
+      <div class="facts" style="margin-bottom:8px;grid-template-columns:repeat(auto-fit,minmax(80px,1fr))">
+        <div><small>Asset tag</small><b>EQ-9821</b></div>
+        <div><small>Asset type</small><b>Branded display unit</b></div>
+        <div><small>Condition</small><b class="good-text">Operational</b></div>
+        <div><small>Purity</small><b class="good-text">96% compliant</b></div>
+      </div>
+      <p class="small muted" style="margin-bottom:8px">Company-owned commercial equipment assigned to this account. Purity audit verified against contractual standards.</p>
+      <button class="btn secondary sm" data-act="log-asset-audit" data-id="${a.id}" style="min-height:var(--tap);width:100%">${icon('wrench', 14)} Log asset inspection and maintenance check</button>
+    </div>
+  </details>
   <details class="fold" id="acc-agreement"${ctx.ui?.agreementOpen === a.id ? ' open' : ''}>
     <summary>Commercial agreement and credit terms<span class="sum-end">Tier ${a.tier}</span></summary>
     <div style="padding:var(--s2) 0">
@@ -235,6 +247,11 @@ export function render(ctx, [accountId]) {
 }
 
 export const actions = {
+  'log-asset-audit': ({ ctx, data }) => {
+    const a = ctx.data.byId[data.id];
+    (ctx.ui ||= {}).accountToast = `Asset inspection EQ-9821 verified for ${a ? a.name : 'account'}.`;
+    if (ctx.m?.logAudit) ctx.m.logAudit('Asset Management', `Verified operating status and 96% purity for asset EQ-9821 at ${a ? a.name : data.id}`);
+  },
   'download-dossier': ({ ctx, data }) => {
     const a = ctx.data.byId[data.id];
     const fmt = ctx.fmt;

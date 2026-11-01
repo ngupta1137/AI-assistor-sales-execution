@@ -95,6 +95,14 @@ export function render(ctx, [accountId]) {
 }
 
 export const actions = {
+  'simulate-debrief': ({ ctx }) => {
+    (ctx.ui ||= {}).debriefParsed = true;
+  },
+  'commit-debrief': ({ ctx, data }) => {
+    (ctx.ui ||= {}).recapToast = 'Voice debrief commitments and outcomes committed to CRM timeline.';
+    ctx.ui.debriefParsed = false;
+    if (ctx.m?.logAudit) ctx.m.logAudit('Voice Debrief', `Committed AI-parsed post-call debrief for ${ctx.data.byId[data.id]?.name || ''}`);
+  },
   'set-sentiment': ({ ctx, data }) => {
     (ctx.ui ||= {}).custSentiment = data.val;
     if (ctx.m?.logAudit) ctx.m.logAudit('CRM Connector', `Recorded customer sentiment: ${data.val}`);
