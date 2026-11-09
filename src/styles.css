@@ -531,3 +531,106 @@ details.evi > summary { min-height: var(--tap); }
 .fold-sub summary::-webkit-details-marker {
   display: none;
 }
+
+/* ---- Governance Floating Controls (G11, Lab, T7) ---- */
+.try-case-btn {
+  position: fixed;
+  left: var(--s4, 16px);
+  bottom: 140px;
+  z-index: 25;
+  display: inline-flex;
+  align-items: center;
+  gap: var(--s2, 6px);
+  min-height: var(--tap, 44px);
+  padding: 0 var(--s3, 12px);
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: var(--surface);
+  color: var(--ink);
+  font-weight: 600;
+  font-size: var(--text-sm, 12px);
+  box-shadow: var(--shadow-2);
+  cursor: pointer;
+}
+.try-case-btn:hover {
+  background: var(--surface-subtle);
+}
+
+.lab-btn {
+  position: fixed;
+  left: var(--s4, 16px);
+  bottom: 84px;
+  z-index: 25;
+  display: inline-flex;
+  align-items: center;
+  gap: var(--s2, 6px);
+  min-height: var(--tap, 44px);
+  padding: 0 var(--s3, 12px);
+  border: 1px solid var(--accent);
+  border-radius: 999px;
+  background: var(--surface);
+  color: var(--accent);
+  font-weight: 600;
+  font-size: var(--text-sm, 12px);
+  box-shadow: var(--shadow-2);
+  cursor: pointer;
+}
+.lab-btn:hover {
+  background: var(--accent-soft);
+}
+
+@media (max-width: 360px) {
+  .try-case-btn {
+    width: 40px;
+    height: 40px;
+    min-height: 40px;
+    padding: 0;
+    justify-content: center;
+    border-radius: 50%;
+  }
+  .try-case-btn .btn-text {
+    display: none;
+  }
+  .lab-btn {
+    width: 40px;
+    height: 40px;
+    min-height: 40px;
+    padding: 0;
+    justify-content: center;
+    border-radius: 50%;
+  }
+  .lab-btn .btn-text {
+    display: none;
+  }
+}
+
+/* Text Size Stepper Scaling (G13) */
+body.text-size-sm {
+  font-size: 14px;
+}
+body.text-size-md {
+  font-size: 16px;
+}
+body.text-size-lg {
+  font-size: 18px;
+}
+
+/* Simple View (G13) */
+.simple-view .rule-chips,
+.simple-view .evi,
+.simple-view .record-kept,
+.simple-view .flag-link {
+  display: none !important;
+}
+
+/* Skeleton Loading Shimmer (G14) */
+@keyframes shimmer {
+  0% { opacity: 0.4; }
+  50% { opacity: 0.85; }
+  100% { opacity: 0.4; }
+}
+.skeleton-shimmer {
+  background: var(--line-soft);
+  border-radius: 4px;
+  animation: shimmer 1.5s ease-in-out infinite;
+}

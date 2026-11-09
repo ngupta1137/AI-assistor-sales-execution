@@ -3,11 +3,13 @@
 
 import assistant from './industrial.assistant.js';
 import companion from './industrial.companion.js';
+import governance from './industrial.governance.js';
 
 /** @type {import('../schema.js').IndustryPack} */
 export default {
   ...assistant,
   ...companion,
+  ...governance,
   id: 'industrial',
   name: 'Industrial supplies',
   tagline: 'Plants, machine shops, contractors and facilities teams',

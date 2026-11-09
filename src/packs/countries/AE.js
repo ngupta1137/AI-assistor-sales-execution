@@ -3,6 +3,9 @@
 /** @type {import('../schema.js').CountryPack} */
 export default {
   id: 'AE',
+  market: "United Arab Emirates",
+  localFormats: { number: '1,234.56', date: 'YYYY-MM-DD', currencySymbol: "AED" },
+  termMap: [{"local":"baqala","canonical":"independent shop","confirmed":true},{"local":"mini mart","canonical":"convenience store","confirmed":true},{"local":"hypermarket","canonical":"supermarket","confirmed":true},{"local":"mall kiosk","canonical":"retail branch","confirmed":true}],
   name: 'United Arab Emirates',
   locale: 'en-AE',
   currency: 'AED',

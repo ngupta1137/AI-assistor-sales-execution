@@ -3,11 +3,13 @@
 
 import assistant from './insurance.assistant.js';
 import companion from './insurance.companion.js';
+import governance from './insurance.governance.js';
 
 /** @type {import('../schema.js').IndustryPack} */
 export default {
   ...assistant,
   ...companion,
+  ...governance,
   id: 'insurance',
   name: 'Insurance distribution',
   tagline: 'Independent agencies, brokers and branch partners',

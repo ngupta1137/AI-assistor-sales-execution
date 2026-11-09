@@ -3,6 +3,9 @@
 /** @type {import('../schema.js').CountryPack} */
 export default {
   id: 'NZ',
+  market: "New Zealand",
+  localFormats: { number: '1,234.56', date: 'YYYY-MM-DD', currencySymbol: "$" },
+  termMap: [{"local":"dairy","canonical":"convenience store","confirmed":true},{"local":"four square","canonical":"independent shop","confirmed":true},{"local":"superette","canonical":"supermarket","confirmed":true},{"local":"commercial centre shop","canonical":"retail branch","confirmed":true}],
   name: 'New Zealand',
   locale: 'en-NZ',
   currency: 'NZD',

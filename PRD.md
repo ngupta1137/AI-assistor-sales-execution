@@ -240,6 +240,110 @@ The Companion is the field enabler: one place where a rep and a manager meet the
 
 Pack content: each industry pack supplies `companion` (roles, expense categories, certifications, learning modules, knowledge entries, pitch and value story templates, sample activations, guardrails with blocked claim patterns). Each country pack supplies public holidays, leave types, sample expense limits, mileage unit, pay slip label and temperature unit.
 
+### 9.7 Enterprise Governance on Main Screens (G1 to G14)
+
+Governance features appear directly on main user screens so prospects and customers see policy guardrails without opening a simulation lab.
+
+| ID | Requirement | Priority |
+|---|---|---|
+| G1 | Seven deterministic outcomes on every suggestion card: Suggest, Needs clarification, Not enough evidence, Conflict, Data is stale, Not allowed for this role, Compliance escalation. Non-Suggest cards feature clear next step directives. Happy path is preserved on first two cards | P0 |
+| G2 | Status chips row (Approved, In date, Applies here, Rule version, Legal approved) and modal Rule Drawer showing owner, approver, effective dates, scope, never-decides limits, and verification checks | P0 |
+| G3 | Context bar on Today and {account} screens specifying market, segment, channel, and rep role applicability | P0 |
+| G4 | Flag recommendation sheet with reason chips (Not true here, Out of date, Wrong wording, Not allowed, Other), optional note, card status chip, and gap backlog recording | P0 |
+| G5 | Acting-as bar with role permissions summary, link to full RBAC matrix modal, unauthorized screen navigation denial guard, and Denial audit event logging | P0 |
+| G6 | Record kept immutable audit receipt on suggestion trace cards detailing rule version, data source and age, deterministic outcome, model division of labor, audited viewer, and audit event ID | P0 |
+| G7 | Exact-wording gate for regulated items with mandatory reading confirmation checkbox that unlocks execution actions and records a Decision audit event | P0 |
+| G8 | Season readiness banner for supervisory roles displaying completion progress and non-ready items sourced from the active industry governance pack | P0 |
+| G9 | Rule health screen with registry table, sparklines, health status chips, and retirement workflow requiring named approver and mandatory business rationale | P0 |
+| G10 | Audit trail screen with session event filtering, causal decision replay stepper (G10a), and as-of historical rule version lookup (G10b) | P0 |
+| G11 | Floating Try a Case bottom-left panel with 8 deterministic test cases, card jump, drawer trigger, and state reset | P0 |
+| G12 | How this works 3-step guide modal and comprehensive visual chip legend | P0 |
+| G13 | Accessibility controls: font size stepper (A, A+, A++), simple view toggle, and supervisor escalation action creating live exceptions | P0 |
+| G14 | Screen states simulator in presenter menu demonstrating Loading shimmer skeleton, Empty state with action, and Error state with support code | P0 |
+
+### 9.8 Autonomous Agent Fleet Architecture (A1 to A6)
+
+Autonomous agents operate under explicit architectural contracts and inspectable runtime budgets.
+
+| ID | Requirement | Priority |
+|---|---|---|
+| A1 | Five-layer architecture view (Experiences, Orchestration, Product agents, Interfaces, Shared foundations) with interactive contract modals | P0 |
+| A2 | Visit trace inspector with visit time budget slider (15 to 90 min), knapsack value-per-minute action selection, tool call ledger, and JSON trace export | P0 |
+| A3 | Gap lifecycle stepper from discovery to cash, featuring regulated credit/price hold gates and supervisor unlock approval | P0 |
+| A4 | Tools and guardrails catalog with read/write classification, role permissions, and blocked raw write security simulation | P0 |
+| A5 | Account 360 feature profile showing producing capability, source system, data age, stale threshold slider, and refresh action | P0 |
+| A6 | Account and visit memory timeline with retention expiry slider (30 to 180 days), Do not use toggle, Forget action, and note capture form | P0 |
+
+### 9.9 Quality, Evaluation, and Release Gate System (E1 to E8)
+
+Enterprise testing hierarchy ensures reliability across all industries and markets prior to deployment.
+
+| ID | Requirement | Priority |
+|---|---|---|
+| E1 | Six-layer testing hierarchy table detailing scope, frequencies, gate criteria, and responsible teams across all suites | P0 |
+| E2 | Golden suite testing with canonical case registry and strict pass rule (100% critical cases, at least 80% non-critical cases) | P0 |
+| E3 | Blind hold-out set evaluation comparing team development metrics with blind sets, enforcing an automated 5 percentage point gap limit | P0 |
+| E4 | Five-dimension evaluation gate (Safety, Accuracy, Coverage, Latency, Stability) comparing current against candidate builds with threshold sliders | P0 |
+| E5 | Regression table fed from live test-counts.json recording assertion counts across 20 industries and 11 countries | P0 |
+| E6 | Error rate budgets per 1,000 suggestions with owner routing, breach alerts, and interactive breach simulation | P0 |
+| E7 | Historical failures log detailing symptoms, causal root causes, corrective remedies, regression test IDs, and slice metrics | P0 |
+| E8 | Composite release gate summary evaluating all sub-gates with Go, Fix, or Stop status and markdown sign-off export | P0 |
+
+### 9.10 Portfolio Lab and Simulation Suite (L-AB to L-DEC)
+
+Interactive simulation lab enables commercial and technical stakeholders to validate model behavior and economic impact safely.
+
+| ID | Requirement | Priority |
+|---|---|---|
+| L-AB | A/B testing simulation with lift, sample size, and noise sliders and pre-registered 95% confidence rollout gate | P0 |
+| L-ROI | Enterprise ROI calculator with capability overlap discount slider and net return modeling | P0 |
+| L-MAT | Market maturity diagnostic mapping emerging, developing, and established markets to proxy vs full execution | P0 |
+| L-CH | Field adoption tracking with rep protection notice treating overrides as learning signals | P0 |
+| L-EV | Quality eval gate mirror accessible within Portfolio Lab overlay | P0 |
+| L-RG | Regression test counts table mirror within Portfolio Lab overlay | P0 |
+| L-ER | Operational error rate budgets mirror within Portfolio Lab overlay | P0 |
+| L-FL | Historical failures log mirror within Portfolio Lab overlay | P0 |
+| L-GATE | Composite release clearance gate mirror within Portfolio Lab overlay | P0 |
+| L-US | Real-time session usage and click telemetry counters with reset and export actions | P0 |
+| L-OUT | Outcomes precedence simulator testing winning deterministic outcome from toggled safety conditions | P0 |
+| L-PV | Candidate rule authority inspector with scope matching and edit drift monitoring | P0 |
+| L-RV | Maker-checker policy review queue with side-by-side wording diff and dual sign-off actions | P0 |
+| L-RT | Interactive RBAC rights simulator showing permitted vs denied decisions with policy explanation | P0 |
+| L-GP | Field gap backlog ticket inspection with claim workflow and canonical terminology confirmation | P0 |
+| L-CD | Card sandbox providing instant triggers for all 7 deterministic governance states | P0 |
+| L-TR | Worked suggestion trace showing rule choice, boundary checks, and model explanation | P0 |
+| L-AG | Direct navigation connecting Portfolio Lab to agent fleet views | P0 |
+| L-PM | Direct navigation connecting Portfolio Lab to Product Manager views | P0 |
+| L-DEC | Three-tier model gateway architecture distinguishing free deterministic rules from lightweight and frontier LLMs | P0 |
+
+### 9.11 Product Manager Operations (P1 to P4)
+
+Executive and operational views for measuring value capture, policy lifecycle, fairness, and inference unit economics.
+
+| ID | Requirement | Priority |
+|---|---|---|
+| P1 | Metric tree sensitivity model (Reach x Acceptance x Completion x Uplift) with what-if sliders and weakest-lever diagnostic highlighting | P0 |
+| P2 | Decision ledger by market with status filtering (production, pilot, rollback) and live session logging | P0 |
+| P3 | Demographic parity and fairness monitor across account tiers and territories with adjustable threshold slider and disparity alerts | P0 |
+| P4 | Model tier inference economics, sub-200ms latency budget breakdown, and monthly suggestion budget cap warning | P0 |
+
+### 9.12 Automated Verification and Parity Suites (T1 to T10)
+
+Automated verification harness ensuring complete test coverage, deterministic execution, and UI safety.
+
+| ID | Requirement | Priority |
+|---|---|---|
+| T1 | Static pack validator verifying all 20 industry governance packs, 11 country operating packs, and schema compliance | P0 |
+| T2 | Screen sweep test across all persona x industry x country combinations verifying zero unhandled exceptions and tap target compliance | P0 |
+| T3 | Governance behavior automated tests verifying 7 outcomes, rule drawer, exact wording gate, flags, and navigation denial | P0 |
+| T4 | Agent fleet automated tests verifying 5-layer diagram, visit trace budget knapsack slider, gap stepper hold unlock, and memory expiry | P0 |
+| T5 | Quality and release gate automated tests verifying golden suite pass rule, blind set gap limit, eval gate tolerance, and release clearance | P0 |
+| T6 | Product manager views automated tests verifying metric tree sensitivity calculations, decision log status filtering, and budget alerts | P0 |
+| T7 | Floating control collision test verifying pairwise separation between Try a Case, Lab, Ask AI, and Bottom Nav across viewports | P0 |
+| T8 | Deterministic repeatability test verifying identical suggestion outcomes and audit receipts across reloads | P0 |
+| T9 | Parity verification test confirming 100% implementation of specification requirements across all packs | P0 |
+| T10 | Automated test counts generator producing docs/test-counts.json with real execution numbers | P0 |
+
 ## 10. AI behaviour and guardrails
 
 - Every recommendation carries a reason, a value estimate, an effort estimate and a confidence level. Low confidence is said plainly.

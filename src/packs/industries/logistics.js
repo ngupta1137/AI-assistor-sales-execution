@@ -3,11 +3,13 @@
 
 import assistant from './logistics.assistant.js';
 import companion from './logistics.companion.js';
+import governance from './logistics.governance.js';
 
 /** @type {import('../schema.js').IndustryPack} */
 export default {
   ...assistant,
   ...companion,
+  ...governance,
   id: 'logistics',
   name: 'Logistics and courier services',
   tagline: 'E-commerce sellers, SMEs and distributors',

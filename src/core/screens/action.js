@@ -163,13 +163,13 @@ export function render(ctx, [id]) {
   </section>
   <section class="card tight" id="vision-diagnostics" style="margin-top:var(--s3)">
     <div class="section-head" style="margin-bottom:6px">
-      <h3>AI planogram and display vision diagnostics</h3>
+      <h3>AI layout and display vision diagnostics</h3>
       ${pill(ui?.visionChecked ? 'Vision verified' : 'Pre-flight check', ui?.visionChecked ? 'good' : 'info')}
     </div>
     <p class="small muted" style="margin-bottom:8px">Automated edge computer-vision pre-check on captured display evidence before departure.</p>
     <div class="facts" style="grid-template-columns:repeat(auto-fit,minmax(75px,1fr));margin-bottom:8px">
       <div><small>Clarity (Sample)</small><b class="good-text">98% clear</b></div>
-      <div><small>Planogram (Sample)</small><b class="good-text">92% match</b></div>
+      <div><small>Layout match (Sample)</small><b class="good-text">92% match</b></div>
       <div><small>Facings</small><b>6 of 6</b></div>
       <div><small>Price tag</small><b class="good-text">Verified</b></div>
     </div>
@@ -274,8 +274,8 @@ export const actions = {
 
   'run-vision-check': ({ ctx }) => {
     (ctx.ui ||= {}).visionChecked = true;
-    ctx.ui.visionToast = 'Planogram compliance score 92%: Display alignment verified.';
-    if (ctx.m?.logAudit) ctx.m.logAudit('Display Vision', 'Verified 92% planogram compliance and 6 eye-level facings via edge vision check');
+    ctx.ui.visionToast = 'Layout compliance score 92%: Display alignment verified.';
+    if (ctx.m?.logAudit) ctx.m.logAudit('Display Vision', 'Verified 92% layout compliance and 6 eye-level facings via edge vision check');
   },
 
   'schedule-followup': ({ ctx, data }) => {

@@ -3,6 +3,9 @@
 /** @type {import('../schema.js').CountryPack} */
 export default {
   id: 'DE',
+  market: "Germany",
+  localFormats: { number: '1,234.56', date: 'YYYY-MM-DD', currencySymbol: "€" },
+  termMap: [{"local":"Spati","canonical":"convenience store","confirmed":true},{"local":"Kiosk","canonical":"independent shop","confirmed":true},{"local":"Verbrauchermarkt","canonical":"supermarket","confirmed":true},{"local":"Gewerbegebiet Filiale","canonical":"retail branch","confirmed":true}],
   name: 'Germany',
   locale: 'de-DE',
   currency: 'EUR',

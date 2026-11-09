@@ -3,6 +3,9 @@
 /** @type {import('../schema.js').CountryPack} */
 export default {
   id: 'IN',
+  market: "India",
+  localFormats: { number: '1,234.56', date: 'YYYY-MM-DD', currencySymbol: "₹" },
+  termMap: [{"local":"kirana","canonical":"independent shop","confirmed":true},{"local":"pan shop","canonical":"convenience store","confirmed":true},{"local":"departmental store","canonical":"supermarket","confirmed":true},{"local":"bazaar outlet","canonical":"retail branch","confirmed":true}],
   name: 'India',
   locale: 'en-IN',
   currency: 'INR',

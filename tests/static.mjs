@@ -6,7 +6,7 @@ import { readFile, readdir } from 'node:fs/promises';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { INDUSTRIES, COUNTRIES, findCountry, findIndustry } from '../src/packs/index.js';
-import { validateIndustry, validateCountry, validateCountryCompanion } from '../src/packs/schema.js';
+import { validateIndustry, validateCountry, validateCountryCompanion, validateCountryGovernance } from '../src/packs/schema.js';
 import { ICON_KEYS } from '../src/core/icons.js';
 import { generate } from '../src/data/generate.js';
 import { createFormat } from '../src/core/format.js';
@@ -32,6 +32,8 @@ for (const p of INDUSTRIES) validateIndustry(p, ICON_KEYS).forEach((m) => check(
 for (const c of COUNTRIES) validateCountry(c).forEach((m) => check(false, `schema: ${m}`));
 for (const c of COUNTRIES) validateCountryCompanion(c).forEach((m) => check(false, `schema: ${m}`));
 for (const p of INDUSTRIES) check(!!p.companion, `${p.id}: Companion content (companion) is required`);
+for (const p of INDUSTRIES) check(!!p.governance, `${p.id}: Governance content (governance) is required`);
+for (const c of COUNTRIES) validateCountryGovernance(c).forEach((m) => check(false, `schema: ${m}`));
 for (const p of INDUSTRIES) check(!!(p.assistantContext && p.assistantAnswers && p.assistantRefusals), `${p.id}: assistant content (assistantContext, assistantAnswers, assistantRefusals) is required`);
 check(INDUSTRIES.length === 20, `expected 20 industries, found ${INDUSTRIES.length}`);
 check(COUNTRIES.length === 11, `expected 11 countries, found ${COUNTRIES.length}`);
@@ -59,7 +61,7 @@ for (const f of srcFiles.filter((x) => !SPELLING_EXEMPT.some((e) => x.includes(e
 }
 
 // 3. Real brand, chain and company names must never appear (case-sensitive, whole word).
-const BRANDS = ['Walmart', 'Kroger', 'Costco', 'Tesco', 'Sainsbury', 'Asda', 'Aldi', 'Lidl', 'Rewe', 'Edeka', 'Carrefour', 'Oxxo', 'Soriana', 'Alfamart', 'Indomaret', 'Spinneys', 'Reliance', 'DMart', 'Walgreens', 'CVS', 'Boots', 'Pfizer', 'Novartis', 'Roche', 'Sanofi', 'GSK', 'AstraZeneca', 'Merck', 'Bayer', 'Abbott', 'Medtronic', 'Stryker', 'Siemens', 'Philips', 'Heineken', 'Diageo', 'Budweiser', 'Corona', 'Coca-Cola', 'Pepsi', 'PepsiCo', 'Nestle', 'Nestlé', 'Unilever', 'Procter', 'Colgate', 'Tide', 'Ariel', 'Dulux', 'Sherwin', 'AkzoNobel', 'Nerolac', 'Berger', 'Syngenta', 'Corteva', 'BASF', 'Monsanto', 'Airtel', 'Jio', 'Vodafone', 'Verizon', 'Telcel', 'Telkomsel', 'Etisalat', 'Samsung', 'Sony', 'Xiaomi', 'Huawei', 'Bosch', 'Castrol', 'Shell', 'Exide', 'Visa', 'Mastercard', 'Paytm', 'PhonePe', 'Itaú', 'Bradesco', 'Santander', 'HSBC', 'Barclays', 'HDFC', 'ICICI', 'Chase', 'Amazon', 'Flipkart', 'Croma', 'MediaMarkt', 'Raiffeisen', 'Kingfisher', 'Bacardi', 'Smirnoff', 'Absolut', 'Lipton', 'Nescafe', 'Cadbury', 'Kellogg', 'Amul', 'Britannia', 'Ambev', 'Brahma', 'Bintang', 'Dettol', 'Gillette', 'Pantene', 'Apollo', 'Lulu', 'Tata', 'Mahindra', 'Bimbo', 'Natura', 'Drogasil', 'Guardian', 'Watsons', 'Spar', 'Coles', 'Woolworths', 'Countdown', 'Leclerc', 'Auchan', 'Intermarche', 'Monoprix', 'Bunnings', 'Kmart', 'Myer', 'Nike', 'Adidas', 'Puma', 'Zara', 'Uniqlo', 'Sysco', 'Grainger', 'Fastenal', 'Enphase', 'SolarEdge', 'Tesla', 'Siemens', 'Bosch', 'Decathlon', 'Fnac', 'Boulanger', 'Allianz', 'Prudential', 'MetLife', 'Chubb', 'Travelers', 'Zoetis', 'Elanco', 'Idexx', 'Covetrus', 'Ecolab', 'Diversey', 'Clorox', 'Cintas', 'FedEx', 'Maersk', 'Schenker', 'Pearson', 'McGraw', 'Scholastic', 'Cengage', 'Amcor', 'WestRock', 'Smurfit'];
+const BRANDS = JSON.parse(await readFile(path.join(root, 'tests', 'deny-list.json'), 'utf8'));
 for (const f of srcFiles.filter((x) => x.includes(`${path.sep}packs${path.sep}`))) {
   const raw = stripComments(await readFile(f, 'utf8'));
   for (const b of BRANDS) check(!new RegExp(`(^|[^A-Za-z])${b.replace(/[-.]/g, '\\$&')}([^A-Za-z]|$)`).test(raw), `${path.relative(root, f)}: real brand or company name "${b}"`);

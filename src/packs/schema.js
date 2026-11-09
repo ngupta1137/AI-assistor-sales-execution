@@ -283,6 +283,7 @@ export function validateIndustry(p, iconKeys = []) {
   req(new Set((p.guardrails || []).map((g) => g.id)).size === (p.guardrails || []).length, 'guardrail ids must be unique');
   if (p.assistantContext || p.assistantAnswers || p.assistantRefusals) validateAssistant(p, vocab, e, req);
   if (p.companion) validateCompanion(p, vocab, e, req);
+  if (p.governance) validateGovernance(p, vocab, e, req);
   req(p.problems?.length === 6, 'needs exactly 6 problems');
   (p.problems || []).forEach((x) => req(x.title && x.text && CAPS.includes(x.capability), `problem "${x.title}" capability`));
   range(p.assistant, 8, 10, 'assistant');
@@ -410,5 +411,90 @@ export function validateCountryCompanion(c) {
   req(['mi', 'km'].includes(c.mileageUnit), 'mileageUnit must be mi or km');
   req(c.payslipLabel, 'payslipLabel missing');
   req(['C', 'F'].includes(c.tempUnit), 'tempUnit must be C or F');
+  return e;
+}
+
+
+/** Governance content for an industry pack. */
+export function validateGovernance(p, vocab, e, req) {
+  const g = p.governance;
+  req(g && typeof g === 'object', 'governance content missing');
+  if (!g || typeof g !== 'object') return;
+
+  req(Array.isArray(g.rules) && g.rules.length >= 8 && g.rules.length <= 12, 'governance.rules needs 8 to 12 rules');
+  let exactCount = 0;
+  for (const r of g.rules || []) {
+    req(r.id && r.title && r.owner && r.approver && r.scope && r.neverDecides, 'governance rule ' + r.id + ' missing required fields');
+    req(typeof r.exactWording === 'boolean', 'governance rule ' + r.id + ' exactWording must be boolean');
+    if (r.exactWording) exactCount++;
+    checkTokens(e, p.id + '.governance.rule.' + r.id, r.title + ' ' + r.scope + ' ' + r.neverDecides, vocab, []);
+  }
+  req(exactCount >= 1 && exactCount <= 3, 'governance.rules needs 1 to 3 exactWording rules (has ' + exactCount + ')');
+
+  const outcomeKeys = ['suggest', 'clarify', 'evidence', 'conflict', 'stale', 'role', 'compliance'];
+  req(g.outcomeCopy && outcomeKeys.every((k) => typeof g.outcomeCopy[k] === 'string' && g.outcomeCopy[k]), 'governance.outcomeCopy needs all 7 outcomes');
+  if (g.outcomeCopy) {
+    outcomeKeys.forEach((k) => checkTokens(e, p.id + '.governance.outcomeCopy.' + k, g.outcomeCopy[k], vocab, []));
+  }
+
+  req(g.rights && Array.isArray(g.rights.roles) && g.rights.roles.length >= 3, 'governance.rights needs roles');
+  req(typeof g.rights?.legalApprover === 'string' && g.rights.legalApprover, 'governance.rights.legalApprover missing');
+  req(g.rights?.screens && typeof g.rights.screens === 'object', 'governance.rights.screens missing');
+  req(g.rights?.actions && typeof g.rights.actions === 'object', 'governance.rights.actions missing');
+
+  req(Array.isArray(g.readiness) && g.readiness.length >= 6 && g.readiness.length <= 8, 'governance.readiness needs 6 to 8 items');
+  for (const item of g.readiness || []) {
+    req(item.id && item.title && item.owner, 'governance readiness item ' + item.id + ' missing title or owner');
+    checkTokens(e, p.id + '.governance.readiness.' + item.id, item.title, vocab, []);
+  }
+
+  req(Array.isArray(g.clarifyQuestions) && g.clarifyQuestions.length === 3, 'governance.clarifyQuestions needs exactly 3 questions');
+  for (const q of g.clarifyQuestions || []) {
+    req(q.id && q.q && Array.isArray(q.chips) && q.chips.length >= 2 && q.chips.length <= 4, 'governance clarify question ' + q.id + ' needs 2 to 4 chips');
+    checkTokens(e, p.id + '.governance.clarify.' + q.id, q.q, vocab, []);
+  }
+
+  req(typeof g.staleLimitDays === 'number' && g.staleLimitDays > 0, 'governance.staleLimitDays must be > 0');
+  req(Array.isArray(g.evidenceRules) && g.evidenceRules.length >= 3, 'governance.evidenceRules needs 3+ entries');
+
+  req(g.agents && Array.isArray(g.agents.holdReasons) && g.agents.holdReasons.length >= 1, 'governance.agents.holdReasons needs 1+ entries');
+  req(g.agents?.neverDecides && typeof g.agents.neverDecides === 'object', 'governance.agents.neverDecides missing');
+
+  req(Array.isArray(g.accountFeatures) && g.accountFeatures.length === 7, 'governance.accountFeatures needs exactly 7 features');
+  for (const f of g.accountFeatures || []) {
+    req(f.id && f.name && f.capability && typeof f.typicalAgeDays === 'number', 'governance feature ' + f.id);
+  }
+
+  req(Array.isArray(g.goldenCases) && g.goldenCases.length === 40, 'governance.goldenCases needs 40 cases (8 per capability)');
+  const capCounts = {};
+  const critCounts = {};
+  for (const gc of g.goldenCases || []) {
+    req(gc.id && gc.capability && gc.scenario && gc.expectedDecision, 'golden case ' + gc.id);
+    capCounts[gc.capability] = (capCounts[gc.capability] || 0) + 1;
+    if (gc.critical) critCounts[gc.capability] = (critCounts[gc.capability] || 0) + 1;
+  }
+  for (const cap of ['potential', 'gaps', 'ranking', 'planning', 'order']) {
+    req(capCounts[cap] === 8, 'goldenCases for ' + cap + ' must be 8 (has ' + (capCounts[cap] || 0) + ')');
+    req((critCounts[cap] || 0) >= 3, 'goldenCases for ' + cap + ' needs at least 3 critical (has ' + (critCounts[cap] || 0) + ')');
+  }
+
+  req(Array.isArray(g.blindCases) && g.blindCases.length === 12, 'governance.blindCases needs exactly 12 cases');
+  const misses = (g.blindCases || []).filter((bc) => bc.missType === 'declined');
+  const wrongMisses = (g.blindCases || []).filter((bc) => bc.missType === 'wrong');
+  req(misses.length >= 2, 'governance.blindCases needs 2+ declined misses');
+  req(wrongMisses.length >= 2, 'governance.blindCases needs 2+ wrong misses');
+
+  req(g.errorLimits && typeof g.errorLimits === 'object', 'governance.errorLimits missing');
+  req(g.metricTree && typeof g.metricTree === 'object' && g.metricTree.headline, 'governance.metricTree missing');
+}
+
+/** Governance fields for a country pack. */
+export function validateCountryGovernance(c) {
+  const e = [];
+  const req = (cond, msg) => { if (!cond) e.push(c.id + ': ' + msg); };
+  req(typeof c.market === 'string' && c.market.length > 0, 'country.market missing');
+  req(Array.isArray(c.termMap) && c.termMap.length >= 4, 'country.termMap needs 4+ entries');
+  (c.termMap || []).forEach((t) => req(t.local && t.canonical && typeof t.confirmed === 'boolean', 'termMap entry invalid in ' + c.id));
+  req(c.localFormats && c.localFormats.number && c.localFormats.date && c.localFormats.currencySymbol, 'country.localFormats missing');
   return e;
 }

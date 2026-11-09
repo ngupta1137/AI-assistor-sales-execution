@@ -117,7 +117,17 @@ export function render(ctx, [accountId]) {
     </div>
   </section>` : '';
 
+
+  const market = ctx.country.market || ctx.country.name;
+  const segment = ctx.industry.segments.find((s) => s.id === a.segmentId)?.name || a.segment;
+  const channel = 'Direct Field Sales';
+  const repRole = ctx.industry.personas?.rep || 'Sales Rep';
+  const contextBar = `<div class="context-bar" style="background:var(--surface-subtle);border-left:3px solid var(--accent);padding:6px 10px;margin-bottom:var(--s3);border-radius:var(--radius-sm);font-size:11px;color:var(--muted)">
+    <span style="font-weight:600;color:var(--ink)">Recommendations apply to this context:</span> ${esc(market)}, ${esc(segment)}, ${esc(channel)}, ${esc(repRole)}
+  </div>`;
+
   return `${crmNoteModal}
+  ${contextBar}
   <a class="back" href="${p ? `#/brief/${a.id}` : '#/today'}">${icon('back', 18)} ${p ? esc(t('{Visit} brief')) : 'Back'}</a>
   ${ctx.ui?.accountToast ? `<div class="notice good" style="margin-bottom:var(--s3)">${icon('check', 16)}<span>${esc(ctx.ui.accountToast)}</span></div>` : ''}
   <section class="page-head">
@@ -305,10 +315,182 @@ export function render(ctx, [accountId]) {
   <details class="fold" id="acc-group"${ctx.ui?.groupOpen === a.id ? ' open' : ''}>
     <summary>Key account banner and multi-location rollup<span class="sum-end">Network Group</span></summary>
     <div style="padding:var(--s2) 0">
-      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
-        <b>${esc(a.name.split(' ')[0])} Enterprise Network</b>
-        ${pill('Tier 1 Group', 'good')}
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;flex-wrap:wrap;gap:6px">
+        <div>
+          <b style="font-size:14px">${esc(a.name.split(' ')[0])} Enterprise Network</b>
+          <div class="small muted">Multi-location account rollup &amp; JBP commitments</div>
+        </div>
+        <div class="seg-ctl" role="group" aria-label="KAM analytics timeframe">
+          <button class="seg ${(ctx.ui?.kamTf || 'monthly') === 'daily' ? 'on' : ''}" data-act="set-kam-tf" data-tf="daily" style="min-height:var(--tap);min-width:44px;font-size:11px">Daily</button>
+          <button class="seg ${ctx.ui?.kamTf === 'weekly' ? 'on' : ''}" data-act="set-kam-tf" data-tf="weekly" style="min-height:var(--tap);min-width:44px;font-size:11px">Weekly</button>
+          <button class="seg ${(ctx.ui?.kamTf || 'monthly') === 'monthly' ? 'on' : ''}" data-act="set-kam-tf" data-tf="monthly" style="min-height:var(--tap);min-width:44px;font-size:11px">Monthly</button>
+        </div>
       </div>
+
+      ${(() => {
+        const tf = ctx.ui?.kamTf || 'monthly';
+        if (tf === 'daily') {
+          return `
+          <div class="facts" style="grid-template-columns:repeat(auto-fit,minmax(75px,1fr));margin-bottom:8px">
+            <div><small>Locations</small><b>14 sites</b></div>
+            <div><small>Dock dispatch</small><b class="good-text">100% met</b></div>
+            <div><small>Stock status</small><b class="good-text">Allocated</b></div>
+            <div><small>Daily replenishment</small><b>${esc(fmt.moneyShort(a.current * 0.1))}</b></div>
+          </div>
+          <div style="padding:10px 12px;background:var(--surface-inset);border-radius:var(--radius-sm);border:1px solid var(--line-soft);margin-top:6px">
+            <div style="display:flex;justify-content:space-between;align-items:center;font-size:11px;margin-bottom:6px">
+              <span class="muted">14-branch daily delivery &amp; replenishment pacing</span>
+              <span class="good-text"><b>100% on-time</b> (<div><small>Daily replenishment</small><b>${esc(fmt.moneyShort(a.current * 0.1))}</b></div>
+          </div>6,800 received)</span>
+            </div>
+            <svg viewBox="0 0 320 80" style="width:100%;height:auto;overflow:visible" role="img" aria-label="KAM daily replenishment pacing">
+              <defs>
+                <linearGradient id="kamDailyGrad" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0%" stop-color="var(--good)" stop-opacity="0.3"/>
+                  <stop offset="100%" stop-color="var(--good)" stop-opacity="0.0"/>
+                </linearGradient>
+              </defs>
+              <line x1="38" y1="18" x2="310" y2="18" stroke="var(--line-soft)" stroke-dasharray="2,2"/>
+              <text x="32" y="21" font-size="8" fill="var(--muted)" text-anchor="end">$20k</text>
+              <line x1="38" y1="44" x2="310" y2="44" stroke="var(--line-soft)" stroke-dasharray="2,2"/>
+              <text x="32" y="47" font-size="8" fill="var(--muted)" text-anchor="end"><div><small>Daily replenishment</small><b>${esc(fmt.moneyShort(a.current * 0.1))}</b></div>
+          </div>0k</text>
+              <line x1="38" y1="68" x2="310" y2="68" stroke="var(--line-soft)"/>
+              <text x="32" y="70" font-size="8" fill="var(--muted)" text-anchor="end">$0</text>
+              
+              <polygon points="45,68 100,52 165,36 230,28 295,22 295,68 45,68" fill="url(#kamDailyGrad)"/>
+              <polyline points="45,68 100,52 165,36 230,28 295,22" fill="none" stroke="var(--good)" stroke-width="2.5"/>
+              
+              <circle cx="100" cy="52" r="3.5" fill="var(--good)"/>
+              <text x="100" y="46" font-size="7" fill="var(--muted)" text-anchor="middle">Dock 1 ($5.2k)</text>
+              
+              <circle cx="165" cy="36" r="3.5" fill="var(--good)"/>
+              <text x="165" y="30" font-size="7" fill="var(--muted)" text-anchor="middle">Dock 2 (<div><small>Daily replenishment</small><b>${esc(fmt.moneyShort(a.current * 0.1))}</b></div>
+          </div>0.8k)</text>
+              
+              <circle cx="295" cy="22" r="4.5" fill="var(--good)"/>
+              <text x="295" y="15" font-size="8" font-weight="700" fill="var(--good)" text-anchor="middle">Completed (<div><small>Daily replenishment</small><b>${esc(fmt.moneyShort(a.current * 0.1))}</b></div>
+          </div>6.8k)</text>
+              
+              <text x="45" y="78" font-size="8" fill="var(--muted)">08:00</text>
+              <text x="165" y="78" font-size="8" fill="var(--muted)">12:00</text>
+              <text x="295" y="78" font-size="8" font-weight="700" fill="var(--good)">Current</text>
+            </svg>
+          </div>`;
+        } else if (tf === 'weekly') {
+          return `
+          <div class="facts" style="grid-template-columns:repeat(auto-fit,minmax(75px,1fr));margin-bottom:8px">
+            <div><small>Weekly target</small><b>${esc(fmt.moneyShort((a.potential * 4) / 12))}</b></div>
+            <div><small>Wholesale sell-in</small><b class="good-text">${esc(fmt.moneyShort((a.current * 3.8) / 11))}</b></div>
+            <div><small>Sell-out POS</small><b class="good-text">96% scan</b></div>
+            <div><small>Rebate accrual</small><b>4.0%</b></div>
+          </div>
+          <div style="padding:10px 12px;background:var(--surface-inset);border-radius:var(--radius-sm);border:1px solid var(--line-soft);margin-top:6px">
+            <div style="display:flex;justify-content:space-between;align-items:center;font-size:11px;margin-bottom:6px">
+              <span class="muted">Wholesale sell-in vs site sell-out POS scan</span>
+              <span class="good-text"><b>96.2% scan match</b> ($31,200 sell-out)</span>
+            </div>
+            <svg viewBox="0 0 320 85" style="width:100%;height:auto;overflow:visible" role="img" aria-label="KAM weekly sell-in vs sell-out">
+              <line x1="38" y1="18" x2="310" y2="18" stroke="var(--line-soft)" stroke-dasharray="2,2"/>
+              <text x="32" y="21" font-size="8" fill="var(--muted)" text-anchor="end">$40k</text>
+              <line x1="38" y1="44" x2="310" y2="44" stroke="var(--line-soft)" stroke-dasharray="2,2"/>
+              <text x="32" y="47" font-size="8" fill="var(--muted)" text-anchor="end">$25k</text>
+              <line x1="38" y1="70" x2="310" y2="70" stroke="var(--line-soft)"/>
+              <text x="32" y="72" font-size="8" fill="var(--muted)" text-anchor="end"><div><small>Rebate accrual</small><b>4.0%</b></div>
+          </div>0k</text>
+              
+              <!-- Sell-in line (dashed muted) -->
+              <polyline points="45,54 105,42 170,46 235,32 295,24" fill="none" stroke="var(--muted)" stroke-width="2" stroke-dasharray="4,4"/>
+              
+              <!-- Sell-out POS line (solid accent) -->
+              <polyline points="45,58 105,46 170,38 235,28 295,22" fill="none" stroke="var(--accent)" stroke-width="2.5"/>
+              
+              <circle cx="170" cy="38" r="3.5" fill="var(--good)"/>
+              <text x="170" y="32" font-size="7" fill="var(--good)" text-anchor="middle">W3 Promo: $28k</text>
+              
+              <circle cx="295" cy="22" r="4.5" fill="var(--accent)"/>
+              <text x="295" y="15" font-size="8" font-weight="700" fill="var(--accent)" text-anchor="middle">$31.2k (Current)</text>
+              
+              <text x="45" y="80" font-size="8" fill="var(--muted)">W1</text>
+              <text x="105" y="80" font-size="8" fill="var(--muted)">W2</text>
+              <text x="170" y="80" font-size="8" fill="var(--muted)">W3</text>
+              <text x="235" y="80" font-size="8" fill="var(--muted)">W4</text>
+              <text x="295" y="80" font-size="8" font-weight="700" fill="var(--accent)">W5 (MTD)</text>
+            </svg>
+            <div style="display:flex;justify-content:space-between;font-size:10px;color:var(--muted);margin-top:4px">
+              <span><span style="color:var(--accent)">●</span> In-Market POS Sell-Out</span>
+              <span><span style="color:var(--muted)">---</span> Wholesale Sell-In Depot</span>
+              <span class="good-text">Low stockout risk</span>
+            </div>
+          </div>`;
+        } else {
+          return `
+          <div class="facts" style="grid-template-columns:repeat(auto-fit,minmax(80px,1fr));margin-bottom:8px">
+            <div><small>Network size</small><b>14 branches</b></div>
+            <div><small>Compliance</small><b class="good-text">94% on-target</b></div>
+            <div><small>Commitment</small><b class="money">${esc(fmt.money(a.potential * 4))}</b></div>
+            <div><small>Total volume</small><b class="money good-text">${esc(fmt.money(a.current * 3.8))}</b></div>
+          </div>
+          <div style="padding:10px 12px;background:var(--surface-inset);border-radius:var(--radius-sm);border:1px solid var(--line-soft);margin-top:6px">
+            <div style="display:flex;justify-content:space-between;align-items:center;font-size:11px;margin-bottom:6px">
+              <b>Multi-month JBP trajectory vs commitment</b>
+              ${pill('Commitment pacing 94.1%', 'good')}
+            </div>
+            <svg viewBox="0 0 320 95" style="width:100%;height:auto;overflow:visible" role="img" aria-label="JBP quarterly trajectory">
+              <defs>
+                <linearGradient id="jbpAreaGrad" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0%" stop-color="var(--accent)" stop-opacity="0.3"/>
+                  <stop offset="100%" stop-color="var(--accent)" stop-opacity="0.0"/>
+                </linearGradient>
+              </defs>
+              <line x1="38" y1="20" x2="310" y2="20" stroke="var(--line-soft)" stroke-dasharray="2,2"/>
+              <text x="32" y="23" font-size="8" fill="var(--muted)" text-anchor="end"><div><small>Total volume</small><b class="money good-text">${esc(fmt.money(a.current * 3.8))}</b></div>
+          </div>20k</text>
+              <line x1="38" y1="48" x2="310" y2="48" stroke="var(--line-soft)" stroke-dasharray="2,2"/>
+              <text x="32" y="51" font-size="8" fill="var(--muted)" text-anchor="end">$80k</text>
+              <line x1="38" y1="76" x2="310" y2="76" stroke="var(--line-soft)"/>
+              <text x="32" y="78" font-size="8" fill="var(--muted)" text-anchor="end">$40k</text>
+              
+              <!-- Monthly Target Commitment (stair-step line) -->
+              <line x1="42" y1="44" x2="120" y2="44" stroke="var(--muted)" stroke-width="1.5" stroke-dasharray="3,3"/>
+              <line x1="120" y1="36" x2="210" y2="36" stroke="var(--muted)" stroke-width="1.5" stroke-dasharray="3,3"/>
+              <line x1="210" y1="26" x2="300" y2="26" stroke="var(--muted)" stroke-width="1.5" stroke-dasharray="3,3"/>
+              
+              <!-- Shaded Area -->
+              <polygon points="45,50 82,46 120,48 165,30 210,26 255,32 295,28 295,76 45,76" fill="url(#jbpAreaGrad)"/>
+              
+              <!-- Realistic In-Market POS sell-out curve -->
+              <polyline points="45,50 82,46 120,48 165,30 210,26 255,32 295,28" fill="none" stroke="var(--accent)" stroke-width="2.5"/>
+              
+              <!-- Month 1: $88k vs $95k target -->
+              <circle cx="82" cy="46" r="3.5" fill="var(--muted)"/>
+              <text x="82" y="40" font-size="7" fill="var(--muted)" text-anchor="middle">$88k (M1)</text>
+              
+              <!-- Month 2: <div><small>Total volume</small><b class="money good-text">${esc(fmt.money(a.current * 3.8))}</b></div>
+          </div>16k vs <div><small>Total volume</small><b class="money good-text">${esc(fmt.money(a.current * 3.8))}</b></div>
+          </div>05k target (Promo lift) -->
+              <circle cx="165" cy="30" r="4" fill="var(--good)"/>
+              <text x="165" y="24" font-size="7" font-weight="700" fill="var(--good)" text-anchor="middle"><div><small>Total volume</small><b class="money good-text">${esc(fmt.money(a.current * 3.8))}</b></div>
+          </div>16k (Promo surge)</text>
+              
+              <!-- Month 3 QTD: <div><small>Total volume</small><b class="money good-text">${esc(fmt.money(a.current * 3.8))}</b></div>
+          </div>01k vs <div><small>Total volume</small><b class="money good-text">${esc(fmt.money(a.current * 3.8))}</b></div>
+          </div>20k target -->
+              <circle cx="295" cy="28" r="4.5" fill="var(--accent)"/>
+              <text x="295" y="20" font-size="8" font-weight="700" fill="var(--accent)" text-anchor="middle">$301k QTD (94.1%)</text>
+              
+              <text x="82" y="88" font-size="8" fill="var(--muted)" text-anchor="middle">Month 1 (92.6%)</text>
+              <text x="165" y="88" font-size="8" fill="var(--muted)" text-anchor="middle">Month 2 (110.5%)</text>
+              <text x="295" y="88" font-size="8" font-weight="700" fill="var(--good)" text-anchor="middle">Month 3 (QTD)</text>
+            </svg>
+            <div style="display:flex;justify-content:space-between;font-size:10px;color:var(--muted);margin-top:4px">
+              <span><span style="color:var(--accent)">●</span> In-Market POS Sell-Out: $301,000</span>
+              <span><span style="color:var(--muted)">---</span> Contract Commitment: $320,000</span>
+              <span class="good-text">On track for Tier 1 rebate</span>
+            </div>
+          </div>`;
+        }
+      })()}
       <p class="small muted" style="margin-bottom:8px">Affiliated commercial chain. Compliance and volume commitments roll up across all operating branches.</p>
       <div class="facts" style="grid-template-columns:repeat(auto-fit,minmax(80px,1fr));margin-bottom:8px">
         <div><small>Locations</small><b>14 branches</b></div>
@@ -355,6 +537,10 @@ export function render(ctx, [accountId]) {
 }
 
 export const actions = {
+  'set-kam-tf': ({ ctx, data }) => {
+    (ctx.ui ||= {}).kamTf = data.tf;
+  },
+
   'download-jbp-charter': ({ ctx, data }) => {
     const a = ctx.data.byId[data.id];
     const fmt = ctx.fmt;

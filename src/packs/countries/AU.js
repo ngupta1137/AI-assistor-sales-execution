@@ -3,6 +3,9 @@
 /** @type {import('../schema.js').CountryPack} */
 export default {
   id: 'AU',
+  market: "Australia",
+  localFormats: { number: '1,234.56', date: 'YYYY-MM-DD', currencySymbol: "$" },
+  termMap: [{"local":"milk bar","canonical":"convenience store","confirmed":true},{"local":"corner deli","canonical":"independent shop","confirmed":true},{"local":"grocer","canonical":"supermarket","confirmed":true},{"local":"shopping strip shop","canonical":"retail branch","confirmed":true}],
   name: 'Australia',
   locale: 'en-AU',
   currency: 'AUD',

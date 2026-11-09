@@ -3,6 +3,9 @@
 /** @type {import('../schema.js').CountryPack} */
 export default {
   id: 'ID',
+  market: "Indonesia",
+  localFormats: { number: '1,234.56', date: 'YYYY-MM-DD', currencySymbol: "Rp" },
+  termMap: [{"local":"warung","canonical":"independent shop","confirmed":true},{"local":"toko kelontong","canonical":"convenience store","confirmed":true},{"local":"swalayan","canonical":"supermarket","confirmed":true},{"local":"kios pasar","canonical":"retail branch","confirmed":true}],
   name: 'Indonesia',
   locale: 'id-ID',
   currency: 'IDR',

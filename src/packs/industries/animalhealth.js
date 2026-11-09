@@ -3,11 +3,13 @@
 
 import assistant from './animalhealth.assistant.js';
 import companion from './animalhealth.companion.js';
+import governance from './animalhealth.governance.js';
 
 /** @type {import('../schema.js').IndustryPack} */
 export default {
   ...assistant,
   ...companion,
+  ...governance,
   id: 'animalhealth',
   name: 'Animal health',
   tagline: 'Vet clinics, livestock farms and pet stores',

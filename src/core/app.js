@@ -1,3 +1,5 @@
+import { renderLabModal, labActions } from './lab-modal.js';
+import { renderGuideModal, renderTryCase, governanceActions } from './governance-ui.js';
 // App shell: configuration from the URL, hash routing, rendering, event delegation.
 
 import { INDUSTRIES, COUNTRIES, findIndustry, findCountry } from '../packs/index.js';
@@ -191,7 +193,10 @@ export function render() {
     const out = SCREENS[name].render(ctx, route.args);
     html = shell(ctx, name, out);
   }
-  root.innerHTML = html + renderAssistant(app, ctx, { name: ctx ? (SCREENS[route.name] && route.name !== 'setup' ? route.name : HOME[ctx.persona]) : 'setup' }) + renderPresenter(app, ctx, { INDUSTRIES, COUNTRIES, PERSONAS, shareLink: shareLink() }) + renderSyncModal(app, ctx);
+  document.body.classList.remove('text-size-sm', 'text-size-md', 'text-size-lg');
+  document.body.classList.add(`text-size-${app.textSize || 'sm'}`);
+  document.body.classList.toggle('simple-view', !!app.simpleView);
+  root.innerHTML = html + renderAssistant(app, ctx, { name: ctx ? (SCREENS[route.name] && route.name !== 'setup' ? route.name : HOME[ctx.persona]) : 'setup' }) + renderPresenter(app, ctx, { INDUSTRIES, COUNTRIES, PERSONAS, shareLink: shareLink() }) + renderSyncModal(app, ctx) + renderRightsModal(app, ctx) + renderGuideModal(app, ctx) + renderTryCase(app, ctx) + renderLabModal(app, ctx);
   const side = document.getElementById('side');
   if (side) side.innerHTML = renderNotes(app, ctx);
   document.body.classList.toggle('notes-open', app.notesOpen && !!ctx);
@@ -203,11 +208,193 @@ export function render() {
   afterRender(app);
 }
 
+function renderActingAsBar(ctx) {
+  const roleKey = ctx.persona === "admin" ? "ops" : ctx.persona;
+  const roleTitle = ctx.industry.personas?.[ctx.persona] || (ctx.persona === "admin" ? "Market Operations" : ctx.persona === "manager" ? "Sales Manager" : "Sales Representative");
+  const allowed = ctx.industry.governance?.rights?.actions?.[roleKey] || [];
+  const allActions = [...new Set(Object.values(ctx.industry.governance?.rights?.actions || {}).flat())];
+  const forbidden = allActions.filter((a) => !allowed.includes(a));
+  const actionLabels = {
+    approve_brief: "approve visit briefs",
+    adjust_brief: "adjust suggestions",
+    override_brief: "override recommendations",
+    flag_recommendation: "flag policy rules",
+    refresh_stale: "refresh stale data",
+    log_evidence: "record field evidence",
+    request_clarification: "resolve clarify chips",
+    approve_exception: "approve supervisor exceptions",
+    rebalance_route: "rebalance territory routes",
+    review_coaching: "review rep coaching",
+    retire_rule: "retire obsolete rules",
+    acknowledge_readiness: "sign off readiness items",
+    approve_claim: "approve damage claims",
+    tune_jbp: "tune joint business plans",
+    export_charter: "export key account charters",
+    request_credit_review: "request credit line reviews",
+    approve_rebate: "approve tier rebates",
+    publish_policy: "publish new policies",
+    update_eval_bar: "update quality pass bars",
+    claim_gap: "claim backlog gap tickets",
+    confirm_term: "confirm local trade terms",
+    execute_raw_write: "execute raw database writes",
+    export_audit: "export immutable audit logs",
+    replay_decision: "replay past decisions step by step",
+    override_release_gate: "override release gates",
+    sign_off_qbr: "sign off executive QBR decks",
+  };
+  const canText = allowed.slice(0, 3).map((a) => actionLabels[a] || a.replace(/_/g, " ")).join(", ");
+  const cannotText = forbidden.slice(0, 3).map((a) => actionLabels[a] || a.replace(/_/g, " ")).join(", ");
+  return `<div class="acting-as-bar" style="background:var(--surface-subtle);border-bottom:1px solid var(--line-soft);padding:6px var(--s4);font-size:11px;display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap">
+    <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap">
+      <span style="font-weight:600;color:var(--ink)">You are ${esc(roleTitle)}.</span>
+      <span class="muted">You can: ${esc(canText || "view assigned views")}.</span>
+      <span class="muted">You cannot: ${esc(cannotText || "modify governance rules")}.</span>
+    </div>
+    <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap">
+      <div class="font-stepper" style="display:inline-flex;align-items:center;gap:2px">
+        <button class="seg sm ${(ctx.app?.textSize || 'sm') === 'sm' ? 'on' : ''}" data-act="set-text-size" data-size="sm" title="Standard text size" style="min-height:var(--tap);min-width:var(--tap);font-size:11px">A</button>
+        <button class="seg sm ${ctx.app?.textSize === 'md' ? 'on' : ''}" data-act="set-text-size" data-size="md" title="Large text size" style="min-height:var(--tap);min-width:var(--tap);font-size:13px">A+</button>
+        <button class="seg sm ${ctx.app?.textSize === 'lg' ? 'on' : ''}" data-act="set-text-size" data-size="lg" title="Extra large text size" style="min-height:var(--tap);min-width:var(--tap);font-size:15px">A++</button>
+      </div>
+      <button class="btn text sm" data-act="toggle-simple-view" style="min-height:var(--tap);min-width:var(--tap);display:inline-flex;align-items:center;padding:0 8px;font-size:11px;text-decoration:underline">${ctx.app?.simpleView ? 'Full view' : 'Simple view'}</button>
+      <button class="btn text sm" data-act="open-guide" style="min-height:var(--tap);min-width:var(--tap);display:inline-flex;align-items:center;padding:0 8px;font-size:11px;text-decoration:underline">How this works</button>
+      <button class="btn text sm" data-act="open-rights-matrix" style="min-height:var(--tap);min-width:var(--tap);display:inline-flex;align-items:center;padding:0 8px;font-size:11px;text-decoration:underline">See all rights</button>
+    </div>
+  </div>`;
+}
+
+function renderRightsModal(app, ctx) {
+  if (!app?.ui?.rightsOpen || !ctx) return "";
+  const g = ctx.industry.governance;
+  const roles = g?.rights?.roles || ["rep", "manager", "kam", "ops", "exec"];
+  const roleNames = {
+    rep: ctx.industry.personas?.rep || "Sales Rep",
+    manager: ctx.industry.personas?.manager || "Sales Manager",
+    kam: ctx.industry.personas?.kam || "Key Account Lead",
+    ops: ctx.industry.personas?.admin || "Market Operations",
+    exec: "Executive Leader",
+  };
+  const legalApprover = g?.rights?.legalApprover || "Legal Counsel";
+  const roleHeaders = roles.map((r) => `<th style="padding:8px 6px;text-align:left;font-size:11px">${esc(roleNames[r] || r)}</th>`).join("");
+  const rows = [
+    { label: "View overnight visit brief", check: (r) => ["rep"].includes(r) },
+    { label: "Execute in-visit actions & log evidence", check: (r) => ["rep"].includes(r) },
+    { label: "Flag recommendations & open gap tickets", check: (r) => ["rep", "manager", "ops"].includes(r) },
+    { label: "Approve rep exceptions & rebalance routes", check: (r) => ["manager"].includes(r) },
+    { label: "Access Rule Health & retire rules", check: (r) => ["ops", "manager"].includes(r) },
+    { label: "Access immutable audit trail & replay", check: (r) => ["ops", "exec", "manager"].includes(r) },
+    { label: "Inspect quality evals & test suites", check: (r) => ["ops", "exec"].includes(r) },
+    { label: "Adjust commercial terms & JBP targets", check: (r) => ["kam"].includes(r) },
+    { label: "Direct raw database write without policy check", check: () => false },
+  ];
+  const bodyRows = rows.map((row) => `
+    <tr style="border-bottom:1px solid var(--line-soft)">
+      <td style="padding:8px 6px;font-size:11px;font-weight:500">${esc(row.label)}</td>
+      ${roles.map((r) => {
+        const ok = row.check(r);
+        return `<td style="padding:8px 6px;text-align:center;font-size:12px">${ok ? `<span class="good-text">✓</span>` : `<span class="muted">-</span>`}</td>`;
+      }).join("")}
+    </tr>
+  `).join("");
+  return `
+  <div class="presenter-backdrop" data-act="close-rights-matrix" aria-hidden="true"></div>
+  <section class="as-sheet enterprise-modal" role="dialog" aria-modal="true" aria-labelledby="rights-modal-title" style="height:auto;max-height:85%;overflow-y:auto;z-index:90">
+    <header class="as-head">
+      <div>
+        <h2 id="rights-modal-title" style="display:flex;align-items:center;gap:6px">
+          ${icon("shield", 20)} Role-Based Access Control (RBAC) Matrix
+        </h2>
+        <small>${esc(ctx.industry.name)} · Legal & Regulatory Approver: <b>${esc(legalApprover)}</b></small>
+      </div>
+      <button class="icon-btn" data-act="close-rights-matrix" aria-label="Close rights matrix">${icon("x", 20)}</button>
+    </header>
+    <div style="padding:var(--s4);overflow-x:auto">
+      <p class="small muted" style="margin-bottom:12px">Rights are strictly enforced across screens, action buttons, and automated decision routes. Zero direct database writes are permitted for any role.</p>
+      <table style="width:100%;border-collapse:collapse;min-width:480px">
+        <thead>
+          <tr style="border-bottom:2px solid var(--line)">
+            <th style="padding:8px 6px;text-align:left;font-size:11px">Capability / Permission</th>
+            ${roleHeaders}
+          </tr>
+        </thead>
+        <tbody>
+          ${bodyRows}
+        </tbody>
+      </table>
+      <div style="margin-top:16px;display:flex;justify-content:flex-end">
+        <button class="btn primary sm" data-act="close-rights-matrix" style="min-height:var(--tap);min-width:100px">Done</button>
+      </div>
+    </div>
+  </section>`;
+}
 function shell(ctx, name, result) {
   const { t, data } = ctx;
-  const out = typeof result === 'string' ? result : result.html;
+  let out = typeof result === 'string' ? result : result.html;
+  if (app.screenState === 'loading') {
+    out = `
+    <div class="screen-state-banner warn" style="margin:8px 16px;padding:6px 12px;display:flex;align-items:center;justify-content:space-between;background:var(--surface-subtle);border-radius:4px;font-size:11px">
+      <span><b>Screen State Simulation:</b> Loading skeleton</span>
+      <button class="btn text sm" data-act="reset-screen-state" style="min-height:var(--tap);text-decoration:underline">Return to interactive</button>
+    </div>
+    <div class="skeleton-view" style="padding:16px;display:flex;flex-direction:column;gap:16px">
+      <div class="skeleton-shimmer" style="height:28px;width:60%"></div>
+      <div class="skeleton-shimmer" style="height:14px;width:40%"></div>
+      <div class="card" style="display:flex;flex-direction:column;gap:10px">
+        <div class="skeleton-shimmer" style="height:20px;width:80%"></div>
+        <div class="skeleton-shimmer" style="height:14px;width:100%"></div>
+        <div class="skeleton-shimmer" style="height:14px;width:90%"></div>
+        <div class="skeleton-shimmer" style="height:36px;width:120px;margin-top:8px"></div>
+      </div>
+      <div class="card" style="display:flex;flex-direction:column;gap:10px">
+        <div class="skeleton-shimmer" style="height:20px;width:75%"></div>
+        <div class="skeleton-shimmer" style="height:14px;width:100%"></div>
+        <div class="skeleton-shimmer" style="height:36px;width:120px;margin-top:8px"></div>
+      </div>
+    </div>`;
+  } else if (app.screenState === 'empty') {
+    out = `
+    <div class="screen-state-banner warn" style="margin:8px 16px;padding:6px 12px;display:flex;align-items:center;justify-content:space-between;background:var(--surface-subtle);border-radius:4px;font-size:11px">
+      <span><b>Screen State Simulation:</b> Empty state</span>
+      <button class="btn text sm" data-act="reset-screen-state" style="min-height:var(--tap);text-decoration:underline">Return to interactive</button>
+    </div>
+    <section class="card empty-state" style="margin:24px 16px;padding:32px 16px;text-align:center;display:flex;flex-direction:column;align-items:center;gap:12px">
+      <div style="color:var(--muted)">${icon('route', 40)}</div>
+      <h3>No items scheduled for this cycle</h3>
+      <p class="small muted" style="max-width:320px">All scheduled visits, proposals, and exception audits for this territory are completed or deferred.</p>
+      <button class="btn primary" data-act="reset-screen-state" style="min-height:var(--tap);margin-top:8px">Schedule new visit</button>
+    </section>`;
+  } else if (app.screenState === 'error') {
+    out = `
+    <div class="screen-state-banner warn" style="margin:8px 16px;padding:6px 12px;display:flex;align-items:center;justify-content:space-between;background:var(--surface-subtle);border-radius:4px;font-size:11px">
+      <span><b>Screen State Simulation:</b> Error state</span>
+      <button class="btn text sm" data-act="reset-screen-state" style="min-height:var(--tap);text-decoration:underline">Return to interactive</button>
+    </div>
+    <section class="card error-state" style="margin:24px 16px;padding:24px 16px;border-left:4px solid var(--bad);display:flex;flex-direction:column;gap:12px">
+      <div style="display:flex;align-items:center;gap:8px;color:var(--bad)">
+        ${icon('shield', 24)}
+        <h3 style="margin:0;color:var(--ink)">Downstream Service Connection Failure</h3>
+      </div>
+      <p class="small" style="margin:0"><b>What happened:</b> The policy evaluation service timed out while synchronizing territory recommendations.</p>
+      <p class="small muted" style="margin:0"><b>Who to contact:</b> Market Operations Support Desk at ops-support@enterprise.sample</p>
+      <div style="padding:6px 8px;background:var(--surface-subtle);border-radius:4px;font-family:monospace;font-size:11px">
+        Support reference code: ERR-GOV-7042
+      </div>
+      <div style="margin-top:6px">
+        <button class="btn primary" data-act="reset-screen-state" style="min-height:var(--tap)">Try again</button>
+      </div>
+    </section>`;
+  }
   const dock = typeof result === 'string' ? '' : result.dock || '';
   const user = ctx.persona === 'rep' ? data.rep : ctx.persona === 'manager' ? data.manager : data.admin;
+  const actingAsBar = renderActingAsBar(ctx);
+  const deniedHtml = app.deniedNotice ? `
+    <div class="notice warn" role="alert" style="margin:var(--s2) var(--s4) var(--s3);display:flex;align-items:center;gap:8px">
+      ${icon('shield', 18)}
+      <div style="flex:1">
+        <b>Access Denied:</b> The "${esc(app.deniedNotice.screen)}" screen is not accessible for ${esc(app.deniedNotice.role)}. Owned by ${esc(app.deniedNotice.team)}.
+      </div>
+      <button class="icon-btn sm" data-act="dismiss-denial" aria-label="Dismiss">${icon('x', 16)}</button>
+    </div>` : '';
   const nav = NAV[ctx.persona].map(([id, label, ic]) => {
     const firstBrief = ctx.m.nextAccount(null)?.accountId || data.planned[0].accountId;
     const href = id === 'brief' ? `#/brief/${firstBrief}` : `#/${id}`;
@@ -222,7 +409,7 @@ function shell(ctx, name, result) {
         <span class="mark">${icon(ctx.industry.icon, 18)}</span><span class="brand">AI Assistor</span>
       </button>
       <button class="who" data-act="open-sync-modal" aria-haspopup="dialog" aria-label="Enterprise sync telemetry and user profile"><span class="who-text"><b>${esc(user.name)}</b><small><span class="sync-dot ${app.offline ? 'offline' : ''}" aria-hidden="true"></span> ${app.offline ? 'Offline' : esc(t(user.title))}</small></span><span class="avatar" aria-hidden="true">${esc(initials(user.name))}</span></button>
-    </header>${app.offline ? `<div class="offline-strip" id="offline-strip">${icon('sync', 16)} <span>Offline mode active. Local AES-256 encrypted storage.</span><button class="pill-btn sm" data-act="toggle-offline" style="margin-left:auto;background:rgba(255,255,255,0.2);color:#fff;min-height:36px">Go online</button></div>` : ''}${prepared}
+    </header>${actingAsBar}${deniedHtml}${app.offline ? `<div class="offline-strip" id="offline-strip">${icon('sync', 16)} <span>Offline mode active. Local AES-256 encrypted storage.</span><button class="pill-btn sm" data-act="toggle-offline" style="margin-left:auto;background:rgba(255,255,255,0.2);color:#fff;min-height:var(--tap);display:inline-flex;align-items:center">Go online</button></div>` : ''}${prepared}
     <main class="screen" id="screen" data-region="screen">${out}</main>
     ${dock ? `<div class="dock" data-region="dock">${dock}</div>` : ''}
     <nav class="tabs" aria-label="Main">${nav}</nav>
@@ -231,11 +418,16 @@ function shell(ctx, name, result) {
 
 // ---- Events ----------------------------------------------------------------
 
+const rbacActions = {
+  "open-rights-matrix": ({ app }) => { (app.ui ||= {}).rightsOpen = true; },
+  "close-rights-matrix": ({ app }) => { if (app.ui) app.ui.rightsOpen = false; },
+  "dismiss-denial": ({ app }) => { app.deniedNotice = null; },
+};
 function handle(e, type) {
   const el = e.target.closest(`[data-${type}]`);
   if (!el) return;
   const name = el.dataset[type];
-  const fn = ACTIONS[name] || presenterActions[name] || syncActions[name] || (name === 'set-vp' ? (({ app, data, api }) => { app.vp = data.vp; api.render(); }) : null);
+  const fn = ACTIONS[name] || presenterActions[name] || syncActions[name] || rbacActions[name] || governanceActions[name] || labActions[name] || (name === 'set-vp' ? (({ app, data, api }) => { app.vp = data.vp; api.render(); }) : null);
   if (!fn) return;
   if (type === 'act' && el.tagName === 'A') e.preventDefault();
   const ctx = app.config ? buildContext(app.config.industryId, app.config.countryId) : null;

@@ -3,11 +3,13 @@
 
 import assistant from './finserv.assistant.js';
 import companion from './finserv.companion.js';
+import governance from './finserv.governance.js';
 
 /** @type {import('../schema.js').IndustryPack} */
 export default {
   ...assistant,
   ...companion,
+  ...governance,
   id: 'finserv',
   name: 'Financial services',
   tagline: 'Merchants, small businesses and agent outlets',

@@ -87,6 +87,10 @@ export function renderNotes(app, ctx) {
 }
 
 export const presenterActions = {
+  'p-screen-state': ({ value, app, api }) => {
+    app.screenState = value;
+    api.render();
+  },
   'p-color-swatch': ({ app, data, api }) => {
     if (app.config) app.config.color = data.color;
     api.render();

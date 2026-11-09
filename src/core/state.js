@@ -18,6 +18,12 @@ function newSession() {
     exceptions: [],    // live exceptions raised in this session
     acknowledged: {},  // exceptionId -> true
     closed: {},        // accountId -> true when the account is closed today (route re-plan)
+    govOutcomes: {},    // itemId -> { outcome, choice, refreshedAt }
+    flags: {},          // itemId -> { reason, note, owner, at }
+    gapBacklog: [],     // [{ id, sourceId, title, accountName, reason, note, owner, ageDays, demand, claimed }]
+    exactWordingRead: {},// ruleId -> true
+    retiredRules: {},   // ruleId -> { approver, reason, at }
+    forcedCase: null,   // { name, outcome, targetId } for Try a case (G11)
     audit: [],         // { at, actor, text } newest first
     seq: 0,
   };
@@ -243,6 +249,165 @@ export function createModel(ctx) {
   const exceptions = () => [...s.exceptions, ...data.exceptions].map((e) => ({ ...e, acknowledged: !!s.acknowledged[e.id] }));
   const acknowledge = (id) => { s.acknowledged[id] = true; log(data.manager.name, `Acknowledged an exception`); };
 
+
+  function strHash(str) {
+    let h = 0;
+    const s = String(str || '');
+    for (let i = 0; i < s.length; i++) {
+      h = ((h << 5) - h) + s.charCodeAt(i);
+      h |= 0;
+    }
+    return Math.abs(h);
+  }
+
+  const ruleForItem = (item) => {
+    const rules = industry.governance?.rules || [];
+    if (!rules.length) {
+      return {
+        id: 'r_default',
+        title: 'Commercial trade standards adherence',
+        owner: 'Commercial Director',
+        approver: 'Legal Counsel',
+        exactWording: false,
+        scope: 'All active territory accounts',
+        neverDecides: 'Never overrides credit limits or price floors',
+        version: 'v2.4',
+        lastReviewed: '2026-09-15',
+        effectiveDates: '2026-01-01 to 2026-12-31',
+        acceptanceRate: 92,
+        overrideRate: 5.4,
+        flagsCount: 1,
+        status: 'Healthy',
+      };
+    }
+    let found = rules.find((r) => r.id === item.ruleId || r.id === item.defId);
+    if (!found) {
+      const idx = strHash(item.id || item.defId || item.title || 'rule') % rules.length;
+      found = rules[idx];
+    }
+    if (s.forcedCase && s.forcedCase.targetId === item.id && s.forcedCase.exactWording) {
+      found = { ...found, exactWording: true };
+    }
+    const retired = s.retiredRules[found.id];
+    return {
+      version: 'v2.4',
+      lastReviewed: '2026-09-15',
+      effectiveDates: '2026-01-01 to 2026-12-31',
+      acceptanceRate: 91,
+      overrideRate: 5.8,
+      flagsCount: s.flags[item.id] ? 1 : 0,
+      status: retired ? 'Retire candidate' : 'Healthy',
+      ...found,
+      approver: found.approver || industry.governance?.rights?.legalApprover || 'Legal Counsel',
+    };
+  };
+
+  const itemOutcome = (item, account, itemIndex) => {
+    if (s.govOutcomes[item.id]) return s.govOutcomes[item.id];
+    if (s.forcedCase && s.forcedCase.targetId === item.id) {
+      return { outcome: s.forcedCase.outcome, forced: true, forcedName: s.forcedCase.name };
+    }
+    const isFirstAccount = account && account.id === data.planned[0]?.accountId;
+    if (itemIndex < (isFirstAccount ? 3 : 2)) {
+      return { outcome: 'suggest' };
+    }
+    const rule = ruleForItem(item);
+    if (s.retiredRules[rule.id]) {
+      return { outcome: 'conflict', reason: `Rule retired: ${s.retiredRules[rule.id].reason}` };
+    }
+    const pool = ['clarify', 'stale', 'evidence', 'conflict', 'role', 'compliance'];
+    const hashVal = strHash(`${item.id}:${account?.id || ''}`);
+    const pick = pool[hashVal % pool.length];
+    return { outcome: pick };
+  };
+
+  const resolveClarify = (itemId, choice) => {
+    s.govOutcomes[itemId] = { outcome: 'suggest', choice, at: nowMinutes() };
+    const it = findAction(itemId);
+    log(data.rep?.name || 'Field Rep', `Resolved clarification for "${it ? ctx.t(it.title, it.vars) : itemId}": ${choice}`);
+  };
+
+  const refreshStale = (itemId) => {
+    s.govOutcomes[itemId] = { outcome: 'suggest', refreshedAt: nowMinutes() };
+    const it = findAction(itemId);
+    log(data.rep?.name || 'Field Rep', `Refreshed stale data for "${it ? ctx.t(it.title, it.vars) : itemId}"`);
+  };
+
+  const flagRecommendation = (itemId, { reason, note }) => {
+    const it = findAction(itemId);
+    const rule = it ? ruleForItem(it) : { id: 'r_rule', title: 'Policy Rule', owner: 'Policy Owner' };
+    const acc = it ? data.byId[it.accountId] : { name: 'Account' };
+    s.flags[itemId] = { reason, note: note || '', owner: rule.owner, ruleId: rule.id, at: nowMinutes() };
+    const gap = {
+      id: `GAP-${++s.seq}`,
+      sourceId: itemId,
+      title: it ? ctx.t(it.title, it.vars) : 'Flagged recommendation',
+      accountName: acc ? acc.name : 'Unknown Account',
+      reason,
+      note: note || '',
+      owner: rule.owner,
+      ageDays: 0,
+      demand: 1,
+      claimed: false,
+      at: nowMinutes(),
+    };
+    s.gapBacklog.unshift(gap);
+    log(data.rep?.name || 'Field Rep', `Flagged recommendation (${reason}): "${gap.title}". Sent to ${rule.owner}`);
+    return gap;
+  };
+
+  const getFlag = (itemId) => s.flags[itemId] || null;
+
+  const isExactWordingRead = (ruleId, itemId) => !!(s.exactWordingRead[ruleId] || (itemId && s.exactWordingRead[itemId]));
+
+  const readExactWording = (ruleId, itemId) => {
+    s.exactWordingRead[ruleId] = true;
+    if (itemId) s.exactWordingRead[itemId] = true;
+    const it = itemId ? findAction(itemId) : null;
+    const rule = it ? ruleForItem(it) : (industry.governance?.rules?.find((r) => r.id === ruleId) || { id: ruleId, title: ruleId, version: 'v2.4' });
+    log(data.rep?.name || 'Field Rep', `Read exact wording for policy rule "${rule.title || rule.id}" (${rule.version || 'v2.4'})`);
+  };
+
+  const retireRule = (ruleId, { approver, reason }) => {
+    s.retiredRules[ruleId] = { approver, reason, at: nowMinutes() };
+    const r = industry.governance?.rules?.find((x) => x.id === ruleId) || { id: ruleId, title: ruleId };
+    log(data.manager?.name || 'Market Operations', `Retired rule "${r.title}" with approval from ${approver}. Reason: ${reason}`);
+  };
+
+  const isRuleRetired = (ruleId) => !!s.retiredRules[ruleId];
+
+  const getGapBacklog = () => s.gapBacklog;
+
+  const claimGap = (gapId, repName) => {
+    const gap = s.gapBacklog.find((g) => g.id === gapId);
+    if (gap) {
+      gap.claimed = true;
+      gap.claimedBy = repName || data.rep?.name || 'Field Rep';
+      log(gap.claimedBy, `Claimed gap backlog item ${gapId}: "${gap.title}"`);
+    }
+  };
+
+    const setForcedCase = (caseConfig) => { s.forcedCase = caseConfig; };
+  const getForcedCase = () => s.forcedCase;
+  const clearForcedCase = () => { s.forcedCase = null; };
+
+  const createException = ({ kind, title, reason, account, route }) => {
+    const ex = {
+      id: `EX-${++s.seq}`,
+      kind: kind || 'approval',
+      title: title || 'Item review',
+      reason: reason || 'Exception raised',
+      account: account || 'Account',
+      rep: data.rep?.name || 'Field Rep',
+      route: route || 'manager',
+      at: nowMinutes(),
+      live: true,
+    };
+    s.exceptions.unshift(ex);
+    log(data.rep?.name || 'Field Rep', `Raised exception: "${title}" - ${reason}`);
+    return ex;
+  };
+
   const toggleAgent = (id) => {
     s.stopped[id] = !s.stopped[id];
     log(ctx.persona === 'manager' ? data.manager.name : ctx.persona === 'admin' ? data.admin.name : data.rep.name, `${s.stopped[id] ? 'Stopped' : 'Resumed'} the ${AGENT_NAME[id]}`);
@@ -252,5 +417,7 @@ export function createModel(ctx) {
     session: s, plannedFor, briefItems, actionsOf, approvalRoute, lastVisitDays, openGaps, doneGaps, findAction, decision, decide, undo, counts, outcome, recordOutcome, setEvidence,
     orderLines, orderRules, orderState, setQty, submitOrder, visitDone, completeVisit, visitSummary, nextAccount,
     selfStats, exceptions, acknowledge, agentStopped, toggleAgent, closedToday, toggleClosed, logAudit, audit: () => s.audit,
+    ruleForItem, itemOutcome, resolveClarify, refreshStale, flagRecommendation, getFlag, isExactWordingRead, readExactWording,
+    retireRule, isRuleRetired, getGapBacklog, claimGap, setForcedCase, getForcedCase, clearForcedCase, createException,
   };
 }
