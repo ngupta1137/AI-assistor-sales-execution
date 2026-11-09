@@ -39,7 +39,7 @@ This document provides the complete, synchronized demo recording script and brow
 | **Scene 6** | 4:10 - 5:05 (55s) | `#/manager` | District Manager: Target Cockpit, Readiness & Exception Queue |
 | **Scene 7** | 5:05 - 6:05 (60s) | `#/agents` | Agent Fleet: 5 Layers, Knapsack Solver Slider & Memory |
 | **Scene 8** | 6:05 - 7:00 (55s) | `#/quality` | Quality & Release Gates: Golden Suite, Blind Eval & 1M Checks |
-| **Scene 9** | 7:00 - 8:00 (60s) | Portfolio Lab (`button[open-lab]`) | Portfolio Lab: A/B Rollout, ROI Calculator & Model Gateway |
+| **Scene 9** | 7:00 - 8:00 (60s) | Portfolio Lab (`button[data-act="open-lab"]`) | Portfolio Lab: A/B Rollout, ROI Calculator & Model Gateway |
 | **Scene 10** | 8:00 - 8:55 (55s) | `#/pm` | Product Manager: Metric Tree, Parity Monitor & Latency |
 | **Scene 11** | 8:55 - 9:45 (50s) | `?industry=pharma&country=IN#/today` | Cross-Domain Agility: Indian Pharma & Off-Label Guardrails |
 | **Scene 12** | 9:45 - 10:30 (45s) | `pitch.html` (Slide 12) | Commercial Close: The 90-Day Bounded Pilot Blueprint |
@@ -89,10 +89,9 @@ Let us launch the demo for Consumer Packaged Goods in the United States, operati
 2. `wait(1500)`
 3. Scroll smoothly through the industry grid showcasing tiles: CPG, Pharma, Med Devices, Beverages, Building Materials, Telecom, Financial Services.
 4. `wait(1000)`
-5. Click industry tile: `button[data-industry="cpg"]` (or ensure CPG is active).
-6. Click country pill: `button[data-country="US"]`.
-7. Click persona selector: `button[data-persona="rep"]`.
-8. Click `button[data-action="start-demo"]` ("Start Demo").
+5. Click preset demo: `button[data-act="preset-demo"][data-ind="cpg"]` (or select CPG, US, Rep).
+6. `wait(1000)`
+7. Click `button[data-act="setup-start"]` ("Start Demo").
 9. `wait(2000)`
 
 ---
@@ -120,10 +119,10 @@ Every approved trace generates an immutable Record Kept receipt, guaranteeing le
 4. Click on the first account card to navigate to `#/brief/A01`.
 5. `wait(2000)`
 6. Scroll down to show recommendation cards with status chips: `Approved`, `In date`, `Applies here`.
-7. On a stale card, click `button[action-refresh-stale]` ("Refresh"). Observe state transition to green Approved.
+7. On a stale card, click `button[data-act="refresh-stale"]` ("Refresh"). Observe state transition to green Approved.
 8. Click the status chip row on a card to open the modal **Rule Drawer**.
 9. `wait(2000)`: Hover over rule owner, named approver, effective dates, and "Why this applied".
-10. Close the drawer: `click(".rule-drawer-close")`.
+10. Close the drawer: `click('[data-act="close-rule-drawer"]')`.
 11. Scroll to the exact-wording gate card. Notice the action button is hidden.
 12. Click checkbox `input[confirm-exact-wording]` ("I have read this wording").
 13. Observe the action button unlock immediately.
@@ -289,7 +288,7 @@ And the Model Gateway demonstrates our three-tier inference architecture: free d
 4. Click the **ROI Calculator** tab (`L-ROI`). Adjust the `capability overlap discount` slider from 15% to 35%. Show net annual value update.
 5. Click the **Outcomes Precedence** tab (`L-OUT`). Toggle "Conflict detected" and "Data stale" checkboxes to show the winning outcome change deterministically.
 6. Click the **Model Gateway** tab (`L-DEC`). Highlight the 3-tier cost hierarchy: Tier 1 Rules ($0.00), Tier 2 Fast Model, Tier 3 Frontier.
-7. Close the Lab modal: `click(".lab-modal-close")`.
+7. Close the Lab modal: `click('button[data-act="close-lab-modal"]')`.
 8. `wait(2000)`
 
 ---
