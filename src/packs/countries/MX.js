@@ -3,6 +3,9 @@
 /** @type {import('../schema.js').CountryPack} */
 export default {
   id: 'MX',
+  market: "Mexico",
+  localFormats: { number: '1,234.56', date: 'YYYY-MM-DD', currencySymbol: "$" },
+  termMap: [{"local":"tiendita","canonical":"independent shop","confirmed":true},{"local":"miscelanea","canonical":"convenience store","confirmed":true},{"local":"bodega comercial","canonical":"supermarket","confirmed":true},{"local":"sucursal comercial","canonical":"retail branch","confirmed":true}],
   name: 'Mexico',
   locale: 'es-MX',
   currency: 'MXN',

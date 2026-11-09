@@ -3,11 +3,13 @@
 
 import assistant from './hygiene.assistant.js';
 import companion from './hygiene.companion.js';
+import governance from './hygiene.governance.js';
 
 /** @type {import('../schema.js').IndustryPack} */
 export default {
   ...assistant,
   ...companion,
+  ...governance,
   id: 'hygiene',
   name: 'Hygiene and cleaning supplies',
   tagline: 'Hotels, offices, care homes and contract cleaners',

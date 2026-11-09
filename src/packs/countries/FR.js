@@ -3,6 +3,9 @@
 /** @type {import('../schema.js').CountryPack} */
 export default {
   id: 'FR',
+  market: "France",
+  localFormats: { number: '1,234.56', date: 'YYYY-MM-DD', currencySymbol: "€" },
+  termMap: [{"local":"epicerie de quartier","canonical":"convenience store","confirmed":true},{"local":"commerce de proximite","canonical":"independent shop","confirmed":true},{"local":"hypermarché","canonical":"supermarket","confirmed":true},{"local":"zone commerciale","canonical":"retail branch","confirmed":true}],
   name: 'France',
   locale: 'fr-FR',
   currency: 'EUR',

@@ -3,6 +3,9 @@
 /** @type {import('../schema.js').CountryPack} */
 export default {
   id: 'BR',
+  market: "Brazil",
+  localFormats: { number: '1,234.56', date: 'YYYY-MM-DD', currencySymbol: "R$" },
+  termMap: [{"local":"padaria","canonical":"independent shop","confirmed":true},{"local":"mercearia","canonical":"convenience store","confirmed":true},{"local":"hipermercado","canonical":"supermarket","confirmed":true},{"local":"posto de venda","canonical":"retail branch","confirmed":true}],
   name: 'Brazil',
   locale: 'pt-BR',
   currency: 'BRL',

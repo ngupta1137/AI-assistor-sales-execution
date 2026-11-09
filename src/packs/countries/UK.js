@@ -3,6 +3,9 @@
 /** @type {import('../schema.js').CountryPack} */
 export default {
   id: 'UK',
+  market: "United Kingdom",
+  localFormats: { number: '1,234.56', date: 'YYYY-MM-DD', currencySymbol: "£" },
+  termMap: [{"local":"off-licence","canonical":"convenience store","confirmed":true},{"local":"high street shop","canonical":"independent shop","confirmed":true},{"local":"superstore","canonical":"supermarket","confirmed":true},{"local":"retail park unit","canonical":"retail branch","confirmed":true}],
   name: 'United Kingdom',
   locale: 'en-GB',
   currency: 'GBP',

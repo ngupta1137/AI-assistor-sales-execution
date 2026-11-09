@@ -3,11 +3,13 @@
 
 import assistant from './pharma.assistant.js';
 import companion from './pharma.companion.js';
+import governance from './pharma.governance.js';
 
 /** @type {import('../schema.js').IndustryPack} */
 export default {
   ...assistant,
   ...companion,
+  ...governance,
   id: 'pharma',
   name: 'Pharma',
   tagline: 'Hospitals, clinics and pharmacies',

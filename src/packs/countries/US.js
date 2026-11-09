@@ -3,6 +3,9 @@
 /** @type {import('../schema.js').CountryPack} */
 export default {
   id: 'US',
+  market: "United States",
+  localFormats: { number: '1,234.56', date: 'YYYY-MM-DD', currencySymbol: "$" },
+  termMap: [{"local":"bodega","canonical":"independent shop","confirmed":true},{"local":"corner store","canonical":"convenience store","confirmed":true},{"local":"supercenter","canonical":"supermarket","confirmed":true},{"local":"strip mall unit","canonical":"retail branch","confirmed":true}],
   name: 'United States',
   locale: 'en-US',
   currency: 'USD',

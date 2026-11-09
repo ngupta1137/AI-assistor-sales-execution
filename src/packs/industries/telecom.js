@@ -3,11 +3,13 @@
 
 import assistant from './telecom.assistant.js';
 import companion from './telecom.companion.js';
+import governance from './telecom.governance.js';
 
 /** @type {import('../schema.js').IndustryPack} */
 export default {
   ...assistant,
   ...companion,
+  ...governance,
   id: 'telecom',
   name: 'Telecom retail',
   tagline: 'SIM and recharge outlets, franchise stores',
