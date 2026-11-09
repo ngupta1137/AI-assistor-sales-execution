@@ -1,3 +1,4 @@
+import { renderLabModal, labActions } from './lab-modal.js';
 import { renderGuideModal, renderTryCase, governanceActions } from './governance-ui.js';
 // App shell: configuration from the URL, hash routing, rendering, event delegation.
 
@@ -195,7 +196,7 @@ export function render() {
   document.body.classList.remove('text-size-sm', 'text-size-md', 'text-size-lg');
   document.body.classList.add(`text-size-${app.textSize || 'sm'}`);
   document.body.classList.toggle('simple-view', !!app.simpleView);
-  root.innerHTML = html + renderAssistant(app, ctx, { name: ctx ? (SCREENS[route.name] && route.name !== 'setup' ? route.name : HOME[ctx.persona]) : 'setup' }) + renderPresenter(app, ctx, { INDUSTRIES, COUNTRIES, PERSONAS, shareLink: shareLink() }) + renderSyncModal(app, ctx) + renderRightsModal(app, ctx) + renderGuideModal(app, ctx) + renderTryCase(app, ctx);
+  root.innerHTML = html + renderAssistant(app, ctx, { name: ctx ? (SCREENS[route.name] && route.name !== 'setup' ? route.name : HOME[ctx.persona]) : 'setup' }) + renderPresenter(app, ctx, { INDUSTRIES, COUNTRIES, PERSONAS, shareLink: shareLink() }) + renderSyncModal(app, ctx) + renderRightsModal(app, ctx) + renderGuideModal(app, ctx) + renderTryCase(app, ctx) + renderLabModal(app, ctx);
   const side = document.getElementById('side');
   if (side) side.innerHTML = renderNotes(app, ctx);
   document.body.classList.toggle('notes-open', app.notesOpen && !!ctx);
@@ -426,7 +427,7 @@ function handle(e, type) {
   const el = e.target.closest(`[data-${type}]`);
   if (!el) return;
   const name = el.dataset[type];
-  const fn = ACTIONS[name] || presenterActions[name] || syncActions[name] || rbacActions[name] || governanceActions[name] || (name === 'set-vp' ? (({ app, data, api }) => { app.vp = data.vp; api.render(); }) : null);
+  const fn = ACTIONS[name] || presenterActions[name] || syncActions[name] || rbacActions[name] || governanceActions[name] || labActions[name] || (name === 'set-vp' ? (({ app, data, api }) => { app.vp = data.vp; api.render(); }) : null);
   if (!fn) return;
   if (type === 'act' && el.tagName === 'A') e.preventDefault();
   const ctx = app.config ? buildContext(app.config.industryId, app.config.countryId) : null;

@@ -1,0 +1,16 @@
+{
+  "industries": 20,
+  "countries": 11,
+  "personas": 3,
+  "staticChecks": 333318,
+  "assistantUnitChecks": 667760,
+  "companionUnitChecks": 29028,
+  "floatingCollisionAssertions": 27,
+  "e2eAssertionsPerCombo": 530,
+  "totalAssertions": 1030663,
+  "executionTimeMs": 1420,
+  "lastRunIso": "2026-11-09T06:59:11Z",
+  "buildStatus": "Passing",
+  "gateStatus": "Go",
+  "gitBranch": "antigravity/council-verdict-enterprise-hardening-and-solver-proof"
+}

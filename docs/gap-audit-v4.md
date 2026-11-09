@@ -24,34 +24,34 @@ Audit conducted before writing Wave 1 code, per section 0 of the specification. 
 | **A4** | Tools and guardrails catalogue and raw write denial simulation | `src/core/screens/agents-views.js` | Done | Built tools and guardrails catalog with read/write classification, permissions, and blocked raw system write test button logging audit denial. |
 | **A5** | Account 360 feature profile (Features, producing capability, age, stale slider, refresh) | `src/core/screens/agents-views.js` | Done | Added feature profile with producing agent, source system, age in days, stale data threshold slider, and refresh from source action. |
 | **A6** | Account and visit memory (Timeline, note expiry slider, do not use, forget, add note) | `src/core/screens/agents-views.js` | Done | Added memory timeline with retention expiry slider (30 to 180 days), Do not use toggle, Forget action, and Add note form with category tags. |
-| **E1** | Six test layers table (Data contracts, Golden suite, Regression, Journey, Authority, Offline) | None | Missing | Build test methodology overview table detailing frequencies and responsible teams. |
-| **E2** | Golden suite table (Cases, capability, expected decision, critical flag, pass rule) | None | Missing | Build Golden Suite table with UI add/edit capability and 80 percent plus critical pass threshold enforcement. |
-| **E3** | Blind set evaluation (Comparison between team set and blind set, gap limit gate check) | None | Missing | Build blind set comparative dashboard with safe decline vs wrong suggestion classification. |
-| **E4** | Eval gate (5 dimensions per capability, current vs candidate, slider thresholds) | None | Missing | Build multidimensional evaluation gate with adjustable tolerance sliders. |
-| **E5** | Regression table with real counts (Live counts read from build JSON) | None | Missing | Build regression table reading real execution counts from generated JSON. |
-| **E6** | Error rates per 1,000 suggestions (Configurable limits, sliders, live session error counter) | None | Missing | Build error budget dashboard with limit breach indicators and live console error listener. |
-| **E7** | Failures log (Symptom, root cause, fix, regression test id, slice metrics) | None | Missing | Build failure log with slice-level analysis and critical failure release block. |
-| **E8** | Release gate summary (Go, Fix, Stop per item, composite Go rule) | None | Missing | Build composite release gate checking A/B, evals, golden cases, regression, error rates, and gaps. |
-| **L-AB** | Portfolio Lab: A/B testing simulation (Lift range, sample size, effect size, noise sliders) | None | Missing | Add simulated A/B testing tab with pre-registered decision rules. |
-| **L-ROI** | Portfolio Lab: ROI calculator (Uplift, unit value, scale, cost, overlap slider) | None | Missing | Add portfolio ROI model with capability overlap deduplication. |
-| **L-MAT** | Portfolio Lab: Maturity matrix (Level 1 to 3, Full vs Proxy capability execution) | None | Missing | Add market maturity diagnostic mapping cluster readiness to proxy vs full execution. |
-| **L-CH** | Portfolio Lab: Change tracking (Adoption, execution, value diagnostic chips) | None | Missing | Add change tracking dashboard with rep protection notice. |
-| **L-EV** | Portfolio Lab: Eval gate | None | Missing | Expose Eval Gate (E4) inside Lab modal. |
-| **L-RG** | Portfolio Lab: Regression table | None | Missing | Expose Regression Table (E5) inside Lab modal. |
-| **L-ER** | Portfolio Lab: Error rates | None | Missing | Expose Error Rates (E6) inside Lab modal. |
-| **L-FL** | Portfolio Lab: Failures log | None | Missing | Expose Failures Log (E7) inside Lab modal. |
-| **L-GATE** | Portfolio Lab: Release gate | None | Missing | Expose Release Gate (E8) inside Lab modal. |
-| **L-US** | Portfolio Lab: Session usage tracking (Click telemetry by persona and section) | `src/core/telemetry.js` (Sync events) | Partial | Add session telemetry counter matrix with Clear and Copy controls. |
-| **L-OUT** | Portfolio Lab: Outcomes precedence simulator (Tick conditions to see winning outcome) | None | Missing | Add interactive outcome precedence test simulator. |
-| **L-PV** | Portfolio Lab: Authority and applicability demo (Edit-drift simulation) | None | Missing | Add candidate rule authority inspector with edit-drift unapproved flag. |
-| **L-RV** | Portfolio Lab: Review queue (Maker-checker workflow with side-by-side wording diff) | None | Missing | Add maker-checker rule review queue with legal approver check. |
-| **L-RT** | Portfolio Lab: Rights simulator (Role x action matrix test) | None | Missing | Add interactive rights tester showing permitted and denied actions. |
-| **L-GP** | Portfolio Lab: Gap backlog and managed term map | None | Missing | Add gap backlog with claim action and canonical term confirmation list. |
-| **L-CD** | Portfolio Lab: Interactive card demo | None | Missing | Add standalone card sandbox demonstrating all governance states. |
-| **L-TR** | Portfolio Lab: Suggestion trace inspector | None | Missing | Add worked trace demonstrating deterministic rule choice and model explanation. |
-| **L-AG** | Portfolio Lab: Agents tab | None | Missing | Embed agent views (A1 to A6) in Lab overlay. |
-| **L-PM** | Portfolio Lab: Product Manager views tab | None | Missing | Embed product manager views (P1 to P4) in Lab overlay. |
-| **L-DEC** | Portfolio Lab: Decisions and model gateway | None | Missing | Add decision log, out-of-scope catalogue, and model tier gateway architecture. |
+| **E1** | Six test layers table (Data contracts, Golden suite, Regression, Journey, Authority, Offline) | `src/core/screens/quality.js` | Done | Implemented six-layer testing hierarchy table detailing scope, frequencies, gate rules, responsible teams, and live passing status. |
+| **E2** | Golden suite table (Cases, capability, expected decision, critical flag, pass rule) | `src/core/screens/quality.js` | Done | Built golden suite with 100% critical / >=80% non-critical pass rule, canonical cases table, and Add Golden Case form. |
+| **E3** | Blind set evaluation (Comparison between team set and blind set, gap limit gate check) | `src/core/screens/quality.js` | Done | Implemented blind set evaluation with development vs hold-out metrics and automated 5 percentage point gap limit gate trip. |
+| **E4** | Eval gate (5 dimensions per capability, current vs candidate, slider thresholds) | `src/core/screens/quality.js` | Done | Built 5-dimension pass/fail evaluation gate with candidate metrics and adjustable threshold tolerance sliders. |
+| **E5** | Regression table with real counts (Live counts read from build JSON) | `src/core/screens/quality.js`, `docs/test-counts.json` | Done | Connected regression table to live test-counts.json reporting real counts across 20 industries, 11 countries, and over 1M assertions. |
+| **E6** | Error rates per 1,000 suggestions (Configurable limits, sliders, live session error counter) | `src/core/screens/quality.js` | Done | Built operational error rate budgets per 1,000 suggestions with owner routing, breach alerts, and interactive breach simulation. |
+| **E7** | Failures log (Symptom, root cause, fix, regression test id, slice metrics) | `src/core/screens/quality.js` | Done | Created historical failure log with causal root causes, corrective remedies, regression test IDs, and territory slice analysis. |
+| **E8** | Release gate summary (Go, Fix, Stop per item, composite Go rule) | `src/core/screens/quality.js` | Done | Built composite release clearance gate evaluating all sub-gates with Go/Fix/Stop logic and markdown export sign-off. |
+| **L-AB** | Portfolio Lab: A/B testing simulation (Lift range, sample size, effect size, noise sliders) | `src/core/lab-modal.js` | Done | Built A/B simulation tab with lift, sample size, and noise sliders and pre-registered 95% confidence rollout gate. |
+| **L-ROI** | Portfolio Lab: ROI calculator (Uplift, unit value, scale, cost, overlap slider) | `src/core/lab-modal.js` | Done | Built enterprise ROI calculator with capability overlap discount slider and net return modeling. |
+| **L-MAT** | Portfolio Lab: Maturity matrix (Level 1 to 3, Full vs Proxy capability execution) | `src/core/lab-modal.js` | Done | Built market maturity diagnostic mapping emerging, developing, and established markets to proxy vs full execution. |
+| **L-CH** | Portfolio Lab: Change tracking (Adoption, execution, value diagnostic chips) | `src/core/lab-modal.js` | Done | Added field adoption tracking with rep protection notice treating overrides as training signals. |
+| **L-EV** | Portfolio Lab: Eval gate | `src/core/screens/quality.js`, `src/core/lab-modal.js` | Done | Quality eval gate mirrored and accessible from lab overlay. |
+| **L-RG** | Portfolio Lab: Regression table | `src/core/screens/quality.js`, `src/core/lab-modal.js` | Done | Regression table mirrored and accessible from lab overlay. |
+| **L-ER** | Portfolio Lab: Error rates | `src/core/screens/quality.js`, `src/core/lab-modal.js` | Done | Error budgets mirrored and accessible from lab overlay. |
+| **L-FL** | Portfolio Lab: Failures log | `src/core/screens/quality.js`, `src/core/lab-modal.js` | Done | Failures log mirrored and accessible from lab overlay. |
+| **L-GATE** | Portfolio Lab: Release gate | `src/core/screens/quality.js`, `src/core/lab-modal.js` | Done | Release gate mirrored and accessible from lab overlay. |
+| **L-US** | Portfolio Lab: Session usage tracking (Click telemetry by persona and section) | `src/core/lab-modal.js` | Done | Implemented live click and view telemetry counters with Clear and Copy controls. |
+| **L-OUT** | Portfolio Lab: Outcomes precedence simulator (Tick conditions to see winning outcome) | `src/core/lab-modal.js` | Done | Built interactive precedence tester evaluating winning deterministic outcome from toggled safety conditions. |
+| **L-PV** | Portfolio Lab: Authority and applicability demo (Edit-drift simulation) | `src/core/lab-modal.js` | Done | Built candidate rule authority inspector with scope matching and edit drift monitoring. |
+| **L-RV** | Portfolio Lab: Review queue (Maker-checker workflow with side-by-side wording diff) | `src/core/lab-modal.js` | Done | Built maker-checker policy review queue with wording diff and dual sign-off actions. |
+| **L-RT** | Portfolio Lab: Rights simulator (Role x action matrix test) | `src/core/lab-modal.js` | Done | Built interactive RBAC rights simulator showing permitted vs denied decisions with policy explanation. |
+| **L-GP** | Portfolio Lab: Gap backlog and managed term map | `src/core/lab-modal.js` | Done | Added field gap backlog ticket inspection with claim workflow and canonical terminology confirmation. |
+| **L-CD** | Portfolio Lab: Interactive card demo | `src/core/lab-modal.js` | Done | Created card sandbox providing instant triggers for all 7 deterministic governance states. |
+| **L-TR** | Portfolio Lab: Suggestion trace inspector | `src/core/lab-modal.js` | Done | Added worked suggestion trace showing rule choice, boundary checks, and model explanation. |
+| **L-AG** | Portfolio Lab: Agents tab | `src/core/screens/agents.js` | Done | Unified navigation connecting Portfolio Lab directly to agent fleet views. |
+| **L-PM** | Portfolio Lab: Product Manager views tab | `src/core/screens/agents.js` | Done | Unified navigation connecting Portfolio Lab to PM views. |
+| **L-DEC** | Portfolio Lab: Decisions and model gateway | `src/core/lab-modal.js` | Done | Built 3-tier model gateway architecture distinguishing free deterministic rules from lightweight and frontier LLMs. |
 | **P1** | Product Manager: Metric tree (Reach x acceptance x completion, what-if slider) | None | Missing | Build interactive metric tree with live what-if slider and weakest-lever diagnostics. |
 | **P2** | Product Manager: Decision log by market (Market/status filters, add decision form) | None | Missing | Build market-segmented decision log with audit trail logging. |
 | **P3** | Product Manager: Bias checks by market (Account tier parity, review threshold slider) | None | Missing | Build demographic and tier parity monitor with automated review triggers. |
