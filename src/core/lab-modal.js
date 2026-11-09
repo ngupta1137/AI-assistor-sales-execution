@@ -1,3 +1,4 @@
+import { render as renderPm } from './screens/pm.js';
 // Portfolio Lab Overlay (Floating button bottom-left, phone-friendly 40px circle)
 // Hosts tabs L-AB to L-DEC for unified governance, ROI, A/B simulation, and testing.
 
@@ -75,6 +76,7 @@ export function renderLabModal(app, ctx) {
     ['tr', 'L-TR: Trace inspector'],
     ['dec', 'L-DEC: Model gateway'],
     ['us', 'L-US: Usage telemetry'],
+    ['pm', 'L-PM: PM Views'],
   ];
 
   return `
@@ -422,6 +424,9 @@ export function renderLabModal(app, ctx) {
             <button class="btn secondary sm" data-act="copy-lab-telemetry" style="min-height:var(--tap);font-size:11px">Copy metrics</button>
           </div>
         </section>
+      ` : tab === 'pm' ? `
+        <!-- L-PM Product Manager Views -->
+        ${renderPm(ctx)}
       ` : ''}
 
       <div style="display:flex;justify-content:flex-end;margin-top:8px">

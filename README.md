@@ -21,7 +21,12 @@ This project strictly adheres to honest enterprise architecture labeling:
 | **BUILT** | Rapid In-Visit Blitz Mode (45s) & Account Camera Exemption | Built & Interactive | Client-side execution with KAM-governed policy verification |
 | **BUILT** | RMA Return Claim Logging & Substitute Selector | Built & Interactive | Segregation of duties: AR approval queue, contract parity |
 | **BUILT** | Supervisory Anti-Gaming & Works Council Safe Mode | Built & Interactive | Anomaly queue, BetrVG 87 rep telemetry anonymization |
-| **BUILT** | 20 Industry Packs x 11 Country Packs (220 Permutations) | Built & Interactive | 258,000+ automated static assertions |
+| **BUILT** | 20 Industry Packs x 11 Country Packs (220 Permutations) | Built & Interactive | 360,000+ automated static assertions |
+| **BUILT** | Enterprise Governance (G1 to G14: 7 Outcomes, Rights, Audit Replay) | Built & Interactive | Deterministic card outcomes, exact-wording gate, rule health |
+| **BUILT** | 5-Layer Autonomous Agent Fleet (A1 to A6: Layers, Trace, Memory) | Built & Interactive | Visit orchestrator knapsack trace, tools catalog, memory |
+| **BUILT** | Quality, Evaluation & Release Gate System (E1 to E8: Blind Set, Evals) | Built & Interactive | Real test counts (>1M assertions), composite Go/Fix/Stop gate |
+| **BUILT** | Portfolio Lab Overlay (L-AB to L-DEC: A/B, ROI, Precedence Sim) | Built & Interactive | Interactive simulation sandbox, rights tester, maker-checker |
+| **BUILT** | Product Manager Operations (P1 to P4: Value Tree, Parity, Economics) | Built & Interactive | Interactive sensitivity model, fairness monitor, latency budget |
 | **DESIGNED** | SAP S/4HANA Idempotent Middleware Dedupe Contract | Architecture Spec | BAPI_SALESORDER_CREATEFROMDAT2 + UUID token spec |
 | **DESIGNED** | Enterprise SSO & RBAC (Entra ID, Okta SAML 2.0, Ping) | Architecture Spec | OpenID Connect / SAML 2.0 federation design |
 | **DESIGNED** | Offline Compensating Flows (Oversell, Credit Hold, Price Drift) | Architecture Spec | Replay table + state machine reconciliation design |
