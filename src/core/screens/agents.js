@@ -1,7 +1,17 @@
-// G1 and G2 Agent controls: scope, owner, what each agent does alone, what needs approval,
-// what is never its call (with the industry guardrails), authority level, stop and resume.
+// Agents screen: G1 and G2 Agent controls, plus A1 Layers view,
+// A2 One visit trace, A3 One gap end to end, A4 Tools and guardrails catalog,
+// A5 Account 360 feature profile, and A6 Account and visit memory.
 
 import { esc, icon, pill, LEVELS } from '../ui.js';
+import {
+  renderLayersView,
+  renderVisitTrace,
+  renderGapLifecycle,
+  renderToolsCatalog,
+  renderFeatureProfile,
+  renderMemoryTimeline,
+  agentViewActions,
+} from './agents-views.js';
 
 export const SCOPE = {
   planner: {
@@ -25,7 +35,9 @@ export const SCOPE = {
 };
 
 export function render(ctx) {
-  const { t, data, m, industry } = ctx;
+  const { t, data, m, industry, ui } = ctx;
+  const tab = ui?.agentsTab || 'controls';
+
   const cards = data.agents.map((ag) => {
     const s = SCOPE[ag.id];
     const stopped = m.agentStopped(ag.id);
@@ -57,109 +69,140 @@ export function render(ctx) {
 
   return `
   <section class="page-head">
-    <h1>Agent controls</h1>
-    <p class="small muted">Agents start with narrow authority and earn wider scope on evidence. Anyone with the right role can stop one at any time.</p>
+    <span class="eyebrow">${esc(industry.name)} · Multi-Agent Governance</span>
+    <h1>Autonomous Agent Fleet &amp; Governance</h1>
+    <p class="small muted">Agents operate under bounded authority with deterministic pipelines, zero black-box writes, and human approval gates.</p>
   </section>
-  <div class="items tight">${cards}</div>
-  <details class="fold" id="guardrails" open>
-    <summary>${esc(industry.name)} guardrails<span class="sum-end">${industry.guardrails.length}</span></summary>
-    <ul class="guards">${industry.guardrails.map((g) => `<li>${icon('shield', 16)} ${esc(t(g.text))}</li>`).join('')}</ul>
-  </details>
-  <section class="card" id="sandbox" style="margin-top:var(--s4)">
-    <div class="section-head">
-      <h2>Guardrail verification sandbox</h2>
-      ${pill('Policy inspector', 'info')}
-    </div>
-    <p class="small muted">Test sensitive prompts or out-of-bounds questions to verify autonomous agent guardrails and regulatory refusals.</p>
-    <div style="margin-top:8px">
-      <small class="muted" style="font-weight:600">Sample evaluation prompts:</small>
-      <div class="chips-q" style="margin-top:6px;display:flex;flex-wrap:wrap;gap:6px">
-        ${[
-          ...(industry.assistantRefusals ? industry.assistantRefusals.slice(0, 3).map((r) => r.patterns[0]) : []),
-          'What strategy should I suggest to the contact?',
-        ].map((q) => `<button class="chip-q" data-act="test-prompt" data-q="${esc(q)}" style="min-height:var(--tap);font-size:12px">${esc(q)}</button>`).join('')}
+
+  <!-- Section Navigation -->
+  <div class="seg-ctl" role="group" aria-label="Agent views" style="margin-bottom:var(--s3);overflow-x:auto;padding-bottom:2px">
+    <button class="seg ${tab === 'controls' ? 'on' : ''}" data-act="set-agents-tab" data-tab="controls" style="min-height:var(--tap);min-width:var(--tap)">Fleet controls</button>
+    <button class="seg ${tab === 'layers' ? 'on' : ''}" data-act="set-agents-tab" data-tab="layers" style="min-height:var(--tap);min-width:var(--tap)">Layers (A1)</button>
+    <button class="seg ${tab === 'trace' ? 'on' : ''}" data-act="set-agents-tab" data-tab="trace" style="min-height:var(--tap);min-width:var(--tap)">Trace (A2)</button>
+    <button class="seg ${tab === 'gap' ? 'on' : ''}" data-act="set-agents-tab" data-tab="gap" style="min-height:var(--tap);min-width:var(--tap)">Gap lifecycle (A3)</button>
+    <button class="seg ${tab === 'tools' ? 'on' : ''}" data-act="set-agents-tab" data-tab="tools" style="min-height:var(--tap);min-width:var(--tap)">Tools catalog (A4)</button>
+    <button class="seg ${tab === 'profile' ? 'on' : ''}" data-act="set-agents-tab" data-tab="profile" style="min-height:var(--tap);min-width:var(--tap)">Feature profile (A5)</button>
+    <button class="seg ${tab === 'memory' ? 'on' : ''}" data-act="set-agents-tab" data-tab="memory" style="min-height:var(--tap);min-width:var(--tap)">Memory timeline (A6)</button>
+  </div>
+
+  ${tab === 'controls' ? `
+    <div class="items tight">${cards}</div>
+    <details class="fold" id="guardrails" open>
+      <summary>${esc(industry.name)} guardrails<span class="sum-end">${industry.guardrails.length}</span></summary>
+      <ul class="guards">${industry.guardrails.map((g) => `<li>${icon('shield', 16)} ${esc(t(g.text))}</li>`).join('')}</ul>
+    </details>
+    <section class="card" id="sandbox" style="margin-top:var(--s4)">
+      <div class="section-head">
+        <h2>Guardrail verification sandbox</h2>
+        ${pill('Policy inspector', 'info')}
       </div>
-    </div>
-    <div style="margin-top:10px">
-      ${(() => {
-        const activeTest = ctx.ui?.guardrailTest || '';
-        if (!activeTest) return '<p class="small muted">Select a sample test prompt above to evaluate agent guardrail compliance in real time.</p>';
-        const testRefusal = industry.assistantRefusals ? industry.assistantRefusals.find((r) => r.patterns.some((p) => activeTest.toLowerCase().includes(p.toLowerCase()))) : null;
-        if (testRefusal) {
-          return `<div class="notice bad" style="margin-top:8px">
+      <p class="small muted">Test sensitive prompts or out-of-bounds questions to verify autonomous agent guardrails and regulatory refusals.</p>
+      <div style="margin-top:8px">
+        <small class="muted" style="font-weight:600">Sample evaluation prompts:</small>
+        <div class="chips-q" style="margin-top:6px;display:flex;flex-wrap:wrap;gap:6px">
+          ${[
+            ...(industry.assistantRefusals ? industry.assistantRefusals.slice(0, 3).map((r) => r.patterns[0]) : []),
+            'What strategy should I suggest to the contact?',
+          ].map((q) => `<button class="chip-q" data-act="test-prompt" data-q="${esc(q)}" style="min-height:var(--tap);font-size:12px">${esc(q)}</button>`).join('')}
+        </div>
+      </div>
+      <div style="margin-top:10px">
+        ${(() => {
+          const activeTest = ctx.ui?.guardrailTest || '';
+          if (!activeTest) return '<p class="small muted">Select a sample test prompt above to evaluate agent guardrail compliance in real time.</p>';
+          const testRefusal = industry.assistantRefusals ? industry.assistantRefusals.find((r) => r.patterns.some((p) => activeTest.toLowerCase().includes(p.toLowerCase()))) : null;
+          if (testRefusal) {
+            return `<div class="notice bad" style="margin-top:8px">
+              <div>
+                <div style="display:flex;align-items:center;gap:6px;margin-bottom:4px">
+                  ${pill('Policy violation intercepted', 'bad')}
+                  <small class="muted">Guardrail: ${esc(testRefusal.guardrail || 'Industry Policy')}</small>
+                </div>
+                <p style="font-size:13px;line-height:18px;margin-bottom:4px"><b>Agent refusal:</b> ${esc(testRefusal.refusal)}</p>
+                <p style="font-size:12px;line-height:16px;color:var(--good)"><b>Approved alternative:</b> ${esc(testRefusal.allowed)}</p>
+                <small class="muted" style="display:block;margin-top:4px">${icon('shield', 12)} Recorded in compliance audit trail.</small>
+              </div>
+            </div>`;
+          }
+          return `<div class="notice good" style="margin-top:8px">
             <div>
               <div style="display:flex;align-items:center;gap:6px;margin-bottom:4px">
-                ${pill('Policy violation intercepted', 'bad')}
-                <small class="muted">Guardrail: ${esc(testRefusal.guardrail || 'Industry Policy')}</small>
+                ${pill('Verified: Compliant', 'good')}
               </div>
-              <p style="font-size:13px;line-height:18px;margin-bottom:4px"><b>Agent refusal:</b> ${esc(testRefusal.refusal)}</p>
-              <p style="font-size:12px;line-height:16px;color:var(--good)"><b>Approved alternative:</b> ${esc(testRefusal.allowed)}</p>
-              <small class="muted" style="display:block;margin-top:4px">${icon('shield', 12)} Recorded in compliance audit trail.</small>
+              <p style="font-size:13px;line-height:18px">Prompt verified against all ${industry.guardrails.length} active agent guardrails. No regulatory or pricing boundaries breached.</p>
             </div>
           </div>`;
-        }
-        return `<div class="notice good" style="margin-top:8px">
-          <div>
-            <div style="display:flex;align-items:center;gap:6px;margin-bottom:4px">
-              ${pill('Verified: Compliant', 'good')}
-            </div>
-            <p style="font-size:13px;line-height:18px">Prompt verified against all ${industry.guardrails.length} active agent guardrails. No regulatory or pricing boundaries breached.</p>
+        })()}
+      </div>
+    </section>
+    <section class="card" id="policy-tuner" style="margin-top:var(--s4)">
+      <div class="section-head">
+        <h2>Commercial operations policy tuner</h2>
+        ${pill('Corporate strategy', 'good')}
+      </div>
+      <p class="small muted" style="margin-bottom:8px">Tune corporate algorithmic objective weights across the territory agent fleet. Recommendations adapt deterministically.</p>
+      
+      <div style="display:flex;flex-direction:column;gap:10px">
+        <div>
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px">
+            <small style="font-weight:600">Margin vs volume objective weight:</small>
+            <b>${ctx.ui?.policyWeight || '65% Margin / 35% Volume'}</b>
           </div>
-        </div>`;
-      })()}
-    </div>
-  </section>
-  <section class="card" id="policy-tuner" style="margin-top:var(--s4)">
-    <div class="section-head">
-      <h2>Commercial operations policy tuner</h2>
-      ${pill('Corporate strategy', 'good')}
-    </div>
-    <p class="small muted" style="margin-bottom:8px">Tune corporate algorithmic objective weights across the territory agent fleet. Recommendations adapt deterministically.</p>
-    
-    <div style="display:flex;flex-direction:column;gap:10px">
-      <div>
-        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px">
-          <small style="font-weight:600">Margin vs volume objective weight:</small>
-          <b>${ctx.ui?.policyWeight || '65% Margin / 35% Volume'}</b>
+          <div class="seg-ctl" role="group" aria-label="Objective weight">
+            <button class="seg ${(ctx.ui?.policyWeight || '65/35') === '50/50' ? 'on' : ''}" data-act="set-policy-weight" data-v="50/50" style="min-height:var(--tap);min-width:var(--tap)">50 / 50 Balanced</button>
+            <button class="seg ${(ctx.ui?.policyWeight || '65/35') === '65/35' ? 'on' : ''}" data-act="set-policy-weight" data-v="65/35" style="min-height:var(--tap);min-width:var(--tap)">65 / 35 Margin focus</button>
+            <button class="seg ${(ctx.ui?.policyWeight || '65/35') === '80/20' ? 'on' : ''}" data-act="set-policy-weight" data-v="80/20" style="min-height:var(--tap);min-width:var(--tap)">80 / 20 Max margin</button>
+          </div>
         </div>
-        <div class="seg-ctl" role="group" aria-label="Objective weight">
-          <button class="seg ${(ctx.ui?.policyWeight || '65/35') === '50/50' ? 'on' : ''}" data-act="set-policy-weight" data-v="50/50" style="min-height:var(--tap);min-width:var(--tap)">50 / 50 Balanced</button>
-          <button class="seg ${(ctx.ui?.policyWeight || '65/35') === '65/35' ? 'on' : ''}" data-act="set-policy-weight" data-v="65/35" style="min-height:var(--tap);min-width:var(--tap)">65 / 35 Margin focus</button>
-          <button class="seg ${(ctx.ui?.policyWeight || '65/35') === '80/20' ? 'on' : ''}" data-act="set-policy-weight" data-v="80/20" style="min-height:var(--tap);min-width:var(--tap)">80 / 20 Max margin</button>
+
+        <div>
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px">
+            <small style="font-weight:600">Minimum gross margin hurdle rate:</small>
+            <b>${ctx.ui?.policyHurdle || '18%'}</b>
+          </div>
+          <div class="seg-ctl" role="group" aria-label="Hurdle rate">
+            <button class="seg ${(ctx.ui?.policyHurdle || '18%') === '15%' ? 'on' : ''}" data-act="set-policy-hurdle" data-v="15%" style="min-height:var(--tap);min-width:var(--tap)">15% Standard</button>
+            <button class="seg ${(ctx.ui?.policyHurdle || '18%') === '18%' ? 'on' : ''}" data-act="set-policy-hurdle" data-v="18%" style="min-height:var(--tap);min-width:var(--tap)">18% Target</button>
+            <button class="seg ${(ctx.ui?.policyHurdle || '18%') === '22%' ? 'on' : ''}" data-act="set-policy-hurdle" data-v="22%" style="min-height:var(--tap);min-width:var(--tap)">22% Premium</button>
+          </div>
         </div>
       </div>
 
-      <div>
-        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px">
-          <small style="font-weight:600">Minimum gross margin hurdle rate:</small>
-          <b>${ctx.ui?.policyHurdle || '18%'}</b>
-        </div>
-        <div class="seg-ctl" role="group" aria-label="Hurdle rate">
-          <button class="seg ${(ctx.ui?.policyHurdle || '18%') === '15%' ? 'on' : ''}" data-act="set-policy-hurdle" data-v="15%" style="min-height:var(--tap);min-width:var(--tap)">15% Standard</button>
-          <button class="seg ${(ctx.ui?.policyHurdle || '18%') === '18%' ? 'on' : ''}" data-act="set-policy-hurdle" data-v="18%" style="min-height:var(--tap);min-width:var(--tap)">18% Target</button>
-          <button class="seg ${(ctx.ui?.policyHurdle || '18%') === '22%' ? 'on' : ''}" data-act="set-policy-hurdle" data-v="22%" style="min-height:var(--tap);min-width:var(--tap)">22% Premium</button>
-        </div>
+      <div class="facts" style="margin-top:10px;grid-template-columns:repeat(auto-fit,minmax(80px,1fr))">
+        <div><small>Projected lift</small><b class="good-text">+14.2%</b></div>
+        <div><small>Sensitivity</small><b>High margin</b></div>
+        <div><small>Policy code</small><b>POL-2026-Q4</b></div>
       </div>
-    </div>
 
-    <div class="facts" style="margin-top:10px;grid-template-columns:repeat(auto-fit,minmax(80px,1fr))">
-      <div><small>Projected lift</small><b class="good-text">+14.2%</b></div>
-      <div><small>Sensitivity</small><b>High margin</b></div>
-      <div><small>Policy code</small><b>POL-2026-Q4</b></div>
-    </div>
+      <button class="btn good sm" data-act="publish-policy" style="min-height:var(--tap);width:100%;margin-top:10px">${icon('check', 14)} Publish strategy weights to territory fleet</button>
+      ${ctx.ui?.policyToast ? `<div class="notice good" style="margin-top:8px">${icon('check', 14)}<span>${esc(ctx.ui.policyToast)}</span></div>` : ''}
+    </section>
+    <details class="fold" id="audit"${m.audit().length ? ' open' : ''}>
+      <summary>Audit log<span class="sum-end">${m.audit().length}</span></summary>
+      <p class="small muted">Approvals, overrides, outcomes, evidence and agent stops in this session.</p>
+      ${m.audit().length ? `<ul class="audit">${m.audit().slice(0, 30).map((x) => `<li><time>${esc(ctx.fmt.time(x.at))}</time><span><b>${esc(x.actor)}</b> ${esc(x.text)}</span></li>`).join('')}</ul>` : '<p class="small muted">Nothing yet in this session.</p>'}
+    </details>
+  ` : tab === 'layers' ? `
+    ${renderLayersView(ctx)}
+  ` : tab === 'trace' ? `
+    ${renderVisitTrace(ctx)}
+  ` : tab === 'gap' ? `
+    ${renderGapLifecycle(ctx)}
+  ` : tab === 'tools' ? `
+    ${renderToolsCatalog(ctx)}
+  ` : tab === 'profile' ? `
+    ${renderFeatureProfile(ctx)}
+  ` : tab === 'memory' ? `
+    ${renderMemoryTimeline(ctx)}
+  ` : ''}
 
-    <button class="btn good sm" data-act="publish-policy" style="min-height:var(--tap);width:100%;margin-top:10px">${icon('check', 14)} Publish strategy weights to territory fleet</button>
-    ${ctx.ui?.policyToast ? `<div class="notice good" style="margin-top:8px">${icon('check', 14)}<span>${esc(ctx.ui.policyToast)}</span></div>` : ''}
-  </section>
-  <details class="fold" id="audit"${m.audit().length ? ' open' : ''}>
-    <summary>Audit log<span class="sum-end">${m.audit().length}</span></summary>
-    <p class="small muted">Approvals, overrides, outcomes, evidence and agent stops in this session.</p>
-    ${m.audit().length ? `<ul class="audit">${m.audit().slice(0, 30).map((x) => `<li><time>${esc(ctx.fmt.time(x.at))}</time><span><b>${esc(x.actor)}</b> ${esc(x.text)}</span></li>`).join('')}</ul>` : '<p class="small muted">Nothing yet in this session.</p>'}
-  </details>
-  <p class="foot-note">Agents in this demo are rule-based.</p>`;
+  <p class="foot-note">Agents in this demo operate under strict enterprise governance rules.</p>`;
 }
 
 export const actions = {
+  'set-agents-tab': ({ ctx, data }) => {
+    (ctx.ui ||= {}).agentsTab = data.tab;
+  },
   'set-policy-weight': ({ ctx, data }) => {
     (ctx.ui ||= {}).policyWeight = data.v;
   },
@@ -182,4 +225,5 @@ export const actions = {
       if (ctx.m?.logAudit) ctx.m.logAudit('Compliance Policy', `Verified compliant prompt: "${data.q}"`);
     }
   },
+  ...agentViewActions,
 };
