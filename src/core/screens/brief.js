@@ -57,7 +57,114 @@ function sheet(ctx, it, open) {
     </div>`;
 }
 
-function renderItem(ctx, it, isNext) {
+
+function renderRuleDrawer(ctx) {
+  const rd = ctx.ui?.ruleDrawerOpen;
+  if (!rd) return '';
+  const it = ctx.m.findAction(rd.id);
+  const rule = it ? ctx.m.ruleForItem(it) : (ctx.industry.governance?.rules?.find((r) => r.id === rd.ruleId) || { id: rd.ruleId, title: 'Governance Rule' });
+  const market = ctx.country.market || ctx.country.name;
+
+  return `
+  <div class="presenter-backdrop" data-act="close-rule-drawer" aria-hidden="true"></div>
+  <section class="as-sheet enterprise-modal" role="dialog" aria-modal="true" aria-labelledby="rule-drawer-title" style="height:auto;max-height:85%;overflow-y:auto;z-index:90">
+    <header class="as-head">
+      <div>
+        <h2 id="rule-drawer-title" style="display:flex;align-items:center;gap:6px">
+          ${icon('shield', 20)} Policy Rule Details
+        </h2>
+        <small>${esc(rule.id)} · Version ${esc(rule.version || 'v2.4')}</small>
+      </div>
+      <button class="icon-btn" data-act="close-rule-drawer" aria-label="Close rule details">${icon('x', 20)}</button>
+    </header>
+    <div style="padding:var(--s4);display:flex;flex-direction:column;gap:var(--s3)">
+      <div class="card" style="margin:0;background:var(--surface-subtle)">
+        <div style="display:flex;justify-content:space-between;align-items:flex-start">
+          <b style="font-size:13px">${esc(rule.title)}</b>
+          ${pill(rule.status || 'Healthy', rule.status === 'Healthy' ? 'good' : 'warn')}
+        </div>
+        <div class="facts" style="grid-template-columns:repeat(auto-fit,minmax(120px,1fr));margin-top:8px">
+          <div><small>Policy owner</small><b>${esc(rule.owner)}</b></div>
+          <div><small>Named approver</small><b>${esc(rule.approver)}</b></div>
+          <div><small>Effective dates</small><b>${esc(rule.effectiveDates || '2026-01-01 to 2026-12-31')}</b></div>
+          <div><small>Last reviewed</small><b>${esc(rule.lastReviewed || '2026-09-15')}</b></div>
+        </div>
+      </div>
+
+      <section class="card" style="margin:0">
+        <h3>Policy scope</h3>
+        <p class="small muted" style="margin-top:4px">${esc(rule.scope || 'All commercial territory accounts')}</p>
+        <h3 style="margin-top:10px">What this rule is never allowed to decide</h3>
+        <p class="small warn-text" style="margin-top:4px">${esc(rule.neverDecides || 'Never overrides commercial credit limits, margin floors, or statutory compliance standards')}</p>
+      </section>
+
+      <section class="card" style="margin:0;border-left:3px solid var(--accent)">
+        <h3>Why this applied to this {account}</h3>
+        <ul style="margin:8px 0 0 16px;padding:0;font-size:12px;line-height:1.6">
+          <li><b>Approved:</b> Verified sign-off by named approver (${esc(rule.approver)}).</li>
+          <li><b>In date:</b> Policy active in ${esc(market)} for current commercial cycle.</li>
+          <li><b>Applies here:</b> Account classification matches policy scope (${esc(rule.scope)}).</li>
+        </ul>
+      </section>
+
+      <div style="display:flex;justify-content:flex-end">
+        <button class="btn primary sm" data-act="close-rule-drawer" style="min-height:var(--tap);min-width:100px">Done</button>
+      </div>
+    </div>
+  </section>`;
+}
+
+function renderFlagSheet(ctx) {
+  const fs = ctx.ui?.flagSheet;
+  if (!fs) return '';
+  const it = ctx.m.findAction(fs.id);
+  const rule = it ? ctx.m.ruleForItem(it) : { title: 'Recommendation', owner: 'Policy Owner' };
+  const reasons = [
+    'Not true here',
+    'Out of date',
+    'Wrong wording',
+    'Not allowed',
+    'Other',
+  ];
+
+  return `
+  <div class="presenter-backdrop" data-act="close-flag-sheet" aria-hidden="true"></div>
+  <section class="as-sheet enterprise-modal" role="dialog" aria-modal="true" aria-labelledby="flag-sheet-title" style="height:auto;max-height:85%;overflow-y:auto;z-index:90">
+    <header class="as-head">
+      <div>
+        <h2 id="flag-sheet-title" style="display:flex;align-items:center;gap:6px">
+          ${icon('flag', 18)} Flag this recommendation
+        </h2>
+        <small>${it ? esc(ctx.t(it.title, it.vars)) : 'Recommendation'}</small>
+      </div>
+      <button class="icon-btn" data-act="close-flag-sheet" aria-label="Close flag form">${icon('x', 20)}</button>
+    </header>
+    <div style="padding:var(--s4);display:flex;flex-direction:column;gap:var(--s3)">
+      <p class="small muted">Flagging creates a ticket in the gap backlog and sends feedback to the rule owner (<b>${esc(rule.owner)}</b>). It is feedback for improving policies, never a penalty.</p>
+      
+      <fieldset class="radios" style="margin:4px 0">
+        <legend class="sr-only">Flag reason</legend>
+        ${reasons.map((r) => `
+          <label class="radio" style="display:flex;align-items:center;gap:8px;padding:4px 0">
+            <input type="radio" name="flag-reason-${fs.id}" value="${esc(r)}" data-change="pick-flag-reason" ${fs.reason === r ? 'checked' : ''}>
+            <span style="font-size:12px">${esc(r)}</span>
+          </label>
+        `).join('')}
+      </fieldset>
+
+      <label class="field">Note (optional)
+        <textarea class="input" rows="2" maxlength="300" data-change="flag-note" data-input="flag-note" placeholder="Add specific local context...">${esc(fs.note || '')}</textarea>
+      </label>
+
+      <div class="btn-row" style="margin-top:8px">
+        <button class="btn secondary" data-act="close-flag-sheet">Cancel</button>
+        <button class="btn primary" data-act="submit-flag" data-id="${fs.id}" ${fs.reason ? '' : 'disabled'}>Submit flag</button>
+      </div>
+    </div>
+  </section>`;
+}
+
+function renderItem(ctx, it, isNext, a, itemIndex) {
   const { t, fmt, m, ui } = ctx;
   const v = it.vars;
   const d = m.decision(it.id);
@@ -224,7 +331,7 @@ export function render(ctx, [accountId]) {
     </div>
   </section>` : '';
 
-  return `${collateralModal}${deckModal}
+  return `${collateralModal}${deckModal}${renderRuleDrawer(ctx)}${renderFlagSheet(ctx)}
   ${ui.briefToast ? `<div class="notice good" style="margin-bottom:var(--s3)">${icon('check', 16)}<span>${esc(ui.briefToast)}</span></div>` : ''}
   <a class="back" href="#/today">${icon('back', 18)} ${esc(t('Today'))}</a>
   <section class="brief-head">
@@ -348,7 +455,7 @@ export function render(ctx, [accountId]) {
   </div>
   <p class="small muted tight guard">${esc(t('Reviewing this brief does not submit an {order}.'))}${c.paused ? ` ${c.paused} paused.` : ''}</p>
 
-  <div class="items tight">${items.map((it) => renderItem(ctx, it, it === firstPending)).join('')}</div>
+  <div class="items tight">${items.map((it, idx) => renderItem(ctx, it, it === firstPending, a, idx)).join('')}</div>
 
   <div class="btn-row">
     ${c.pending > 0 ? `<button class="btn secondary block" data-act="approve-all" data-id="${a.id}">Approve all remaining (${c.pending})</button>` : ''}
@@ -375,6 +482,41 @@ const currentNote = (ctx, id) => {
 };
 
 export const actions = {
+  'open-rule-drawer': ({ ctx, data }) => { (ctx.ui ||= {}).ruleDrawerOpen = { id: data.id, ruleId: data.rule }; },
+  'close-rule-drawer': ({ ctx }) => { (ctx.ui ||= {}).ruleDrawerOpen = null; },
+  'open-flag-sheet': ({ ctx, data }) => { (ctx.ui ||= {}).flagSheet = { id: data.id, reason: '', note: '' }; },
+  'close-flag-sheet': ({ ctx }) => { (ctx.ui ||= {}).flagSheet = null; },
+  'pick-flag-reason': ({ ctx, value }) => { if (ctx.ui?.flagSheet) ctx.ui.flagSheet.reason = value; },
+  'flag-note': ({ ctx, value }) => { if (ctx.ui?.flagSheet) ctx.ui.flagSheet.note = value.slice(0, 300); return false; },
+  'submit-flag': ({ ctx, data }) => {
+    const fs = ctx.ui?.flagSheet;
+    if (fs && fs.reason) {
+      ctx.m.flagRecommendation(data.id, { reason: fs.reason, note: fs.note });
+      ctx.ui.flagSheet = null;
+      ctx.ui.briefToast = 'Recommendation flagged and logged to gap backlog.';
+    }
+  },
+  'resolve-clarify': ({ ctx, data }) => {
+    ctx.m.resolveClarify(data.id, data.choice);
+    ctx.ui.briefToast = 'Clarification resolved: ' + data.choice;
+  },
+  'refresh-stale': ({ ctx, data }) => {
+    ctx.m.refreshStale(data.id);
+    ctx.ui.briefToast = 'Data refreshed. Recommendation updated.';
+  },
+  'read-exact-wording': ({ ctx, data }) => {
+    ctx.m.readExactWording(data.rule, data.id);
+  },
+  'add-evidence-note': ({ ctx, data }) => {
+    ctx.m.setEvidence(data.id, { type: 'note', text: 'Field observation recorded during brief review', at: Date.now() });
+    ctx.m.resolveClarify(data.id, 'Verified field evidence');
+    ctx.ui.briefToast = 'Field evidence note attached.';
+  },
+  'ask-manager-conflict': ({ ctx, data }) => {
+    ctx.m.logAudit(ctx.data.rep?.name || 'Field Rep', 'Escalated policy conflict to territory sales manager');
+    ctx.ui.briefToast = 'Policy conflict escalated to sales manager.';
+  },
+
   'try-second-reschedule': ({ ctx }) => {
     (ctx.ui ||= {}).rescheduleChainWarning = true;
   },

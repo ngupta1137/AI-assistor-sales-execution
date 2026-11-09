@@ -117,7 +117,17 @@ export function render(ctx, [accountId]) {
     </div>
   </section>` : '';
 
+
+  const market = ctx.country.market || ctx.country.name;
+  const segment = ctx.industry.segments.find((s) => s.id === a.segmentId)?.name || a.segment;
+  const channel = 'Direct Field Sales';
+  const repRole = ctx.industry.personas?.rep || 'Sales Rep';
+  const contextBar = `<div class="context-bar" style="background:var(--surface-subtle);border-left:3px solid var(--accent);padding:6px 10px;margin-bottom:var(--s3);border-radius:var(--radius-sm);font-size:11px;color:var(--muted)">
+    <span style="font-weight:600;color:var(--ink)">Recommendations apply to this context:</span> ${esc(market)}, ${esc(segment)}, ${esc(channel)}, ${esc(repRole)}
+  </div>`;
+
   return `${crmNoteModal}
+  ${contextBar}
   <a class="back" href="${p ? `#/brief/${a.id}` : '#/today'}">${icon('back', 18)} ${p ? esc(t('{Visit} brief')) : 'Back'}</a>
   ${ctx.ui?.accountToast ? `<div class="notice good" style="margin-bottom:var(--s3)">${icon('check', 16)}<span>${esc(ctx.ui.accountToast)}</span></div>` : ''}
   <section class="page-head">

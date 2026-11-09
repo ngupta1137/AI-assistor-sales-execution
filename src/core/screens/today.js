@@ -67,7 +67,17 @@ export function render(ctx) {
     </div>
   </section>` : '';
 
+
+  const market = ctx.country.market || ctx.country.name;
+  const segment = 'All territory segments';
+  const channel = 'Direct Field Sales';
+  const repRole = ctx.industry.personas?.rep || 'Sales Rep';
+  const contextBar = `<div class="context-bar" style="background:var(--surface-subtle);border-left:3px solid var(--accent);padding:6px 10px;margin-bottom:var(--s3);border-radius:var(--radius-sm);font-size:11px;color:var(--muted)">
+    <span style="font-weight:600;color:var(--ink)">Recommendations apply to this context:</span> ${esc(market)}, ${esc(segment)}, ${esc(channel)}, ${esc(repRole)}
+  </div>`;
+
   return `${adhocModal}
+  ${contextBar}
   ${ctx.ui?.todayToast ? `<div class="notice good" style="margin-bottom:var(--s3)">${icon('check', 16)}<span>${esc(ctx.ui.todayToast)}</span></div>` : ''}
   <section class="page-head">
     <h1>${greeting()}, ${esc(data.rep.first)}</h1>
