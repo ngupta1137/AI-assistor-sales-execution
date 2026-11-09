@@ -205,7 +205,7 @@ export function render(ctx) {
         <div style="padding:10px 12px;background:var(--surface-inset);border-radius:var(--radius-sm);border:1px solid var(--line-soft)">
           <div style="display:flex;justify-content:space-between;align-items:center;font-size:11px;margin-bottom:6px">
             <span class="muted">District 6-day revenue run-rate vs weekly quota</span>
-            <span class="good-text"><b>$118,300 booked</b> (+5.2% vs $112,500 quota)</span>
+            <span class="good-text"><b>${esc(fmt.money(118300))} booked</b> (+5.2% vs ${esc(fmt.money(112500))} quota)</span>
           </div>
           <svg viewBox="0 0 340 90" style="width:100%;height:auto;overflow:visible" role="img" aria-label="Weekly district run rate">
             <defs>
@@ -215,36 +215,36 @@ export function render(ctx) {
               </linearGradient>
             </defs>
             <line x1="38" y1="18" x2="325" y2="18" stroke="var(--line-soft)" stroke-dasharray="2,2"/>
-            <text x="32" y="21" font-size="8" fill="var(--muted)" text-anchor="end">$30k</text>
+            <text x="32" y="21" font-size="8" fill="var(--muted)" text-anchor="end">${esc(fmt.moneyShort(30000))}</text>
             <line x1="38" y1="46" x2="325" y2="46" stroke="var(--line-soft)" stroke-dasharray="2,2"/>
-            <text x="32" y="49" font-size="8" fill="var(--muted)" text-anchor="end">$20k</text>
+            <text x="32" y="49" font-size="8" fill="var(--muted)" text-anchor="end">${esc(fmt.moneyShort(20000))}</text>
             <line x1="38" y1="72" x2="325" y2="72" stroke="var(--line-soft)"/>
-            <text x="32" y="74" font-size="8" fill="var(--muted)" text-anchor="end">$10k</text>
+            <text x="32" y="74" font-size="8" fill="var(--muted)" text-anchor="end">${esc(fmt.moneyShort(10000))}</text>
             
             <!-- Daily district quota: $18.75k (y=49) -->
             <line x1="42" y1="49" x2="320" y2="49" stroke="var(--muted)" stroke-width="1.5" stroke-dasharray="4,4"/>
-            <text x="320" y="45" font-size="7" fill="var(--muted)" text-anchor="end">Daily Quota ($18.8k)</text>
+            <text x="320" y="45" font-size="7" fill="var(--muted)" text-anchor="end">Daily Quota (${esc(fmt.moneyShort(18800))})</text>
             
             <polygon points="46,46 95,38 145,54 195,30 245,18 295,48 295,72 46,72" fill="url(#mgrWeeklyGrad)"/>
             <polyline points="46,46 95,38 145,54 195,30 245,18 295,48" fill="none" stroke="var(--accent)" stroke-width="2.5"/>
             
             <circle cx="46" cy="46" r="3.5" fill="var(--accent)"/>
-            <text x="46" y="40" font-size="7" fill="var(--muted)" text-anchor="middle">$19.2k</text>
+            <text x="46" y="40" font-size="7" fill="var(--muted)" text-anchor="middle">${esc(fmt.moneyShort(19200))}</text>
             
             <circle cx="95" cy="38" r="3.5" fill="var(--accent)"/>
-            <text x="95" y="32" font-size="7" fill="var(--muted)" text-anchor="middle">$22.4k</text>
+            <text x="95" y="32" font-size="7" fill="var(--muted)" text-anchor="middle">${esc(fmt.moneyShort(22400))}</text>
             
             <circle cx="145" cy="54" r="3.5" fill="var(--warn)"/>
-            <text x="145" y="65" font-size="7" fill="var(--warn)" text-anchor="middle">$16.8k (Logistics lag)</text>
+            <text x="145" y="65" font-size="7" fill="var(--warn)" text-anchor="middle">${esc(fmt.moneyShort(16800))} (Logistics lag)</text>
             
             <circle cx="195" cy="30" r="3.5" fill="var(--accent)"/>
-            <text x="195" y="24" font-size="7" fill="var(--muted)" text-anchor="middle">$24.8k</text>
+            <text x="195" y="24" font-size="7" fill="var(--muted)" text-anchor="middle">${esc(fmt.moneyShort(24800))}</text>
             
             <circle cx="245" cy="18" r="4.5" fill="var(--good)"/>
-            <text x="245" y="12" font-size="8" font-weight="700" fill="var(--good)" text-anchor="middle">$29.6k (Fri Surge)</text>
+            <text x="245" y="12" font-size="8" font-weight="700" fill="var(--good)" text-anchor="middle">${esc(fmt.moneyShort(29600))} (Fri Surge)</text>
             
             <circle cx="295" cy="48" r="3.5" fill="var(--accent)"/>
-            <text x="295" y="42" font-size="7" fill="var(--muted)" text-anchor="middle">$18.2k</text>
+            <text x="295" y="42" font-size="7" fill="var(--muted)" text-anchor="middle">${esc(fmt.moneyShort(18200))}</text>
             
             <text x="46" y="82" font-size="8" fill="var(--muted)" text-anchor="middle">Mon</text>
             <text x="95" y="82" font-size="8" fill="var(--muted)" text-anchor="middle">Tue</text>
@@ -260,12 +260,12 @@ export function render(ctx) {
           <div><small>Quota target</small><b>${esc(fmt.moneyShort(1350000))}</b></div>
           <div><small>Actual booked</small><b class="good-text">${esc(fmt.moneyShort(1420000))}</b></div>
           <div><small>Attainment</small><b class="good-text">105.2%</b></div>
-          <div><small>AI attribution</small><b class="money">+${esc(fmt.moneyShort(184200))}</b></div>
+          <div><small>Data</small><b>Sample</b></div>
         </div>
         <div style="padding:10px 12px;background:var(--surface-inset);border-radius:var(--radius-sm);border:1px solid var(--line-soft)">
           <div style="display:flex;justify-content:space-between;align-items:center;font-size:11px;margin-bottom:6px">
-            <span class="muted">12-week district quota trajectory (W6 AI Assistor Inflection)</span>
-            <span class="good-text"><b>$1,420,000 Actual</b> (+$70,000 vs $1,350,000 quota)</span>
+            <span class="muted">12-week district quota trajectory (illustrative, sample data)</span>
+            <span class="good-text"><b>${esc(fmt.money(1420000))} Actual</b> (+${esc(fmt.money(70000))} vs ${esc(fmt.money(1350000))} quota)</span>
           </div>
           <svg viewBox="0 0 340 100" style="width:100%;height:auto;overflow:visible" role="img" aria-label="12-week district quota attainment">
             <defs>
@@ -276,19 +276,19 @@ export function render(ctx) {
             </defs>
             <!-- Grid lines and Y-axis scale -->
             <line x1="42" y1="20" x2="325" y2="20" stroke="var(--line-soft)" stroke-dasharray="2,2"/>
-            <text x="36" y="23" font-size="8" fill="var(--muted)" text-anchor="end">$180k</text>
+            <text x="36" y="23" font-size="8" fill="var(--muted)" text-anchor="end">${esc(fmt.moneyShort(180000))}</text>
             <line x1="42" y1="50" x2="325" y2="50" stroke="var(--line-soft)" stroke-dasharray="2,2"/>
-            <text x="36" y="53" font-size="8" fill="var(--muted)" text-anchor="end">$120k</text>
+            <text x="36" y="53" font-size="8" fill="var(--muted)" text-anchor="end">${esc(fmt.moneyShort(120000))}</text>
             <line x1="42" y1="78" x2="325" y2="78" stroke="var(--line-soft)"/>
-            <text x="36" y="80" font-size="8" fill="var(--muted)" text-anchor="end">$80k</text>
+            <text x="36" y="80" font-size="8" fill="var(--muted)" text-anchor="end">${esc(fmt.moneyShort(80000))}</text>
             
             <!-- Target line: gradual ramp from $95k to $135k/wk -->
             <line x1="48" y1="72" x2="320" y2="35" stroke="var(--muted)" stroke-width="1.5" stroke-dasharray="4,4"/>
-            <text x="320" y="31" font-size="7" fill="var(--muted)" text-anchor="end">Target ($1.35M)</text>
+            <text x="320" y="31" font-size="7" fill="var(--muted)" text-anchor="end">Target (${esc(fmt.moneyShort(1350000))})</text>
             
             <!-- W6 AI Intervention Marker -->
             <line x1="168" y1="12" x2="168" y2="82" stroke="var(--warn)" stroke-width="1.5" stroke-dasharray="3,3"/>
-            <text x="168" y="10" font-size="8" font-weight="700" fill="var(--warn)" text-anchor="middle">AI Rollout (W6)</text>
+            <text x="168" y="10" font-size="8" font-weight="700" fill="var(--warn)" text-anchor="middle">Pilot start (W6, sample)</text>
             
             <!-- Shaded Area post-W6 -->
             <polygon points="48,76 72,74 96,70 120,73 144,68 168,58 192,50 216,42 240,34 264,28 288,22 320,14 320,78 48,78" fill="url(#mgrAreaGrad)"/>
@@ -299,14 +299,14 @@ export function render(ctx) {
             <!-- Data callouts -->
             <circle cx="48" cy="76" r="3" fill="var(--muted)"/>
             <circle cx="120" cy="73" r="3" fill="var(--warn)"/>
-            <text x="120" y="86" font-size="7" fill="var(--muted)" text-anchor="middle">W4: $95k (Lag)</text>
+            <text x="120" y="86" font-size="7" fill="var(--muted)" text-anchor="middle">W4: ${esc(fmt.moneyShort(95000))} (Lag)</text>
             
             <circle cx="168" cy="58" r="4" fill="var(--warn)"/>
             <circle cx="240" cy="34" r="3.5" fill="var(--good)"/>
-            <text x="240" y="27" font-size="7" fill="var(--good)" text-anchor="middle">$148k</text>
+            <text x="240" y="27" font-size="7" fill="var(--good)" text-anchor="middle">${esc(fmt.moneyShort(148000))}</text>
             
             <circle cx="320" cy="14" r="4.5" fill="var(--good)"/>
-            <text x="320" y="8" font-size="8" font-weight="700" fill="var(--good)" text-anchor="middle">$182k (W12)</text>
+            <text x="320" y="8" font-size="8" font-weight="700" fill="var(--good)" text-anchor="middle">${esc(fmt.moneyShort(182000))} (W12)</text>
             
             <!-- X-axis weeks -->
             <text x="48" y="92" font-size="8" fill="var(--muted)" text-anchor="middle">W1</text>
@@ -339,7 +339,7 @@ export function render(ctx) {
         </div>
         <div style="display:flex;justify-content:space-between;padding:6px 8px;background:var(--surface);border-radius:4px;border:1px solid var(--line-soft)">
           <span>Unvisited priority stops:</span>
-          <b>3 high-value accounts (Est. $4,200)</b>
+          <b>3 high-value accounts (Est. ${esc(fmt.money(4200))})</b>
         </div>
         <div style="display:flex;justify-content:space-between;padding:6px 8px;background:var(--surface);border-radius:4px;border:1px solid var(--line-soft)">
           <span>Target reassignment:</span>
@@ -553,11 +553,11 @@ export function render(ctx) {
         </div>
         <table class="tbl" style="width:100%;font-size:12px">
           <tbody>
-            <tr><td>Attributable gross margin expansion (Test vs Control)</td><td style="text-align:right" class="good-text"><b>+$18,400</b></td></tr>
-            <tr><td>Field capacity savings (19m/rep redeployed to high-tier calls)</td><td style="text-align:right" class="good-text"><b>+$2,640</b></td></tr>
-            <tr><td class="muted">Less incremental co-op trade promotion investment</td><td style="text-align:right" class="warn-text">-$4,800</td></tr>
-            <tr><td class="muted">Less commercial platform &amp; integration operating costs</td><td style="text-align:right" class="muted">-$1,960</td></tr>
-            <tr style="border-top:2px solid var(--line)"><td><b>Net realized commercial value (Attributable profit)</b></td><td style="text-align:right" class="good-text"><b style="font-size:14px">+$14,280</b></td></tr>
+            <tr><td>Attributable gross margin expansion (Test vs Control)</td><td style="text-align:right" class="good-text"><b>+${esc(fmt.money(18400))}</b></td></tr>
+            <tr><td>Field capacity savings (19m/rep redeployed to high-tier calls)</td><td style="text-align:right" class="good-text"><b>+${esc(fmt.money(2640))}</b></td></tr>
+            <tr><td class="muted">Less incremental co-op trade promotion investment</td><td style="text-align:right" class="warn-text">-${esc(fmt.money(4800))}</td></tr>
+            <tr><td class="muted">Less commercial platform &amp; integration operating costs</td><td style="text-align:right" class="muted">-${esc(fmt.money(1960))}</td></tr>
+            <tr style="border-top:2px solid var(--line)"><td><b>Net realized commercial value (Attributable profit)</b></td><td style="text-align:right" class="good-text"><b style="font-size:14px">+${esc(fmt.money(14280))}</b></td></tr>
           </tbody>
         </table>
         <small class="muted" style="display:block;margin-top:6px">Formula: Net Realized Value = Attributable Margin (Gross Margin post-trade) + Realized Capacity (GL-verified headcount/overtime reduction only) - Trade Spend - Operating Costs. Sample benchmark data. Pre-registration &amp; FP&amp;A sign-off required before pilot launch.</small>
@@ -641,7 +641,7 @@ export const actions = {
       '   - Test Territory 30-Day POS Growth: +9.2%',
       '   - Matched Control 30-Day POS Growth: +2.8%',
       '   - Attributable Incremental Uplift: +6.4% Net Margin Expansion',
-      '   - Net Realized Commercial Contribution: $14,280 (Post trade and platform costs)',
+      '   - Net Realized Commercial Contribution: ${esc(fmt.money(14280))} (Post trade and platform costs)',
       '',
       '3. VALIDATION ASSURANCE',
       '   - Spurious correlation filter: Passed (P < 0.01)',
@@ -696,8 +696,7 @@ export const actions = {
   'ex-escalate': ({ ctx, data }) => {
     const ex = ctx.m.exceptions().find((x) => x.id === data.id);
     if (ex) {
-      ex.status = 'escalated';
-      ex.acknowledged = true;
+      ctx.m.decideException(ex.id, 'escalated');
       (ctx.ui ||= {}).managerToast = `Exception ${ex.id} escalated to Level 2 Commercial Operations.`;
       if (ctx.m.logAudit) ctx.m.logAudit('Manager', `Escalated exception ${ex.id} to Level 2 Commercial Operations: ${ex.title}`);
     }
@@ -705,16 +704,14 @@ export const actions = {
   'ex-approve': ({ ctx, data }) => {
     const ex = ctx.m.exceptions().find((x) => x.id === data.id);
     if (ex) {
-      ex.status = 'approved';
-      ex.acknowledged = true;
+      ctx.m.decideException(ex.id, 'approved');
       if (ctx.m.logAudit) ctx.m.logAudit('Manager', `Approved exception ${ex.id}: ${ex.title}`);
     }
   },
   'ex-reject': ({ ctx, data }) => {
     const ex = ctx.m.exceptions().find((x) => x.id === data.id);
     if (ex) {
-      ex.status = 'rejected';
-      ex.acknowledged = true;
+      ctx.m.decideException(ex.id, 'rejected');
       if (ctx.m.logAudit) ctx.m.logAudit('Manager', `Rejected exception ${ex.id}: ${ex.title}`);
     }
   },

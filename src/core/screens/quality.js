@@ -445,7 +445,7 @@ export function render(ctx) {
     </section>
   ` : ''}
 
-  <p class="foot-note">Evaluation metrics and gate parameters adhere to enterprise safety standards.</p>`;
+  <p class="foot-note">Gate thresholds are set in this demo's configuration. Results are on generated data.</p>`;
 }
 
 export const qualityActions = {

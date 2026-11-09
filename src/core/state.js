@@ -17,6 +17,7 @@ function newSession() {
     stopped: {},       // agentId -> true
     exceptions: [],    // live exceptions raised in this session
     acknowledged: {},  // exceptionId -> true
+    exStatus: {},      // exceptionId -> approved | rejected | escalated
     closed: {},        // accountId -> true when the account is closed today (route re-plan)
     govOutcomes: {},    // itemId -> { outcome, choice, refreshedAt }
     flags: {},          // itemId -> { reason, note, owner, at }
@@ -246,7 +247,9 @@ export function createModel(ctx) {
     return { done: data.planned.filter((p) => visitDone(p.accountId)).length, actionsDone, estimated, overrides };
   };
 
-  const exceptions = () => [...s.exceptions, ...data.exceptions].map((e) => ({ ...e, acknowledged: !!s.acknowledged[e.id] }));
+  const exceptions = () => [...s.exceptions, ...data.exceptions].map((e) => ({ ...e, acknowledged: !!s.acknowledged[e.id], status: (s.exStatus ||= {})[e.id] || e.status }));
+  /** Manager decision on an exception. Stored in session state so the queue and the open count update. */
+  const decideException = (id, status) => { (s.exStatus ||= {})[id] = status; s.acknowledged[id] = true; };
   const acknowledge = (id) => { s.acknowledged[id] = true; log(data.manager.name, `Acknowledged an exception`); };
 
 
@@ -423,7 +426,7 @@ export function createModel(ctx) {
   return {
     session: s, plannedFor, briefItems, actionsOf, approvalRoute, lastVisitDays, openGaps, doneGaps, findAction, decision, decide, undo, counts, outcome, recordOutcome, setEvidence,
     orderLines, orderRules, orderState, setQty, submitOrder, visitDone, completeVisit, visitSummary, nextAccount,
-    selfStats, exceptions, acknowledge, agentStopped, toggleAgent, closedToday, toggleClosed, logAudit, audit: () => s.audit,
+    selfStats, exceptions, acknowledge, decideException, agentStopped, toggleAgent, closedToday, toggleClosed, logAudit, audit: () => s.audit,
     ruleForItem, itemOutcome, resolveClarify, refreshStale, flagRecommendation, getFlag, isExactWordingRead, readExactWording,
     retireRule, isRuleRetired, getGapBacklog, claimGap, setForcedCase, getForcedCase, clearForcedCase, createException,
   };

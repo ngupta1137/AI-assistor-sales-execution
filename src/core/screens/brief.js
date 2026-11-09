@@ -296,7 +296,7 @@ function renderItem(ctx, it, isNext, a, itemIndex) {
 
   // G2 Chips row
   const chipsRow = `<div class="rule-chips" data-act="open-rule-drawer" data-id="${it.id}" data-rule="${rule.id}" role="button" tabindex="0" aria-label="Rule details" style="cursor:pointer;display:flex;gap:4px;flex-wrap:wrap;align-items:center;margin:6px 0;min-height:var(--tap)">
-    ${pill('Approved', 'good')}
+    ${pill('Rule approved', 'good')}
     ${pill('In date', 'info')}
     ${pill('Applies here', 'good')}
     ${pill(rule.version || 'v2.4', 'muted')}
@@ -308,7 +308,7 @@ function renderItem(ctx, it, isNext, a, itemIndex) {
   const evtId = 1000 + (Math.abs(rule.id.length * 37 + it.id.length * 13) % 9000);
   const recordKept = `<div class="record-kept" style="margin-top:8px;padding:8px 10px;background:var(--surface-subtle);border-radius:4px;border:1px dashed var(--line);font-size:11px">
     <div style="font-weight:600;color:var(--ink);display:flex;align-items:center;gap:4px">
-      ${icon('shield', 14)} Record kept (Immutable Audit Receipt)
+      ${icon('shield', 14)} Record kept (audit receipt)
     </div>
     <div class="facts" style="grid-template-columns:repeat(auto-fit,minmax(110px,1fr));margin-top:6px">
       <div><small>Rule version</small><b>${esc(rule.version || 'v2.4')}</b></div>
@@ -326,7 +326,7 @@ function renderItem(ctx, it, isNext, a, itemIndex) {
     <div class="item-title"><span class="rank">${lead}</span><h3>${esc(t(it.title, v))}</h3></div>
     ${chipsRow}
     <div style="margin:4px 0 6px 0;padding:4px 6px;background:var(--surface-subtle);border-radius:4px;border-left:3px solid var(--accent);font-size:11px">
-      <b>Rationale:</b> ${esc(t(it.saw, v)).slice(0, 110)}. Execute now to protect velocity and avoid stock-out.
+      <b>Rationale:</b> ${esc(t(it.saw, v).replace(/\.+\s*$/, '')).slice(0, 110)}.
     </div>
     <div class="metrics"><span>${esc(valueText)}</span>${it.effort ? `<span>${icon('clock', 16)} ${it.effort} min</span>` : ''}${confBadge(it.confidence)}</div>
     ${outcomeUi}

@@ -353,7 +353,7 @@ export function renderToolsCatalog(ctx) {
               ${pill('Access Denied: Violation Blocked', 'bad')}
               <small class="muted">Security Rule: SEC-001</small>
             </div>
-            <p style="font-size:12px;margin:0;line-height:1.4"><b>Blocked:</b> Raw database writes are strictly forbidden. All state mutations must route through Schema Validator and Policy Registry with cryptographic audit trail.</p>
+            <p style="font-size:12px;margin:0;line-height:1.4"><b>Blocked:</b> Raw database writes are strictly forbidden. State changes must go through the schema validator and policy registry, and every attempt is logged.</p>
             <div class="small muted" style="margin-top:4px">${icon('shield', 12)} Denial logged to immutable audit trail (EVT-DENY-8841).</div>
           </div>
         </div>
