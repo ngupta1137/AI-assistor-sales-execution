@@ -1,3 +1,4 @@
+import { renderGuideModal, renderTryCase, governanceActions } from './governance-ui.js';
 // App shell: configuration from the URL, hash routing, rendering, event delegation.
 
 import { INDUSTRIES, COUNTRIES, findIndustry, findCountry } from '../packs/index.js';
@@ -191,7 +192,10 @@ export function render() {
     const out = SCREENS[name].render(ctx, route.args);
     html = shell(ctx, name, out);
   }
-  root.innerHTML = html + renderAssistant(app, ctx, { name: ctx ? (SCREENS[route.name] && route.name !== 'setup' ? route.name : HOME[ctx.persona]) : 'setup' }) + renderPresenter(app, ctx, { INDUSTRIES, COUNTRIES, PERSONAS, shareLink: shareLink() }) + renderSyncModal(app, ctx) + renderRightsModal(app, ctx);
+  document.body.classList.remove('text-size-sm', 'text-size-md', 'text-size-lg');
+  document.body.classList.add(`text-size-${app.textSize || 'sm'}`);
+  document.body.classList.toggle('simple-view', !!app.simpleView);
+  root.innerHTML = html + renderAssistant(app, ctx, { name: ctx ? (SCREENS[route.name] && route.name !== 'setup' ? route.name : HOME[ctx.persona]) : 'setup' }) + renderPresenter(app, ctx, { INDUSTRIES, COUNTRIES, PERSONAS, shareLink: shareLink() }) + renderSyncModal(app, ctx) + renderRightsModal(app, ctx) + renderGuideModal(app, ctx) + renderTryCase(app, ctx);
   const side = document.getElementById('side');
   if (side) side.innerHTML = renderNotes(app, ctx);
   document.body.classList.toggle('notes-open', app.notesOpen && !!ctx);
@@ -245,7 +249,16 @@ function renderActingAsBar(ctx) {
       <span class="muted">You can: ${esc(canText || "view assigned views")}.</span>
       <span class="muted">You cannot: ${esc(cannotText || "modify governance rules")}.</span>
     </div>
-    <button class="btn text sm" data-act="open-rights-matrix" style="min-height:var(--tap);display:inline-flex;align-items:center;padding:0 8px;font-size:11px;text-decoration:underline">See all rights</button>
+    <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap">
+      <div class="font-stepper" style="display:inline-flex;align-items:center;gap:2px">
+        <button class="seg sm ${(ctx.app?.textSize || 'sm') === 'sm' ? 'on' : ''}" data-act="set-text-size" data-size="sm" title="Standard text size" style="min-height:var(--tap);min-width:var(--tap);font-size:11px">A</button>
+        <button class="seg sm ${ctx.app?.textSize === 'md' ? 'on' : ''}" data-act="set-text-size" data-size="md" title="Large text size" style="min-height:var(--tap);min-width:var(--tap);font-size:13px">A+</button>
+        <button class="seg sm ${ctx.app?.textSize === 'lg' ? 'on' : ''}" data-act="set-text-size" data-size="lg" title="Extra large text size" style="min-height:var(--tap);min-width:var(--tap);font-size:15px">A++</button>
+      </div>
+      <button class="btn text sm" data-act="toggle-simple-view" style="min-height:var(--tap);min-width:var(--tap);display:inline-flex;align-items:center;padding:0 8px;font-size:11px;text-decoration:underline">${ctx.app?.simpleView ? 'Full view' : 'Simple view'}</button>
+      <button class="btn text sm" data-act="open-guide" style="min-height:var(--tap);min-width:var(--tap);display:inline-flex;align-items:center;padding:0 8px;font-size:11px;text-decoration:underline">How this works</button>
+      <button class="btn text sm" data-act="open-rights-matrix" style="min-height:var(--tap);min-width:var(--tap);display:inline-flex;align-items:center;padding:0 8px;font-size:11px;text-decoration:underline">See all rights</button>
+    </div>
   </div>`;
 }
 
@@ -315,7 +328,61 @@ function renderRightsModal(app, ctx) {
 }
 function shell(ctx, name, result) {
   const { t, data } = ctx;
-  const out = typeof result === 'string' ? result : result.html;
+  let out = typeof result === 'string' ? result : result.html;
+  if (app.screenState === 'loading') {
+    out = `
+    <div class="screen-state-banner warn" style="margin:8px 16px;padding:6px 12px;display:flex;align-items:center;justify-content:space-between;background:var(--surface-subtle);border-radius:4px;font-size:11px">
+      <span><b>Screen State Simulation:</b> Loading skeleton</span>
+      <button class="btn text sm" data-act="reset-screen-state" style="min-height:var(--tap);text-decoration:underline">Return to interactive</button>
+    </div>
+    <div class="skeleton-view" style="padding:16px;display:flex;flex-direction:column;gap:16px">
+      <div class="skeleton-shimmer" style="height:28px;width:60%"></div>
+      <div class="skeleton-shimmer" style="height:14px;width:40%"></div>
+      <div class="card" style="display:flex;flex-direction:column;gap:10px">
+        <div class="skeleton-shimmer" style="height:20px;width:80%"></div>
+        <div class="skeleton-shimmer" style="height:14px;width:100%"></div>
+        <div class="skeleton-shimmer" style="height:14px;width:90%"></div>
+        <div class="skeleton-shimmer" style="height:36px;width:120px;margin-top:8px"></div>
+      </div>
+      <div class="card" style="display:flex;flex-direction:column;gap:10px">
+        <div class="skeleton-shimmer" style="height:20px;width:75%"></div>
+        <div class="skeleton-shimmer" style="height:14px;width:100%"></div>
+        <div class="skeleton-shimmer" style="height:36px;width:120px;margin-top:8px"></div>
+      </div>
+    </div>`;
+  } else if (app.screenState === 'empty') {
+    out = `
+    <div class="screen-state-banner warn" style="margin:8px 16px;padding:6px 12px;display:flex;align-items:center;justify-content:space-between;background:var(--surface-subtle);border-radius:4px;font-size:11px">
+      <span><b>Screen State Simulation:</b> Empty state</span>
+      <button class="btn text sm" data-act="reset-screen-state" style="min-height:var(--tap);text-decoration:underline">Return to interactive</button>
+    </div>
+    <section class="card empty-state" style="margin:24px 16px;padding:32px 16px;text-align:center;display:flex;flex-direction:column;align-items:center;gap:12px">
+      <div style="color:var(--muted)">${icon('route', 40)}</div>
+      <h3>No items scheduled for this cycle</h3>
+      <p class="small muted" style="max-width:320px">All scheduled visits, proposals, and exception audits for this territory are completed or deferred.</p>
+      <button class="btn primary" data-act="reset-screen-state" style="min-height:var(--tap);margin-top:8px">Schedule new visit</button>
+    </section>`;
+  } else if (app.screenState === 'error') {
+    out = `
+    <div class="screen-state-banner warn" style="margin:8px 16px;padding:6px 12px;display:flex;align-items:center;justify-content:space-between;background:var(--surface-subtle);border-radius:4px;font-size:11px">
+      <span><b>Screen State Simulation:</b> Error state</span>
+      <button class="btn text sm" data-act="reset-screen-state" style="min-height:var(--tap);text-decoration:underline">Return to interactive</button>
+    </div>
+    <section class="card error-state" style="margin:24px 16px;padding:24px 16px;border-left:4px solid var(--bad);display:flex;flex-direction:column;gap:12px">
+      <div style="display:flex;align-items:center;gap:8px;color:var(--bad)">
+        ${icon('shield', 24)}
+        <h3 style="margin:0;color:var(--ink)">Downstream Service Connection Failure</h3>
+      </div>
+      <p class="small" style="margin:0"><b>What happened:</b> The policy evaluation service timed out while synchronizing territory recommendations.</p>
+      <p class="small muted" style="margin:0"><b>Who to contact:</b> Market Operations Support Desk at ops-support@enterprise.sample</p>
+      <div style="padding:6px 8px;background:var(--surface-subtle);border-radius:4px;font-family:monospace;font-size:11px">
+        Support reference code: ERR-GOV-7042
+      </div>
+      <div style="margin-top:6px">
+        <button class="btn primary" data-act="reset-screen-state" style="min-height:var(--tap)">Try again</button>
+      </div>
+    </section>`;
+  }
   const dock = typeof result === 'string' ? '' : result.dock || '';
   const user = ctx.persona === 'rep' ? data.rep : ctx.persona === 'manager' ? data.manager : data.admin;
   const actingAsBar = renderActingAsBar(ctx);
@@ -359,7 +426,7 @@ function handle(e, type) {
   const el = e.target.closest(`[data-${type}]`);
   if (!el) return;
   const name = el.dataset[type];
-  const fn = ACTIONS[name] || presenterActions[name] || syncActions[name] || rbacActions[name] || (name === 'set-vp' ? (({ app, data, api }) => { app.vp = data.vp; api.render(); }) : null);
+  const fn = ACTIONS[name] || presenterActions[name] || syncActions[name] || rbacActions[name] || governanceActions[name] || (name === 'set-vp' ? (({ app, data, api }) => { app.vp = data.vp; api.render(); }) : null);
   if (!fn) return;
   if (type === 'act' && el.tagName === 'A') e.preventDefault();
   const ctx = app.config ? buildContext(app.config.industryId, app.config.countryId) : null;

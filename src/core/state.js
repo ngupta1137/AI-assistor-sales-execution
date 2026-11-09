@@ -285,6 +285,9 @@ export function createModel(ctx) {
       const idx = strHash(item.id || item.defId || item.title || 'rule') % rules.length;
       found = rules[idx];
     }
+    if (s.forcedCase && s.forcedCase.targetId === item.id && s.forcedCase.exactWording) {
+      found = { ...found, exactWording: true };
+    }
     const retired = s.retiredRules[found.id];
     return {
       version: 'v2.4',
@@ -384,8 +387,26 @@ export function createModel(ctx) {
     }
   };
 
-  const setForcedCase = (caseConfig) => { s.forcedCase = caseConfig; };
+    const setForcedCase = (caseConfig) => { s.forcedCase = caseConfig; };
   const getForcedCase = () => s.forcedCase;
+  const clearForcedCase = () => { s.forcedCase = null; };
+
+  const createException = ({ kind, title, reason, account, route }) => {
+    const ex = {
+      id: `EX-${++s.seq}`,
+      kind: kind || 'approval',
+      title: title || 'Item review',
+      reason: reason || 'Exception raised',
+      account: account || 'Account',
+      rep: data.rep?.name || 'Field Rep',
+      route: route || 'manager',
+      at: nowMinutes(),
+      live: true,
+    };
+    s.exceptions.unshift(ex);
+    log(data.rep?.name || 'Field Rep', `Raised exception: "${title}" - ${reason}`);
+    return ex;
+  };
 
   const toggleAgent = (id) => {
     s.stopped[id] = !s.stopped[id];
@@ -397,6 +418,6 @@ export function createModel(ctx) {
     orderLines, orderRules, orderState, setQty, submitOrder, visitDone, completeVisit, visitSummary, nextAccount,
     selfStats, exceptions, acknowledge, agentStopped, toggleAgent, closedToday, toggleClosed, logAudit, audit: () => s.audit,
     ruleForItem, itemOutcome, resolveClarify, refreshStale, flagRecommendation, getFlag, isExactWordingRead, readExactWording,
-    retireRule, isRuleRetired, getGapBacklog, claimGap, setForcedCase, getForcedCase,
+    retireRule, isRuleRetired, getGapBacklog, claimGap, setForcedCase, getForcedCase, clearForcedCase, createException,
   };
 }

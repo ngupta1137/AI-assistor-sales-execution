@@ -339,6 +339,7 @@ function renderItem(ctx, it, isNext, a, itemIndex) {
       ${recordKept}
     </details>
     ${flagHtml}
+    ${ctx.app?.simpleView ? `<div style="margin-top:6px"><button class="btn secondary sm talk-mgr-btn" data-act="talk-to-manager" data-id="${it.id}" style="min-height:var(--tap);display:inline-flex;align-items:center;gap:4px">${icon('team', 14)} Talk to my manager</button></div>` : ''}
     ${controls}
     ${open && !paused && !d ? sheet(ctx, it, open) : ''}
   </article>`;
