@@ -282,8 +282,15 @@ export function createModel(ctx) {
     }
     let found = rules.find((r) => r.id === item.ruleId || r.id === item.defId);
     if (!found) {
-      const idx = strHash(item.id || item.defId || item.title || 'rule') % rules.length;
-      found = rules[idx];
+      if (item.kind === 'plan' || (item.id && item.id.endsWith('-plan'))) {
+        found = rules.find((r) => r.id.includes('plan') || r.id.includes('sched') || r.id.includes('route') || r.id.includes('visit')) || rules[0];
+      } else {
+        const idx = strHash(item.id || item.defId || item.title || 'rule') % rules.length;
+        found = rules[idx];
+      }
+    }
+    if (item.kind === 'plan' || (item.id && item.id.endsWith('-plan'))) {
+      found = { ...found, exactWording: false };
     }
     if (s.forcedCase && s.forcedCase.targetId === item.id && s.forcedCase.exactWording) {
       found = { ...found, exactWording: true };
