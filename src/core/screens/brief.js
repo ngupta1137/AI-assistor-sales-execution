@@ -99,7 +99,7 @@ function renderRuleDrawer(ctx) {
       </section>
 
       <section class="card" style="margin:0;border-left:3px solid var(--accent)">
-        <h3>Why this applied to this {account}</h3>
+        <h3>${esc(ctx.t('Why this applied to this {account}'))}</h3>
         <ul style="margin:8px 0 0 16px;padding:0;font-size:12px;line-height:1.6">
           <li><b>Approved:</b> Verified sign-off by named approver (${esc(rule.approver)}).</li>
           <li><b>In date:</b> Policy active in ${esc(market)} for current commercial cycle.</li>
@@ -165,7 +165,7 @@ function renderFlagSheet(ctx) {
 }
 
 function renderItem(ctx, it, isNext, a, itemIndex) {
-  const { t, fmt, m, ui } = ctx;
+  const { t, fmt, m, ui, data } = ctx;
   const v = it.vars;
   const d = m.decision(it.id);
   const paused = m.agentStopped(it.agent);
@@ -174,6 +174,88 @@ function renderItem(ctx, it, isNext, a, itemIndex) {
   const state = paused ? 'paused' : d ? d.status : 'pending';
   const valueText = it.value > 0 ? `Est. ${fmt.money(it.value)}` : it.kind === 'plan' ? `${v.fits} of ${v.total} actions fit` : 'Value set by people';
   const stateLabel = { pending: ['To review', 'warn'], approved: ['Approved', 'good'], adjusted: ['Adjusted', 'info'], overridden: ['Overridden', 'muted'], paused: ['Paused', 'muted'] }[state];
+
+  // G2 Rule metadata and status chips
+  const rule = m.ruleForItem(it);
+  const flag = m.getFlag(it.id);
+  const exactRead = m.isExactWordingRead(rule.id, it.id);
+  const isExact = rule.exactWording || false;
+
+  // G1 Deterministic seven outcomes
+  const gov = m.itemOutcome(it, a, itemIndex);
+  const outcome = gov.outcome || 'suggest';
+
+  let outcomeUi = '';
+  if (outcome === 'clarify') {
+    const cq = ctx.industry.governance?.clarifyQuestions?.[0] || { q: 'Clarify execution format before proceeding', chips: ['Standard visit', 'Priority audit', 'Follow-up call'] };
+    const qText = ctx.t(cq.q || cq.question || 'Clarify execution format before proceeding');
+    const chips = cq.chips || cq.options || ['Standard visit', 'Priority audit', 'Follow-up call'];
+    outcomeUi = `<div class="gov-outcome clarify" style="margin:8px 0;padding:10px;border-left:3px solid var(--accent);background:var(--surface-subtle);border-radius:var(--radius-sm)">
+      <div style="font-weight:600;font-size:12px;margin-bottom:4px;color:var(--ink)">Needs clarification</div>
+      <p class="small" style="margin-bottom:8px">${esc(qText)}</p>
+      <div class="btn-row" style="gap:6px;flex-wrap:wrap">
+        ${chips.map((opt) => `<button class="btn secondary sm" data-act="resolve-clarify" data-id="${it.id}" data-choice="${esc(opt)}" style="min-height:var(--tap);display:inline-flex;align-items:center">${esc(opt)}</button>`).join('')}
+      </div>
+      <div class="next-step-line" style="margin-top:8px;font-size:11px;color:var(--muted)"><b>Next step:</b> Select a clarification option above to generate the final recommendation.</div>
+    </div>`;
+  } else if (outcome === 'evidence') {
+    outcomeUi = `<div class="gov-outcome evidence" style="margin:8px 0;padding:10px;border-left:3px solid var(--line-warn, #f59e0b);background:var(--surface-subtle);border-radius:var(--radius-sm)">
+      <div style="font-weight:600;font-size:12px;margin-bottom:4px;color:var(--ink)">Not enough evidence on file</div>
+      <p class="small" style="margin-bottom:8px">${esc(ctx.t('Missing baseline field verification data for this {account}. Recommendation engine does not guess without verified evidence.'))}</p>
+      <button class="btn secondary sm" data-act="add-evidence-note" data-id="${it.id}" style="min-height:var(--tap)">${icon('camera', 14)} Add a photo or note</button>
+      <div class="next-step-line" style="margin-top:8px;font-size:11px;color:var(--muted)"><b>Next step:</b> Capture required field evidence to unlock automated recommendation.</div>
+    </div>`;
+  } else if (outcome === 'conflict') {
+    const otherRule = ctx.industry.governance?.rules?.[1] || { title: 'Standard category quota distribution', owner: 'Field Operations Lead' };
+    outcomeUi = `<div class="gov-outcome conflict" style="margin:8px 0;padding:10px;border-left:3px solid var(--line-warn, #f59e0b);background:var(--surface-subtle);border-radius:var(--radius-sm)">
+      <div style="font-weight:600;font-size:12px;margin-bottom:4px;color:var(--ink)">Policy conflict detected</div>
+      <p class="small" style="margin-bottom:6px">${esc(ctx.t('Two approved rules disagree on this {account}. The system never picks between conflicting policies:'))}</p>
+      <ul style="margin:0 0 8px 16px;padding:0;font-size:11px">
+        <li><b>Rule 1:</b> ${esc(rule.title)} (Owner: ${esc(rule.owner)})</li>
+        <li><b>Rule 2:</b> ${esc(otherRule.title)} (Owner: ${esc(otherRule.owner)})</li>
+      </ul>
+      <button class="btn secondary sm" data-act="ask-manager-conflict" data-id="${it.id}" style="min-height:var(--tap)">${icon('team', 14)} Ask your manager</button>
+      <div class="next-step-line" style="margin-top:8px;font-size:11px;color:var(--muted)"><b>Next step:</b> Escalate to field sales manager to establish policy precedence.</div>
+    </div>`;
+  } else if (outcome === 'stale') {
+    outcomeUi = `<div class="gov-outcome stale" style="margin:8px 0;padding:10px;border-left:3px solid var(--muted);background:var(--surface-subtle);border-radius:var(--radius-sm)">
+      <div style="font-weight:600;font-size:12px;margin-bottom:4px;color:var(--ink)">Data is stale</div>
+      <p class="small" style="margin-bottom:8px">Account metrics were last refreshed 18 days ago (threshold: ${ctx.industry.governance?.staleLimitDays || 14} days).</p>
+      <button class="btn primary sm" data-act="refresh-stale" data-id="${it.id}" style="min-height:var(--tap)">${icon('sync', 14)} Refresh</button>
+      <div class="next-step-line" style="margin-top:8px;font-size:11px;color:var(--muted)"><b>Next step:</b> Tap Refresh to sync current depot inventory and return to active recommendation.</div>
+    </div>`;
+  } else if (outcome === 'role') {
+    outcomeUi = `<div class="gov-outcome role" style="margin:8px 0;padding:10px;border-left:3px solid var(--muted);background:var(--surface-subtle);border-radius:var(--radius-sm)">
+      <div style="font-weight:600;font-size:12px;margin-bottom:4px;color:var(--ink)">Action not allowed for this role</div>
+      <p class="small" style="margin-bottom:6px">This recommendation requires Key Account Lead authority. Outside permissions for ${esc(ctx.persona === 'rep' ? (ctx.industry.personas?.rep || 'Sales Rep') : ctx.persona)}.</p>
+      <div class="small muted">Owning team: Key Account Management Desk</div>
+      <div class="next-step-line" style="margin-top:8px;font-size:11px;color:var(--muted)"><b>Next step:</b> Assigned to Key Account Management Desk for centralized execution.</div>
+    </div>`;
+  } else if (outcome === 'compliance') {
+    outcomeUi = `<div class="gov-outcome compliance" style="margin:8px 0;padding:10px;border-left:3px solid #ef4444;background:var(--surface-subtle);border-radius:var(--radius-sm)">
+      <div style="font-weight:600;font-size:12px;margin-bottom:4px;color:var(--ink)">Compliance escalation hold</div>
+      <p class="small" style="margin-bottom:6px">Recommendation placed on supervisory hold pending regulatory verification. Stops execution before field suggestion.</p>
+      <div class="small muted">Routed to: <b>${esc(ctx.industry.governance?.rights?.legalApprover || 'Legal Counsel')}</b></div>
+      <div class="next-step-line" style="margin-top:8px;font-size:11px;color:var(--muted)"><b>Next step:</b> Awaiting sign-off from named legal approver before field presentation.</div>
+    </div>`;
+  }
+
+  // G7 Exact wording box
+  let exactBox = '';
+  if (outcome === 'suggest' && isExact && !exactRead) {
+    exactBox = `<div class="exact-wording-box" style="margin:8px 0;padding:8px 10px;border:2px solid var(--accent);border-radius:var(--radius-sm);background:var(--surface)">
+      <div style="font-weight:600;font-size:11px;color:var(--accent);margin-bottom:4px;display:flex;align-items:center;gap:4px">
+        ${icon('shield', 14)} Mandatory Legal & Compliance Exact Wording
+      </div>
+      <blockquote style="margin:0 0 6px 0;font-size:11px;font-style:italic;line-height:1.4">
+        "${esc(t(it.saw, v))}"
+      </blockquote>
+      <label class="check" style="font-size:11px;font-weight:600;display:flex;align-items:center;gap:6px">
+        <input type="checkbox" data-change="read-exact-wording" data-id="${it.id}" data-rule="${rule.id}">
+        <span>I have read this wording</span>
+      </label>
+    </div>`;
+  }
 
   let controls;
   if (paused) {
@@ -187,28 +269,76 @@ function renderItem(ctx, it, isNext, a, itemIndex) {
       <span class="spacer"></span>
       ${d.status !== 'overridden' ? `<a class="btn text sm" href="${link.href}">${esc(t(link.label))} ${icon('chevron', 16)}</a>` : ''}
     </div>`;
+  } else if (outcome === 'suggest') {
+    if (isExact && !exactRead) {
+      controls = `<div class="decide-row">
+        <span class="small muted" style="align-self:center;font-size:11px">Read wording above to approve.</span>
+        <button class="btn secondary" data-act="panel" data-id="${it.id}" data-kind="adjust">Adjust</button>
+        <button class="btn secondary" data-act="panel" data-id="${it.id}" data-kind="override">Override</button>
+      </div>`;
+    } else {
+      controls = `<div class="decide-row">
+        <button class="btn primary" data-act="decide" data-id="${it.id}" data-status="approved">Approve</button>
+        <button class="btn secondary" data-act="panel" data-id="${it.id}" data-kind="adjust">Adjust</button>
+        <button class="btn secondary" data-act="panel" data-id="${it.id}" data-kind="override">Override</button>
+      </div>`;
+    }
   } else {
     controls = `<div class="decide-row">
-      <button class="btn primary" data-act="decide" data-id="${it.id}" data-status="approved">Approve</button>
-      <button class="btn secondary" data-act="panel" data-id="${it.id}" data-kind="adjust">Adjust</button>
-      <button class="btn secondary" data-act="panel" data-id="${it.id}" data-kind="override">Override</button>
+      <button class="btn secondary sm" data-act="panel" data-id="${it.id}" data-kind="override">Override</button>
     </div>`;
   }
+
+  // G4 Flag status or trigger
+  const flagHtml = flag
+    ? `<div style="margin:4px 0;display:flex;align-items:center;gap:6px">${pill(`Flagged: ${flag.reason}`, 'warn')}<span class="small muted" style="font-size:11px">Sent to rule owner (${esc(flag.owner)})</span></div>`
+    : `<div style="margin:4px 0"><button class="btn text sm flag-link" data-act="open-flag-sheet" data-id="${it.id}" style="min-height:var(--tap);display:inline-flex;align-items:center;padding:0 8px;font-size:11px;color:var(--muted)">${icon('flag', 12)} Flag this recommendation</button></div>`;
+
+  // G2 Chips row
+  const chipsRow = `<div class="rule-chips" data-act="open-rule-drawer" data-id="${it.id}" data-rule="${rule.id}" role="button" tabindex="0" aria-label="Rule details" style="cursor:pointer;display:flex;gap:4px;flex-wrap:wrap;align-items:center;margin:6px 0;min-height:var(--tap)">
+    ${pill('Approved', 'good')}
+    ${pill('In date', 'info')}
+    ${pill('Applies here', 'good')}
+    ${pill(rule.version || 'v2.4', 'muted')}
+    ${isExact ? pill('Exact wording', 'warn') : ''}
+    ${isExact ? pill('Legal approved', 'good') : ''}
+  </div>`;
+
+  // G6 Record kept
+  const evtId = 1000 + (Math.abs(rule.id.length * 37 + it.id.length * 13) % 9000);
+  const recordKept = `<div class="record-kept" style="margin-top:8px;padding:8px 10px;background:var(--surface-subtle);border-radius:4px;border:1px dashed var(--line);font-size:11px">
+    <div style="font-weight:600;color:var(--ink);display:flex;align-items:center;gap:4px">
+      ${icon('shield', 14)} Record kept (Immutable Audit Receipt)
+    </div>
+    <div class="facts" style="grid-template-columns:repeat(auto-fit,minmax(110px,1fr));margin-top:6px">
+      <div><small>Rule version</small><b>${esc(rule.version || 'v2.4')}</b></div>
+      <div><small>Data used &amp; age</small><b>14-day depot CRM</b></div>
+      <div><small>Outcome</small><b>${esc(outcome)}</b></div>
+      <div><small>Model use</small><b>Rules decide; model words reason</b></div>
+      <div><small>Audited viewer</small><b>${esc(ctx.persona)} (${esc(data.rep.name)})</b></div>
+      <div><small>Audit event ID</small><b>EVT-${evtId}</b></div>
+    </div>
+  </div>`;
 
   const lead = it.kind === 'plan' ? icon('route', 16) : it.kind === 'order' ? icon('cart', 16) : it.rank;
   return `<article class="item ${state}${isNext ? ' next' : ''}" id="item-${it.id}" data-item="${it.id}" data-kind="${it.kind}" data-state="${state}">
     <div class="item-head">${agentTag(it.agent)}${it.overBudget ? pill('If time allows', 'muted') : ''}<span class="state">${pill(stateLabel[0], stateLabel[1])}</span></div>
     <div class="item-title"><span class="rank">${lead}</span><h3>${esc(t(it.title, v))}</h3></div>
+    ${chipsRow}
     <div style="margin:4px 0 6px 0;padding:4px 6px;background:var(--surface-subtle);border-radius:4px;border-left:3px solid var(--accent);font-size:11px">
       <b>Rationale:</b> ${esc(t(it.saw, v)).slice(0, 110)}. Execute now to protect velocity and avoid stock-out.
     </div>
     <div class="metrics"><span>${esc(valueText)}</span>${it.effort ? `<span>${icon('clock', 16)} ${it.effort} min</span>` : ''}${confBadge(it.confidence)}</div>
+    ${outcomeUi}
+    ${exactBox}
     <details class="evi"${isNext ? ' open' : ''}><summary>What the agent saw</summary>
       <dl class="evidence">
         <dt>Saw</dt><dd>${esc(t(it.saw, v))}</dd>
         <dt>Compared</dt><dd>${esc(t(it.compared, v))}</dd>
       </dl>
+      ${recordKept}
     </details>
+    ${flagHtml}
     ${controls}
     ${open && !paused && !d ? sheet(ctx, it, open) : ''}
   </article>`;
@@ -380,7 +510,7 @@ export function render(ctx, [accountId]) {
             <span><b>Second reschedule attempted:</b> Requires District Field Manager approval. Score protection suspended until approved.</span>
           </div>
         ` : `
-          <button class="btn text sm" data-act="try-second-reschedule" data-id="${a.id}" style="font-size:10px;min-height:36px;padding:0;color:var(--muted)">
+          <button class="btn text sm" data-act="try-second-reschedule" data-id="${a.id}" style="font-size:10px;min-height:var(--tap);display:inline-flex;align-items:center;padding:0;color:var(--muted)">
             Need to reschedule again? (Requires manager approval)
           </button>
         `}

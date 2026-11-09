@@ -15,9 +15,39 @@ export function render(ctx) {
   const open = all.filter((e) => !e.acknowledged).length;
   const routeName = (e) => (e.route === 'kam' ? t('{Kam}') : t('{Manager}'));
 
+  const readiness = ctx.industry.governance?.readiness || [];
+  const readyCount = readiness.filter((r) => r.ready).length;
+  const totalCount = readiness.length;
+  const pct = Math.round((readyCount / Math.max(1, totalCount)) * 100);
+  const notReady = readiness.filter((r) => !r.ready);
+
+  const readinessBanner = `
+  <section class="card tight" style="margin-bottom:var(--s3);border-left:4px solid ${pct === 100 ? 'var(--good)' : 'var(--accent)'};background:var(--surface)">
+    <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:6px">
+      <div style="display:flex;align-items:center;gap:6px">
+        <span style="color:${pct === 100 ? 'var(--good)' : 'var(--accent)'}">${icon('shield', 18)}</span>
+        <b style="font-size:12px">Season readiness: ${readyCount} of ${totalCount} items ready (${pct}%)</b>
+      </div>
+      <button class="btn text sm" data-act="toggle-mgr-readiness" style="min-height:var(--tap);font-size:11px;text-decoration:underline">
+        ${ui?.mgrReadinessOpen ? 'Hide pending items' : `View ${notReady.length} pending items`}
+      </button>
+    </div>
+    <div class="bar" style="margin:6px 0 4px 0;height:6px;background:var(--line-soft);border-radius:3px;overflow:hidden">
+      <div style="width:${pct}%;height:100%;background:${pct === 100 ? 'var(--good)' : 'var(--accent)'};border-radius:3px"></div>
+    </div>
+    ${ui?.mgrReadinessOpen && notReady.length ? `
+      <div style="margin-top:8px;padding-top:8px;border-top:1px solid var(--line-soft)">
+        <ul class="bullets small" style="margin:0 0 0 16px;padding:0;font-size:11px;line-height:1.6">
+          ${notReady.map((item) => `<li><b>${esc(item.title)}:</b> ${esc(item.detail)}</li>`).join('')}
+        </ul>
+      </div>
+    ` : ''}
+  </section>`;
+
   const queue = shown.length ? shown.map((e) => {
     const [label, tone] = KIND[e.kind];
     const reason = t(e.reason, { limit: e.ruleVars?.limit != null ? fmt.money(e.ruleVars.limit) : '', max: '', lines: '' });
+
     return `<li class="exception${e.acknowledged ? ' ack' : ''}${e.live ? ' live' : ''}" data-exception="${e.id}" data-kind="${e.kind}">
       <div class="ex-head">${pill(label, tone)}${e.live ? pill('New', 'accent') : ''}<span class="sla-badge" style="font-size:11px;color:var(--muted);display:inline-flex;align-items:center;gap:3px;margin-left:auto">${icon('clock', 12)} ${e.live ? 'Critical: 30m' : 'SLA: 2h'}</span><span class="time">${esc(fmt.time(e.at))}</span></div>
       <h3>${esc(t(e.title, e.vars))}</h3>
@@ -85,6 +115,7 @@ export function render(ctx) {
 
   return `
   ${ui?.managerToast ? `<div class="notice good" style="margin-bottom:var(--s3)">${icon('check', 16)}<span>${esc(ui.managerToast)}</span></div>` : ''}
+  ${readinessBanner}
   <section class="page-head">
     <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px">
       <div>
@@ -568,6 +599,7 @@ export function exportQbrCsv(ctx) {
 }
 
 export const actions = {
+  'toggle-mgr-readiness': ({ ctx }) => { (ctx.ui ||= {}).mgrReadinessOpen = !ctx.ui.mgrReadinessOpen; },
   'set-mgr-tf': ({ ctx, data }) => {
     (ctx.ui ||= {}).mgrTf = data.tf;
   },

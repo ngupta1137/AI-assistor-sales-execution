@@ -66,7 +66,7 @@ export function render(ctx, [accountId]) {
         
         <!-- Compensating Flow Simulator -->
         <div style="margin-top:6px;border-top:1px solid var(--line-soft);padding-top:6px">
-          <button class="btn text sm" data-act="toggle-compensating-flow" data-id="${a.id}" style="font-size:11px;min-height:36px;padding:0;width:100%;text-align:left">
+          <button class="btn text sm" data-act="toggle-compensating-flow" data-id="${a.id}" style="font-size:11px;min-height:var(--tap);display:inline-flex;align-items:center;padding:0;width:100%;text-align:left">
             ${icon('sync', 12)} Simulate ERP sync exception &amp; compensating flow
           </button>
           ${ctx.ui?.compensatingFlowOpen ? `
