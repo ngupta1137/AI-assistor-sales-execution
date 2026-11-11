@@ -5,7 +5,7 @@ import { esc, icon } from '../ui.js';
 import { suggestionsFor } from './engine.js';
 import { contextFor } from './router.js';
 import { getProvider } from './provider.js';
-import { getCountryLanguage, translateQuestion, translateAnswer, translateBasedOn } from './i18n.js';
+import { getCountryLanguage, translateQuestion, translateAnswer, translateBasedOn, translateUi } from './i18n.js';
 
 export const SAMPLE_LINE = "Answers come from configured rules and this scenario's data, not a live model.";
 
@@ -154,24 +154,24 @@ function renderMessage(ctx, st, item, i) {
   if (item.typing) {
     const fullText = lang !== 'en' ? translateAnswer(r.text || '', lang) : (r.text || '');
     const typedText = fullText.slice(0, item.typed || 0);
-    return `<div class="msg me"><small>You</small><div class="bubble">${esc(item.q)}</div></div>
+    return `<div class="msg me"><small>${esc(translateUi('You', lang))}</small><div class="bubble">${esc(item.q)}</div></div>
       <div class="msg ai" data-typing role="status"><small>AI Assistor</small>
         <div class="bubble as-typewriter" data-act="as-skip-type" title="Click to reveal all"><span class="as-tw-text">${esc(typedText)}</span><span class="as-cursor" aria-hidden="true"></span></div>
       </div>`;
   }
-  const links = (r.links || []).map((l) => `<a class="btn secondary sm" href="${esc(l.href)}" data-act="as-link">${esc(l.label)}</a>`).join('');
+  const links = (r.links || []).map((l) => `<a class="btn secondary sm" href="${esc(l.href)}" data-act="as-link">${esc(translateUi(l.label, lang))}</a>`).join('');
   const why = r.refusal ? `
-    <button class="btn text sm" data-act="as-why" data-i="${i}" aria-expanded="${!!st.why[i]}" aria-controls="as-why-${i}">Why can't you answer that?</button>
+    <button class="btn text sm" data-act="as-why" data-i="${i}" aria-expanded="${!!st.why[i]}" aria-controls="as-why-${i}">${esc(translateUi("Why can't you answer that?", lang))}</button>
     ${st.why[i] ? `<div class="guardrail" id="as-why-${i}" data-why>${icon('shield', 20)}<span><b>Guardrail ${esc(r.refusal.guardrailId)}.</b> ${esc(ctx.t(ctx.industry.assistantAnswers.guardrailWhy))} ${esc(r.refusal.guardrailText)}</span></div>` : ''}` : '';
   const actionsRow = `
     <div style="display:flex;align-items:center;gap:6px;margin-top:6px;flex-wrap:wrap">
-      <button class="pill-btn sm" data-act="as-speak" data-i="${i}" style="min-height:var(--tap);font-size:11px" title="Read answer aloud">${st.speakingIdx === i ? `${icon('mic', 12)} Stop audio` : `${icon('mic', 12)} Read aloud`}</button>
-      <button class="pill-btn sm" data-act="as-copy" data-i="${i}" style="min-height:var(--tap);font-size:11px" title="Copy answer">${st.copiedIdx === i ? `${icon('check', 12)} Copied` : `${icon('note', 12)} Copy`}</button>
-      <button class="pill-btn sm" data-act="as-crm" data-i="${i}" style="min-height:var(--tap);font-size:11px" title="Save to CRM">${st.crmIdx === i ? `${icon('check', 12)} Saved to CRM` : `${icon('brief', 12)} Save to CRM`}</button>
-      <button class="pill-btn sm" data-act="as-rate" data-i="${i}" style="min-height:var(--tap);font-size:11px;margin-left:auto" title="Mark helpful">${st.ratedIdx === i ? `${icon('check', 12)} Helpful` : `${icon('check', 12)} Helpful`}</button>
+      <button class="pill-btn sm" data-act="as-speak" data-i="${i}" style="min-height:var(--tap);font-size:11px" title="Read answer aloud">${st.speakingIdx === i ? `${icon('mic', 12)} ${esc(translateUi('Stop audio', lang))}` : `${icon('mic', 12)} ${esc(translateUi('Read aloud', lang))}`}</button>
+      <button class="pill-btn sm" data-act="as-copy" data-i="${i}" style="min-height:var(--tap);font-size:11px" title="Copy answer">${st.copiedIdx === i ? `${icon('check', 12)} ${esc(translateUi('Copied', lang))}` : `${icon('note', 12)} ${esc(translateUi('Copy', lang))}`}</button>
+      <button class="pill-btn sm" data-act="as-crm" data-i="${i}" style="min-height:var(--tap);font-size:11px" title="Save to CRM">${st.crmIdx === i ? `${icon('check', 12)} ${esc(translateUi('Saved to CRM', lang))}` : `${icon('brief', 12)} ${esc(translateUi('Save to CRM', lang))}`}</button>
+      <button class="pill-btn sm" data-act="as-rate" data-i="${i}" style="min-height:var(--tap);font-size:11px;margin-left:auto" title="Mark helpful">${st.ratedIdx === i ? `${icon('check', 12)} ${esc(translateUi('Helpful', lang))}` : `${icon('check', 12)} ${esc(translateUi('Helpful', lang))}`}</button>
     </div>`;
 
-  return `<div class="msg me"><small>You</small><div class="bubble">${esc(item.q)}</div></div>
+  return `<div class="msg me"><small>${esc(translateUi('You', lang))}</small><div class="bubble">${esc(item.q)}</div></div>
     <div class="msg ai"><small>AI Assistor</small><div class="bubble" data-answer>${esc(ansText)}</div>
       ${basedText ? `<p class="based" data-based>${esc(basedText)}</p>` : ''}
       ${links ? `<div class="btn-row">${links}</div>` : ''}${actionsRow}${why}</div>`;
@@ -207,7 +207,7 @@ export function renderAssistant(app, ctx, route) {
   if (!st.open) return launcher;
   const chips = setup ? suggestionsFor(null, { screen: 'setup' }).map((s) => `<button class="chip-q" data-act="as-q" data-intent="${esc(s.intent)}" data-q="${esc(s.q)}">${esc(s.q)}</button>`).join('') : renderChips(ctx, app, 'data-act="as-q"');
   const hasLog = st.history.length || st.pending;
-  const intro = hasLog ? '' : `<p class="small muted as-intro">${setup ? 'Ask what this demo is. Pick a question or type your own.' : 'Ask about what is on this screen. Pick a question or type your own.'}</p>`;
+  const intro = hasLog ? '' : `<p class="small muted as-intro">${setup ? 'Ask what this demo is. Pick a question or type your own.' : translateUi('Ask about what is on this screen. Pick a question or type your own.', st.lang || 'en')}</p>`;
   
   const countryLang = getCountryLanguage(ctx?.country?.id);
   const showLang = countryLang.code !== 'en';
@@ -227,16 +227,16 @@ export function renderAssistant(app, ctx, route) {
           <h2 id="as-title">${setup ? 'About this demo' : 'AI Assistor'}</h2>
           ${langToggle}
         </div>
-        <small>${esc(SAMPLE_LINE)}</small>
+        <small>${esc(translateUi(SAMPLE_LINE, st.lang || 'en'))}</small>
       </div>
       <button class="icon-btn" data-act="as-close" id="as-close" aria-label="Close assistant">${icon('x', 20)}</button>
     </header>
     <div class="as-log" id="as-log" role="log" aria-live="polite" aria-label="Conversation">${intro}${renderLog(ctx || { t: (x) => x, industry: { assistantAnswers: { guardrailWhy: '' } } }, app)}</div>
-    <details class="as-suggest" open><summary>Suggested questions</summary><div class="chips-q">${chips}</div></details>
+    <details class="as-suggest" open><summary>${esc(translateUi('Suggested questions', st.lang || 'en'))}</summary><div class="chips-q">${chips}</div></details>
     <form class="as-composer" onsubmit="return false">
       <label class="sr-only" for="as-input">Your question</label>
       <input class="input" id="as-input" type="text" maxlength="200" autocomplete="off" placeholder="Type a question" data-input="as-draft" value="${esc(st.draft)}">
-      <button class="btn primary" data-act="as-send" id="as-send">Ask</button>
+      <button class="btn primary" data-act="as-send" id="as-send">${esc(translateUi('Ask', st.lang || 'en'))}</button>
     </form>
   </section>`;
 }

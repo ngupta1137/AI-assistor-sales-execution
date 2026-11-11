@@ -153,6 +153,7 @@ const h = {
   async compact(on) { compactState = on; await demo('compact', on); },
   async card_(html) { await demo('card', html); },
   async lab(on) { await demo('showLab', on); },
+  async tryBtn(on) { await demo('showTry', on); },
 };
 
 const timeline = [];

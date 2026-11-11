@@ -272,7 +272,40 @@ const extendedClose = { title: 'What comes next', persona: 'Working prototype ·
 // Core gets the two sections buyers and investors ask about first: governance in the field and the economics.
 const econCore = { title: 'The economics', persona: ADMIN, cues: [insertD.cues[0], insertD.cues[2], insertD.cues[3]] };
 const coreCut = [coreBeats[0], coreBeats[1], coreBeats[2], insertA, coreBeats[3], coreBeats[4], econCore, coreBeats[5], coreBeats[6]];
-const extendedBeats = [coreBeats[0], coreBeats[1], coreBeats[2], insertA, coreBeats[3], insertB, insertC, insertD, coreBeats[5], extendedClose];
+
+// ---------- extended additions (Nov 11): try a case, what-if simulator, Hindi ----------
+const tryCase = { title: 'Test it yourself', persona: REP, cues: [
+  { id: 'y01', text: "For reviewers, Try a case forces each governance state on demand, so you can check the engine's behaviour instead of trusting a script.",
+    pre: async (h) => { await h.unfocus(); await h.hash('#/today'); await h.tryBtn(true); },
+    act: async (h) => { await h.tap('.try-case-btn', { scroll: false, after: 0.6 }); await h.point(await h.box(h.text('Force governance states')), { scroll: false }); }, cut: true },
+  { id: 'y02', text: 'Here the rep tries to open rule authoring. Access is denied, the owning team is named, and the attempt is logged.',
+    act: async (h) => { await h.tap(h.page.locator('[data-act="run-try-case"]', { hasText: 'Role outside scope' }), { scroll: false, after: 0.7 }); await h.point(await h.box(h.text('Access Denied')), { align: 0.2 }); }, hold: 1.0 },
+  { id: 'y03', text: 'Retire a rule, and cards that relied on it are held. The retirement records who did it and why.',
+    act: async (h) => {
+      await h.tap('.try-case-btn', { scroll: false, after: 0.5 });
+      await h.tap(h.page.locator('[data-act="run-try-case"]', { hasText: 'Rule retired' }), { scroll: false, after: 1.0 });
+      await h.point('tr[id^="rule-row-"][style*="outline"]', { align: 0.45 });
+      await h.at(0.55);
+      const who = h.page.locator('tr[id^="rule-row-"][style*="outline"] td').last();
+      await who.scrollIntoViewIfNeeded();
+      await h.point(who, { scroll: false });
+      await h.tryBtn(false);
+    }, hold: 1.2 },
+] };
+const whatIf = { title: 'Planning with real limits', persona: MGR, cues: [
+  { id: 'w01', text: 'Megan can test a plan before changing any route. The simulator shows its assumptions on screen: visit time, drive time and a seven-hour field day.',
+    act: async (h) => { await h.tap('[data-act="toggle-simulator"]', { align: 0.2, after: 0.6 }); await h.point(await h.box('#territory-sim-box'), { align: 0.08 }); await h.at(0.62); await h.point(h.text('Illustrative model on sample assumptions'), { align: 0.6 }); } },
+  { id: 'w02', text: 'Push the team to six visits a day, and the field day overflows. One visit slips, and the weekly value does not move.',
+    act: async (h) => { await h.tap('[data-act="set-sim"][data-k="simVisits"][data-v="6"]', { align: 0.3, after: 0.5 }); await h.at(0.45); await h.point(await h.box(h.text('Over capacity')), { align: 0.55 }); }, hold: 1.2 },
+  { id: 'w03', text: 'Tighten the radius to fifteen kilometres, and six visits fit. But fewer high-value stores are in reach, so the gain is only seven percent.',
+    act: async (h) => { await h.tap('[data-act="set-sim"][data-k="simRadius"][data-v="15"]', { align: 0.35, after: 0.5 }); await h.at(0.55); await h.point(await h.box(h.text('Weekly value vs today')), { align: 0.55 }); }, hold: 1.0 },
+  { id: 'w04', text: 'It is a planning aid, not a forecast. Saving a scenario sends it for approval. No route changes on its own.',
+    act: async (h) => { await h.tap('[data-act="commit-sim"]', { align: 0.5, after: 0.6 }); await h.point(await h.box(h.text('Scenario saved')), { align: 0.3 }).catch(() => {}); } },
+] };
+const hindi = { id: 'h01', text: 'The rep can switch the assistant to Hindi. The refusal and the guardrail stay the same.',
+  act: async (h) => { await h.tap(h.page.locator('[data-act="as-set-lang"]', { hasText: 'HI' }), { scroll: false, after: 0.8 }); await h.point(await h.box(h.text('चिकित्सकीय')), { align: 0.4 }); }, hold: 1.2 };
+const pharmaExtended = { ...coreBeats[5], cues: [...coreBeats[5].cues.slice(0, 4), hindi, coreBeats[5].cues[4]] };
+const extendedBeats = [coreBeats[0], coreBeats[1], coreBeats[2], insertA, tryCase, coreBeats[3], whatIf, insertB, insertC, insertD, pharmaExtended, extendedClose];
 
 export const CUTS = {
   extended: { setup: A.repSetup, beats: extendedBeats, slate: { k: 'Product demo · extended', t: 'AI Assistor for field sales execution', s: 'The full walkthrough: the rep, the manager, the controls, the evidence and the economics.' } },

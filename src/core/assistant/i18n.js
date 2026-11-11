@@ -636,6 +636,21 @@ const PHRASE_TRANSLATIONS = {
     ['Based on:', 'بناءً على:'],
   ],
   hi: [
+    // Pharma refusals and what the assistant can do instead (reviewed wording, kept close to the English).
+    ['I cannot answer clinical questions such as dosing, safety or who a product suits.', 'मैं खुराक, सुरक्षा या कोई उत्पाद किसके लिए उपयुक्त है, जैसे चिकित्सकीय प्रश्नों का उत्तर नहीं दे सकता।'],
+    ['I can log it as a Medical Information request and show the approved material for this product.', 'मैं इसे मेडिकल इन्फ़ॉर्मेशन अनुरोध के रूप में दर्ज कर सकता हूँ और इस उत्पाद की स्वीकृत सामग्री दिखा सकता हूँ।'],
+    ['I do not write claims or comparisons, and I never suggest off-label content.', 'मैं दावे या तुलनाएँ नहीं लिखता, और कभी भी ऑफ़-लेबल सामग्री का सुझाव नहीं देता।'],
+    ['I can show which approved material covers this product.', 'मैं दिखा सकता हूँ कि इस उत्पाद के लिए कौन-सी स्वीकृत सामग्री है।'],
+    ['I cannot suggest samples above the limit or a drop without a signed receipt.', 'मैं सीमा से अधिक सैंपल, या बिना हस्ताक्षरित रसीद के सैंपल देने का सुझाव नहीं दे सकता।'],
+    ['I can show the limit and what is still needed to record a drop.', 'मैं सीमा दिखा सकता हूँ, और यह भी कि सैंपल दर्ज करने के लिए अभी क्या चाहिए।'],
+    ['I do not suggest anything that could be an inducement.', 'मैं ऐसा कुछ भी सुझाव नहीं देता जो प्रलोभन माना जा सके।'],
+    ['I can show what the approved education meeting offers and how attendance is logged.', 'मैं दिखा सकता हूँ कि स्वीकृत शिक्षा बैठक में क्या है और उपस्थिति कैसे दर्ज होती है।'],
+    // Fragments of generated answers.
+    ['the guardrails of this pack', 'इस पैक के सुरक्षा नियम'],
+    [' actions. ', ' कार्य हैं। '],
+    ['items in its brief wait for your review.', 'आइटम इसके ब्रीफ़ में आपकी समीक्षा का इंतज़ार कर रहे हैं।'],
+    ["today's plan", 'आज की योजना'],
+    [' accounts, ranked actions', ' खाते, क्रमबद्ध कार्य'],
     ['is first. It has an estimated', 'सबसे पहले स्थान पर है। इसमें लगभग'],
     ['at stake across', 'का अनुमानित अवसर है जिसमें'],
     ['The top action is', 'प्रमुख कार्य है'],
@@ -680,4 +695,33 @@ export function translateBasedOn(basedOn, lang) {
   
   const content = basedOn.replace(/^Based on:\s*/i, '');
   return prefix + translateAnswer(content, lang);
+}
+
+// Fixed assistant interface labels. Languages without an entry fall back to English.
+const UI_TRANSLATIONS = {
+  hi: {
+    "Answers come from configured rules and this scenario's data, not a live model.": 'उत्तर तय नियमों और इस परिदृश्य के डेटा से आते हैं, किसी लाइव मॉडल से नहीं।',
+    'Ask about what is on this screen. Pick a question or type your own.': 'इस स्क्रीन के बारे में पूछें। कोई प्रश्न चुनें या अपना प्रश्न लिखें।',
+    'Suggested questions': 'सुझाए गए प्रश्न',
+    'Ask': 'पूछें',
+    'You': 'आप',
+    "Why can't you answer that?": 'आप इसका उत्तर क्यों नहीं दे सकते?',
+    'Read aloud': 'सुनें',
+    'Stop audio': 'ऑडियो रोकें',
+    'Copy': 'कॉपी करें',
+    'Copied': 'कॉपी हो गया',
+    'Save to CRM': 'CRM में सहेजें',
+    'Saved to CRM': 'CRM में सहेजा गया',
+    'Helpful': 'उपयोगी',
+    'Go to the call brief': 'कॉल ब्रीफ़ खोलें',
+    'See the route plan': 'रूट योजना देखें',
+    'Back to Today': 'आज पर वापस जाएँ',
+    'Open the action': 'कार्य खोलें',
+    'Open the exception queue': 'अपवाद कतार खोलें',
+  },
+};
+
+export function translateUi(text, lang) {
+  if (!lang || lang === 'en') return text;
+  return UI_TRANSLATIONS[lang]?.[text] || text;
 }
