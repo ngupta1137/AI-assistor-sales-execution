@@ -644,6 +644,14 @@ body.text-size-lg {
   border-radius: 4px;
   animation: shimmer 1.5s ease-in-out infinite;
 }
+
+/* Full-row checkbox: the input covers the whole 44 px label so the tap target meets the standard;
+   a drawn box shows the state. Keyboard focus stays visible on the row. */
+.tap-check { position: relative; display: flex; align-items: center; gap: var(--s2); min-height: 46px; padding: 0 var(--s2) 0 calc(var(--s2) + 30px); border: 1px solid var(--line); border-radius: var(--radius-sm); background: var(--surface); cursor: pointer; }
+.tap-check input { position: absolute; inset: 0; width: 100%; height: 100%; margin: 0; opacity: 0; cursor: pointer; }
+.tap-check::before { content: ''; position: absolute; left: var(--s2); top: 50%; width: 20px; height: 20px; margin-top: -10px; border: 2px solid var(--ink-2); border-radius: 4px; background: var(--surface); }
+.tap-check:has(input:checked)::before { background: var(--accent); border-color: var(--accent); box-shadow: inset 0 0 0 3px var(--surface); }
+.tap-check:has(input:focus-visible) { outline: 2px solid var(--accent); outline-offset: 2px; }
 </style>
 </head>
 <body>
@@ -1812,7 +1820,7 @@ body.text-size-lg {
         "${n(S.approvedWording||"Use only the approved wording for this rule.")}"
       </blockquote>
       <small class="muted" style="display:block;margin-bottom:6px;font-size:10px">Rule: ${n(S.title)} · approved by ${n(S.approver||"Legal Counsel")}</small>
-      <label class="check" style="font-size:11px;font-weight:600;display:flex;align-items:center;gap:6px">
+      <label class="tap-check" style="font-size:12px;font-weight:600">
         <input type="checkbox" data-change="read-exact-wording" data-id="${t.id}" data-rule="${S.id}">
         <span>I have read this wording</span>
       </label>

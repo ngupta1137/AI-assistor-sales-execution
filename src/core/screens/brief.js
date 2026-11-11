@@ -253,7 +253,7 @@ function renderItem(ctx, it, isNext, a, itemIndex) {
         "${esc(rule.approvedWording || 'Use only the approved wording for this rule.')}"
       </blockquote>
       <small class="muted" style="display:block;margin-bottom:6px;font-size:10px">Rule: ${esc(rule.title)} · approved by ${esc(rule.approver || 'Legal Counsel')}</small>
-      <label class="check" style="font-size:11px;font-weight:600;display:flex;align-items:center;gap:6px">
+      <label class="tap-check" style="font-size:12px;font-weight:600">
         <input type="checkbox" data-change="read-exact-wording" data-id="${it.id}" data-rule="${rule.id}">
         <span>I have read this wording</span>
       </label>
