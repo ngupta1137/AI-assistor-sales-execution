@@ -66,14 +66,14 @@ export function render(ctx) {
   <section class="page-head">
     <span class="eyebrow">${esc(industry.name)} · Strategic Portfolio Management</span>
     <h1>Product Operations &amp; Commercial Economics</h1>
-    <p class="small muted">Value trees, market decision governance, demographic parity checks, and model inference unit economics.</p>
+    <p class="small muted">Value trees, market decision governance, segment allocation checks, and model inference unit economics.</p>
   </section>
 
   <!-- PM Sub-navigation -->
   <div class="seg-ctl" role="group" aria-label="Product management views" style="margin-bottom:var(--s3);overflow-x:auto;padding-bottom:2px">
     <button class="seg ${tab === 'metric' ? 'on' : ''}" data-act="set-pm-tab" data-tab="metric" style="min-height:var(--tap);min-width:var(--tap)">Metric tree (P1)</button>
     <button class="seg ${tab === 'decisions' ? 'on' : ''}" data-act="set-pm-tab" data-tab="decisions" style="min-height:var(--tap);min-width:var(--tap)">Decision log (P2)</button>
-    <button class="seg ${tab === 'bias' ? 'on' : ''}" data-act="set-pm-tab" data-tab="bias" style="min-height:var(--tap);min-width:var(--tap)">Bias checks (P3)</button>
+    <button class="seg ${tab === 'bias' ? 'on' : ''}" data-act="set-pm-tab" data-tab="bias" style="min-height:var(--tap);min-width:var(--tap)">Balance checks (P3)</button>
     <button class="seg ${tab === 'economics' ? 'on' : ''}" data-act="set-pm-tab" data-tab="economics" style="min-height:var(--tap);min-width:var(--tap)">Economics &amp; speed (P4)</button>
   </div>
 
@@ -203,15 +203,15 @@ export function render(ctx) {
     <!-- P3 Bias and Fairness Checks by Market -->
     <section class="card" style="margin-bottom:var(--s3)">
       <div class="section-head" style="margin-bottom:8px">
-        <h2>Demographic Parity &amp; Fairness Diagnostics</h2>
-        ${pill(biasedSegments.length ? 'Disparity Alert' : 'Parity Clean', biasedSegments.length ? 'warn' : 'good')}
+        <h2>Allocation Balance Across Segments</h2>
+        ${pill(biasedSegments.length ? 'Review needed' : 'Balanced', biasedSegments.length ? 'warn' : 'good')}
       </div>
-      <p class="small muted" style="margin-bottom:12px">Monitors algorithmic fairness across tiers, channel styles, and geographies. Disparities exceeding the sensitivity threshold trigger operational review.</p>
+      <p class="small muted" style="margin-bottom:12px">Checks that recommendations are accepted at similar rates across tiers and territories. A segment that falls further below the mean than the threshold is flagged for review.</p>
 
       <!-- Threshold Slider -->
       <div class="card tight" style="margin:0 0 12px 0;background:var(--surface-subtle)">
         <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px">
-          <span style="font-weight:600;font-size:12px">Fairness Review Threshold:</span>
+          <span style="font-weight:600;font-size:12px">Review threshold:</span>
           <b style="font-size:13px;color:var(--accent)">${reviewThresh} percentage points below mean</b>
         </div>
         <input type="range" min="5" max="25" step="1" value="${reviewThresh}" data-change="set-pm-bias-thresh" style="width:100%;height:var(--tap);cursor:pointer">
@@ -241,7 +241,7 @@ export function render(ctx) {
                 <td style="padding:6px 4px">${fmt.money(s.valuePerAcc)}</td>
                 <td style="padding:6px 4px">${s.timeSpent} min</td>
                 <td style="padding:6px 4px">
-                  ${isAlert ? pill(`Alert: -${diff.toFixed(1)}% vs mean`, 'warn') : pill('Parity safe', 'good')}
+                  ${isAlert ? pill(`Alert: -${diff.toFixed(1)}% vs mean`, 'warn') : pill('Within range', 'good')}
                 </td>
               </tr>`;
             }).join('')}
