@@ -63,20 +63,20 @@ export function renderLabModal(app, ctx) {
   const allowedInMatrix = (ctx.industry.governance?.rights?.actions?.[selRole] || []).includes(selAction);
 
   const tabs = [
-    ['ab', 'L-AB: A/B Test'],
-    ['roi', 'L-ROI: Calculator'],
-    ['mat', 'L-MAT: Maturity'],
-    ['ch', 'L-CH: Change'],
-    ['out', 'L-OUT: Outcomes'],
-    ['pv', 'L-PV: Authority'],
-    ['rv', 'L-RV: Review queue'],
-    ['rt', 'L-RT: Rights sim'],
-    ['gp', 'L-GP: Gaps & terms'],
-    ['cd', 'L-CD: Card demo'],
-    ['tr', 'L-TR: Trace inspector'],
-    ['dec', 'L-DEC: Model gateway'],
-    ['us', 'L-US: Usage telemetry'],
-    ['pm', 'L-PM: PM Views'],
+    ['ab', 'A/B test', 'L-AB'],
+    ['roi', 'ROI', 'L-ROI'],
+    ['mat', 'Maturity', 'L-MAT'],
+    ['ch', 'Change', 'L-CH'],
+    ['out', 'Outcomes', 'L-OUT'],
+    ['pv', 'Authority', 'L-PV'],
+    ['rv', 'Review queue', 'L-RV'],
+    ['rt', 'Rights sim', 'L-RT'],
+    ['gp', 'Gaps & terms', 'L-GP'],
+    ['cd', 'Card demo', 'L-CD'],
+    ['tr', 'Trace', 'L-TR'],
+    ['dec', 'Model gateway', 'L-DEC'],
+    ['us', 'Usage', 'L-US'],
+    ['pm', 'PM views', 'L-PM'],
   ];
 
   return `
@@ -93,12 +93,12 @@ export function renderLabModal(app, ctx) {
     </header>
 
     <!-- Lab Sub-navigation -->
-    <div style="padding:var(--s2) var(--s4) 0 var(--s4);overflow-x:auto;display:flex;gap:4px;border-bottom:1px solid var(--line-soft)">
-      ${tabs.map(([id, label]) => `
-        <button class="seg sm ${tab === id ? 'on' : ''}" data-act="set-lab-tab" data-tab="${id}" style="min-height:var(--tap);min-width:var(--tap);white-space:nowrap;font-size:11px">
-          ${esc(label)}
-        </button>
-      `).join('')}
+    <div style="padding:var(--s2) var(--s4) var(--s2) var(--s4);border-bottom:1px solid var(--line-soft)">
+      <div class="seg-ctl" role="group" aria-label="Lab sections">
+        ${tabs.map(([id, label, code]) => `
+          <button class="seg ${tab === id ? 'on' : ''}" data-act="set-lab-tab" data-tab="${id}" title="${esc(code)}" aria-pressed="${tab === id}" style="min-height:var(--tap);min-width:var(--tap);white-space:nowrap;flex:0 1 auto">${esc(label)}</button>
+        `).join('')}
+      </div>
     </div>
 
     <div style="padding:var(--s4);display:flex;flex-direction:column;gap:var(--s3)">
@@ -109,7 +109,7 @@ export function renderLabModal(app, ctx) {
             <h3>A/B Testing Simulation &amp; Rollout Gate</h3>
             ${pill(abConfident ? 'Rollout Cleared (>=95% Conf, >=2% Lift)' : 'Insufficient Lift', abConfident ? 'good' : 'warn')}
           </div>
-          <p class="small muted" style="margin-bottom:12px">Pre-registered decision rule: Roll out candidate policy only if test achieves at least 95% statistical confidence and minimum 2.0% uplift.</p>
+          <p class="small muted" style="margin-bottom:12px">Decision rule, set before the test runs: roll out only if the result reaches 95% confidence and at least 2.0% uplift.</p>
 
           <div style="display:flex;flex-direction:column;gap:12px">
             <div>

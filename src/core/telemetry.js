@@ -58,27 +58,27 @@ export function renderSyncModal(app, ctx) {
           </div>
         </section>`;
       })()}
-      ${syncSuccess ? `<div class="notice good" role="status">${icon('check', 18)}<span>Bi-directional sync completed. Price books, account balances and inventory updated.</span></div>` : ''}
+      ${syncSuccess ? `<div class="notice good" role="status">${icon('check', 18)}<span>Simulated sync completed. Sample price books, account balances and inventory refreshed.</span></div>` : ''}
 
       <section class="card" style="margin:0">
         <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
           <b>CRM Integration Connector</b>
-          ${pill('Active · Connected', 'good')}
+          ${pill('Simulated', 'info')}
         </div>
-        <p class="small muted">Bi-directional synchronization of ${esc(ctx ? ctx.t('{Accounts}') : 'Accounts')}, ${esc(ctx ? ctx.t('{contacts}') : 'contacts')} and activity timelines via OAuth 2.0 REST API.</p>
+        <p class="small muted">Simulated in this demo with sample data. In production: two-way sync of ${esc(ctx ? ctx.t('{Accounts}') : 'Accounts')}, ${esc(ctx ? ctx.t('{contacts}') : 'contacts')} and activity timelines via OAuth 2.0 REST API.</p>
         <div class="facts" style="margin-top:8px">
-          <div><small>Status</small><b>Operational</b></div>
+          <div><small>Status</small><b>Simulated</b></div>
           <div><small>Last sync</small><b>${esc(lastSync)}</b></div>
-          <div><small>Avg latency</small><b>142 ms</b></div>
+          <div><small>Latency target</small><b>&lt;200 ms p95</b></div>
         </div>
       </section>
 
       <section class="card" style="margin:0">
         <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
           <b>ERP Order Gateway</b>
-          ${pill('Active · Streaming', 'good')}
+          ${pill('Simulated', 'info')}
         </div>
-        <p class="small muted">Real-time customer pricing agreements, tax calculations, credit limits and direct order dispatch via OData v4 webhooks.</p>
+        <p class="small muted">Simulated in this demo. In production: customer pricing agreements, tax, credit limits and order dispatch via OData v4 webhooks.</p>
         <div class="facts" style="margin-top:8px">
           <div><small>Gateway</small><b>OData v4</b></div>
           <div><small>Dropped queue</small><b>0 packets</b></div>

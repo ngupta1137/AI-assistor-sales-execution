@@ -6,6 +6,19 @@ import { buildGovernance } from '../governance-base.js';
 
 export default {
   governance: buildGovernance({
+    // Which rule governs each action. '_' means no specific rule applies; the card shows the general standard.
+    ruleFor: {
+      "dewormgap": "_",
+      "coldchain": "r_animalhealth_quality",
+      "labelhandover": "r_animalhealth_terms",
+      "rxdelivery": "r_animalhealth_audit",
+      "precalvingorder": "r_animalhealth_logistics",
+      "shelfmerch": "r_animalhealth_audit",
+      "clinicsched": "r_animalhealth_logistics",
+      "milkinghygiene": "r_animalhealth_safety",
+      "$order": "r_animalhealth_credit",
+      "$plan": "r_animalhealth_logistics",
+    },
     legalApprover: "Legal Counsel",
     rules: [
       {

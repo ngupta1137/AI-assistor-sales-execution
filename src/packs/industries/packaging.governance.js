@@ -6,6 +6,19 @@ import { buildGovernance } from '../governance-base.js';
 
 export default {
   governance: buildGovernance({
+    // Which rule governs each action. '_' means no specific rule applies; the card shows the general standard.
+    ruleFor: {
+      "foodcertgap": "r_packaging_quality",
+      "barrierleak": "r_packaging_quality",
+      "sustaintest": "r_packaging_terms",
+      "crushstrength": "r_packaging_quality",
+      "bulkpalletorder": "r_packaging_logistics",
+      "artsignoff": "r_packaging_terms",
+      "presscheck": "r_packaging_quality",
+      "linesched": "_",
+      "$order": "r_packaging_credit",
+      "$plan": "r_packaging_logistics",
+    },
     legalApprover: "Legal Counsel",
     rules: [
       {

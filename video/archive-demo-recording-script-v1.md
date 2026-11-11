@@ -1,3 +1,5 @@
+> Superseded on 2026-11-09 by the scripts in `video/cuts.mjs`. Kept for history only. Several claims here were removed because they could not be backed (unsourced CRM cost figures, "ready to deploy", "immutable", "pre-registered", legal compliance claims). Do not reuse.
+
 # AI Assistor Sales Execution: Master Demo Recording Script & Claude Automation Protocol
 
 > **MANDATE FOR CLAUDE (CLAUDE CHROME SESSION & BROWSER AUTOMATION):**

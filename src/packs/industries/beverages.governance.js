@@ -6,6 +6,21 @@ import { buildGovernance } from '../governance-base.js';
 
 export default {
   governance: buildGovernance({
+    // Which rule governs each action. '_' means no specific rule applies; the card shows the general standard.
+    ruleFor: {
+      "menu": "r_beverages_terms",
+      "cooler": "r_beverages_audit",
+      "activation": "r_beverages_terms",
+      "draught": "r_beverages_quality",
+      "range": "_",
+      "promo": "r_beverages_pricing",
+      "topup": "r_beverages_logistics",
+      "staff": "r_beverages_safety",
+      "agecheck": "r_beverages_audit",
+      "service": "_",
+      "$order": "r_beverages_credit",
+      "$plan": "r_beverages_logistics",
+    },
     legalApprover: "Legal Counsel",
     rules: [
       {

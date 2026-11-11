@@ -266,13 +266,14 @@ export function render(ctx) {
 
       <!-- Latency Breakdown -->
       <div class="card tight" style="margin:0 0 12px 0;background:var(--surface-subtle)">
-        <b style="font-size:12px;display:block;margin-bottom:6px">End-to-End Latency Budget (Target: &lt;200ms)</b>
+        <b style="font-size:12px;display:block;margin-bottom:2px">End-to-End Latency Budget (Target: &lt;200ms p95)</b>
+        <small class="muted" style="display:block;margin-bottom:6px;font-size:11px">Design allocation per stage. Not measured: this demo runs on rules and calls no model.</small>
         <div class="facts" style="grid-template-columns:repeat(auto-fit,minmax(90px,1fr))">
           <div><small>Cache lookups</small><b>5 ms</b></div>
           <div><small>Policy rules</small><b>12 ms</b></div>
           <div><small>Model inference</small><b>145 ms</b></div>
           <div><small>UI render</small><b>18 ms</b></div>
-          <div><small>Total round-trip</small><b class="good-text">180 ms (OK)</b></div>
+          <div><small>Total allocated</small><b>180 ms of 200 ms</b></div>
         </div>
       </div>
 

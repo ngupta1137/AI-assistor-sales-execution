@@ -6,6 +6,21 @@ import { buildGovernance } from '../governance-base.js';
 
 export default {
   governance: buildGovernance({
+    // Which rule governs each action. '_' means no specific rule applies; the card shows the general standard.
+    ruleFor: {
+      "float": "r_telecom_credit",
+      "simstock": "r_telecom_logistics",
+      "branding": "r_telecom_audit",
+      "kyc": "r_telecom_audit",
+      "demo": "_",
+      "plantrain": "r_telecom_terms",
+      "festival": "r_telecom_pricing",
+      "attach": "_",
+      "coverage": "r_telecom_sla",
+      "peak": "_",
+      "$order": "r_telecom_credit",
+      "$plan": "r_telecom_logistics",
+    },
     legalApprover: "Legal Counsel",
     rules: [
       {

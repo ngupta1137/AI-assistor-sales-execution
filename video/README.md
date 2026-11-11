@@ -33,5 +33,4 @@ Run captures on an otherwise idle machine. Under CPU load the browser drops fram
 ## Known limits
 
 - Captions are drawn in the right-hand panel, so the master is already readable muted.
-- The latency card (142 ms) is hard-coded in the app and is kept out of every cut.
-- Rule-to-card mapping in the app is by hash, not meaning. The cuts open the drawer on the delivery-day card, whose rule fits. Fix the mapping before a technical buyer explores the live demo.
+- Every spoken number was checked against the app on the day of recording. Re-check after changing seed data or packs.

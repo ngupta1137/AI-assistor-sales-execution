@@ -6,10 +6,26 @@ import { buildGovernance } from '../governance-base.js';
 
 export default {
   governance: buildGovernance({
+    // Which rule governs each action. '_' means no specific rule applies; the card shows the general standard.
+    ruleFor: {
+      "preseason": "r_ag_credit",
+      "demo": "r_ag_label",
+      "meeting": "r_ag_label",
+      "dues": "r_ag_credit",
+      "advice": "r_ag_label",
+      "counter": "r_ag_label",
+      "program": "_",
+      "genuine": "_",
+      "cropstage": "_",
+      "newseed": "r_ag_seed",
+      "$order": "r_ag_credit",
+      "$plan": "_",
+    },
     legalApprover: "Regulatory Agronomy Counsel",
     rules: [
       {
             "id": "r_ag_label",
+            "approvedWording": "Use this product only for the crops, rates and intervals printed on the label. I cannot recommend any other use.",
             "title": "Mandatory pesticide and crop protection label rate adherence",
             "owner": "Regulatory Agronomy Lead",
             "approver": "Head of Agronomy",

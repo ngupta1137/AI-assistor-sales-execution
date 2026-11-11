@@ -6,10 +6,26 @@ import { buildGovernance } from '../governance-base.js';
 
 export default {
   governance: buildGovernance({
+    // Which rule governs each action. '_' means no specific rule applies; the card shows the general standard.
+    ruleFor: {
+      "oos": "r_cpg_shelf",
+      "display": "r_cpg_purity",
+      "listnew": "r_cpg_shelf",
+      "promo": "r_cpg_promo",
+      "facings": "r_cpg_shelf",
+      "pricetag": "_",
+      "topup": "r_cpg_credit",
+      "winback": "_",
+      "rotate": "r_cpg_rma",
+      "deliveryday": "r_cpg_dock",
+      "$order": "r_cpg_credit",
+      "$plan": "r_cpg_dock",
+    },
     legalApprover: "Legal Counsel",
     rules: [
       {
             "id": "r_cpg_promo",
+            "approvedWording": "This promotion runs only at the tier and dates in your signed joint business plan. Any change needs approval from Trade Marketing.",
             "title": "Authorized trade promotional tier compliance",
             "owner": "Trade Marketing Lead",
             "approver": "Commercial Director",

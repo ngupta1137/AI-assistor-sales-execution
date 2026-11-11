@@ -6,6 +6,19 @@ import { buildGovernance } from '../governance-base.js';
 
 export default {
   governance: buildGovernance({
+    // Which rule governs each action. '_' means no specific rule applies; the card shows the general standard.
+    ruleFor: {
+      "quoteconv": "r_insurance_pricing",
+      "cyberapp": "r_insurance_terms",
+      "brochuredel": "r_insurance_terms",
+      "volplan": "r_insurance_terms",
+      "bancatrain": "_",
+      "bookrecon": "r_insurance_audit",
+      "cadenceopt": "_",
+      "licenselog": "r_insurance_audit",
+      "$order": "r_insurance_credit",
+      "$plan": "_",
+    },
     legalApprover: "Legal Counsel",
     rules: [
       {

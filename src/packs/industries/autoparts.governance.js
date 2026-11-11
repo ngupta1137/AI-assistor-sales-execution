@@ -6,6 +6,21 @@ import { buildGovernance } from '../governance-base.js';
 
 export default {
   governance: buildGovernance({
+    // Which rule governs each action. '_' means no specific rule applies; the card shows the general standard.
+    ruleFor: {
+      "fast": "r_autoparts_logistics",
+      "train": "r_autoparts_safety",
+      "loyalty": "r_autoparts_terms",
+      "warranty": "r_autoparts_sla",
+      "genuine": "r_autoparts_quality",
+      "range": "_",
+      "fleetplan": "r_autoparts_terms",
+      "switch": "r_autoparts_quality",
+      "display": "r_autoparts_audit",
+      "early": "_",
+      "$order": "r_autoparts_credit",
+      "$plan": "r_autoparts_logistics",
+    },
     legalApprover: "Legal Counsel",
     rules: [
       {

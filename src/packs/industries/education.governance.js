@@ -6,6 +6,19 @@ import { buildGovernance } from '../governance-base.js';
 
 export default {
   governance: buildGovernance({
+    // Which rule governs each action. '_' means no specific rule applies; the card shows the general standard.
+    ruleFor: {
+      "curricgap": "r_education_quality",
+      "examplersample": "r_education_terms",
+      "bursarreview": "r_education_credit",
+      "tendersubmit": "r_education_terms",
+      "labsafety": "r_education_safety",
+      "shelfmerch": "r_education_audit",
+      "termsched": "_",
+      "vocationalgap": "r_education_quality",
+      "$order": "r_education_credit",
+      "$plan": "r_education_logistics",
+    },
     legalApprover: "Legal Counsel",
     rules: [
       {

@@ -329,7 +329,7 @@ export const actions = {
       '   - Client reservation UUIDs preventing duplicate order postings on replay',
       '   - Compensating flows for depot stock oversell, credit hold, and price drift',
       '   - OIDC / SAML 2.0 federated identity and RBAC role matrix specification',
-      '   - Difference-in-Differences pre-registered causal measurement protocol',
+      '   - Difference-in-differences measurement against matched territories, plan agreed before the pilot starts',
       '',
       '   [PROPOSED - Target Enterprise Cloud Topology & Certifications]:',
       '   - SCIM 2.0 automated user provisioning endpoints and Cloud KMS (CMEK)',

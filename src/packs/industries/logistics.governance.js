@@ -6,6 +6,19 @@ import { buildGovernance } from '../governance-base.js';
 
 export default {
   governance: buildGovernance({
+    // Which rule governs each action. '_' means no specific rule applies; the card shows the general standard.
+    ruleFor: {
+      "latepickup": "r_logistics_logistics",
+      "dimweightgap": "r_logistics_pricing",
+      "ratecardhand": "r_logistics_terms",
+      "peakmanifest": "r_logistics_logistics",
+      "returnportal": "r_logistics_sla",
+      "palletbooking": "r_logistics_logistics",
+      "docksched": "_",
+      "claimaudit": "r_logistics_sla",
+      "$order": "r_logistics_credit",
+      "$plan": "r_logistics_logistics",
+    },
     legalApprover: "Legal Counsel",
     rules: [
       {

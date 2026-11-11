@@ -6,6 +6,21 @@ import { buildGovernance } from '../governance-base.js';
 
 export default {
   governance: buildGovernance({
+    // Which rule governs each action. '_' means no specific rule applies; the card shows the general standard.
+    ruleFor: {
+      "bins": "r_industrial_logistics",
+      "rating": "r_industrial_safety",
+      "shutdown": "r_industrial_logistics",
+      "obsolete": "r_industrial_quality",
+      "talk": "r_industrial_safety",
+      "newitem": "_",
+      "crib": "r_industrial_audit",
+      "calibration": "r_industrial_quality",
+      "shift": "_",
+      "quote": "r_industrial_pricing",
+      "$order": "r_industrial_credit",
+      "$plan": "r_industrial_logistics",
+    },
     legalApprover: "Legal Counsel",
     rules: [
       {
