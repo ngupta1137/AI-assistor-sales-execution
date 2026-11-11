@@ -328,9 +328,9 @@ export function render(ctx) {
     <div id="reassign-sim-box" style="margin-top:12px;padding:12px;background:var(--surface-subtle);border:1px solid var(--line);border-radius:var(--radius-sm)">
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
         <b>Mid-day route disruption and cross-rep re-balance</b>
-        ${pill('Contingency Active', 'warn')}
+        ${pill('Simulated', 'info')}
       </div>
-      <p class="small muted" style="margin-bottom:8px">Simulate vehicle breakdown or unexpected rep absence. Intelligently redistributes unvisited stops to active reps within driving range without violating dock delivery windows.</p>
+      <p class="small muted" style="margin-bottom:8px">A scripted contingency for a vehicle breakdown or absence. It shows how unvisited stops would be offered to nearby reps; in production the route planner would check receiving windows first.</p>
       
       <div style="display:flex;flex-direction:column;gap:6px;font-size:12px;margin-bottom:10px">
         <div style="display:flex;justify-content:space-between;padding:6px 8px;background:var(--surface);border-radius:4px;border:1px solid var(--line-soft)">
@@ -343,14 +343,14 @@ export function render(ctx) {
         </div>
         <div style="display:flex;justify-content:space-between;padding:6px 8px;background:var(--surface);border-radius:4px;border:1px solid var(--line-soft)">
           <span>Target reassignment:</span>
-          <b class="good-text">Jordan Taylor &amp; Alex Morgan (Within 12 km)</b>
+          <b>Two nearest reps (within 12 km)</b>
         </div>
       </div>
       
       ${ui.reassignedDone ? `
-        <div class="notice good">${icon('check', 14)}<span>Stops successfully re-balanced across nearby routes. Dock receiving windows preserved.</span></div>
+        <div class="notice good">${icon('check', 14)}<span>Stops offered to the two nearest reps (simulated). Each rep accepts or declines.</span></div>
       ` : `
-        <button class="btn primary sm" data-act="execute-reassign" style="min-height:var(--tap);width:100%">${icon('route', 14)} Execute emergency cross-rep stop redistribution</button>
+        <button class="btn primary sm" data-act="execute-reassign" style="min-height:var(--tap);width:100%">${icon('route', 14)} Offer stops to nearby reps</button>
       `}
     </div>` : ''}
   
@@ -360,7 +360,7 @@ export function render(ctx) {
         <b>Territory capacity and workload simulator</b>
         ${pill('Scenario modeling', 'info')}
       </div>
-      <p class="small muted" style="margin-bottom:10px">Model territory visit frequency, cluster radius and confidence threshold adjustments to project team quota attainment.</p>
+      <p class="small muted" style="margin-bottom:10px">Test visit cadence, cluster radius and suggestion threshold against the capacity of a field day before changing any route.</p>
       
       <div style="display:flex;flex-direction:column;gap:10px">
         <div>
@@ -400,13 +400,33 @@ export function render(ctx) {
         </div>
       </div>
 
-      <div class="facts" style="margin-top:10px;grid-template-columns:repeat(auto-fit,minmax(80px,1fr))">
-        <div><small>Projected quota</small><b>${((ui.simVisits || 5) === 4 ? 94 : (ui.simVisits || 5) === 6 ? 112 : 104)}%</b></div>
-        <div><small>Transit fatigue</small><b class="good-text">${((ui.simRadius || 25) === 15 ? '-26%' : (ui.simRadius || 25) === 40 ? '+8%' : '-14%')}</b></div>
-        <div><small>Pipeline capture</small><b>+${esc(fmt.moneyShort(((ui.simVisits || 5) * 48000)))}</b></div>
+      ${(() => {
+        // Illustrative capacity model. Every assumption is stated on screen; nothing here is measured.
+        const visits = ui.simVisits || 5, radius = ui.simRadius || 25, conf = ui.simConf || 80;
+        const VISIT_MIN = 55, FIELD_MIN = 420, VALUE_PER_VISIT = 9600;
+        const TRAVEL = { 15: 12, 25: 18, 40: 28 }, REACH = { 15: 60, 25: 85, 40: 100 };
+        const SHOWN = { 70: 1.0, 80: 0.85, 90: 0.6 }, ACCEPT = { 70: 0.62, 80: 0.74, 90: 0.86 };
+        const weekly = (v, r, c) => {
+          const per = VISIT_MIN + TRAVEL[r];
+          const done = Math.min(v, Math.floor(FIELD_MIN / per));
+          return { per, done, value: done * 5 * VALUE_PER_VISIT * SHOWN[c] * ACCEPT[c] * (0.6 + 0.4 * REACH[r] / 100) };
+        };
+        const now = weekly(5, 25, 80), sc = weekly(visits, radius, conf);
+        const loadPct = Math.round((visits * sc.per) / FIELD_MIN * 100);
+        const delta = Math.round((sc.value / now.value - 1) * 100);
+        const over = visits > sc.done;
+        return `
+      <div class="facts" style="margin-top:10px;grid-template-columns:repeat(auto-fit,minmax(96px,1fr))">
+        <div><small>Field day used</small><b class="${over ? 'bad-text' : ''}">${loadPct}%</b></div>
+        <div><small>${esc(t("High-value {accounts} in reach"))}</small><b>${REACH[radius]}%</b></div>
+        <div><small>Suggestions accepted</small><b>${Math.round(ACCEPT[conf] * 100)}%</b></div>
+        <div><small>Weekly value vs today</small><b class="${delta < 0 ? 'bad-text' : delta > 0 ? 'good-text' : ''}">${delta > 0 ? '+' : ''}${delta}%</b></div>
       </div>
+      ${over ? `<p class="small bad-text" style="margin:6px 0 0">Over capacity: ${visits} visits need ${visits * sc.per} minutes. Only ${sc.done} fit in a ${FIELD_MIN / 60}-hour field day, so ${visits - sc.done} slips each day.</p>` : ''}
+      <p class="small muted" style="margin:6px 0 0;font-size:11px">Illustrative model on sample assumptions: ${VISIT_MIN} min per visit; travel ${TRAVEL[15]}, ${TRAVEL[25]} or ${TRAVEL[40]} min by radius; ${FIELD_MIN / 60}-hour field day; a higher threshold shows fewer suggestions (${SHOWN[70] * 100}, ${SHOWN[80] * 100} or ${SHOWN[90] * 100}%) that are accepted more often (${ACCEPT[70] * 100}, ${ACCEPT[80] * 100} or ${ACCEPT[90] * 100}%). Not a forecast.</p>`;
+      })()}
 
-      <button class="btn good sm" data-act="commit-sim" style="min-height:var(--tap);width:100%;margin-top:10px">${icon('check', 14)} Apply scenario to active territory plan</button>
+      <button class="btn good sm" data-act="commit-sim" style="min-height:var(--tap);width:100%;margin-top:10px">${icon('check', 14)} Save scenario for approval</button>
     </div>` : ''}
   </section>
   <section id="exceptions">
@@ -609,7 +629,7 @@ export const actions = {
   },
   'execute-reassign': ({ ctx }) => {
     (ctx.ui ||= {}).reassignedDone = true;
-    ctx.ui.managerToast = 'Emergency route re-balance completed: 3 stops safely redistributed.';
+    ctx.ui.managerToast = 'Simulated: 3 stops offered to the two nearest reps.';
     if (ctx.m?.logAudit) ctx.m.logAudit('Route Re-Balance', 'Redistributed 3 unvisited stops from Route 02-B to neighboring reps');
   },
 
@@ -687,7 +707,7 @@ export const actions = {
     (ctx.ui ||= {})[data.k] = Number(data.v);
   },
   'commit-sim': ({ ctx }) => {
-    (ctx.ui ||= {}).managerToast = 'Scenario committed as active territory planning model.';
+    (ctx.ui ||= {}).managerToast = 'Scenario saved to the planning log. Routes change only after the planning owner approves it.';
     ctx.ui.showSimulator = false;
     if (ctx.m?.logAudit) ctx.m.logAudit('Manager', `Committed territory scenario: ${ctx.ui.simVisits || 5} visits/day, ${ctx.ui.simRadius || 25}km radius`);
   },

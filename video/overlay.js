@@ -9,6 +9,7 @@
   .try-case-btn, .lab-btn { visibility: hidden !important; }
   html.demo-compact .acting-as-bar { display: none !important; }
   html.demo-show-lab .lab-btn { visibility: visible !important; }
+  html.demo-show-try .try-case-btn { visibility: visible !important; }
   html, body { scrollbar-width: none; }
   ::-webkit-scrollbar { width: 0 !important; height: 0 !important; }
   #demo-layer { position: fixed; inset: 0; pointer-events: none; z-index: 2147483000; font-family: var(--font-ui, Inter, system-ui, sans-serif); color: #17212F; }
@@ -99,6 +100,7 @@
     },
     card(html) { const c = $('demo-card'); if (html) { c.innerHTML = html; c.classList.add('on'); } else c.classList.remove('on'); },
     compact(on) { document.documentElement.classList.toggle('demo-compact', !!on); },
+    showTry(on) { document.documentElement.classList.toggle('demo-show-try', !!on); },
     showLab(on) { document.documentElement.classList.toggle('demo-show-lab', !!on); },
   };
 })();

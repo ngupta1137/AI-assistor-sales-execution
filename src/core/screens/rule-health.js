@@ -165,7 +165,7 @@ export function render(ctx) {
     const overrideRate = r.overrideRate || 5.4;
 
     return `
-          <tr style="border-bottom:1px solid var(--line-soft)">
+          <tr id="rule-row-${esc(r.id)}" style="border-bottom:1px solid var(--line-soft);${ctx.ui?.highlightRuleId === r.id ? 'background:var(--warn-bg, #FFF7E6);outline:2px solid var(--warn, #B45309);outline-offset:-2px' : ''}">
             <td style="padding:8px 10px">
               <b>${esc(r.title)}</b>
               <div class="small muted" style="font-size:10px">${esc(r.id)} · Scope: ${esc(r.scope)}</div>
@@ -178,7 +178,7 @@ export function render(ctx) {
             <td style="padding:8px 6px">${sparkline([acceptRate - 4, acceptRate - 2, acceptRate - 1, acceptRate + 1, acceptRate])}</td>
             <td style="padding:8px 6px">${pill(status, statusTone)}</td>
             <td style="padding:8px 10px;text-align:right">
-              ${retired ? `<span class="small muted">Retired (${esc(m.session.retiredRules[r.id].approver)})</span>`
+              ${retired ? `<span class="small muted">Retired by ${esc(m.session.retiredRules[r.id].approver || 'rule owner')}${m.session.retiredRules[r.id].reason ? `: ${esc(m.session.retiredRules[r.id].reason)}` : ''}</span>`
       : `<button class="btn secondary sm" data-act="open-retire-modal" data-id="${r.id}" style="min-height:var(--tap);font-size:11px">Retire with a reason</button>`}
             </td>
           </tr>`;

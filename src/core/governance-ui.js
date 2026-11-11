@@ -134,6 +134,7 @@ export const governanceActions = {
     const a = ctx.data.planned[0];
     const card = a?.actions[2] || a?.actions[0] || { id: 'act_1' };
     if (app.ui) app.ui.tryCaseOpen = false;
+    app.deniedNotice = null; // one case at a time: clear the previous case's notice
 
     if (caseId === 'conflict') {
       ctx.m.setForcedCase({ targetId: card.id, outcome: 'conflict', name: 'Two rules disagree' });
@@ -157,10 +158,13 @@ export const governanceActions = {
     } else if (caseId === 'retired') {
       const rule = ctx.industry.governance?.rules?.[0];
       if (rule) {
-        ctx.m.retireRule(rule.id, 'Sample demonstration retirement', 'Field Operations Lead');
+        ctx.m.retireRule(rule.id, { reason: 'Sample retirement for this test case', approver: 'Field Operations Lead' });
         ctx.ui.highlightRuleId = rule.id;
       }
       api.navigate('#/rule-health');
+      if (rule && typeof document !== 'undefined') {
+        setTimeout(() => document.getElementById(`rule-row-${rule.id}`)?.scrollIntoView({ block: 'center', behavior: 'smooth' }), 200);
+      }
     } else if (caseId === 'role') {
       app.deniedNotice = { screen: 'Rule Governance Authoring', role: ctx.persona, team: 'Market Operations' };
       ctx.m.logAudit('Security Access Guard', `Access denied: ${ctx.persona} attempted unauthorized action on Rule Governance Authoring`);
