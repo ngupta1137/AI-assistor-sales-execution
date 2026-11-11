@@ -6,6 +6,21 @@ import { buildGovernance } from '../governance-base.js';
 
 export default {
   governance: buildGovernance({
+    // Which rule governs each action. '_' means no specific rule applies; the card shows the general standard.
+    ruleFor: {
+      "menu": "r_foodservice_terms",
+      "shortship": "r_foodservice_sla",
+      "spec": "r_foodservice_quality",
+      "standing": "r_foodservice_logistics",
+      "cover": "r_foodservice_logistics",
+      "trial": "_",
+      "coldchain": "r_foodservice_quality",
+      "seasonal": "r_foodservice_logistics",
+      "window": "_",
+      "invoice": "r_foodservice_credit",
+      "$order": "r_foodservice_credit",
+      "$plan": "r_foodservice_logistics",
+    },
     legalApprover: "Legal Counsel",
     rules: [
       {

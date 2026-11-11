@@ -6,10 +6,27 @@ import { buildGovernance } from '../governance-base.js';
 
 export default {
   governance: buildGovernance({
+    // Which rule governs each action. '_' means no specific rule applies; the card shows the general standard.
+    ruleFor: {
+      "detail": "r_ph_claims",
+      "sample": "r_ph_samples",
+      "stock": "r_ph_storage",
+      "formulary": "r_ph_formulary",
+      "restock": "_",
+      "education": "r_ph_spend",
+      "unseen": "r_ph_detailing",
+      "consent": "_",
+      "medinfo": "r_ph_adverse",
+      "callslot": "_",
+      "expiry": "r_ph_storage",
+      "$order": "_",
+      "$plan": "_",
+    },
     legalApprover: "Medical & Regulatory Affairs Director",
     rules: [
       {
             "id": "r_ph_claims",
+            "approvedWording": "I can only share information within the approved prescribing information. I cannot discuss uses outside the approved indication.",
             "title": "Approved indications and statutory prescribing information",
             "owner": "Medical Affairs Lead",
             "approver": "Medical Director",

@@ -6,6 +6,21 @@ import { buildGovernance } from '../governance-base.js';
 
 export default {
   governance: buildGovernance({
+    // Which rule governs each action. '_' means no specific rule applies; the card shows the general standard.
+    ruleFor: {
+      "sizes": "r_apparel_logistics",
+      "reorder": "r_apparel_logistics",
+      "preseason": "r_apparel_terms",
+      "floor": "r_apparel_audit",
+      "newstyle": "_",
+      "aged": "r_apparel_pricing",
+      "images": "r_apparel_quality",
+      "returns": "r_apparel_quality",
+      "sample": "_",
+      "trading": "_",
+      "$order": "r_apparel_credit",
+      "$plan": "r_apparel_logistics",
+    },
     legalApprover: "Legal Counsel",
     rules: [
       {

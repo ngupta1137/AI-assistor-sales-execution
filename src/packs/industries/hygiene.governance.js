@@ -6,6 +6,19 @@ import { buildGovernance } from '../governance-base.js';
 
 export default {
   governance: buildGovernance({
+    // Which rule governs each action. '_' means no specific rule applies; the card shows the general standard.
+    ruleFor: {
+      "sdscheck": "r_hygiene_safety",
+      "diluteaudit": "r_hygiene_quality",
+      "handwashgap": "r_hygiene_logistics",
+      "quarterbulk": "r_hygiene_logistics",
+      "laundrytitrate": "r_hygiene_quality",
+      "equipinstall": "r_hygiene_audit",
+      "shiftsched": "_",
+      "careclean": "r_hygiene_safety",
+      "$order": "r_hygiene_credit",
+      "$plan": "r_hygiene_logistics",
+    },
     legalApprover: "Legal Counsel",
     rules: [
       {

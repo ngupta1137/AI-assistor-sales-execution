@@ -6,10 +6,26 @@ import { buildGovernance } from '../governance-base.js';
 
 export default {
   governance: buildGovernance({
+    // Which rule governs each action. '_' means no specific rule applies; the card shows the general standard.
+    ruleFor: {
+      "terminal": "_",
+      "loandocs": "r_fs_credit",
+      "kyc": "r_fs_kyc",
+      "needs": "r_fs_suitability",
+      "arrears": "r_fs_vulnerable",
+      "efloat": "_",
+      "feechart": "r_fs_conflict",
+      "activate": "r_fs_kyc",
+      "qrsetup": "r_fs_pricing",
+      "offpeak": "_",
+      "$order": "_",
+      "$plan": "_",
+    },
     legalApprover: "Chief Compliance Officer",
     rules: [
       {
             "id": "r_fs_credit",
+            "approvedWording": "Credit decisions are made by the credit team within delegated limits. I cannot promise approval, a rate or a limit.",
             "title": "Strict credit underwriting authority limits and delegation",
             "owner": "Credit Underwriting Lead",
             "approver": "Credit Committee Chair",

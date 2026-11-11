@@ -6,10 +6,27 @@ import { buildGovernance } from '../governance-base.js';
 
 export default {
   governance: buildGovernance({
+    // Which rule governs each action. '_' means no specific rule applies; the card shows the general standard.
+    ruleFor: {
+      "case": "r_md_loaner",
+      "reorder": "r_md_consignment",
+      "reagents": "r_md_consignment",
+      "trial": "r_md_ifu",
+      "renew": "r_md_biomed",
+      "inservice": "r_md_training",
+      "complaint": "r_md_recall",
+      "uptime": "r_md_biomed",
+      "vac": "r_md_value",
+      "consign": "r_md_consignment",
+      "orslot": "_",
+      "$order": "r_md_consignment",
+      "$plan": "_",
+    },
     legalApprover: "Quality & Regulatory Compliance Counsel",
     rules: [
       {
             "id": "r_md_ifu",
+            "approvedWording": "Use this device only as described in the instructions for use. I cannot advise on any other use.",
             "title": "Strict manufacturer instructions for use compliance",
             "owner": "Regulatory Affairs Manager",
             "approver": "Chief Medical Officer",

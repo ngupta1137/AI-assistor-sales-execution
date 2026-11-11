@@ -6,6 +6,21 @@ import { buildGovernance } from '../governance-base.js';
 
 export default {
   governance: buildGovernance({
+    // Which rule governs each action. '_' means no specific rule applies; the card shows the general standard.
+    ruleFor: {
+      "pipeline": "r_energy_logistics",
+      "training": "r_energy_safety",
+      "compat": "r_energy_quality",
+      "deadline": "r_energy_logistics",
+      "newline": "_",
+      "counter": "r_energy_audit",
+      "warranty": "r_energy_sla",
+      "spec": "r_energy_quality",
+      "install": "_",
+      "quote": "r_energy_pricing",
+      "$order": "r_energy_credit",
+      "$plan": "r_energy_logistics",
+    },
     legalApprover: "Legal Counsel",
     rules: [
       {

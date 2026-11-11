@@ -35,6 +35,21 @@ for (const p of INDUSTRIES) check(!!p.companion, `${p.id}: Companion content (co
 for (const p of INDUSTRIES) check(!!p.governance, `${p.id}: Governance content (governance) is required`);
 for (const c of COUNTRIES) validateCountryGovernance(c).forEach((m) => check(false, `schema: ${m}`));
 for (const p of INDUSTRIES) check(!!(p.assistantContext && p.assistantAnswers && p.assistantRefusals), `${p.id}: assistant content (assistantContext, assistantAnswers, assistantRefusals) is required`);
+// Rule mapping: every action names the rule that governs it ('_' = general standard), and every
+// named rule exists. Cards must never borrow an unrelated rule.
+for (const p of INDUSTRIES) {
+  const g = p.governance || {};
+  const ids = new Set((g.rules || []).map((r) => r.id));
+  const map = g.ruleFor || {};
+  for (const a of p.actions || []) {
+    check(a.id in map, `${p.id}: action "${a.id}" has no entry in governance.ruleFor`);
+    if (map[a.id] && map[a.id] !== '_') check(ids.has(map[a.id]), `${p.id}: action "${a.id}" maps to unknown rule "${map[a.id]}"`);
+  }
+  for (const k of ['$order', '$plan']) check(k in map, `${p.id}: governance.ruleFor needs "${k}"`);
+  for (const [k, v] of Object.entries(map)) if (v !== '_') check(ids.has(v), `${p.id}: ruleFor "${k}" maps to unknown rule "${v}"`);
+  for (const r of g.rules || []) if (r.exactWording) check(!!r.approvedWording, `${p.id}: exact-wording rule ${r.id} has no approved wording`);
+  check(!!g.generalRule && g.generalRule.general === true, `${p.id}: governance.generalRule missing`);
+}
 check(INDUSTRIES.length === 20, `expected 20 industries, found ${INDUSTRIES.length}`);
 check(COUNTRIES.length === 11, `expected 11 countries, found ${COUNTRIES.length}`);
 check(new Set(INDUSTRIES.map((p) => p.id)).size === INDUSTRIES.length, 'duplicate industry ids');

@@ -168,6 +168,9 @@ async function stateTest(browser) {
       const before = (await lastAnswer(page)).text;
       ok(/You have not decided on it yet/.test(before), `${page._label}: should say not decided yet`);
       await page.click('#as-close');
+      // An exact-wording rule locks approval until the rep confirms the approved wording. Do what a rep does.
+      const gate = await page.$(`#item-${items[1]} [data-change="read-exact-wording"]`);
+      if (gate) await gate.click();
       await page.click(`#item-${items[1]} [data-act="decide"]`);
       await page.click('#as-launcher');
       await ask(page, 'Why is this action ranked first?');

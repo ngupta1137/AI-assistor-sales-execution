@@ -103,7 +103,9 @@ function renderRuleDrawer(ctx) {
         <ul style="margin:8px 0 0 16px;padding:0;font-size:12px;line-height:1.6">
           <li><b>Approved:</b> Verified sign-off by named approver (${esc(rule.approver)}).</li>
           <li><b>In date:</b> Policy active in ${esc(market)} for current commercial cycle.</li>
-          <li><b>Applies here:</b> Account classification matches policy scope (${esc(rule.scope)}).</li>
+          <li><b>Applies here:</b> ${rule.general
+            ? 'No specific policy rule covers this type of action in this market, so the general standard applies.'
+            : `This rule governs "${esc(it ? ctx.t(it.type || '', it.vars) : 'this action')}" actions in this market. Scope: ${esc(rule.scope)}.`}</li>
         </ul>
       </section>
 
@@ -245,12 +247,13 @@ function renderItem(ctx, it, isNext, a, itemIndex) {
   if (outcome === 'suggest' && isExact && !exactRead) {
     exactBox = `<div class="exact-wording-box" style="margin:8px 0;padding:8px 10px;border:2px solid var(--accent);border-radius:var(--radius-sm);background:var(--surface)">
       <div style="font-weight:600;font-size:11px;color:var(--accent);margin-bottom:4px;display:flex;align-items:center;gap:4px">
-        ${icon('shield', 14)} Mandatory Legal & Compliance Exact Wording
+        ${icon('shield', 14)} Approved wording: read before you act
       </div>
       <blockquote style="margin:0 0 6px 0;font-size:11px;font-style:italic;line-height:1.4">
-        "${esc(t(it.saw, v))}"
+        "${esc(rule.approvedWording || 'Use only the approved wording for this rule.')}"
       </blockquote>
-      <label class="check" style="font-size:11px;font-weight:600;display:flex;align-items:center;gap:6px">
+      <small class="muted" style="display:block;margin-bottom:6px;font-size:10px">Rule: ${esc(rule.title)} · approved by ${esc(rule.approver || 'Legal Counsel')}</small>
+      <label class="tap-check" style="font-size:12px;font-weight:600">
         <input type="checkbox" data-change="read-exact-wording" data-id="${it.id}" data-rule="${rule.id}">
         <span>I have read this wording</span>
       </label>
@@ -301,7 +304,7 @@ function renderItem(ctx, it, isNext, a, itemIndex) {
     ${pill('Applies here', 'good')}
     ${pill(rule.version || 'v2.4', 'muted')}
     ${isExact ? pill('Exact wording', 'warn') : ''}
-    ${isExact ? pill('Legal approved', 'good') : ''}
+    ${isExact ? pill('Wording approved', 'good') : ''}
   </div>`;
 
   // G6 Record kept

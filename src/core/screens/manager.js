@@ -548,7 +548,7 @@ export function render(ctx) {
 
       <section class="card" style="margin:0;background:var(--surface-subtle);border:1px solid var(--line-soft)">
         <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
-          <b>Pre-registered net commercial value model</b>
+          <b>Net commercial value model (sample)</b>
           ${pill('Sample Model Spec', 'info')}
         </div>
         <table class="tbl" style="width:100%;font-size:12px">

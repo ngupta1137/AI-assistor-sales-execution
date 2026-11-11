@@ -6,6 +6,21 @@ import { buildGovernance } from '../governance-base.js';
 
 export default {
   governance: buildGovernance({
+    // Which rule governs each action. '_' means no specific rule applies; the card shows the general standard.
+    ruleFor: {
+      "demolive": "r_electronics_audit",
+      "promoter": "_",
+      "tags": "r_electronics_pricing",
+      "sellout": "_",
+      "launch": "r_electronics_audit",
+      "wall": "r_electronics_terms",
+      "restock": "r_electronics_logistics",
+      "aged": "r_electronics_pricing",
+      "competitor": "_",
+      "weekday": "_",
+      "$order": "r_electronics_credit",
+      "$plan": "r_electronics_logistics",
+    },
     legalApprover: "Legal Counsel",
     rules: [
       {

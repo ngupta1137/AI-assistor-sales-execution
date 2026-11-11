@@ -49,9 +49,26 @@ export const BASE_RIGHTS = {
  * @param {Object} spec
  * @returns {Object}
  */
+// Approved wording shown at the exact-wording gate when a rule does not carry its own.
+const DEFAULT_APPROVED_WORDING = 'Terms are as signed in your current agreement. I cannot change prices, discounts, credit or rebates during this visit.';
+
+// Shown when no specific policy rule governs an action. Named honestly, never a borrowed rule.
+const GENERAL_STANDARD = {
+  id: 'r_general',
+  title: 'General field execution standard',
+  owner: 'Field Sales Director',
+  exactWording: false,
+  general: true,
+  scope: 'Actions in this market that no specific policy rule covers',
+  neverDecides: 'Never stands in for a named policy rule. A specific rule always takes precedence.',
+};
+
 export function buildGovernance(spec) {
+  const legalApprover = spec.legalApprover || BASE_RIGHTS.legalApprover;
   return {
-    rules: spec.rules,
+    rules: (spec.rules || []).map((r) => (r.exactWording && !r.approvedWording ? { ...r, approvedWording: DEFAULT_APPROVED_WORDING } : r)),
+    ruleFor: spec.ruleFor || {},
+    generalRule: { ...GENERAL_STANDARD, approver: legalApprover },
     outcomeCopy: { ...BASE_OUTCOMES, ...(spec.outcomeCopy || {}) },
     rights: {
       ...BASE_RIGHTS,

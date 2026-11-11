@@ -283,15 +283,14 @@ export function createModel(ctx) {
         status: 'Healthy',
       };
     }
-    let found = rules.find((r) => r.id === item.ruleId || r.id === item.defId);
-    if (!found) {
-      if (item.kind === 'plan' || (item.id && item.id.endsWith('-plan'))) {
-        found = rules.find((r) => r.id.includes('plan') || r.id.includes('sched') || r.id.includes('route') || r.id.includes('visit')) || rules[0];
-      } else {
-        const idx = strHash(item.id || item.defId || item.title || 'rule') % rules.length;
-        found = rules[idx];
-      }
-    }
+    // Explicit map in the industry pack: action -> governing rule. Order drafts and visit plans use
+    // the $order and $plan keys. No match means no specific rule applies: show the general standard.
+    const map = industry.governance?.ruleFor || {};
+    const key = item.kind === 'plan' || (item.id && item.id.endsWith('-plan')) ? '$plan'
+      : item.kind === 'order' ? '$order' : item.defId;
+    const mapped = item.ruleId || map[key];
+    let found = (mapped && mapped !== '_' && rules.find((r) => r.id === mapped))
+      || { ...(industry.governance?.generalRule || { id: 'r_general', title: 'General field execution standard', owner: 'Field Sales Director', exactWording: false, general: true }) };
     if (item.kind === 'plan' || (item.id && item.id.endsWith('-plan'))) {
       found = { ...found, exactWording: false };
     }

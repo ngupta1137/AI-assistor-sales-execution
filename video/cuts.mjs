@@ -212,11 +212,11 @@ const teaserBeats = [
 
 // ---------- extended (about 10.5 minutes): core plus four inserts ----------
 const X = {
-  wordingCard: (h) => h.page.locator('article', { hasText: 'Secure an aisle-end display' }).first(),
+  wordingCard: (h) => h.card('A03-promo'),
 };
 const insertA = { title: 'Between visits', persona: REP, cues: [
-  { id: 'a01', text: 'At another store, one action carries wording that legal has approved. It stays locked until Nicole confirms she has read it.',
-    pre: async (h) => { await h.hash('#/brief/A02'); }, act: async (h) => { await h.point(X.wordingCard(h), { align: 0.1 }); }, cut: true },
+  { id: 'a01', text: 'At another store, a promotion carries wording the commercial director has approved. The action stays locked until Nicole confirms she has read it.',
+    pre: async (h) => { await h.hash('#/brief/A03'); }, act: async (h) => { await h.point(X.wordingCard(h), { align: 0.1 }); }, cut: true },
   { id: 'a02', text: 'Once she confirms, the action unlocks.',
     act: async (h) => { await h.tap('[data-change="read-exact-wording"]', { align: 0.45 }); await h.point(X.wordingCard(h).getByRole('button', { name: 'Approve' }), { align: 0.5 }); }, hold: 0.9 },
   { id: 'a03', text: 'After the visit she dictates her notes. In this prototype the dictation is simulated: simple keyword rules pull out the outcome, follow-ups and order intent for her to confirm.',
