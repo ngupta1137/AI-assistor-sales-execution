@@ -304,7 +304,7 @@ function renderItem(ctx, it, isNext, a, itemIndex) {
     ${pill('Applies here', 'good')}
     ${pill(rule.version || 'v2.4', 'muted')}
     ${isExact ? pill('Exact wording', 'warn') : ''}
-    ${isExact ? pill('Legal approved', 'good') : ''}
+    ${isExact ? pill('Wording approved', 'good') : ''}
   </div>`;
 
   // G6 Record kept

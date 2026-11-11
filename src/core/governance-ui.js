@@ -35,7 +35,7 @@ export function renderGuideModal(app, ctx) {
           <li>${pill('Applies here', 'good')} Account matches policy territory, channel, and segment scope.</li>
           <li>${pill('v2.4', 'muted')} Semantic rule version for auditability and replay.</li>
           <li>${pill('Exact wording', 'warn')} Regulated legal text requiring mandatory rep acknowledgment.</li>
-          <li>${pill('Legal approved', 'good')} Exact wording verified and approved by legal counsel.</li>
+          <li>${pill('Wording approved', 'good')} Exact wording approved by the rule's named approver.</li>
         </ul>
       </div>
 

@@ -1279,7 +1279,7 @@ body.text-size-lg {
           <li>${y("Applies here","good")} Account matches policy territory, channel, and segment scope.</li>
           <li>${y("v2.4","muted")} Semantic rule version for auditability and replay.</li>
           <li>${y("Exact wording","warn")} Regulated legal text requiring mandatory rep acknowledgment.</li>
-          <li>${y("Legal approved","good")} Exact wording verified and approved by legal counsel.</li>
+          <li>${y("Wording approved","good")} Exact wording approved by the rule's named approver.</li>
         </ul>
       </div>
 
@@ -1838,7 +1838,7 @@ body.text-size-lg {
     ${y("Applies here","good")}
     ${y(S.version||"v2.4","muted")}
     ${$?y("Exact wording","warn"):""}
-    ${$?y("Legal approved","good"):""}
+    ${$?y("Wording approved","good"):""}
   </div>`,G=1e3+Math.abs(S.id.length*37+t.id.length*13)%9e3,L=`<div class="record-kept" style="margin-top:8px;padding:8px 10px;background:var(--surface-subtle);border-radius:4px;border:1px dashed var(--line);font-size:11px">
     <div style="font-weight:600;color:var(--ink);display:flex;align-items:center;gap:4px">
       ${d("shield",14)} Record kept (audit receipt)
