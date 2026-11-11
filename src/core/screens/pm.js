@@ -375,3 +375,6 @@ export const pmActions = {
   },
 };
 
+
+// Registered with the app through screens/index.js, which reads `actions`.
+export const actions = pmActions;

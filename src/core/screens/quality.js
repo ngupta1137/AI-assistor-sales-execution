@@ -502,3 +502,6 @@ export const qualityActions = {
     }
   },
 };
+
+// Registered with the app through screens/index.js, which reads `actions`.
+export const actions = qualityActions;
