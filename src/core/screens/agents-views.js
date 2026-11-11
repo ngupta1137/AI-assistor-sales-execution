@@ -33,7 +33,7 @@ export function renderLayersView(ctx) {
         { name: 'Step 4: Budget Knapsack', desc: 'Fits candidate actions into visit time window' },
         { name: 'Step 5: Card Render', desc: 'Formats deterministic outcome and status chips' },
         { name: 'Step 6: Rep Decision', desc: 'Human in the loop approves, adjusts, or overrides' },
-        { name: 'Step 7: Audit Seal', desc: 'Writes immutable cryptographic receipt' },
+        { name: 'Step 7: Audit Seal', desc: 'Writes the audit receipt' },
       ],
     },
     {
@@ -354,7 +354,7 @@ export function renderToolsCatalog(ctx) {
               <small class="muted">Security Rule: SEC-001</small>
             </div>
             <p style="font-size:12px;margin:0;line-height:1.4"><b>Blocked:</b> Raw database writes are strictly forbidden. State changes must go through the schema validator and policy registry, and every attempt is logged.</p>
-            <div class="small muted" style="margin-top:4px">${icon('shield', 12)} Denial logged to immutable audit trail (EVT-DENY-8841).</div>
+            <div class="small muted" style="margin-top:4px">${icon('shield', 12)} Denial logged to the audit trail (EVT-DENY-8841).</div>
           </div>
         </div>
       ` : ''}

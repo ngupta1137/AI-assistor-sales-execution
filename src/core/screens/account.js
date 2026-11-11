@@ -340,8 +340,7 @@ export function render(ctx, [accountId]) {
           <div style="padding:10px 12px;background:var(--surface-inset);border-radius:var(--radius-sm);border:1px solid var(--line-soft);margin-top:6px">
             <div style="display:flex;justify-content:space-between;align-items:center;font-size:11px;margin-bottom:6px">
               <span class="muted">14-branch daily delivery &amp; replenishment pacing</span>
-              <span class="good-text"><b>100% on-time</b> (<div><small>Daily replenishment</small><b>${esc(fmt.moneyShort(a.current * 0.1))}</b></div>
-          </div>6,800 received)</span>
+              <span class="good-text"><b>100% on-time</b> ($16,800 received)</span>
             </div>
             <svg viewBox="0 0 320 80" style="width:100%;height:auto;overflow:visible" role="img" aria-label="KAM daily replenishment pacing">
               <defs>
@@ -353,8 +352,7 @@ export function render(ctx, [accountId]) {
               <line x1="38" y1="18" x2="310" y2="18" stroke="var(--line-soft)" stroke-dasharray="2,2"/>
               <text x="32" y="21" font-size="8" fill="var(--muted)" text-anchor="end">$20k</text>
               <line x1="38" y1="44" x2="310" y2="44" stroke="var(--line-soft)" stroke-dasharray="2,2"/>
-              <text x="32" y="47" font-size="8" fill="var(--muted)" text-anchor="end"><div><small>Daily replenishment</small><b>${esc(fmt.moneyShort(a.current * 0.1))}</b></div>
-          </div>0k</text>
+              <text x="32" y="47" font-size="8" fill="var(--muted)" text-anchor="end">$10k</text>
               <line x1="38" y1="68" x2="310" y2="68" stroke="var(--line-soft)"/>
               <text x="32" y="70" font-size="8" fill="var(--muted)" text-anchor="end">$0</text>
               
@@ -365,12 +363,10 @@ export function render(ctx, [accountId]) {
               <text x="100" y="46" font-size="7" fill="var(--muted)" text-anchor="middle">Dock 1 ($5.2k)</text>
               
               <circle cx="165" cy="36" r="3.5" fill="var(--good)"/>
-              <text x="165" y="30" font-size="7" fill="var(--muted)" text-anchor="middle">Dock 2 (<div><small>Daily replenishment</small><b>${esc(fmt.moneyShort(a.current * 0.1))}</b></div>
-          </div>0.8k)</text>
+              <text x="165" y="30" font-size="7" fill="var(--muted)" text-anchor="middle">Dock 2 ($10.8k)</text>
               
               <circle cx="295" cy="22" r="4.5" fill="var(--good)"/>
-              <text x="295" y="15" font-size="8" font-weight="700" fill="var(--good)" text-anchor="middle">Completed (<div><small>Daily replenishment</small><b>${esc(fmt.moneyShort(a.current * 0.1))}</b></div>
-          </div>6.8k)</text>
+              <text x="295" y="15" font-size="8" font-weight="700" fill="var(--good)" text-anchor="middle">Completed ($16.8k)</text>
               
               <text x="45" y="78" font-size="8" fill="var(--muted)">08:00</text>
               <text x="165" y="78" font-size="8" fill="var(--muted)">12:00</text>
@@ -396,8 +392,7 @@ export function render(ctx, [accountId]) {
               <line x1="38" y1="44" x2="310" y2="44" stroke="var(--line-soft)" stroke-dasharray="2,2"/>
               <text x="32" y="47" font-size="8" fill="var(--muted)" text-anchor="end">$25k</text>
               <line x1="38" y1="70" x2="310" y2="70" stroke="var(--line-soft)"/>
-              <text x="32" y="72" font-size="8" fill="var(--muted)" text-anchor="end"><div><small>Rebate accrual</small><b>4.0%</b></div>
-          </div>0k</text>
+              <text x="32" y="72" font-size="8" fill="var(--muted)" text-anchor="end">$10k</text>
               
               <!-- Sell-in line (dashed muted) -->
               <polyline points="45,54 105,42 170,46 235,32 295,24" fill="none" stroke="var(--muted)" stroke-width="2" stroke-dasharray="4,4"/>
@@ -444,8 +439,7 @@ export function render(ctx, [accountId]) {
                 </linearGradient>
               </defs>
               <line x1="38" y1="20" x2="310" y2="20" stroke="var(--line-soft)" stroke-dasharray="2,2"/>
-              <text x="32" y="23" font-size="8" fill="var(--muted)" text-anchor="end"><div><small>Total volume</small><b class="money good-text">${esc(fmt.money(a.current * 3.8))}</b></div>
-          </div>20k</text>
+              <text x="32" y="23" font-size="8" fill="var(--muted)" text-anchor="end">$120k</text>
               <line x1="38" y1="48" x2="310" y2="48" stroke="var(--line-soft)" stroke-dasharray="2,2"/>
               <text x="32" y="51" font-size="8" fill="var(--muted)" text-anchor="end">$80k</text>
               <line x1="38" y1="76" x2="310" y2="76" stroke="var(--line-soft)"/>
@@ -466,16 +460,11 @@ export function render(ctx, [accountId]) {
               <circle cx="82" cy="46" r="3.5" fill="var(--muted)"/>
               <text x="82" y="40" font-size="7" fill="var(--muted)" text-anchor="middle">$88k (M1)</text>
               
-              <!-- Month 2: <div><small>Total volume</small><b class="money good-text">${esc(fmt.money(a.current * 3.8))}</b></div>
-          </div>16k vs <div><small>Total volume</small><b class="money good-text">${esc(fmt.money(a.current * 3.8))}</b></div>
-          </div>05k target (Promo lift) -->
+              <!-- Month 2: $116k vs $105k target (Promo lift) -->
               <circle cx="165" cy="30" r="4" fill="var(--good)"/>
-              <text x="165" y="24" font-size="7" font-weight="700" fill="var(--good)" text-anchor="middle"><div><small>Total volume</small><b class="money good-text">${esc(fmt.money(a.current * 3.8))}</b></div>
-          </div>16k (Promo surge)</text>
+              <text x="165" y="24" font-size="7" font-weight="700" fill="var(--good)" text-anchor="middle">$116k (Promo surge)</text>
               
-              <!-- Month 3 QTD: <div><small>Total volume</small><b class="money good-text">${esc(fmt.money(a.current * 3.8))}</b></div>
-          </div>01k vs <div><small>Total volume</small><b class="money good-text">${esc(fmt.money(a.current * 3.8))}</b></div>
-          </div>20k target -->
+              <!-- Month 3 QTD: $101k vs $120k target -->
               <circle cx="295" cy="28" r="4.5" fill="var(--accent)"/>
               <text x="295" y="20" font-size="8" font-weight="700" fill="var(--accent)" text-anchor="middle">$301k QTD (94.1%)</text>
               
@@ -533,7 +522,8 @@ export function render(ctx, [accountId]) {
       <button class="btn secondary sm" data-act="open-crm-note" data-id="${a.id}" style="min-height:var(--tap);width:100%">${icon('note', 16)} Add CRM visit note</button>
     </div>
   </details>
-  <details class="fold" id="acc-orders"><summary>${esc(t('{Order} history'))}<span class="sum-end">${a.orderHistory.length}</span></summary><ul class="group">${orders}</ul></details>`;
+  <details class="fold" id="acc-orders"><summary>${esc(t('{Order} history'))}<span class="sum-end">${a.orderHistory.length}</span></summary><ul class="group">${orders}</ul></details>
+`;
 }
 
 export const actions = {
