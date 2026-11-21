@@ -663,10 +663,11 @@ body.text-size-lg {
 .rung { display: flex; flex-direction: column; gap: 2px; padding: var(--s2) var(--s3); border-left: 3px solid var(--accent); background: var(--surface-inset); border-radius: var(--radius-xs); }
 .tier-card.on { border-color: var(--accent); box-shadow: inset 3px 0 0 var(--accent); }
 .ready-row { display: flex; align-items: center; justify-content: space-between; gap: var(--s2); flex-wrap: wrap; }
-.ready-row select { flex: 0 1 220px; max-width: 100%; font: inherit; font-size: var(--text-sm); border: 1px solid var(--line); border-radius: var(--radius-sm); padding: 0 var(--s2); background: var(--surface); color: var(--ink); }
+.ready-row select { flex: 1 1 180px; max-width: 100%; font: inherit; font-size: var(--text-sm); border: 1px solid var(--line); border-radius: var(--radius-sm); padding: 0 var(--s2); background: var(--surface); color: var(--ink); }
 .flow-example { padding: var(--s2) var(--s3); background: var(--accent-soft); border-radius: var(--radius-sm); }
 .flow-example > * + * { margin-top: var(--s1); }
 .stage h3 .num, .stage .num { display: inline-grid; place-items: center; width: 24px; height: 24px; border-radius: 50%; background: var(--surface-inset); font-size: var(--text-xs); margin-right: 4px; }
 .signals-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--s3); }
 .signals-grid > div { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
 .tap-link { display: inline-flex; align-items: center; min-height: var(--tap); }
+.tbl .pill { white-space: nowrap; }

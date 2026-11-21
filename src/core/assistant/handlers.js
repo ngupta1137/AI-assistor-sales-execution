@@ -6,6 +6,7 @@
 import { link } from './router.js';
 import { SCOPE } from '../screens/agents.js';
 import { CAPABILITIES, LEVELS, AGENT_LABEL, EVIDENCE } from '../ui.js';
+import { CAPS, CAP_ORDER, signals, conflicts, exOf, readiness, TIERS } from '../execution/model.js';
 
 const sorted = (ctx) => ctx.data.planned.slice().sort((a, b) => a.rank - b.rank);
 const nextPlan = (ctx) => ctx.m.nextAccount(null) || sorted(ctx)[0];
@@ -518,6 +519,47 @@ H['problems.prove'] = () => ({
   basedOn: 'PRD section 3, success measures',
   links: [],
 });
+
+// ---- Execution system ------------------------------------------------------
+H['system.caps'] = (ctx) => ({
+  text: `Foundation: ${CAP_ORDER.filter((c) => CAPS[c].group === 'foundation').map((c) => CAPS[c].name).join(', ')}. They build the picture of each {account}. Execution: ${CAP_ORDER.filter((c) => CAPS[c].group === 'execution').map((c) => CAPS[c].name).join(', ')}. They act on it.${exOf(ctx.industry).offers.mode === 'off' ? ' Offer Targeting is not used in this industry.' : ''} All are rule-based on sample data in this prototype.`,
+  basedOn: 'the execution system model and this pack\'s overlay',
+  links: [{ label: 'Open the execution system', href: '#/system' }],
+});
+
+H['system.conflicts'] = (ctx, c) => {
+  const ids = c.accountId && ctx.m.plannedFor(c.accountId) ? [c.accountId] : ctx.data.planned.map((p) => p.accountId);
+  const all = ids.flatMap((id) => conflicts(ctx, id).map((k) => ({ id, k })));
+  const first = all[0];
+  return {
+    text: all.length
+      ? `${plural(all.length, 'conflict was', 'conflicts were')} resolved ${ids.length === 1 ? 'in this brief' : `in today's ${ids.length} briefs`}. For example, at ${ctx.data.byId[first.id].name}: ${ctx.t(first.k.saw, first.k.v)} Resolved: ${ctx.t(first.k.resolved, first.k.v)}`
+      : 'No conflicts today. Every capability agreed.',
+    basedOn: 'the orchestrator rules applied to today\'s briefs',
+    links: [{ label: 'Open the brief', href: `#/brief/${first ? first.id : ids[0]}` }],
+  };
+};
+
+H['system.activation'] = (ctx) => {
+  const R = readiness({ history: 12, master: 95, evidence: 'manual', partner: 'weekly', plan: true, geo: true, app: true, ...(ctx.ui?.ready || {}) });
+  return {
+    text: R.red ? 'Red zone: pause. The {account} master is under 70%, there are under 3 months of sales and no evidence.' : R.tier ? `With the answers on the Activation tab, the recommended tier is ${R.tier}, ${TIERS[R.tier - 1].name}. Foundation always comes first.` : 'Not ready for tier 1 yet. The Activation tab lists what is missing.',
+    basedOn: 'the data readiness answers on the Activation tab',
+    links: [{ label: 'Open activation', href: '#/system/activation' }],
+  };
+};
+
+H['system.offers'] = (ctx, c) => {
+  const ex = exOf(ctx.industry);
+  if (ex.offers.mode === 'off') return { text: ex.offers.note, basedOn: 'the offer policy of this pack', links: [] };
+  const sg = signals(ctx);
+  const acc = ctx.data.byId[c.accountId] || ctx.data.accounts.find((a) => sg[a.id].offer.decision === 'hold') || ctx.data.accounts[0];
+  return {
+    text: `${acc.name}: ${ctx.t(sg[acc.id].offer.t, sg[acc.id].offer.v)} Offers come only from the approved plan; the agent never creates terms.`,
+    basedOn: 'sample potential, captured share and retention risk for this {account}',
+    links: [{ label: 'Open the {account}', href: `#/account/${acc.id}` }],
+  };
+};
 
 // ---- Global ----------------------------------------------------------------
 H['global.target'] = (ctx) => {

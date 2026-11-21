@@ -327,7 +327,7 @@ export function signals(ctx) {
     const overdue = Math.max(0, a.lastVisitDays - cycle);
     const planned = data.planned.find((p) => p.accountId === a.id);
     const openGaps = planned ? planned.actions.filter((x) => x.agent === 'gap').length : rng.int(0, 2);
-    let score = 18 + Math.max(0, -trend) * 0.9 + Math.min(overdue, 30) * 1.1 + openGaps * 4 + (100 - captured) * 0.12 + rng.int(-6, 6);
+    let score = 14 + Math.max(0, -trend) * 0.7 + Math.min(overdue, 25) * 0.9 + openGaps * 2.5 + (100 - captured) * 0.15 + rng.int(-6, 6);
     score = Math.max(4, Math.min(94, Math.round(score)));
     const band = score >= 62 ? 'High' : score >= 40 ? 'Watch' : 'Low';
     const drivers = [];
@@ -392,7 +392,7 @@ export function conflicts(ctx, accountId) {
   const linked = p.order.find((l) => gapProducts.has(l.offeringId));
   if (linked) {
     const act = p.actions.find((x) => x.offeringId === linked.offeringId && x.agent === 'gap');
-    out.push({ between: ['order', 'actions'], saw: '{Order} Suggestion added {product}. Action Ranking says the real priority for it is an action, not more stock.', resolved: 'Line kept and linked to the action "{action}". It is sent after the action is done.', v: { product: offName(linked.offeringId), action: ctx.t(act.title, act.vars) } });
+    out.push({ between: ['order', 'actions'], saw: '{Order} Suggestion added {product}. Action Ranking says the real priority for it is an action, not a bigger {order}.', resolved: 'Line kept and linked to the action "{action}". It is sent after the action is done.', v: { product: offName(linked.offeringId), action: ctx.t(act.title, act.vars) } });
   }
   const top = p.actions[0];
   if (sg.offer.decision === 'target' && top && flowOfAction(industry, top.defId) === 'standard') {
@@ -403,8 +403,8 @@ export function conflicts(ctx, accountId) {
 
 /** Activation tiers. Capabilities switch on cumulatively. */
 export const TIERS = [
-  { n: 1, name: 'Foundation', when: 'New market or pilot', caps: ['potential', 'tiering', 'diagnostics', 'retention'], who: 'Managers only. No suggestions to the field yet.', outcome: 'See the prize and the gaps',
-    data: 'Sales history and an {account} master', infra: 'Basic reporting', advance: 'Foundation outputs used by managers; field team trained' },
+  { n: 1, name: 'Foundation', when: 'New market or pilot', caps: ['potential', 'tiering', 'diagnostics', 'retention'], who: 'Managers only. No suggestions to the field yet', outcome: 'See the prize and the gaps',
+    data: 'Sales history and the {account} master', infra: 'Basic reporting', advance: 'Foundation outputs used by managers; field team trained' },
   { n: 2, name: 'Guided', when: 'Market with a field team', caps: ['actions'], who: 'Ranked actions to supervisors and managers', outcome: 'Plan execution with guided actions',
     data: 'Plus evidence or audit data', infra: 'Field app optional', advance: 'Actions show a measured effect against control; field app live' },
   { n: 3, name: 'Optimized field', when: 'Large universe of {accounts}', caps: ['planning'], who: 'Suggestions direct to {reps} in the field app', outcome: 'Better routes and {visits}',

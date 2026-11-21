@@ -5,7 +5,7 @@
 // The question is normalised first: the pack's own words (clinic, HCP, call, proposal) become the
 // generic ones used here (account, contact, visit, order), so one catalogue serves every industry.
 
-export const SCREEN_IDS = ['today', 'brief', 'account', 'action', 'order', 'complete', 'route', 'manager', 'agents', 'config', 'problems', 'companion'];
+export const SCREEN_IDS = ['today', 'brief', 'account', 'action', 'order', 'complete', 'route', 'manager', 'agents', 'config', 'problems', 'companion', 'system'];
 
 export const INTENTS = [
   // Today
@@ -59,6 +59,11 @@ export const INTENTS = [
   { id: 'config.add', screens: ['config', 'problems'], phrases: ['add an industry', 'add a new industry', 'add an pack', 'new industry', 'add a country', 'add a pack'], words: ['add', 'extend', 'new'] },
   { id: 'problems.map', screens: ['problems', 'config'], phrases: ['which problem', 'problem maps', 'maps to which capability', 'which capability'], words: ['problem', 'problems', 'capability', 'capabilities', 'solves'] },
   { id: 'problems.prove', screens: ['problems'], phrases: ['how would a pilot', 'measure this', 'how do we prove', 'pilot measure'], words: ['pilot', 'measure', 'prove', 'success'] },
+  // Execution system
+  { id: 'system.caps', screens: ['system'], phrases: ['eight capabilities', 'what are the capabilities', 'foundation and execution', 'what does each capability'], words: ['foundation', 'capabilities', 'eight'] },
+  { id: 'system.conflicts', screens: ['system', 'brief'], phrases: ['how are conflicts resolved', 'conflicts resolved', 'how was this plan merged', 'which conflicts'], words: ['conflict', 'conflicts', 'merged', 'orchestrator'] },
+  { id: 'system.activation', screens: ['system'], phrases: ['which tier', 'activation tier', 'are we ready', 'data readiness', 'red zone'], words: ['tier', 'activation', 'readiness', 'ready'] },
+  { id: 'system.offers', screens: ['system', 'account'], phrases: ['why is the offer held', 'offer targeting', 'which offers', 'held back'], words: ['offer', 'offers', 'promotion', 'held'] },
   // Global
   { id: 'global.target', screens: ['today'], phrases: ['my target', 'month to date', 'how am i doing', 'against target'], words: ['target', 'month', 'kpi', 'achieved'] },
   { id: 'global.coverage', screens: ['manager', 'today'], phrases: ['not been visited', 'not visited', 'not been seen', 'longest gap', 'overdue visit', 'tier a'], words: ['coverage', 'overdue', 'neglected', 'visited'] },

@@ -236,7 +236,7 @@ function day(ctx, arg) {
   const lines = plan.reduce((s, p) => s + p.order.length, 0);
   const atRisk = data.accounts.filter((a) => archetypeOf(industry, a.segmentId) === arch && sg[a.id].risk.band === 'High').length;
   const plannedIds = new Set(data.planned.map((p) => p.accountId));
-  const pull = data.accounts.filter((a) => archetypeOf(industry, a.segmentId) === arch && !plannedIds.has(a.id)).sort((a, b) => b.score - a.score)[0];
+  const pull = data.accounts.filter((a) => archetypeOf(industry, a.segmentId) === arch && !plannedIds.has(a.id)).sort((a, b) => (b.lastVisitDays - cycleDays(b.tier)) - (a.lastVisitDays - cycleDays(a.tier)) || b.score - a.score)[0];
   const drop = plan[plan.length - 1];
   const offerN = plan.filter((p) => sg[p.accountId].offer.decision === 'target').length;
   const step = (time, title, body, caps) => `<li class="day-step"><span class="day-time">${esc(time)}</span><div><b>${esc(t(title))}</b><ul class="bullets small">${body.map((b) => `<li>${b}</li>`).join('')}</ul>${caps ? `<div class="cap-chips">${caps.map((c) => capChip(t, c)).join(' ')}</div>` : ''}</div></li>`;
@@ -261,7 +261,7 @@ function day(ctx, arg) {
     ], ['actions', 'order']),
     step(t('Midday'), 'Re-plan', [
       L('If {name} is closed, Visit Planning drops it from the route.', { name: data.byId[drop.accountId].name }),
-      pull ? L('It pulls forward {name}, Tier {tier}, last {visit} {d} days ago.', { name: pull.name, tier: pull.tier, d: pull.lastVisitDays }) : L('It re-orders the remaining stops.'),
+      pull ? L('It pulls forward {name}, Tier {tier}: last {visit} {d} days ago, due every {c}.', { name: pull.name, tier: pull.tier, d: pull.lastVisitDays, c: cycleDays(pull.tier) }) : L('It re-orders the remaining stops.'),
       arch === 'consultative' ? L('A refused item is captured with its reason and routed to the {kam}.') : L('A new {account} seen on the way is added for the next cycle.'),
       `<a class="tap-link" href="#/route">${L('Try it on the route')}</a>`,
     ], ['planning', 'potential']),
@@ -285,13 +285,14 @@ function activation(ctx) {
   const R = readiness(ans);
   const sel = (key, label, opts) => `<label class="ready-row"><span class="small">${esc(t(label))}</span><select data-change="set-ready" data-key="${key}" id="ready-${key}" style="min-height:var(--tap)">${opts.map(([v, l]) => `<option value="${v}"${String(ans[key] === true ? 'yes' : ans[key] === false ? 'no' : ans[key]) === String(v) ? ' selected' : ''}>${esc(t(l))}</option>`).join('')}</select></label>`;
   const yesNo = [['yes', 'Yes'], ['no', 'No']];
+  const offOff = exOf(ctx.industry).offers.mode === 'off';
   const tiers = TIERS.map((T) => `<article class="card tier-card${R.tier >= T.n ? ' on' : ''}" data-tier="${T.n}">
     <div class="section-head" style="margin-bottom:0"><h3>${esc(t('Tier {n}: {name}', { n: T.n, name: T.name }))}</h3>${R.tier >= T.n ? pill(t('Ready'), 'good') : pill(t('Not yet'), 'muted')}</div>
     <p class="small muted">${esc(t(T.when))}. ${esc(t(T.who))}.</p>
-    <div class="cap-chips"><small class="muted">${esc(t(T.n === 1 ? 'Switches on' : 'Adds'))}</small> ${T.caps.map((c) => capChip(t, c, 'accent')).join(' ')}</div>
+    <div class="cap-chips"><small class="muted">${esc(t(T.n === 1 ? 'Switches on' : 'Adds'))}</small> ${T.caps.filter((c) => !(c === 'offers' && offOff)).map((c) => capChip(t, c, 'accent')).join(' ')}</div>
     <ul class="bullets small"><li><b>${esc(t('Outcome'))}:</b> ${esc(t(T.outcome))}</li><li><b>${esc(t('Data'))}:</b> ${esc(t(T.data))}</li><li><b>${esc(t('Systems'))}:</b> ${esc(t(T.infra))}</li><li><b>${esc(t('To move up'))}:</b> ${esc(t(T.advance))}</li></ul>
   </article>`).join('');
-  const rows = CAP_ORDER.map((c) => `<tr data-ready-cap="${c}"><td>${esc(t(CAPS[c].name))}</td><td>${R.capReady[c].ready ? pill(t('Ready'), 'good') : pill(t('Missing'), 'warn')}</td><td class="small">${esc(R.capReady[c].missing.map((k) => t(DATA_SOURCES.find(([id]) => id === k)[1])).join(', ') || t(CAPS[c].minData))}</td></tr>`).join('');
+  const rows = CAP_ORDER.map((c) => (c === 'offers' && offOff ? `<tr data-ready-cap="${c}"><td>${esc(t(CAPS[c].name))}</td><td>${pill(t('Not used'), 'muted')}</td><td class="small">${esc(t('Not used in this industry'))}</td></tr>` : `<tr data-ready-cap="${c}"><td>${esc(t(CAPS[c].name))}</td><td>${R.capReady[c].ready ? pill(t('Ready'), 'good') : pill(t('Missing'), 'warn')}</td><td class="small">${esc(R.capReady[c].missing.map((k) => t(DATA_SOURCES.find(([id]) => id === k)[1])).join(', ') || t(CAPS[c].minData))}</td></tr>`)).join('');
   return `
   <section class="card" id="ready-form">
     <div class="section-head"><h2>${esc(t('Data readiness check'))}</h2>${pill(t('Built'), 'good')}</div>
@@ -364,13 +365,13 @@ function scorecard(ctx) {
 function more(ctx) {
   const { t, industry, country, data, fmt } = ctx;
   const ex = exOf(industry);
-  const humanOnly = industry.guardrails.filter((g) => /price|credit|contract|rate|clinical|dose|dosage|terms|advice|claim/i.test(g.text)).slice(0, 3);
+  const humanOnly = industry.guardrails.filter((g) => /\b(prices?|pricing|credit|contracts?|rates?|clinical|dose|dosage|diagnosis|terms|advice|claims?|discounts?)\b/i.test(g.text)).slice(0, 3);
   const ladder = RUNGS.map((r) => `<li class="rung" data-rung="${r.n}"><b>${esc(t('Rung {n}: {name}', { n: r.n, name: r.name }))}</b><span class="small">${esc(t(r.does))}</span><span class="small muted">${esc(t('Evidence to move up'))}: ${esc(t(r.evidence))}</span></li>`).join('');
   const rungRows = CAP_ORDER.filter((c) => !(c === 'offers' && ex.offers.mode === 'off')).map((c) => `<tr><td>${esc(t(CAPS[c].name))}</td><td class="small">${esc(t('Rung {n}', { n: RUNG_PLAN[c][0] }))}</td><td class="small">${esc(t('Up to rung {n}', { n: RUNG_PLAN[c][1] }))}</td></tr>`).join('');
   const today = fmt.today instanceof Date ? fmt.today : new Date();
   const events = upcomingEvents(country, today).slice(0, 2);
   const seasonRows = [
-    ...events.map((e) => [t('{name} in {d} days', { name: e.name, d: e.days }), 'Raise the ceiling for the event', 'Shift the must-have range to event {offerings}', 'Hold churn signals for event weeks', 'Event actions rank first', 'More frequent {visits} before it', 'Add event quantities', ex.offers.mode === 'on' ? 'Target the approved event offer' : 'Not used']),
+    ...events.map((e) => [t('{name} in {d} days', { name: e.name, d: e.days }), 'Raise the ceiling for the event', 'Shift the must-have range to event {offerings}', 'Hold risk signals in event weeks', 'Event actions rank first', 'More frequent {visits} before it', 'Add event quantities', ex.offers.mode === 'on' ? 'Target the approved event offer' : 'Not used']),
     [t('New {offering} launch'), 'Add the new {offering} to potential', 'Track distribution build', 'No change', 'Launch actions rank first', 'Priority {accounts} first', 'Add a launch quantity', ex.offers.mode === 'on' ? 'Target the launch offer' : 'Not used'],
     [t('Price change'), 'Re-score after the change', 'Check the new price reached the {account}', 'Watch for a spike in risk', 'Explain the new price; never set it', 'Key {accounts} first', 'Adjust quantities', ex.offers.mode === 'on' ? 'Re-check offer tiers' : 'Not used'],
   ];
@@ -381,7 +382,7 @@ function more(ctx) {
     ['Diagnosed', 'Gap Diagnostics starts from {accounts} of the same tier nearby. No history is needed.'],
     ['First {visit}', 'Visit Planning adds it to the next cycle. Action Ranking gives two or three starter actions. {Order} Suggestion pre-fills a first {order}.'],
     ['First feedback', 'Actual against expected is captured. Every capability updates.'],
-    ['Full loop', 'After three to five {visits}, the full set runs. Retention Risk starts watching. Offers become possible once a pattern exists.'],
+    ['Full loop', ex.offers.mode === 'off' ? 'After three to five {visits}, the full set runs. Retention Risk starts watching.' : 'After three to five {visits}, the full set runs. Retention Risk starts watching. Offers become possible once a pattern exists.'],
   ];
   const partner = ex.partner ? `
   <section class="card" id="partner-models"><div class="section-head"><h2>${esc(t('Working with the {partner}', { partner: ex.partner }))}</h2>${pill(t('Designed'), 'info')}</div>
@@ -411,7 +412,7 @@ function more(ctx) {
   </section>
   <section class="card" id="seasons"><div class="section-head"><h2>${esc(t('Seasonal playbook'))}</h2>${pill(t('Designed'), 'info')}</div>
     <p class="small">${esc(t('Each market sets its own calendar. Events come from the {country} pack.', { country: country.name }))}</p>
-    <div class="tbl-wrap"><table class="tbl small"><thead><tr><th>${esc(t('Event'))}</th>${seasonHead.map((c) => `<th>${esc(t(CAPS[c].name))}</th>`).join('')}</tr></thead><tbody>${seasonRows.map((r) => `<tr>${r.map((c, i) => `<td>${i === 0 ? `<b>${esc(c)}</b>` : esc(t(c))}</td>`).join('')}</tr>`).join('')}</tbody></table></div>
+    ${seasonRows.map((r) => `<details class="fold season" data-season><summary>${esc(r[0])}</summary><ul class="bullets small">${seasonHead.map((c, i) => (r[i + 1] === 'Not used' ? '' : `<li><b>${esc(t(CAPS[c].name))}:</b> ${esc(t(r[i + 1]))}</li>`)).join('')}</ul></details>`).join('')}
   </section>
   ${partner}
   <section class="card" id="data-foundation"><div class="section-head"><h2>${esc(t('{Account} 360: the shared data'))}</h2>${pill(t('Designed'), 'info')}</div>

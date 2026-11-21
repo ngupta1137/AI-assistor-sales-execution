@@ -94,6 +94,19 @@ Generic entities, renamed by each industry pack:
 
 Each capability can run alone; together they close the loop (gaps become actions, actions link to order lines, outcomes retrain everything).
 
+**Execution system (v0.2): eight capabilities.** The five decisions are served by eight capabilities, split into a foundation that builds the picture of each account and an execution layer that acts on it. See section 9.13.
+
+| Group | Capability | Question | Notes |
+|---|---|---|---|
+| Foundation | Account Potential | What is this {account} worth? | Was "Account Potential" |
+| Foundation | Account Tiering | What tier is this {account}? | New. Tier, cluster, standard and cadence |
+| Foundation | Gap Diagnostics | What is driving growth or decline? | Was "Gap Detection"; adds growth and decline drivers |
+| Foundation | Retention Risk | Which {accounts} may leave? | New. Score, band, drivers |
+| Execution | Action Ranking | What to do first? | Unchanged |
+| Execution | Visit Planning | Which {accounts}, when, in what order? | Unchanged |
+| Execution | {Order} Suggestion | What to {order}, and how much? | Unchanged |
+| Execution | Offer Targeting | Which {accounts} get which approved offer? | New. On, limited (people decide) or off per pack |
+
 ## 6. Industry packs (twenty)
 
 | Industry | Account (the "store") | Contacts | Rep title | What is sold or ordered | Typical actions | Headline KPI | Guardrail |
@@ -343,6 +356,25 @@ Automated verification harness ensuring complete test coverage, deterministic ex
 | T8 | Deterministic repeatability test verifying identical suggestion outcomes and audit receipts across reloads | P0 |
 | T9 | Parity verification test confirming 100% implementation of specification requirements across all packs | P0 |
 | T10 | Automated test counts generator producing docs/test-counts.json with real execution numbers | P0 |
+
+### 9.13 Execution system (X1 to X10)
+
+Generic model in `src/core/execution/model.js`; one overlay per industry in `src/packs/industries/<id>.execution.js` (flow names, goals, mapped actions, four measures per flow, consultative and order-led segments, offer policy, terms source, standard owner, retention signal). Signals use their own seeded generator, so generated data and existing numbers do not change. Built = rule-based on sample data. Designed = production design, not built. Proposed = for agreement before a pilot.
+
+| ID | Requirement | Status | Priority |
+|---|---|---|---|
+| X1 | System screen (`#/system`, manager and admin nav, rep via Config): eight capability cards with question, output, a live number from the territory, built and designed lines | Built | P0 |
+| X2 | Seven-stage journey across plan, act, execute and learn, one lead capability per stage, consultative and order-led variants named with the pack's segments | Built | P0 |
+| X3 | Five process flows per industry (visibility, range, relationship, standard, agreed terms and offers), each in the pack's words, with four phases, capability roles, measures and a live example action from today's plan | Built | P0 |
+| X4 | A day in the life for each visit type, built from today's sample route: the cycle, overnight preparation, first visit, midday re-plan, what learns | Built (illustrative) | P0 |
+| X5 | Merged-plan panel on every visit brief: what each capability contributed and conflicts resolved (potential vs retention, actions vs time budget, order vs action, offer vs standard gap) | Built | P0 |
+| X6 | Learning loop: structured reasons for overrides and "not done", each mapped to the capability it teaches, with session counts | Built | P0 |
+| X7 | Foundation signals on Account 360: tier and cadence, retention risk with drivers, growth or decline drivers, offer decision (target, eligible, held back or not used) | Built | P0 |
+| X8 | Market activation: four tiers, data readiness check, red-zone pause, alternative paths | Built | P0 |
+| X9 | Scorecard: adoption, execution and value per capability, reported separately; value always "No result yet" until a pilot. Test design per capability with replay, shadow, A/B pilot and scale stages | Built (tests proposed) | P0 |
+| X10 | Trust ladder per capability, new account cold start, seasonal playbook from the country's events, partner integration models, shared data foundation | Designed | P1 |
+
+Guardrails: offers are off in pharma, medical devices, insurance, animal health and education; limited (eligible list only, people decide terms) in financial services, foodservice, industrial, apparel, energy, hygiene, logistics, packaging and beverages. The agreed-terms flow verifies, it never sets a price. Static tests enforce this.
 
 ## 10. AI behaviour and guardrails
 
