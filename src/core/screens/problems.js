@@ -12,20 +12,21 @@ export const actions = {
       '========================================================================',
       '',
       '1. PILOT OBJECTIVE',
-      '   Demonstrate statistically significant revenue lift and field time savings',
-      '   using autonomous AI pre-call briefs and whitespace recommendations against',
-      '   statistically matched control territories.',
+      '   Measure whether ranked visit briefs and white space suggestions change',
+      '   field results, against matched control territories. No result is claimed',
+      '   before the pilot ends.',
       '',
       '2. THREE-PHASE IMPLEMENTATION SCHEDULE',
       '   - Weeks 1 to 2: Baseline data calibration, CRM/ERP mapping, historical trends.',
       '   - Weeks 3 to 8: Field deployment with reps and district managers.',
       '   - Weeks 9 to 12: Business review, econometric regression, executive QBR.',
       '',
-      '3. MEASUREMENT CRITERIA',
-      '   - Quota Attainment Pace: Target +12.4% lift in test vs control.',
-      '   - AI Recommendation Adherence: Target >= 80% acceptance.',
-      '   - Administrative Time Reclaimed: ~19 minutes per rep per day.',
-      '   - Regulatory & Pricing Compliance: 100% policy adherence.',
+      '3. MEASUREMENT CRITERIA (targets agreed with finance before the start)',
+      '   - Adoption: suggestions acted on; overrides with a reason.',
+      '   - Execution: actions done and verified with evidence.',
+      '   - Value: revenue or volume per visit against matched control.',
+      '   - Guardrails: no breach of pricing, credit or regulated rules.',
+      '   - Go, fix or stop rule written down before the pilot starts.',
       '========================================================================',
       'CONFIDENTIAL - FOR COMMERCIAL PILOT PLANNING ONLY',
       `Generated on: ${new Date().toISOString()}`
@@ -79,7 +80,8 @@ export function render(ctx) {
       <h2>90-Day matched-control pilot framework</h2>
       <span class="pill good">Proof of value</span>
     </div>
-    <p class="small muted" style="margin-bottom:8px">Standard enterprise validation structure measuring incremental revenue lift against matched control territories.</p>
+    <p class="small muted" style="margin-bottom:8px">Validation structure against matched control territories. No results exist yet.</p>
+    <a class="btn secondary sm" href="#/system/scorecard" style="min-height:var(--tap);margin-bottom:8px">Test plan for each capability ${icon('chevron', 14)}</a>
     
     <div class="facts" style="grid-template-columns:repeat(auto-fit,minmax(80px,1fr))">
       <div><small>Phase 1 (W1-2)</small><b>Calibration</b><small>Baseline data</small></div>
@@ -88,9 +90,9 @@ export function render(ctx) {
     </div>
 
     <ul class="bullets small" style="margin-top:10px">
-      <li><b>Primary Success Metric:</b> Incremental category revenue lift (+12% to +16% target).</li>
-      <li><b>Efficiency Metric:</b> ~19 minutes reduction in daily administrative pre-call preparation.</li>
-      <li><b>Governance Check:</b> 100% adherence to regulatory constraints and pricing guardrails.</li>
+      <li><b>Primary measure:</b> revenue or volume per visit against matched control. The target is agreed with finance before the start.</li>
+      <li><b>Adoption and execution:</b> reported separately from value, never added into one score.</li>
+      <li><b>Guardrails:</b> no breach of pricing, credit or regulated rules during the pilot.</li>
     </ul>
 
     <button class="btn secondary sm" data-act="download-pilot-charter" style="min-height:var(--tap);width:100%;margin-top:10px">${icon('note', 14)} Export 90-Day Pilot Charter (Text)</button>

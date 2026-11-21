@@ -4,12 +4,14 @@
 import assistant from './building.assistant.js';
 import companion from './building.companion.js';
 import governance from './building.governance.js';
+import execution from './building.execution.js';
 
 /** @type {import('../schema.js').IndustryPack} */
 export default {
   ...assistant,
   ...companion,
   ...governance,
+  ...execution,
   id: 'building',
   name: 'Building materials and paints',
   tagline: 'Dealers, hardware stores, contractors and projects',

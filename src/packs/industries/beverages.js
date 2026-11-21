@@ -4,12 +4,14 @@
 import assistant from './beverages.assistant.js';
 import companion from './beverages.companion.js';
 import governance from './beverages.governance.js';
+import execution from './beverages.execution.js';
 
 /** @type {import('../schema.js').IndustryPack} */
 export default {
   ...assistant,
   ...companion,
   ...governance,
+  ...execution,
   id: 'beverages',
   name: 'Beverages and alcohol',
   tagline: 'Bars, restaurants, hotels and liquor stores',

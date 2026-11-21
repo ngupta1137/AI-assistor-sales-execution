@@ -1,0 +1,50 @@
+// Execution system overlay for this pack: process flows, visit archetypes, offer policy.
+// Generic phase text lives in src/core/execution/model.js. Fictional content only.
+
+/** @type {{execution: import('../schema.js').ExecutionContent}} */
+export default {
+  execution: {
+    partner: null,
+    consultative: ["brokers", "agencies"],
+    orderLed: ["branches"],
+    termsSource: "Underwriting and the filed rates",
+    standardOwner: "Compliance and underwriting",
+    retentionSignal: "Submissions moved to another carrier this quarter",
+    offers: {
+      mode: "off",
+      note: "Not used in insurance distribution. Rates and terms come from underwriting and filed rates only."
+    },
+    flows: {
+      visibility: {
+        name: "Approved brochures and briefings",
+        goal: "Producers have the approved material and know the products",
+        actions: ["brochuredel", "bancatrain"],
+        kpis: ["Approved brochures delivered", "Briefing sessions run", "Multi-line penetration", "Active producing agents"]
+      },
+      range: {
+        name: "Binder plan and product mix",
+        goal: "Each agency has a binder plan that fits its capacity",
+        actions: ["volplan", "bookrecon"],
+        kpis: ["Quarterly bound policies", "Binder plans agreed", "Multi-line penetration", "Retention audits done"]
+      },
+      relationship: {
+        name: "Agency relationship",
+        goal: "Right agency, right rhythm, the right conversation",
+        actions: ["cadenceopt", "quoteconv"],
+        kpis: ["Commercial retention rate", "Submission bind ratio", "Review plan compliance", "At-risk agencies re-engaged"]
+      },
+      standard: {
+        name: "Licensing and appetite compliance",
+        goal: "Every producer is licensed and quotes within published appetite",
+        actions: ["licenselog", "cyberapp"],
+        kpis: ["Credentials verified", "Appetite questions answered from guidelines", "Gaps closed", "Days to correction"]
+      },
+      price: {
+        name: "Filed rate verification",
+        goal: "Quotes follow the filed rates. People set every rate",
+        actions: ["quoteconv"],
+        kpis: ["Quote gaps escalated", "Days to correction", "Repeat gaps", "Submissions bound"]
+      }
+    }
+  },
+};

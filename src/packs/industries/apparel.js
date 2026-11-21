@@ -4,12 +4,14 @@
 import assistant from './apparel.assistant.js';
 import companion from './apparel.companion.js';
 import governance from './apparel.governance.js';
+import execution from './apparel.execution.js';
 
 /** @type {import('../schema.js').IndustryPack} */
 export default {
   ...assistant,
   ...companion,
   ...governance,
+  ...execution,
   id: 'apparel',
   name: 'Apparel and footwear',
   tagline: 'Department stores, boutiques and online sellers',

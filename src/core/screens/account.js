@@ -1,6 +1,7 @@
 // R3 Account 360: current work first (open gaps, recorded outcomes), then potential, KPIs, contacts and history.
 
 import { esc, icon, pill, bar, kpiValue, kpiOk, typeLine } from '../ui.js';
+import { foundationCard } from '../execution/views.js';
 
 export function render(ctx, [accountId]) {
   const { t, fmt, data, m, industry } = ctx;
@@ -182,6 +183,7 @@ export function render(ctx, [accountId]) {
     </div>
   </section>
 
+  ${foundationCard(ctx, a.id)}
   <details class="fold" id="acc-intel"><summary>Competitive intelligence and local market share</summary>
     <div style="padding:var(--s2) 0">
       <div class="facts" style="margin-bottom:8px;grid-template-columns:repeat(auto-fit,minmax(80px,1fr))">

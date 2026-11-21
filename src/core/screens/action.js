@@ -83,9 +83,9 @@ export function render(ctx, [id]) {
       <div class="card" style="margin:0">
         <b>Proposed initiative: ${esc(t(it.title, v))}</b>
         <div class="facts" style="margin-top:8px">
-          <div><small>Projected gross margin lift</small><b class="good-text">+12.4%</b></div>
+          <div><small>Margin effect</small><b>Measured in a pilot</b></div>
           <div><small>Estimated opportunity</small><b class="money">${esc(fmt.money(it.value * 3))}</b></div>
-          <div><small>Payback horizon</small><b>&lt; 3 weeks</b></div>
+          <div><small>Payback</small><b>Not claimed</b></div>
         </div>
       </div>
       <section class="card" style="margin:0">

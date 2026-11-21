@@ -4,12 +4,14 @@
 import assistant from './meddevices.assistant.js';
 import companion from './meddevices.companion.js';
 import governance from './meddevices.governance.js';
+import execution from './meddevices.execution.js';
 
 /** @type {import('../schema.js').IndustryPack} */
 export default {
   ...assistant,
   ...companion,
   ...governance,
+  ...execution,
   id: 'meddevices',
   name: 'Medical devices',
   tagline: 'Hospitals, surgery centers and labs',

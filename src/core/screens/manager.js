@@ -150,7 +150,7 @@ export function render(ctx) {
           <div><small>District calls</small><b>54 of 68</b></div>
           <div><small>Open exceptions</small><b class="good-text">3 items</b></div>
           <div><small>SLA turnaround</small><b>42 min</b></div>
-          <div><small>Time saved</small><b>~19m/call</b></div>
+          <div><small>Time saved</small><b>Measured in a pilot</b></div>
         </div>
         <div style="padding:10px 12px;background:var(--surface-inset);border-radius:var(--radius-sm);border:1px solid var(--line-soft)">
           <div style="display:flex;justify-content:space-between;align-items:center;font-size:11px;margin-bottom:6px">

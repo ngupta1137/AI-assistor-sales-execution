@@ -4,12 +4,14 @@
 import assistant from './telecom.assistant.js';
 import companion from './telecom.companion.js';
 import governance from './telecom.governance.js';
+import execution from './telecom.execution.js';
 
 /** @type {import('../schema.js').IndustryPack} */
 export default {
   ...assistant,
   ...companion,
   ...governance,
+  ...execution,
   id: 'telecom',
   name: 'Telecom retail',
   tagline: 'SIM and recharge outlets, franchise stores',

@@ -286,6 +286,36 @@ async function repFlow(browser, ind, c) {
     await checkText(page, ind, `${label} problems`);
     ok((await page.$$('.problem')).length === 6, `${label}: six problems`);
 
+    // Execution system (X1 to X10): eight capabilities, journey, five flows with a live example, two days, activation, scorecard.
+    await go(page, '#/system');
+    await checkText(page, ind, `${label} system`);
+    ok((await page.$$('[data-cap-card]')).length === 8, `${label}: eight capability cards`);
+    ok(ind.execution.offers.mode !== 'off' || (await page.$('[data-cap-card="offers"].cap-off')), `${label}: offers marked not used when the pack turns them off`);
+    await go(page, '#/system/journey');
+    ok((await page.$$('[data-stage]')).length === 7, `${label}: seven journey stages`);
+    for (const f of ['visibility', 'range', 'relationship', 'standard', 'price']) {
+      await go(page, `#/system/flows/${f}`);
+      const ft = await checkText(page, ind, `${label} flow ${f}`);
+      ok((await page.$$('[data-phase]')).length === 4 && ft.includes(ind.execution.flows[f].name), `${label}: flow ${f} has four phases and the pack name`);
+      const href = await page.$eval('#flow-example a[href^="#/action/"]', (a) => a.getAttribute('href')).catch(() => null);
+      if (href) { await go(page, href); ok(!!(await page.$('[data-screen="action"]')), `${label}: flow ${f} example opens a real action`); }
+    }
+    for (const d of ['consultative', 'orderLed']) { await go(page, `#/system/day/${d}`); await checkText(page, ind, `${label} day ${d}`); }
+    await go(page, '#/system/activation');
+    await page.click('[data-act="ready-preset"][data-preset="red"]');
+    ok(!!(await page.$('#red-zone')) && (await page.$eval('#ready-result', (e) => e.dataset.tier)) === '0', `${label}: poor data must pause activation`);
+    await page.click('[data-act="ready-preset"][data-preset="full"]');
+    ok(!(await page.$('#red-zone')) && (await page.$eval('#ready-result', (e) => e.dataset.tier)) === '4', `${label}: a mature market with full data reaches tier 4`);
+    await go(page, '#/system/scorecard');
+    await checkText(page, ind, `${label} system scorecard`);
+    ok((await page.$$('[data-score-cap]')).length === 8 && /No result yet/.test(await page.innerText('#scorecard')), `${label}: scorecard never claims a value result`);
+    await go(page, '#/system/more');
+    await checkText(page, ind, `${label} system more`);
+    await go(page, `#/brief/${first}`);
+    ok(!!(await page.$('#merge-panel')), `${label}: brief shows how the plan was merged`);
+    await go(page, `#/account/${first}`);
+    ok(!!(await page.$('#acc-foundation [data-sig="retention"]')), `${label}: account shows foundation signals`);
+
     // Admin persona via presenter.
     await page.keyboard.press('Shift+D');
     await page.selectOption('#p-persona', 'admin');
@@ -409,7 +439,7 @@ async function layoutChecks(browser) {
         const id = await page.$eval('.acc-row', (a) => a.dataset.account);
         await go(page, `#/brief/${id}`);
         const act = await page.$eval('[data-kind="action"]', (e) => e.dataset.item);
-        for (const h of ['#/today', `#/brief/${id}`, `#/action/${act}`, `#/order/${id}`, `#/complete/${id}`, `#/account/${id}`, '#/route', '#/ask', '#/agents', '#/config', '#/problems', '#/manager', '#/setup']) {
+        for (const h of ['#/today', `#/brief/${id}`, `#/action/${act}`, `#/order/${id}`, `#/complete/${id}`, `#/account/${id}`, '#/route', '#/ask', '#/agents', '#/config', '#/problems', '#/manager', '#/system', '#/system/flows/standard', '#/system/day/consultative', '#/system/day/orderLed', '#/system/activation', '#/system/scorecard', '#/system/more', '#/setup']) {
           await go(page, h);
           const r = await page.evaluate(() => {
             const doc = document.documentElement;
