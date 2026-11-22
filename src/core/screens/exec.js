@@ -46,7 +46,7 @@ export function render(ctx) {
     const on = R.capOn(c) && !off;
     return `<div class="exec-cap" data-exec-cap="${c}"><b class="small">${esc(t(CAPS[c].name))}</b>${off ? pill(t('Not used'), 'muted') : on ? pill(t('On'), 'good') : pill(t('Off'), 'warn')}</div>`;
   }).join('');
-  const field = (key, label, unit) => `<label class="ready-row"><span class="small">${esc(t(label))}</span><input type="number" min="0" inputmode="decimal" data-change="exec-input" data-key="${key}" id="vin-${key}" value="${inp[key]}" style="min-height:var(--tap);max-width:160px"> <span class="small muted">${esc(unit)}</span></label>`;
+  const field = (key, label, unit) => `<label class="calc-row"><span class="small">${esc(t(label))}</span><input type="number" min="0" inputmode="decimal" data-change="exec-input" data-key="${key}" id="vin-${key}" value="${inp[key]}"><span class="small muted">${esc(unit)}</span></label>`;
   return `
   <section class="page-head"><h1>${esc(t('Executive overview'))}</h1>
     <p class="muted">${esc(t('{industry} in {country}. What is live, how it is used, and how to size the value case yourself.', { industry: industry.name, country: ctx.country.name }))}</p></section>

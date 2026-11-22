@@ -32,7 +32,7 @@ export function foundationCard(ctx, accountId) {
       const o = R.offerOf(accountId);
       const status = offersOff ? '' : !R.capOn('offers') ? t('Switched off in this market.') : R.released() ? t('Released to the field.') : t('Not released yet by the {kam}.');
       const lost = R.lost();
-      const lostCaps = Object.keys(lost).filter((c) => ['diagnostics', 'retention', 'potential'].includes(c));
+      const lostCaps = Object.keys(lost);
       return `<p class="small" id="offer-decision"><b>${esc(t(CAPS.offers.name))}:</b> ${pill(t(OFFER_LABEL[o.decision]), OFFER_TONE[o.decision])} ${esc(t(o.t, o.v))} <span class="muted">${esc(status)}</span></p>
       ${R.tierOf(accountId) !== a.tier ? `<p class="small" id="tier-approved">${pill(t('Tier {tier} approved', { tier: R.tierOf(accountId) }), 'accent')} ${esc(t('Tier change approved by the {manager}. The cadence changes next cycle.'))}</p>` : ''}
       ${lostCaps.length ? `<p class="small muted" id="feed-lost">${icon('sync', 14)} ${esc(t('Partner data feed off: lower confidence in {caps}.', { caps: lostCaps.map((c) => t(CAPS[c].name)).join(', ') }))}</p>` : ''}`;

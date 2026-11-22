@@ -686,3 +686,5 @@ body.text-size-lg {
 .check-list { gap: var(--s1); }
 .rung.muted { opacity: .6; }
 #new-form { display: flex; flex-direction: column; gap: var(--s3); }
+.calc-row { display: grid; grid-template-columns: minmax(0, 1fr) 112px 40px; align-items: center; gap: var(--s2); margin-top: var(--s2); }
+.calc-row input { min-height: var(--tap); width: 100%; font: inherit; border: 1px solid var(--control-line); border-radius: var(--radius-sm); padding: 0 var(--s2); background: var(--surface); color: var(--ink); }

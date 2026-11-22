@@ -75,12 +75,17 @@ export function roles(ctx) {
   };
   const assigned = () => x.assigned.map((id) => data.byId[id]).filter(Boolean);
   /** Tier changes the tiering capability proposes: captured share far from what the tier expects. */
-  const tierProposals = () => data.accounts.map((a) => {
-    const c = sg[a.id].captured;
-    const to = a.tier !== 'A' && c >= 78 ? { B: 'A', C: 'B' }[a.tier]
-      : a.tier !== 'C' && c < 35 && sg[a.id].risk.band === 'High' ? { A: 'B', B: 'C' }[a.tier] : null;
-    return to && to !== a.tier ? { a, from: a.tier, to, why: to < a.tier ? 'Captures {pct}% of potential, above the tier norm' : 'Captures only {pct}% and risk is high', v: { pct: c } } : null;
-  }).filter(Boolean).slice(0, 5);
+  const tierProposals = () => {
+    const med = (tier) => { const v = data.accounts.filter((a) => a.tier === tier).map((a) => a.potential).sort((p, q) => p - q); return v.length ? v[Math.floor(v.length / 2)] : Infinity; };
+    const m = { A: med('A'), B: med('B'), C: med('C') };
+    return data.accounts.map((a) => {
+      const up = { C: 'B', B: 'A' }[a.tier];
+      const down = { A: 'B', B: 'C' }[a.tier];
+      if (up && a.potential >= m[up]) return { a, from: a.tier, to: up, why: 'Potential {amount} is at or above the tier {to} middle. Tier {from} cadence under-serves it', v: { amount: ctx.fmt.moneyShort(a.potential), to: up, from: a.tier } };
+      if (down && a.potential <= m[down] && sg[a.id].risk.band === 'High') return { a, from: a.tier, to: down, why: 'Potential {amount} is at the tier {to} middle and risk is high. Review before investing more', v: { amount: ctx.fmt.moneyShort(a.potential), to: down } };
+      return null;
+    }).filter(Boolean).slice(0, 5);
+  };
   const approveTier = (accountId, to) => { x.tierApproved[accountId] = to; log('manager', `Approved a tier change for ${data.byId[accountId].name} to tier ${to}`); };
   const tierOf = (accountId) => x.tierApproved[accountId] || data.byId[accountId]?.tier;
 

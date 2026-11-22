@@ -93,7 +93,7 @@ function stop(ctx, id) {
     tiersHtml = `<section class="card" id="offer-tiers"><div class="section-head"><h2>${esc(t('Offer tiers'))}</h2>${offer && offer.decision === 'target' ? pill(t('Released'), 'good') : pill(t('Not released'), 'muted')}</div>
       ${offer && offer.decision === 'target' ? `<ul class="tier-ladder">${tiers.map((x) => `<li class="${reached && reached.name === x.name ? 'on' : ''}"><b>${esc(t(x.name))}</b><span class="small muted">${esc(t('from {amount}', { amount: fmt.money(x.min) }))}</span></li>`).join('')}</ul>
       <p class="small">${reached ? esc(t('This {order} reaches {tier}.', { tier: t(reached.name) })) : esc(t('Below the first tier.'))} ${next ? esc(t('{amount} more reaches {tier}.', { amount: fmt.money(next.min - value), tier: t(next.name) })) : ''}</p>
-      ${next && !o.submitted ? `<button class="btn secondary block" data-act="sales-raise" data-acc="${id}" id="raise-tier" style="min-height:var(--tap)">${esc(t('Raise to {tier}', { tier: t(next.name) }))}</button>` : ''}`
+      ${next && value > 0 && !o.submitted ? `<button class="btn secondary block" data-act="sales-raise" data-acc="${id}" id="raise-tier" style="min-height:var(--tap)">${esc(t('Raise to {tier}', { tier: t(next.name) }))}</button>` : ''}`
       : `<p class="small muted">${esc(offer ? t(offer.t, offer.v) : t('Offer targets are not released yet by the {kam}. The {order} goes at base terms.'))}</p>`}
       <p class="small muted">${esc(t('Tiers and thresholds come from the approved plan. Sample values. The {rep} never changes terms.'))}</p></section>`;
   }
