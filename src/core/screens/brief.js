@@ -2,7 +2,7 @@
 // what it compared against, how sure it is, and who prepared it. Approve, adjust or override.
 
 import { esc, icon, pill, confBadge, agentTag, typeLine, AGENT_LABEL } from '../ui.js';
-import { mergePanel } from '../execution/views.js';
+import { mergePanel, fieldNotices } from '../execution/views.js';
 
 const ADJUST = {
   action: ['Do it first', 'Do it later in the {visit}', 'Only if time allows', 'Smaller scope today'],
@@ -592,6 +592,7 @@ export function render(ctx, [accountId]) {
 
   <div class="items tight">${items.map((it, idx) => renderItem(ctx, it, it === firstPending, a, idx)).join('')}</div>
   ${mergePanel(ctx, a.id)}
+  ${fieldNotices(ctx, a.id)}
 
   <div class="btn-row">
     ${c.pending > 0 ? `<button class="btn secondary block" data-act="approve-all" data-id="${a.id}">Approve all remaining (${c.pending})</button>` : ''}

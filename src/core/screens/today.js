@@ -2,6 +2,7 @@
 // Month actual comes from source data only. Completed actions are shown as an estimate, never added to actuals.
 
 import { esc, icon, pill, bar, kpiValue, AGENT_LABEL } from '../ui.js';
+import { fieldNotices } from '../execution/views.js';
 
 function greeting() {
   const h = new Date().getHours();
@@ -95,6 +96,7 @@ export function render(ctx) {
     </div>
     <a class="btn primary block" href="#/brief/${nextAcc.id}" id="overnight-banner">${esc(t(`Open next brief: ${nextAcc.name}`))}${icon('chevron', 18)}</a>
   </section>
+  ${fieldNotices(ctx)}
 
   <div class="quick tight">
     <a class="btn secondary" href="#/route" id="open-route">${icon('route', 20)}Route plan</a>

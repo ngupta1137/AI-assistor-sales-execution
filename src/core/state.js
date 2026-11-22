@@ -52,7 +52,12 @@ export function createModel(ctx) {
   const logAudit = (actor, text) => log(actor, text);
 
   /** All brief items: planner slot, ranked actions, order draft. */
-  const briefItems = (accountId) => plannedFor(accountId)?.brief || [];
+  const briefItems = (accountId) => {
+    const all = plannedFor(accountId)?.brief || [];
+    const off = s.x?.off || [];   // capabilities switched off by sales ops (execution system, X15)
+    if (!off.length) return all;
+    return all.filter((it) => (it.kind === 'plan' ? !off.includes('planning') : it.kind === 'order' ? !off.includes('order') : !off.includes('actions')));
+  };
   /** Only the in-visit actions (these carry outcomes and evidence). */
   const actionsOf = (accountId) => plannedFor(accountId)?.actions || [];
 

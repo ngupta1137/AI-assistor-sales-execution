@@ -1,12 +1,8 @@
 // Demo setup: pick industry, country and persona. Full product name lives here.
 
 import { esc, icon } from '../ui.js';
+import { PERSONA_INFO, PERSONAS, personasFor, titleFor, personFor } from '../personas.js';
 
-const PERSONA_INFO = {
-  rep: { label: 'Field rep', text: 'A ranked day and an explained plan for every {visit}.' },
-  manager: { label: 'Manager', text: 'Team view and the exception queue.' },
-  admin: { label: 'Sales ops admin', text: 'Configuration, agent controls and problems solved.' },
-};
 
 export function render({ app, INDUSTRIES, COUNTRIES, buildContext }) {
   const s = app.ui.setup || (app.ui.setup = {
@@ -17,7 +13,8 @@ export function render({ app, INDUSTRIES, COUNTRIES, buildContext }) {
   let ctx = null;
   if (ready) {
     ctx = buildContext(s.industry, s.country);
-    const who = s.persona === 'rep' ? ctx.data.rep : s.persona === 'manager' ? ctx.data.manager : ctx.data.admin;
+    if (!personasFor(ctx.industry).includes(s.persona)) s.persona = 'rep';
+    const who = personFor(ctx, s.persona);
     preview = `<p class="signin">Signs in as <b>${esc(who.name)}</b>, ${esc(ctx.t(who.title))}, ${esc(ctx.data.city.name)}</p>`;
   }
   const check = icon('check', 14);
@@ -31,9 +28,10 @@ export function render({ app, INDUSTRIES, COUNTRIES, buildContext }) {
     <button class="chip${s.country === c.id ? ' on' : ''}" data-act="setup-country" data-id="${c.id}" aria-pressed="${s.country === c.id}">
       <b>${esc(c.name)}</b><small>${esc(c.currency)}</small>
     </button>`).join('');
-  const personas = Object.entries(PERSONA_INFO).map(([id, p]) => {
-    const title = ctx ? ctx.industry.personas[id] : p.label;
-    const text = ctx ? ctx.t(p.text) : p.text.replace('{visit}', 'visit');
+  const personas = (ctx ? personasFor(ctx.industry) : PERSONAS).map((id) => {
+    const p = PERSONA_INFO[id];
+    const title = ctx ? titleFor(ctx.industry, id) : p.label;
+    const text = ctx ? ctx.t(p.text) : p.text.replace(/\{(\w)(\w*)\}/g, (m, f, r) => (f + r).toLowerCase());
     return `<button class="persona${s.persona === id ? ' on' : ''}" data-act="setup-persona" data-id="${id}" aria-pressed="${s.persona === id}">
       <b>${esc(title)}</b><small>${esc(text)}</small></button>`;
   }).join('');

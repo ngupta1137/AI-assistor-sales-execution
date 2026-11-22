@@ -2,6 +2,7 @@
 // presenter notes panel shown beside the phone frame on desktop.
 
 import { esc } from './text.js';
+import { PERSONA_INFO, personasFor, titleFor } from './personas.js';
 import { icon } from './icons.js';
 
 const STEP_ROUTES = (ctx) => {
@@ -14,7 +15,8 @@ export function renderPresenter(app, ctx, { INDUSTRIES, COUNTRIES, PERSONAS, sha
   if (!app.presenterOpen) return '';
   const c = app.config || {};
   const opt = (list, cur) => list.map((x) => `<option value="${esc(x.id)}"${x.id === cur ? ' selected' : ''}>${esc(x.name)}</option>`).join('');
-  const personaName = { rep: 'Field rep', manager: 'Manager', admin: 'Sales ops admin' };
+  const personaName = Object.fromEntries(PERSONAS.map((p) => [p, ctx ? titleFor(ctx.industry, p) : PERSONA_INFO[p].label]));
+  const avail = ctx ? personasFor(ctx.industry) : PERSONAS;
   const configured = !!app.config;
   return `
   <div class="presenter-backdrop" data-act="presenter-close"></div>
@@ -35,7 +37,7 @@ export function renderPresenter(app, ctx, { INDUSTRIES, COUNTRIES, PERSONAS, sha
           <option value="desktop"${app.vp === 'desktop' ? ' selected' : ''}>Desktop Portal (100% width)</option>
         </select></label>
       <label class="field"><span>Persona</span>
-        <select data-change="p-persona" id="p-persona">${PERSONAS.map((p) => `<option value="${p}"${p === c.persona ? ' selected' : ''}>${personaName[p]}</option>`).join('')}</select></label>
+        <select data-change="p-persona" id="p-persona">${avail.map((p) => `<option value="${p}"${p === c.persona ? ' selected' : ''}>${personaName[p]}</option>`).join('')}</select></label>
             <div style="margin-bottom:10px">
         <label class="field"><span>Brand accent theme</span></label>
         <div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:4px">
@@ -79,9 +81,7 @@ export function renderNotes(app, ctx) {
     <p class="small muted">${esc(ctx.industry.name)} · ${esc(ctx.country.name)}. Presenter notes are visible beside the app, so hide them before you share this window.</p>
     <ol class="story">${steps}</ol>
     <div class="side-switch">
-      <button class="btn secondary sm" data-act="p-as" data-persona="rep">As rep</button>
-      <button class="btn secondary sm" data-act="p-as" data-persona="manager">As manager</button>
-      <button class="btn secondary sm" data-act="p-as" data-persona="admin">As admin</button>
+      ${personasFor(ctx.industry).map((p) => `<button class="btn secondary sm" data-act="p-as" data-persona="${p}">As ${esc(PERSONA_INFO[p].label.toLowerCase())}</button>`).join('')}
     </div>
   </div>`;
 }

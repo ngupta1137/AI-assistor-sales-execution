@@ -53,14 +53,16 @@ Demo success: prospect asks for a pilot or a second meeting; prospect correctly 
 
 ## 4. Users and personas
 
-| Generic persona | What they need | Main screens |
-|---|---|---|
-| Field rep | A ranked day, a reason for each action, a pre-filled order or proposal, offline use | Today, Visit brief, Account, Action, Order, Visit complete, Route |
-| Field manager | Team view, exceptions, coaching prompts, coverage gaps | Manager home, Exception queue, Coverage |
-| Key account manager | Compliance and blockers across a chain or group, evidence for business reviews | Account group view |
-| Partner or distributor | Proposed routes or beats to confirm, expected orders | Partner view (P2) |
-| Sales ops / admin | Configure packs, rules, action catalogue, agent authority; read value vs control | Configuration, Agent controls |
-| Customer (self-service) | Suggested reorder between visits (eB2B) | Out of scope for v1 UI; shown as a touchpoint. The Sales Companion includes a clearly labelled mock-up of the customer's view (section 9.6) |
+| Generic persona | What they need | Main screens | URL `persona=` |
+|---|---|---|---|
+| Field rep (consultative) | A ranked day, a reason for each action, a pre-filled order or proposal, offline use | Today, Visit brief, Account, Action, Order, Visit complete, Route | `rep` |
+| Order-led rep | Many short visits where the order leads; offer tiers on the order; add new accounts found in the field | Route, Stop, New account and lifecycle | `salesman` |
+| Field manager | Team view, exceptions, coaching prompts, retention watch, tier approvals, visits against plan by tier | Team, Health | `manager` |
+| Key account manager | Key accounts, blockers routed from the field, offer targeting and release | Accounts | `kam` |
+| Partner or distributor | Orders received, data shared back, integration model, route confirmation. Only in packs where a partner takes the order | Partner | `partner` |
+| Sales ops / admin | Configure packs, rules, agent authority; market activation, capability switches, seasonal event mode | Configuration, System, Agent controls | `admin` |
+| Executive | Which capabilities are on, adoption so far, a value calculator with the buyer's own inputs, activation path, adoption plan, risks | Overview, System | `exec` |
+| Customer (self-service) | Suggested reorder between visits (eB2B) | Out of scope for v1 UI; shown as a touchpoint. The Sales Companion includes a clearly labelled mock-up of the customer's view (section 9.6) | |
 
 Each industry pack renames these personas (section 6).
 
@@ -162,7 +164,7 @@ Decision: **no industry dropdown in the app header.** Prospects would see it dur
 
 1. **Setup screen at login (P0).** Pick industry (10 tiles with icons), country (8), and persona (rep, manager, admin). "Start demo" signs in as a named persona for that pack, for example "Dr. visits: Priya Nair, Medical rep, Pune".
 2. **Shareable link (P0).** URL parameters `?industry=pharma&country=IN&persona=rep` open the right version directly. A prospect can be sent a pre-configured link.
-3. **Hidden presenter menu (P0).** Opened by a keyboard shortcut (Shift+D) or a long press on the logo. Switch industry, country or persona, or reset the demo, without logging out.
+3. **Hidden presenter menu (P0).** Opened by a keyboard shortcut (Shift+D) or a long press on the logo. Switch industry, country or persona (seven personas; partner only where the pack has one), or reset the demo, without logging out.
 4. **Deterministic data (P0).** The same industry plus country always shows the same accounts and numbers (seeded generator), so a demo is repeatable.
 5. **Prospect branding (P1).** Optional prospect name and colour typed at setup, shown as "Prepared for <name>". Never use a real company's logo.
 
@@ -357,7 +359,7 @@ Automated verification harness ensuring complete test coverage, deterministic ex
 | T9 | Parity verification test confirming 100% implementation of specification requirements across all packs | P0 |
 | T10 | Automated test counts generator producing docs/test-counts.json with real execution numbers | P0 |
 
-### 9.13 Execution system (X1 to X10)
+### 9.13 Execution system (X1 to X18)
 
 Generic model in `src/core/execution/model.js`; one overlay per industry in `src/packs/industries/<id>.execution.js` (flow names, goals, mapped actions, four measures per flow, consultative and order-led segments, offer policy, terms source, standard owner, retention signal). Signals use their own seeded generator, so generated data and existing numbers do not change. Built = rule-based on sample data. Designed = production design, not built. Proposed = for agreement before a pilot.
 
@@ -373,6 +375,17 @@ Generic model in `src/core/execution/model.js`; one overlay per industry in `src
 | X8 | Market activation: four tiers, data readiness check, red-zone pause, alternative paths | Built | P0 |
 | X9 | Scorecard: adoption, execution and value per capability, reported separately; value always "No result yet" until a pilot. Test design per capability with replay, shadow, A/B pilot and scale stages | Built (tests proposed) | P0 |
 | X10 | Trust ladder per capability, new account cold start, seasonal playbook from the country's events, partner integration models, shared data foundation | Designed | P1 |
+
+| X11 | Order-led rep persona: route of overdue order-led accounts, order with steppers, offer tiers and "raise to the next tier" once released, one or two actions that fit, send to the partner | Built | P0 |
+| X12 | Manager Health: retention watch with "assign a retention visit" (lands on the rep's Today and brief), tier changes to approve (shown on Account 360), visits against plan by tier, new accounts from the field | Built | P0 |
+| X13 | Key account lead: key accounts, blockers routed from the field, offer targeting chain, targeted and held-back accounts, include a held-back account with a logged reason, release to the field. Not shown where offers are off | Built | P0 |
+| X14 | Partner persona (only where a partner takes the order): integration models A to D set order and invoice timing, data feeds whose loss lowers confidence shown on Account 360, orders received from both reps, route confirmation | Built | P0 |
+| X15 | Sales ops capability switches with dependency check; Apply removes switched-off capabilities from every brief and from order-led orders, with a notice in the field. Seasonal event mode adds a notice and raises order-led quantities | Built | P0 |
+| X16 | Executive overview: capabilities on or off, session adoption, value calculator whose improvement and adoption inputs start at zero (no supplied result), activation path, adoption checklist, risks | Built | P0 |
+| X17 | New account capture: scored from similar accounts nearby, provisional tier, two starter actions, intro order, six lifecycle stages | Built (in-memory) | P1 |
+| X18 | Flows in action: run a process flow on a real action from today's plan; the execute phase marks it done with evidence, visible to every role | Built | P1 |
+
+Cross-role state lives in the same in-memory session as the rest of the demo and resets on reload. Every change is written to the audit trail with the person's name.
 
 Guardrails: offers are off in pharma, medical devices, insurance, animal health and education; limited (eligible list only, people decide terms) in financial services, foodservice, industrial, apparel, energy, hygiene, logistics, packaging and beverages. The agreed-terms flow verifies, it never sets a price. Static tests enforce this.
 

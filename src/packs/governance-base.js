@@ -2,7 +2,7 @@
 // Provides standard rights matrix, default error limits, and template generators
 // so every pack receives rich, authentic, and fully validated governance metadata.
 
-export const STANDARD_ROLES = ['rep', 'manager', 'kam', 'ops', 'exec'];
+export const STANDARD_ROLES = ['rep', 'manager', 'kam', 'partner', 'ops', 'exec'];
 
 export const BASE_OUTCOMES = {
   suggest: 'Recommended action ready for execution',
@@ -29,16 +29,18 @@ export const BASE_RIGHTS = {
   screens: {
     rep: ['today', 'brief', 'account', 'action', 'order', 'complete', 'route', 'companion'],
     manager: ['manager', 'companion', 'agents', 'rule-health', 'audit-trail', 'config', 'qbr'],
-    kam: ['account', 'manager', 'rule-health', 'config'],
+    kam: ['kam', 'account', 'manager', 'rule-health', 'config', 'system'],
+    partner: ['partner', 'system', 'config'],
     ops: ['agents', 'rule-health', 'audit-trail', 'quality', 'pm-views', 'lab', 'config'],
-    exec: ['agents', 'rule-health', 'audit-trail', 'quality', 'pm-views', 'lab', 'qbr'],
+    exec: ['exec', 'agents', 'rule-health', 'audit-trail', 'quality', 'pm-views', 'lab', 'qbr', 'system'],
   },
   actions: {
     rep: ['approve_brief', 'adjust_brief', 'override_brief', 'flag_recommendation', 'refresh_stale', 'log_evidence', 'request_clarification'],
-    manager: ['approve_exception', 'rebalance_route', 'review_coaching', 'retire_rule', 'acknowledge_readiness', 'approve_claim'],
-    kam: ['tune_jbp', 'export_charter', 'request_credit_review', 'approve_rebate'],
-    ops: ['publish_policy', 'retire_rule', 'update_eval_bar', 'claim_gap', 'confirm_term', 'execute_raw_write'],
-    exec: ['export_audit', 'replay_decision', 'override_release_gate', 'sign_off_qbr'],
+    manager: ['assign_retention_visit', 'approve_tier_change', 'approve_exception', 'rebalance_route', 'review_coaching', 'retire_rule', 'acknowledge_readiness', 'approve_claim'],
+    kam: ['release_offer_targets', 'include_held_account', 'tune_jbp', 'export_charter', 'request_credit_review', 'approve_rebate'],
+    partner: ['confirm_route', 'receive_orders', 'share_invoices', 'choose_integration'],
+    ops: ['switch_capabilities', 'set_season', 'publish_policy', 'retire_rule', 'update_eval_bar', 'claim_gap', 'confirm_term', 'execute_raw_write'],
+    exec: ['size_value_case', 'export_audit', 'replay_decision', 'override_release_gate', 'sign_off_qbr'],
   },
 };
 

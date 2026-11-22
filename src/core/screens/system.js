@@ -9,6 +9,7 @@ import {
   RUNGS, RUNG_PLAN, TESTS, TEST_STAGES, LEARN_REASONS, learnReasonFor,
   exOf, flowPhase, flowVars, signals, conflicts, archetypeOf, readiness, cycleDays,
 } from '../execution/model.js';
+import { roles, DEPENDS } from '../execution/roles.js';
 
 const TABS = [
   ['overview', 'Overview'], ['journey', 'Journey'], ['flows', 'Flows'], ['day', 'A day'],
@@ -25,6 +26,19 @@ export const actions = {
     r[k] = ['history', 'master'].includes(k) ? Number(v) : ['plan', 'geo', 'app'].includes(k) ? v === 'yes' : v;
     ctx.ui.ready = r;
   },
+  'cap-toggle': ({ ctx, data }) => { roles(ctx).toggleCap(data.cap); },
+  'cap-apply': ({ ctx }) => { roles(ctx).apply(); ctx.ui.capsApplied = true; },
+  'season-toggle': ({ ctx }) => { const R = roles(ctx); R.setSeason(!R.season()); },
+  'flow-step': ({ ctx, data }) => {
+    const R = roles(ctx);
+    const step = R.flowStep(data.flow);
+    if (step === 2 && data.item) {
+      ctx.m.recordOutcome(data.item, { status: 'done' });
+      ctx.m.setEvidence(data.item, { type: data.ev || 'note', text: 'Done from the flow walkthrough.', at: 0 });
+    }
+    R.stepFlow(data.flow);
+  },
+  'flow-reset': ({ ctx, data }) => { roles(ctx).resetFlow(data.flow); },
   'ready-preset': ({ ctx, el }) => {
     ctx.ui.ready = el.dataset.preset === 'red'
       ? { history: 0, master: 60, evidence: 'none', partner: 'none', plan: false, geo: false, app: false }
@@ -158,6 +172,28 @@ const FLOW_ARCH = {
   price: ['Compliance with the agreed terms. Gaps go to the {kam}.', 'Where the resale price is the {account}\'s decision, the {rep} only advises.'],
 };
 
+/** Flows in action: run the flow on the example action, one phase at a time. Execute marks it done in the app. */
+function flowRun(ctx, flowId, x) {
+  const { t, industry } = ctx;
+  const R = roles(ctx);
+  const step = R.flowStep(flowId);
+  const names = Object.keys(PHASES);
+  const done = ctx.m.outcome(x.id)?.status === 'done';
+  const vars = flowVars(industry, flowId);
+  const ev = Object.entries({ photo: 'photo', signature: 'signature', note: 'note', scan: 'scan' }).find(([, v]) => v === vars.evidence)?.[0] || 'note';
+  const shown = names.slice(0, step).map((ph) => {
+    const P = flowPhase(industry, flowId, ph);
+    const line = ph === 'execute' ? t('Marked done with {ev} evidence. The {manager} and Account 360 see it now.', { ev: vars.evidence }) : ph === 'learn' ? t('Outcome logged. Action Ranking and Gap Diagnostics update tonight.') : t(P.out, vars);
+    return `<li data-ran="${ph}"><span class="phase ${PHASES[ph].tone}">${esc(t(PHASES[ph].name))}</span> <span class="small">${esc(line)}</span></li>`;
+  }).join('');
+  const nextName = names[step];
+  const label = step === 0 ? t('Run this flow') : step === 2 ? (done ? t('Next: {ph}', { ph: t(PHASES.execute.name) }) : t('Do it and add evidence')) : nextName ? t('Next: {ph}', { ph: t(PHASES[nextName].name) }) : '';
+  return `<div class="flow-run" id="flow-run" data-step="${step}">
+    ${shown ? `<ol class="bullets small flow-ran">${shown}</ol>` : ''}
+    ${step < 4 ? `<button class="btn ${step === 2 ? 'primary' : 'secondary'} sm" data-act="flow-step" data-flow="${flowId}"${step === 2 && !done ? ` data-item="${x.id}" data-ev="${ev}"` : ''} id="flow-step" style="min-height:var(--tap)">${esc(label)}</button>` : `<button class="btn text sm" data-act="flow-reset" data-flow="${flowId}" style="min-height:var(--tap)">${esc(t('Run again'))}</button>`}
+  </div>`;
+}
+
 function flowExample(ctx, flowId) {
   const { t, data, fmt, industry } = ctx;
   const ids = exOf(industry).flows[flowId].actions;
@@ -172,6 +208,7 @@ function flowExample(ctx, flowId) {
       <p class="small"><b>${esc(t(x.title, x.vars))}</b></p>
       <p class="small muted">${esc(t('{amount} · {m} min · rank {r} in the brief', { amount: fmt.money(x.value), m: x.effort, r: x.rank }))}${x.overBudget ? ` · ${esc(t('outside the time budget, moved to the next {visit}'))}` : ''}</p>
       <div class="cap-chips"><a class="btn secondary sm" href="#/action/${x.id}">${esc(t('Open the action'))} ${icon('chevron', 14)}</a><a class="btn secondary sm" href="#/brief/${a.id}">${esc(t('Open the brief'))} ${icon('chevron', 14)}</a></div>
+      ${flowRun(ctx, flowId, x)}
     </div>`;
   }
   const def = industry.actions.find((d) => ids.includes(d.id));
@@ -312,10 +349,33 @@ function activation(ctx) {
     <div class="tbl-wrap"><table class="tbl"><thead><tr><th>${esc(t('Capability'))}</th><th>${esc(t('Status'))}</th><th>${esc(t('Missing, or minimum data'))}</th></tr></thead><tbody>${rows}</tbody></table></div>
     ${!R.fieldApp ? `<p class="small muted">${esc(t('Tier 3 and above need a live field app: suggestions go to {reps} through it.'))}</p>` : ''}
   </section>
+  ${capSwitches(ctx)}
   <h2 class="sys-h2">${esc(t('Activation tiers'))} <small class="muted">${esc(t('Activate by need, not all at once'))}</small></h2>
   ${tiers}
   <section class="card" id="alt-paths"><h3>${esc(t('Other supported paths'))}</h3><ul class="bullets small">${PATHS.map((p) => `<li>${esc(t(p))}</li>`).join('')}</ul>
     <p class="small muted">${esc(t('Foundation always comes first. Consultative markets usually add Action Ranking, then Visit Planning, then offers and {orders}. Order-led markets often start with {Order} Suggestion.'))}</p></section>`;
+}
+
+function capSwitches(ctx) {
+  const { t, industry } = ctx;
+  const R = roles(ctx);
+  const canAct = ctx.persona === 'admin';
+  const pend = R.pending();
+  const brk = R.broken(pend);
+  const applied = R.off();
+  const changed = JSON.stringify([...pend].sort()) !== JSON.stringify([...applied].sort());
+  const offOff = exOf(industry).offers.mode === 'off';
+  const rows = CAP_ORDER.filter((c) => !(c === 'offers' && offOff)).map((c) => {
+    const on = !pend.includes(c);
+    return `<li class="watch-row" data-switch="${c}"><div class="row-main"><b>${esc(t(CAPS[c].name))}</b><small>${esc(DEPENDS[c].length ? t('Needs {list}', { list: DEPENDS[c].map((d) => t(CAPS[d].name)).join(', ') }) : t('No dependency'))}${brk.includes(c) ? ` · <span class="bad-text">${esc(t('Will switch off: a capability it needs is off'))}</span>` : ''}</small></div>
+      <button class="btn ${on ? 'secondary' : 'primary'} sm" data-act="cap-toggle" data-cap="${c}" aria-pressed="${on}"${canAct ? '' : ' disabled'} style="min-height:var(--tap)">${esc(on ? t('On') : t('Off'))}</button></li>`;
+  }).join('');
+  return `<section class="card" id="cap-switches"><div class="section-head"><h2>${esc(t('Capabilities in this market'))}</h2>${applied.length ? pill(t('{n} off', { n: applied.length }), 'warn') : pill(t('All on'), 'good')}</div>
+    <p class="small">${esc(t('Switch by need. Apply removes switched-off capabilities from every {rep}\'s brief and tells the field why.'))}</p>
+    <ul class="watch-list">${rows}</ul>
+    ${canAct ? `<button class="btn primary block" data-act="cap-apply" id="cap-apply"${changed ? '' : ' disabled'} style="min-height:var(--tap)">${esc(t('Apply to the field'))}</button>` : `<p class="small muted">${esc(t('Only sales ops can change this.'))}</p>`}
+    ${ctx.ui.capsApplied && !changed ? `<p class="small good-text" id="caps-applied">${esc(applied.length ? t('Applied. Briefs now leave out {list}.', { list: applied.map((c) => t(CAPS[c].name)).join(', ') }) : t('Applied. All capabilities on.'))}</p>` : ''}
+  </section>`;
 }
 
 function scorecard(ctx) {
@@ -412,6 +472,7 @@ function more(ctx) {
   </section>
   <section class="card" id="seasons"><div class="section-head"><h2>${esc(t('Seasonal playbook'))}</h2>${pill(t('Designed'), 'info')}</div>
     <p class="small">${esc(t('Each market sets its own calendar. Events come from the {country} pack.', { country: country.name }))}</p>
+    ${(() => { const R = roles(ctx); const on = R.season(); return `<div class="watch-row" id="season-switch"><div class="row-main"><b>${esc(t('Event mode for {event}', { event: data.event.name }))}</b><small>${esc(t('Adds an event notice on every brief and raises order-led suggested quantities by 20% (sample).'))}</small></div>${ctx.persona === 'admin' ? `<button class="btn ${on ? 'primary' : 'secondary'} sm" data-act="season-toggle" aria-pressed="${on}" style="min-height:var(--tap)">${esc(on ? t('On') : t('Off'))}</button>` : pill(on ? t('On') : t('Off'), on ? 'good' : 'muted')}</div>`; })()}
     ${seasonRows.map((r) => `<details class="fold season" data-season><summary>${esc(r[0])}</summary><ul class="bullets small">${seasonHead.map((c, i) => (r[i + 1] === 'Not used' ? '' : `<li><b>${esc(t(CAPS[c].name))}:</b> ${esc(t(r[i + 1]))}</li>`)).join('')}</ul></details>`).join('')}
   </section>
   ${partner}

@@ -329,15 +329,39 @@ async function repFlow(browser, ind, c) {
   }
 }
 
-/** Direct links for manager and admin personas. */
+/** Direct links for every non-rep persona the pack offers; partner only where a partner takes the order. */
+const HOMES = { salesman: 'sales', manager: 'manager', kam: 'kam', partner: 'partner', admin: 'config', exec: 'exec' };
 async function personaLinks(browser, ind, c) {
-  for (const persona of ['manager', 'admin']) {
+  const list = ['salesman', 'manager', 'kam', ...(ind.execution.partner ? ['partner'] : []), 'admin', 'exec'];
+  {
+    const { page, context } = await newPage(browser, `${ind.id}x${c.id}xpartner-guard`);
+    try {
+      await page.goto(`${BASE}?industry=${ind.id}&country=${c.id}&persona=partner`);
+      await page.waitForSelector(`[data-screen="${ind.execution.partner ? 'partner' : 'today'}"]`);
+      ok(true, 'partner persona only where a partner exists');
+    } catch (e) { failures.push(`${ind.id}x${c.id} partner guard: ${e.message.split('\n')[0]}`); } finally { await context.close(); }
+  }
+  for (const persona of list) {
     const label = `${ind.id}x${c.id}x${persona}`;
     const { page, context } = await newPage(browser, label);
     try {
       await page.goto(`${BASE}?industry=${ind.id}&country=${c.id}&persona=${persona}`);
-      await page.waitForSelector(`[data-screen="${persona === 'manager' ? 'manager' : 'config'}"]`);
+      await page.waitForSelector(`[data-screen="${HOMES[persona]}"]`);
       await checkText(page, ind, label);
+      if (persona === 'salesman') {
+        const stop = await page.$eval('[data-stop]', (e) => e.dataset.stop);
+        await go(page, `#/sales/${stop}`);
+        await checkText(page, ind, `${label} stop`);
+        await page.click('#sales-send');
+        ok(!!(await page.$('#sales-done')), `${label}: order sends`);
+        await go(page, '#/sales/new');
+        await page.fill('#new-name', 'Corner Test');
+        await page.dispatchEvent('#new-name', 'change');
+        await page.click('#new-save');
+        for (let i = 0; i < 5; i++) await page.click('#life-next');
+        ok(!!(await page.$('#life-done')), `${label}: new account reaches the full loop`);
+      }
+      if (persona === 'exec') ok((await page.$eval('#value-result', (e) => e.dataset.value)) === '0', `${label}: value calculator starts at zero, no supplied result`);
       if (persona === 'manager') ok((await page.$$('.exception')).length >= 3, `${label}: exception queue needs sample items`);
     } catch (e) { failures.push(`${label}: ${e.message.split('\n').slice(0, 3).join(' | ')}`); } finally { await context.close(); }
   }
@@ -354,7 +378,7 @@ async function setupAll(browser, combos) {
     ok(/fictional/i.test(setupText), 'setup: fictional data label');
     ok((await page.$$('[data-act="setup-industry"]')).length === 20, 'setup: 20 industries');
     ok((await page.$$('[data-act="setup-country"]')).length === 11, 'setup: 11 countries');
-    ok((await page.$$('[data-act="setup-persona"]')).length === 3, 'setup: 3 personas');
+    ok((await page.$$('[data-act="setup-persona"]')).length === 7, 'setup: 7 personas before a pack is picked');
     ok(await page.isDisabled('#start-demo'), 'setup: Start demo must wait for a choice');
     for (const [ind, c] of combos) {
       page._label = `setup ${ind.id}x${c.id}`;
@@ -439,7 +463,7 @@ async function layoutChecks(browser) {
         const id = await page.$eval('.acc-row', (a) => a.dataset.account);
         await go(page, `#/brief/${id}`);
         const act = await page.$eval('[data-kind="action"]', (e) => e.dataset.item);
-        for (const h of ['#/today', `#/brief/${id}`, `#/action/${act}`, `#/order/${id}`, `#/complete/${id}`, `#/account/${id}`, '#/route', '#/ask', '#/agents', '#/config', '#/problems', '#/manager', '#/system', '#/system/flows/standard', '#/system/day/consultative', '#/system/day/orderLed', '#/system/activation', '#/system/scorecard', '#/system/more', '#/setup']) {
+        for (const h of ['#/today', `#/brief/${id}`, `#/action/${act}`, `#/order/${id}`, `#/complete/${id}`, `#/account/${id}`, '#/route', '#/ask', '#/agents', '#/config', '#/problems', '#/manager', '#/system', '#/system/flows/standard', '#/system/day/consultative', '#/system/day/orderLed', '#/system/activation', '#/system/scorecard', '#/system/more', '#/sales', '#/sales/new', '#/health', '#/kam', '#/partner', '#/exec', '#/setup']) {
           await go(page, h);
           const r = await page.evaluate(() => {
             const doc = document.documentElement;
@@ -459,6 +483,50 @@ async function layoutChecks(browser) {
   }
 }
 
+/** Cross-role effects in one session: what one role does shows up for another (X11 to X18). */
+async function crossRole(browser, ind, c) {
+  const label = `${ind.id}x${c.id} cross-role`;
+  const { page, context } = await newPage(browser, label);
+  const as = async (p) => {
+    await page.keyboard.press('Shift+D');
+    await page.selectOption('#p-persona', p);
+    await page.waitForTimeout(80);
+    if (await page.$('section.presenter')) await page.keyboard.press('Escape');
+  };
+  try {
+    await page.goto(`${BASE}?industry=${ind.id}&country=${c.id}&persona=manager#/health`);
+    await page.waitForSelector('#retention-watch');
+    const btn = await page.$('[data-act="assign-retention"]');
+    const id = btn && (await btn.getAttribute('data-id'));
+    if (btn) await btn.click();
+    await as('rep'); await go(page, '#/today');
+    if (id) ok(!!(await page.$(`#assigned-visits a[href="#/account/${id}"]`)), `${label}: manager assignment reaches the rep`);
+    await as('kam'); await go(page, '#/kam');
+    const rel = await page.$('#kam-release');
+    ok(ind.execution.offers.mode === 'off' ? !rel : !!rel, `${label}: release offered only where offers are used`);
+    if (rel) { await rel.click(); ok(!!(await page.$('#kam-released')), `${label}: offers released`); }
+    await as('admin'); await go(page, '#/system/activation');
+    await page.click('[data-act="cap-toggle"][data-cap="order"]');
+    await page.click('#cap-apply');
+    await as('rep');
+    const first = await page.evaluate(() => document.querySelector('a[href^="#/brief/"]')?.getAttribute('href'));
+    await go(page, first);
+    ok(!(await page.$('[id$="-order"]')) && !!(await page.$('#caps-off')), `${label}: switching off ${ind.id} orders removes the order from the brief`);
+    await as('salesman'); await go(page, '#/sales');
+    const st = await page.$eval('[data-stop]', (e) => e.dataset.stop);
+    await go(page, `#/sales/${st}`);
+    ok(!!(await page.$('#order-off')), `${label}: order-led rep sees the switch`);
+    await page.click('#sales-send');
+    if (ind.execution.partner) {
+      await as('partner'); await go(page, '#/partner');
+      ok((await page.$$('#partner-orders .watch-row')).length >= 1, `${label}: partner receives the order`);
+      await page.click('[data-act="partner-feed"][data-feed="invoices"]');
+      await as('rep'); await go(page, `#/account/${st}`);
+      ok(!!(await page.$('#feed-lost')), `${label}: feed off warns on Account 360`);
+    }
+  } catch (e) { failures.push(`${label}: ${e.message.split('\n')[0]}`); } finally { await context.close(); }
+}
+
 async function pool(tasks, n) {
   let i = 0;
   const run = async () => { while (i < tasks.length) { const task = tasks[i++]; await task(); } };
@@ -472,6 +540,7 @@ stats.combos = combos.length;
 const tasks = [
   ...combos.map(([ind, c]) => () => repFlow(browser, ind, c)),
   ...combos.map(([ind, c]) => () => personaLinks(browser, ind, c)),
+  ...combos.filter(([, c], i) => c.id === 'US' || c.id === 'IN' || ONLY).map(([ind, c]) => () => crossRole(browser, ind, c)),
   () => setupAll(browser, combos),
   () => edgeCases(browser),
   () => layoutChecks(browser),
@@ -481,7 +550,7 @@ await pool(tasks.map((fn) => async () => { await fn(); done++; if (done % 20 ===
 await browser.close();
 
 const secs = ((Date.now() - t0) / 1000).toFixed(0);
-const report = { ...stats, failures: failures.length, seconds: Number(secs), industries: INDUSTRIES.length, countries: COUNTRIES.length, personas: 3 };
+const report = { ...stats, failures: failures.length, seconds: Number(secs), industries: INDUSTRIES.length, countries: COUNTRIES.length, personas: 7 };
 mkdirSync(path.join(root, 'test-results'), { recursive: true });
 writeFileSync(path.join(root, 'test-results', 'e2e-report.json'), JSON.stringify({ ...report, failureList: failures }, null, 2));
 if (failures.length) {
@@ -489,4 +558,4 @@ if (failures.length) {
   [...new Set(failures)].slice(0, 60).forEach((f) => console.error(`  x ${f}`));
   process.exit(1);
 }
-console.log(`E2E passed: ${stats.combos} industry x country combinations, 3 personas each, ${stats.flows} full rep flows, ${stats.setupStarts} setup starts, ${stats.screens} screens checked, ${stats.assertions} assertions, ${secs}s`);
+console.log(`E2E passed: ${stats.combos} industry x country combinations, up to 7 personas each, ${stats.flows} full rep flows, ${stats.setupStarts} setup starts, ${stats.screens} screens checked, ${stats.assertions} assertions, ${secs}s`);

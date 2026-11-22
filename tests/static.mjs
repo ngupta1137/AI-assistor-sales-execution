@@ -124,6 +124,8 @@ for (const p of INDUSTRIES) {
     if (ex.offers.mode === 'limited') check(!!(ex.offers.program && ex.offers.decider), `${p.id}: limited offers name the program and who decides`);
     if (ex.offers.mode === 'off') check(!!ex.offers.note, `${p.id}: offers off needs a reason`);
     check(!!(ex.termsSource && ex.standardOwner && ex.retentionSignal), `${p.id}: terms source, standard owner and retention signal`);
+    check(!!(ex.roles?.salesman && ex.roles?.exec), `${p.id}: order-led rep and executive titles`);
+    check(!!ex.roles?.partner === !!ex.partner, `${p.id}: partner persona title only where a partner takes the order`);
   }
   for (const id of ['pharma', 'meddevices', 'insurance', 'animalhealth', 'education']) check(INDUSTRIES.find((p) => p.id === id)?.execution?.offers.mode === 'off', `${id}: regulated pack must not target offers`);
   for (const id of ['finserv', 'logistics', 'foodservice', 'industrial']) check(INDUSTRIES.find((p) => p.id === id)?.execution?.offers.mode !== 'on', `${id}: agents never set price or terms, so offers are limited or off`);

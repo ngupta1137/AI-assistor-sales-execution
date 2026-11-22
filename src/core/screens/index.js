@@ -18,7 +18,12 @@ import * as auditTrail from './audit-trail.js';
 import * as quality from './quality.js';
 import * as pm from './pm.js';
 import * as system from './system.js';
+import * as sales from './sales.js';
+import * as health from './health.js';
+import * as kam from './kam.js';
+import * as partner from './partner.js';
+import * as exec from './exec.js';
 
-export const SCREENS = { setup, today, brief, account, action, order, complete, manager, agents, config, problems, route, ask, companion, 'rule-health': ruleHealth, 'audit-trail': auditTrail, quality, pm, system };
+export const SCREENS = { setup, today, brief, account, action, order, complete, manager, agents, config, problems, route, ask, companion, 'rule-health': ruleHealth, 'audit-trail': auditTrail, quality, pm, system, sales, health, kam, partner, exec };
 
 export const ACTIONS = Object.assign({}, ...Object.values(SCREENS).map((s) => s.actions || {}));

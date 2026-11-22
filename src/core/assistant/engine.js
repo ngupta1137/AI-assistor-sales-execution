@@ -4,6 +4,7 @@
 // vocabulary and the country's spelling. An answer always says what it is based on.
 
 import H, { ABOUT, ABOUT_QUESTIONS } from './handlers.js';
+import { personFor } from '../personas.js';
 import { INTENTS } from './intents.js';
 import { check } from './guard.js';
 import { assistantPersona } from './router.js';
@@ -76,7 +77,7 @@ function run(ctx, c, id) {
   return H[id] ? H[id](ctx, c) : null;
 }
 
-const actor = (ctx, c) => (c.persona === 'manager' ? ctx.data.manager : c.persona === 'admin' ? ctx.data.admin : ctx.data.rep).name;
+const actor = (ctx, c) => personFor(ctx, c.persona).name;
 
 const finish = (ctx, r) => ({
   ...r,

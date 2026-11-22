@@ -4,6 +4,7 @@
 /** @type {{execution: import('../schema.js').ExecutionContent}} */
 export default {
   execution: {
+    roles: { salesman: 'Pharmacy sales rep', exec: 'Commercial director', partner: 'Wholesaler manager' },
     partner: "wholesaler",
     consultative: ["hosp", "clinic"],
     orderLed: ["pharm"],

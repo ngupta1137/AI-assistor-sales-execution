@@ -348,12 +348,12 @@ export function signals(ctx) {
     const tierIdx = { A: 2, B: 1, C: 0 }[a.tier];
     if (ex.offers.mode === 'off') offer = { decision: 'off', t: ex.offers.note };
     else if (ex.offers.mode === 'limited') {
-      offer = band === 'High' || captured < 65
+      offer = band === 'High' || captured < 55
         ? { decision: 'eligible', t: 'Eligible for {program}. Terms are decided by {decider}.', v: { program: ex.offers.program, decider: ex.offers.decider.replace(/^The /, 'the ') } }
         : { decision: 'hold', t: 'Not passed on. {pct}% of potential already captured, so an offer would add little.', v: { pct: captured } };
-    } else if (captured >= 76) offer = { decision: 'hold', t: 'Held back: {pct}% of potential already captured. This {account} is likely to buy anyway.', v: { pct: captured } };
+    } else if (captured >= 72) offer = { decision: 'hold', t: 'Held back: {pct}% of potential already captured. This {account} is likely to buy anyway.', v: { pct: captured } };
     else if (band === 'High') offer = { decision: 'target', tier: ex.offers.tiers[0], t: 'Retention offer: {tier}. Risk is high, so the smallest approved tier is used first.', v: { tier: ex.offers.tiers[0] } };
-    else if (a.tier === 'C' && a.whiteSpace < a.potential * 0.3) offer = { decision: 'hold', t: 'Held back: the expected extra volume is small against the cost.', v: {} };
+    else if (a.tier === 'C' && captured >= 55) offer = { decision: 'hold', t: 'Held back: the expected extra volume is small against the cost.', v: {} };
     else offer = { decision: 'target', tier: ex.offers.tiers[tierIdx], t: 'Target with {tier}. White space of {pct}% makes the extra volume likely.', v: { tier: ex.offers.tiers[tierIdx], pct: 100 - captured } };
 
     out[a.id] = {

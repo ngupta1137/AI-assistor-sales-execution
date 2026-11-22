@@ -4,6 +4,7 @@
 /** @type {{execution: import('../schema.js').ExecutionContent}} */
 export default {
   execution: {
+    roles: { salesman: 'Dealer sales officer', exec: 'Commercial director' },
     partner: null,
     consultative: ["project", "contractor"],
     orderLed: ["dealer"],
