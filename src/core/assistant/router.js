@@ -4,7 +4,7 @@
 import { SCREEN_IDS } from './intents.js';
 
 /** Persona for suggested questions: admin sees the manager set. */
-export const assistantPersona = (persona) => (persona === 'rep' ? 'rep' : 'manager');
+export const assistantPersona = (persona) => (persona === 'rep' || persona === 'salesman' ? 'rep' : 'manager');
 
 /**
  * @param {object} ctx  app context (m, data, ui)
@@ -14,9 +14,11 @@ export const assistantPersona = (persona) => (persona === 'rep' ? 'rep' : 'manag
  */
 export function contextFor(ctx, route, persona, last) {
   if (!ctx) return { screen: 'setup', persona };
-  let name = route.name || { rep: 'today', manager: 'manager', admin: 'config' }[persona];
+  let name = route.name || { rep: 'today', salesman: 'today', manager: 'manager', admin: 'config' }[persona] || 'manager';
   if (name === 'ask' && last) return { ...last, persona, viaAsk: true };
-  if (name === 'ask') name = persona === 'rep' ? 'today' : 'manager';
+  if (name === 'ask') name = persona === 'rep' || persona === 'salesman' ? 'today' : 'manager';
+  const ALIAS = { sales: 'today', health: 'manager', kam: 'system', partner: 'system', exec: 'system' };
+  if (ALIAS[name]) name = ALIAS[name];
   const c = { screen: SCREEN_IDS.includes(name) ? name : 'today', persona };
   const [arg] = route.args || [];
   if (name === 'brief' || name === 'account' || name === 'complete') { c.accountId = arg; if (name !== 'account') c.visitId = arg; }

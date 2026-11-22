@@ -4,12 +4,14 @@
 import assistant from './agri.assistant.js';
 import companion from './agri.companion.js';
 import governance from './agri.governance.js';
+import execution from './agri.execution.js';
 
 /** @type {import('../schema.js').IndustryPack} */
 export default {
   ...assistant,
   ...companion,
   ...governance,
+  ...execution,
   id: 'agri',
   name: 'Agri inputs',
   tagline: 'Agri dealers, cooperatives and farmers',

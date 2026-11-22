@@ -4,12 +4,14 @@
 import assistant from './foodservice.assistant.js';
 import companion from './foodservice.companion.js';
 import governance from './foodservice.governance.js';
+import execution from './foodservice.execution.js';
 
 /** @type {import('../schema.js').IndustryPack} */
 export default {
   ...assistant,
   ...companion,
   ...governance,
+  ...execution,
   id: 'foodservice',
   name: 'Foodservice distribution',
   tagline: 'Restaurants, hotels, caterers and canteens',

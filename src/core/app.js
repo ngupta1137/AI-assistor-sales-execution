@@ -16,14 +16,9 @@ import { renderPresenter, renderNotes, presenterActions } from './presenter.js';
 import { renderSyncModal, syncActions } from './telemetry.js';
 import { renderAssistant, syncContext, afterRender, onKeydown, newAssistantState } from './assistant/ui.js';
 import { LIVE_ENABLED } from './assistant/provider.js';
+import { PERSONAS, HOME, NAV, roleKey as roleKeyOf, titleFor, personFor, validPersona } from './personas.js';
 
-export const PERSONAS = ['rep', 'manager', 'admin'];
-export const HOME = { rep: 'today', manager: 'manager', admin: 'config' };
-const NAV = {
-  rep: [['today', 'Today', 'home'], ['brief', 'Brief', 'brief'], ['companion', 'Companion', 'companion'], ['agents', 'Agents', 'agent'], ['config', 'Config', 'config']],
-  manager: [['manager', 'Team', 'team'], ['companion', 'Companion', 'companion'], ['agents', 'Agents', 'agent'], ['config', 'Config', 'config']],
-  admin: [['config', 'Config', 'config'], ['agents', 'Agents', 'agent'], ['problems', 'Problems', 'bulb'], ['manager', 'Team', 'team']],
-};
+export { PERSONAS, HOME };
 
 const app = {
   config: null,        // { industryId, countryId, persona, prepared, color }
@@ -46,7 +41,7 @@ function readConfig() {
   const q = new URLSearchParams(location.search);
   const ind = findIndustry(q.get('industry'));
   const ctry = findCountry(q.get('country'));
-  const persona = PERSONAS.includes(q.get('persona')) ? q.get('persona') : 'rep';
+  const persona = ind && validPersona(ind, q.get('persona')) ? q.get('persona') : 'rep';
   if ((q.get('industry') || q.get('country')) && (!ind || !ctry)) {
     app.notice = 'That link has an unknown industry or country. Pick one below.';
   }
@@ -184,6 +179,7 @@ export function render() {
     html = SCREENS.setup.render({ app, INDUSTRIES, COUNTRIES, buildContext });
   } else {
     ctx = buildContext(app.config.industryId, app.config.countryId);
+    if (!validPersona(ctx.industry, app.config.persona)) app.config.persona = 'rep';
     ctx.persona = app.config.persona;
     ctx.ui = app.ui;
     ctx.app = app;
@@ -209,13 +205,24 @@ export function render() {
 }
 
 function renderActingAsBar(ctx) {
-  const roleKey = ctx.persona === "admin" ? "ops" : ctx.persona;
-  const roleTitle = ctx.industry.personas?.[ctx.persona] || (ctx.persona === "admin" ? "Market Operations" : ctx.persona === "manager" ? "Sales Manager" : "Sales Representative");
+  const roleKey = roleKeyOf(ctx.persona);
+  const roleTitle = titleFor(ctx.industry, ctx.persona);
   const allowed = ctx.industry.governance?.rights?.actions?.[roleKey] || [];
   const allActions = [...new Set(Object.values(ctx.industry.governance?.rights?.actions || {}).flat())];
   const forbidden = allActions.filter((a) => !allowed.includes(a));
   const actionLabels = {
     approve_brief: "approve visit briefs",
+    assign_retention_visit: "assign retention visits",
+    approve_tier_change: "approve tier changes",
+    release_offer_targets: "release offer targets",
+    include_held_account: "include a held-back account",
+    confirm_route: "confirm routes",
+    receive_orders: "receive orders",
+    share_invoices: "share invoice data",
+    choose_integration: "choose the integration model",
+    switch_capabilities: "switch capabilities on or off",
+    set_season: "turn seasonal events on",
+    size_value_case: "size the value case",
     adjust_brief: "adjust suggestions",
     override_brief: "override recommendations",
     flag_recommendation: "flag policy rules",
@@ -266,13 +273,14 @@ function renderActingAsBar(ctx) {
 function renderRightsModal(app, ctx) {
   if (!app?.ui?.rightsOpen || !ctx) return "";
   const g = ctx.industry.governance;
-  const roles = g?.rights?.roles || ["rep", "manager", "kam", "ops", "exec"];
+  const roles = (g?.rights?.roles || ["rep", "manager", "kam", "ops", "exec"]).filter((r) => r !== 'partner' || !!ctx.industry.execution?.partner);
   const roleNames = {
     rep: ctx.industry.personas?.rep || "Sales Rep",
     manager: ctx.industry.personas?.manager || "Sales Manager",
-    kam: ctx.industry.personas?.kam || "Key Account Lead",
+    kam: ctx.industry.vocab?.kam ? ctx.t('{Kam}') : "Key Account Lead",
     ops: ctx.industry.personas?.admin || "Market Operations",
-    exec: "Executive Leader",
+    partner: titleFor(ctx.industry, 'partner'),
+    exec: titleFor(ctx.industry, "exec"),
   };
   const legalApprover = g?.rights?.legalApprover || "Legal Counsel";
   const roleHeaders = roles.map((r) => `<th style="padding:8px 6px;text-align:left;font-size:11px">${esc(roleNames[r] || r)}</th>`).join("");
@@ -285,6 +293,10 @@ function renderRightsModal(app, ctx) {
     { label: "Access immutable audit trail & replay", check: (r) => ["ops", "exec", "manager"].includes(r) },
     { label: "Inspect quality evals & test suites", check: (r) => ["ops", "exec"].includes(r) },
     { label: "Adjust commercial terms & JBP targets", check: (r) => ["kam"].includes(r) },
+    { label: "Release offer targets to the field", check: (r) => ["kam"].includes(r) },
+    { label: "Assign retention visits & approve tier changes", check: (r) => ["manager"].includes(r) },
+    { label: "Switch capabilities & seasonal events", check: (r) => ["ops"].includes(r) },
+    { label: "Receive orders & share invoice data", check: (r) => ["partner"].includes(r) },
     { label: "Direct raw database write without policy check", check: () => false },
   ];
   const bodyRows = rows.map((row) => `
@@ -385,7 +397,7 @@ function shell(ctx, name, result) {
     </section>`;
   }
   const dock = typeof result === 'string' ? '' : result.dock || '';
-  const user = ctx.persona === 'rep' ? data.rep : ctx.persona === 'manager' ? data.manager : data.admin;
+  const user = personFor(ctx, ctx.persona);
   const actingAsBar = renderActingAsBar(ctx);
   const deniedHtml = app.deniedNotice ? `
     <div class="notice warn" role="alert" style="margin:var(--s2) var(--s4) var(--s3);display:flex;align-items:center;gap:8px">
@@ -398,7 +410,7 @@ function shell(ctx, name, result) {
   const nav = NAV[ctx.persona].map(([id, label, ic]) => {
     const firstBrief = ctx.m.nextAccount(null)?.accountId || data.planned[0].accountId;
     const href = id === 'brief' ? `#/brief/${firstBrief}` : `#/${id}`;
-    const active = name === id || (id === 'brief' && ['brief', 'action', 'order', 'complete'].includes(name)) || (id === 'today' && ['account', 'route', 'ask'].includes(name)) || (id === 'config' && name === 'problems');
+    const active = name === id || (id === 'brief' && ['brief', 'action', 'order', 'complete'].includes(name)) || (id === 'today' && ['account', 'route', 'ask'].includes(name)) || (id === 'config' && (name === 'problems' || (name === 'system' && !NAV[ctx.persona].some(([n]) => n === 'system')))) || (id === 'sales' && name === 'sales');
     return `<a class="tab${active ? ' on' : ''}" href="${href}" data-nav="${id}"${active ? ' aria-current="page"' : ''}><span class="tab-ic">${icon(ic, 22)}</span><span>${esc(label)}</span></a>`;
   }).join('');
   const prepared = app.config.prepared ? `<div class="prepared-band" id="prepared">Prepared for ${esc(app.config.prepared)}</div>` : '';

@@ -2,6 +2,7 @@
 // Displays CRM, ERP, Offline Engine, Security & SSO status, and allows downloading the compliance audit log.
 
 import { esc, icon, pill, initials } from './ui.js';
+import { PERSONA_INFO, personasFor, personFor } from './personas.js';
 
 export function renderSyncModal(app, ctx) {
   if (!app.ui || !app.ui.syncModalOpen) return '';
@@ -23,7 +24,7 @@ export function renderSyncModal(app, ctx) {
 
     <div style="padding:var(--s4);display:flex;flex-direction:column;gap:var(--s3)">
       ${(() => {
-        const user = ctx ? (ctx.persona === 'rep' ? ctx.data.rep : ctx.persona === 'manager' ? ctx.data.manager : ctx.data.admin) : null;
+        const user = ctx ? personFor(ctx, ctx.persona) : null;
         if (!user) return '';
         return `
         <section class="card" style="margin:0;background:var(--surface-subtle);border:1px solid var(--line)">
@@ -41,18 +42,10 @@ export function renderSyncModal(app, ctx) {
           <div style="margin-top:12px;padding-top:10px;border-top:1px solid var(--line-soft)">
             <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
               <small class="muted" style="font-weight:600">Switch demo persona:</small>
-              ${pill(ctx.persona === 'rep' ? 'Field rep view' : ctx.persona === 'manager' ? 'Manager view' : 'Admin view', 'good')}
+              ${pill(`${PERSONA_INFO[ctx.persona].label} view`, 'good')}
             </div>
-            <div class="seg-ctl" role="tablist" style="margin-top:4px">
-              <button class="seg ${ctx.persona === 'rep' ? 'on' : ''}" data-act="switch-persona" data-persona="rep" role="tab" aria-selected="${ctx.persona === 'rep'}" style="min-height:var(--tap)">
-                Field Rep
-              </button>
-              <button class="seg ${ctx.persona === 'manager' ? 'on' : ''}" data-act="switch-persona" data-persona="manager" role="tab" aria-selected="${ctx.persona === 'manager'}" style="min-height:var(--tap)">
-                Manager
-              </button>
-              <button class="seg ${ctx.persona === 'admin' ? 'on' : ''}" data-act="switch-persona" data-persona="admin" role="tab" aria-selected="${ctx.persona === 'admin'}" style="min-height:var(--tap)">
-                Sales Ops
-              </button>
+            <div class="seg-ctl" role="tablist" style="margin-top:4px;flex-wrap:wrap">
+              ${personasFor(ctx.industry).map((p) => `<button class="seg ${ctx.persona === p ? 'on' : ''}" data-act="switch-persona" data-persona="${p}" role="tab" aria-selected="${ctx.persona === p}" style="min-height:var(--tap)">${esc(PERSONA_INFO[p].label)}</button>`).join('')}
             </div>
             <p class="small muted" style="margin-top:6px;font-size:11px">In production, roles are provisioned via enterprise SSO. For demonstrations, switch personas to view rep, manager, and administrative surfaces.</p>
           </div>

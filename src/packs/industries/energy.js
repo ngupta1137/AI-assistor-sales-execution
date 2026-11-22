@@ -4,12 +4,14 @@
 import assistant from './energy.assistant.js';
 import companion from './energy.companion.js';
 import governance from './energy.governance.js';
+import execution from './energy.execution.js';
 
 /** @type {import('../schema.js').IndustryPack} */
 export default {
   ...assistant,
   ...companion,
   ...governance,
+  ...execution,
   id: 'energy',
   name: 'Solar and home energy',
   tagline: 'Installers, electrical wholesalers and home builders',

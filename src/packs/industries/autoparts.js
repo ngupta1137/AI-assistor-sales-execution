@@ -4,12 +4,14 @@
 import assistant from './autoparts.assistant.js';
 import companion from './autoparts.companion.js';
 import governance from './autoparts.governance.js';
+import execution from './autoparts.execution.js';
 
 /** @type {import('../schema.js').IndustryPack} */
 export default {
   ...assistant,
   ...companion,
   ...governance,
+  ...execution,
   id: 'autoparts',
   name: 'Auto parts',
   tagline: 'Workshops, parts retailers and fleets',

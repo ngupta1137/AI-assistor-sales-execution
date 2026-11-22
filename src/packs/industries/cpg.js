@@ -4,12 +4,14 @@
 import assistant from './cpg.assistant.js';
 import companion from './cpg.companion.js';
 import governance from './cpg.governance.js';
+import execution from './cpg.execution.js';
 
 /** @type {import('../schema.js').IndustryPack} */
 export default {
   ...assistant,
   ...companion,
   ...governance,
+  ...execution,
   id: 'cpg',
   name: 'Consumer goods',
   tagline: 'Supermarkets, convenience stores and independent shops',

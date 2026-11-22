@@ -28,6 +28,9 @@ export function render(ctx) {
     <h1>How this is configured</h1>
     <p class="small muted">${esc(industry.name)} pack with the ${esc(country.name)} country pack. Same product, same workflow. Only the configuration changes.</p>
   </section>
+  <a class="card row" href="#/system" id="open-system" style="display:flex;align-items:center;gap:var(--s2);margin-bottom:var(--s3);min-height:var(--tap)">
+    <span class="row-main"><b>Execution system</b><small>${esc(t('Eight capabilities, the journey, five process flows and market activation for {accounts} in this pack.'))}</small></span>${icon('chevron', 18)}
+  </a>
   <nav class="jump tight" aria-label="Sections">${jump}</nav>
   <details class="fold" id="vocab" open><summary>Vocabulary</summary><table class="tbl"><thead><tr><th>Product term</th><th>Your term</th></tr></thead><tbody>${vocab}</tbody></table></details>
   <details class="fold" id="segments"><summary>Segments<span class="sum-end">${industry.segments.length}</span></summary><ul class="group">${segs}</ul></details>
@@ -269,7 +272,7 @@ export function render(ctx) {
     <p class="small muted">Event dates are approximate.</p>
   </details>
   <a class="btn secondary block" href="#/problems" id="open-problems">${icon('bulb', 20)}Problems we solve</a>
-  <div class="notice good">${icon('check', 18)}<span><b>This is a configuration, not a custom build.</b> Adding an industry or a country means adding one pack file.</span></div>
+  <div class="notice good">${icon('check', 18)}<span><b>This is a configuration, not a custom build.</b> Adding an industry or a country means adding one pack file.</span></div>
   <div style="margin-top:16px">
     <button class="btn secondary block" data-act="logout-setup" style="min-height:var(--tap)">${icon('config', 18)} Switch persona or scenario</button>
   </div>`;

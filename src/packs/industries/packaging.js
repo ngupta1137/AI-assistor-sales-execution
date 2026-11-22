@@ -4,12 +4,14 @@
 import assistant from './packaging.assistant.js';
 import companion from './packaging.companion.js';
 import governance from './packaging.governance.js';
+import execution from './packaging.execution.js';
 
 /** @type {import('../schema.js').IndustryPack} */
 export default {
   ...assistant,
   ...companion,
   ...governance,
+  ...execution,
   id: 'packaging',
   name: 'Packaging and print',
   tagline: 'Food and drink makers, retail brands and manufacturers',

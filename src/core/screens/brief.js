@@ -2,6 +2,7 @@
 // what it compared against, how sure it is, and who prepared it. Approve, adjust or override.
 
 import { esc, icon, pill, confBadge, agentTag, typeLine, AGENT_LABEL } from '../ui.js';
+import { mergePanel, fieldNotices } from '../execution/views.js';
 
 const ADJUST = {
   action: ['Do it first', 'Do it later in the {visit}', 'Only if time allows', 'Smaller scope today'],
@@ -426,7 +427,7 @@ export function render(ctx, [accountId]) {
             <div><small>Market potential</small><b class="money good-text">${esc(fmt.moneyShort(a.potential))}</b></div>
             <div><small>Growth upside</small><b class="money">+${esc(fmt.moneyShort(a.whiteSpace))}</b></div>
           </div>
-          <p class="small muted" style="margin-top:10px">Based on comparable commercial accounts in ${esc(a.city)}, this customer can expand category throughput by +12.4% with optimized assortment allocation.</p>
+          <p class="small muted" style="margin-top:10px">Based on comparable commercial accounts in ${esc(a.city)}, similar customers carry a wider range. Sample data. No result is promised.</p>
         </section>
       ` : deckSlide === 2 ? `
         <section class="card" style="margin:0;background:var(--surface-subtle)">
@@ -590,6 +591,8 @@ export function render(ctx, [accountId]) {
   <p class="small muted tight guard">${esc(t('Reviewing this brief does not submit an {order}.'))}${c.paused ? ` ${c.paused} paused.` : ''}</p>
 
   <div class="items tight">${items.map((it, idx) => renderItem(ctx, it, it === firstPending, a, idx)).join('')}</div>
+  ${mergePanel(ctx, a.id)}
+  ${fieldNotices(ctx, a.id)}
 
   <div class="btn-row">
     ${c.pending > 0 ? `<button class="btn secondary block" data-act="approve-all" data-id="${a.id}">Approve all remaining (${c.pending})</button>` : ''}

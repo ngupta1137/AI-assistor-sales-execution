@@ -4,12 +4,14 @@
 import assistant from './electronics.assistant.js';
 import companion from './electronics.companion.js';
 import governance from './electronics.governance.js';
+import execution from './electronics.execution.js';
 
 /** @type {import('../schema.js').IndustryPack} */
 export default {
   ...assistant,
   ...companion,
   ...governance,
+  ...execution,
   id: 'electronics',
   name: 'Consumer electronics',
   tagline: 'Electronics stores and multi-brand outlets',

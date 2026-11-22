@@ -174,6 +174,20 @@ export const BASE = {
       q('What does each agent do?', 'agents.what'),
     ],
   },
+  system: {
+    rep: [
+      q('What are the eight capabilities?', 'system.caps'),
+      q('How are conflicts resolved?', 'system.conflicts'),
+      q('Which activation tier fits?', 'system.activation'),
+      q('Why is an offer held back?', 'system.offers'),
+    ],
+    manager: [
+      q('What are the eight capabilities?', 'system.caps'),
+      q('How are conflicts resolved?', 'system.conflicts'),
+      q('Which activation tier fits?', 'system.activation'),
+      q('Why is an offer held back?', 'system.offers'),
+    ],
+  },
 };
 
 /** Screens and personas every pack must cover, 4 to 6 questions each. */

@@ -98,6 +98,39 @@ for (const p of INDUSTRIES) {
   }
 }
 
+// 4b. Execution system overlay (X1 to X10): five flows that map real actions, every action and
+// segment placed, an offer policy, and regulated packs never targeting offers.
+{
+  const FLOWS = ['visibility', 'range', 'relationship', 'standard', 'price'];
+  const goals = new Map();
+  for (const p of INDUSTRIES) {
+    const ex = p.execution;
+    check(!!ex, `${p.id}: execution overlay missing`);
+    if (!ex) continue;
+    const ids = new Set(p.actions.map((a) => a.id));
+    const segs = p.segments.map((x) => x.id);
+    check(JSON.stringify(Object.keys(ex.flows)) === JSON.stringify(FLOWS), `${p.id}: execution flows must be ${FLOWS.join(', ')}`);
+    for (const [k, f] of Object.entries(ex.flows)) {
+      check(f.name && f.goal && f.kpis?.length === 4, `${p.id}.${k}: name, goal and four measures`);
+      check(f.actions.length > 0 && f.actions.every((a) => ids.has(a)), `${p.id}.${k}: flow actions must exist in the pack`);
+      if (goals.has(f.goal)) check(false, `copied flow goal in ${p.id} and ${goals.get(f.goal)}`); else goals.set(f.goal, p.id);
+    }
+    const mapped = new Set(Object.values(ex.flows).flatMap((f) => f.actions));
+    for (const a of ids) check(mapped.has(a), `${p.id}: action ${a} is in no process flow`);
+    const placed = [...ex.consultative, ...ex.orderLed];
+    check(placed.length === segs.length && segs.every((x) => placed.includes(x)), `${p.id}: every segment must be consultative or order-led, once`);
+    check(['on', 'limited', 'off'].includes(ex.offers?.mode), `${p.id}: offer mode`);
+    if (ex.offers.mode === 'on') check(ex.offers.tiers?.length === 3, `${p.id}: three offer tiers`);
+    if (ex.offers.mode === 'limited') check(!!(ex.offers.program && ex.offers.decider), `${p.id}: limited offers name the program and who decides`);
+    if (ex.offers.mode === 'off') check(!!ex.offers.note, `${p.id}: offers off needs a reason`);
+    check(!!(ex.termsSource && ex.standardOwner && ex.retentionSignal), `${p.id}: terms source, standard owner and retention signal`);
+    check(!!(ex.roles?.salesman && ex.roles?.exec), `${p.id}: order-led rep and executive titles`);
+    check(!!ex.roles?.partner === !!ex.partner, `${p.id}: partner persona title only where a partner takes the order`);
+  }
+  for (const id of ['pharma', 'meddevices', 'insurance', 'animalhealth', 'education']) check(INDUSTRIES.find((p) => p.id === id)?.execution?.offers.mode === 'off', `${id}: regulated pack must not target offers`);
+  for (const id of ['finserv', 'logistics', 'foodservice', 'industrial']) check(INDUSTRIES.find((p) => p.id === id)?.execution?.offers.mode !== 'on', `${id}: agents never set price or terms, so offers are limited or off`);
+}
+
 // 5. Core screens must not hard-code industry nouns: they come from vocabulary tokens.
 const NOUNS = ['store', 'stores', 'shop', 'shops', 'clinic', 'clinics', 'hospital', 'hospitals', 'pharmacy', 'dealer', 'dealers', 'outlet', 'outlets', 'merchant', 'merchants', 'workshop', 'workshops', 'SKU', 'SKUs', 'doctor', 'physician', 'farmer', 'farmers', 'shelf', 'HCP', 'patient', 'contractor', 'retailer'];
 for (const f of srcFiles.filter((x) => x.includes(`${path.sep}core${path.sep}`) || x.includes(`${path.sep}data${path.sep}`))) {

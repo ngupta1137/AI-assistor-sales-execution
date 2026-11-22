@@ -4,12 +4,14 @@
 import assistant from './education.assistant.js';
 import companion from './education.companion.js';
 import governance from './education.governance.js';
+import execution from './education.execution.js';
 
 /** @type {import('../schema.js').IndustryPack} */
 export default {
   ...assistant,
   ...companion,
   ...governance,
+  ...execution,
   id: 'education',
   name: 'School and education supplies',
   tagline: 'Schools, training providers and bookshops',

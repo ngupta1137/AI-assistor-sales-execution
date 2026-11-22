@@ -3,6 +3,7 @@
 // modules and certification tracker. It never invents an answer and refuses restricted claims.
 
 import { normalise } from '../assistant/engine.js';
+import { personFor } from '../personas.js';
 import { checkRequest } from './claims.js';
 
 const STOP = new Set(['what', 'when', 'where', 'which', 'with', 'that', 'this', 'have', 'does', 'from', 'about', 'should', 'would', 'could', 'there', 'their', 'your', 'into', 'how', 'the', 'and', 'for', 'are', 'can', 'any', 'you', 'its', 'not', 'need', 'make', 'much', 'many', 'long']);
@@ -24,7 +25,7 @@ export function searchKnowledge(ctx, query) {
   }).filter((x) => x.score > 0).sort((a, b) => b.score - a.score);
 }
 
-const actor = (ctx) => (ctx.persona === 'manager' ? ctx.data.manager : ctx.persona === 'admin' ? ctx.data.admin : ctx.data.rep).name;
+const actor = (ctx) => personFor(ctx, ctx.persona).name;
 
 /** @returns {{text: string, basedOn: string, links: {label: string, href: string}[], refusal?: {guardrailId: string, guardrailText: string}, fallback?: boolean}} */
 export function askLearning(ctx, question) {
