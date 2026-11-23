@@ -265,7 +265,7 @@ export default {
     new: ['Small trial booking for a newer delivery service.', 'Pilot volume to test the service before a wider rollout.'],
   },
   orderRules: [
-    { kind: 'totalAbove', amount: 6000, route: 'manager', text: '{Orders} above {limit} need sign-off by the {manager}.' },
+    { kind: 'totalAbove', amount: 3000, route: 'manager', text: '{Orders} above {limit} need sign-off by the {manager}.' },
     { kind: 'humanPrice', route: 'manager', text: 'Pickup point supplies carry no price. The network team confirms the quantity before dispatch.' },
     { kind: 'info', text: 'Prices come from the published rate card. Pickup point supplies are free to partners.' },
   ],
