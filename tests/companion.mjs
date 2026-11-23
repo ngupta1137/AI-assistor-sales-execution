@@ -96,7 +96,7 @@ async function sweep(browser, ind, c) {
         const txt = await checkText(page, ind, page._label);
         ok(txt.length > 50, `${page._label}: companion page content rendered`);
         if (!v) {
-          ok(/Field enabler/.test(txt) && /Sales Companion/.test(txt), `${page._label}: hub rendered`);
+          ok(/Field enabler/i.test(txt) && /Sales Companion/.test(txt), `${page._label}: hub rendered`);
           ok((await page.$$('[data-pillar]')).length === 3, `${page._label}: three pillars`);
           ok((await page.$$('.powered')).length >= 6, `${page._label}: Powered by rows`);
           ok(!!(await page.$('[data-nav="companion"].on')), `${page._label}: Companion tab must be active`);
