@@ -474,86 +474,62 @@ export function render(ctx, [accountId]) {
     <h1>${esc(a.name)}</h1>
     <p class="small muted">${esc(typeLine(t, a))} · ${esc(a.area)} · Tier ${a.tier}</p>
     <p class="small">${esc(fmt.time(p.start))} · ${a.visitMinutes} min · ${esc(contact.name)}, ${esc(t(contact.role))}</p>
-    <div style="margin-top:10px;padding:8px 10px;background:var(--surface-subtle);border-radius:var(--radius-sm);border:1px solid var(--line-soft)">
+    <div style="margin-top:6px;padding:6px 10px;background:var(--surface-subtle);border-radius:var(--radius-sm);border:1px solid var(--line-soft)">
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px">
-        <small style="font-weight:600">Primary call objective:</small>
-        ${pill(ui.callObjective || 'Expand whitespace', 'good')}
+        <small style="font-weight:600">Objective: ${pill(ui.callObjective || 'Expand whitespace', 'good')}</small>
+        <span class="small muted">${a.visitMinutes} min planned</span>
       </div>
-      <div class="seg-ctl" role="group" aria-label="Call objective" style="margin-top:4px">
-        <button class="seg ${(ui.callObjective || 'Expand whitespace') === 'Expand whitespace' ? 'on' : ''}" data-act="set-objective" data-obj="Expand whitespace" style="min-height:var(--tap);min-width:var(--tap)">Expand whitespace</button>
-        <button class="seg ${ui.callObjective === 'Volume reorder' ? 'on' : ''}" data-act="set-objective" data-obj="Volume reorder" style="min-height:var(--tap);min-width:var(--tap)">Volume reorder</button>
-        <button class="seg ${ui.callObjective === 'Merchandising' ? 'on' : ''}" data-act="set-objective" data-obj="Merchandising" style="min-height:var(--tap);min-width:var(--tap)">Merchandising</button>
+      <div class="seg-ctl" role="group" aria-label="Call objective">
+        <button class="seg ${(ui.callObjective || 'Expand whitespace') === 'Expand whitespace' ? 'on' : ''}" data-act="set-objective" data-obj="Expand whitespace" style="min-height:var(--tap);min-width:var(--tap);font-size:11px">Expand whitespace</button>
+        <button class="seg ${ui.callObjective === 'Volume reorder' ? 'on' : ''}" data-act="set-objective" data-obj="Volume reorder" style="min-height:var(--tap);min-width:var(--tap);font-size:11px">Volume reorder</button>
+        <button class="seg ${ui.callObjective === 'Merchandising' ? 'on' : ''}" data-act="set-objective" data-obj="Merchandising" style="min-height:var(--tap);min-width:var(--tap);font-size:11px">Merchandising</button>
       </div>
-    </div>
-    <!-- Commercial Shared Constraints Verification Strip -->
-    <div style="margin-top:10px;padding:8px 10px;background:var(--surface-subtle);border-radius:var(--radius-sm);border:1px solid var(--line-soft)">
-      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
-        <small style="font-weight:600;display:flex;align-items:center;gap:4px">
-          ${icon('shield', 14)} Commercial constraints verified
-        </small>
-        ${pill('All constraints passed', 'good')}
-      </div>
-      <div class="facts" style="grid-template-columns:repeat(auto-fit,minmax(70px,1fr));margin-bottom:4px">
-        <div><small>Receiving</small><b class="good-text">Open</b></div>
-        <div><small>Depot stock</small><b class="good-text">Allocated</b></div>
-        <div><small>Credit</small><b class="good-text">Available</b></div>
-        <div><small>Contract</small><b>Active</b></div>
-      </div>
-      <p class="small muted" style="margin:0;font-size:11px">Recommendations hard-filtered against receiving dock windows, distributor depot inventory, and customer credit limits.</p>
     </div>
 
-    
-    <div style="margin-top:8px">
+    <!-- Commercial Constraints & Coordination Fold -->
+    <details class="fold" style="margin-top:6px">
+      <summary style="font-size:11px">
+        <span style="display:inline-flex;align-items:center;gap:4px">${icon('shield', 14)} Constraints &amp; Coordination</span>
+        <span class="sum-end">${pill('All passed · Synced', 'good')}</span>
+      </summary>
+      <div style="padding:6px 8px;background:var(--surface-subtle);border-radius:var(--radius-sm);margin-top:4px">
+        <div class="facts" style="grid-template-columns:repeat(4,minmax(0,1fr));margin-bottom:6px">
+          <div><small>Receiving</small><b class="good-text">Open</b></div>
+          <div><small>Depot</small><b class="good-text">Allocated</b></div>
+          <div><small>Credit</small><b class="good-text">Available</b></div>
+          <div><small>Contract</small><b>Active</b></div>
+        </div>
+        <div style="display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:4px;font-size:10px;border-top:1px solid var(--line-soft);padding-top:4px">
+          <div><span class="muted">Merch:</span> <b class="good-text">07:30</b></div>
+          <div><span class="muted">Pre-Sell:</span> <b style="color:var(--accent)">Active</b></div>
+          <div><span class="muted">Driver:</span> <b>14:15</b></div>
+        </div>
+      </div>
+    </details>
+
+    <div style="margin-top:6px;display:flex;gap:6px">
       ${ui.accountAbsentRescheduled ? `
-        <div class="notice good">
+        <div class="notice good" style="flex:1;padding:4px 8px;font-size:11px">
           ${icon('check', 14)}
-          <span><b>Account closed / Buyer absent.</b> First reschedule within 14-day SLA window confirmed. Rep score protected.</span>
+          <span><b>Rescheduled.</b> Score protected.</span>
         </div>
         ${ui.rescheduleChainWarning ? `
-          <div class="notice warn" style="margin-top:4px">
+          <div class="notice warn" style="margin-top:4px;font-size:11px">
             ${icon('shield', 14)}
-            <span><b>Second reschedule attempted:</b> Requires District Field Manager approval. Score protection suspended until approved.</span>
+            <span><b>Second reschedule:</b> Requires manager approval.</span>
           </div>
         ` : `
           <button class="btn text sm" data-act="try-second-reschedule" data-id="${a.id}" style="font-size:10px;min-height:var(--tap);display:inline-flex;align-items:center;padding:0;color:var(--muted)">
-            Need to reschedule again? (Requires manager approval)
+            Need to reschedule again?
           </button>
         `}
       ` : `
-        <button class="btn secondary sm" data-act="record-absent" data-id="${a.id}" style="min-height:var(--tap);width:100%;font-size:11px">
-          ${icon('clock', 12)} Account closed / Buyer absent? Reschedule with SLA protection
+        <button class="btn secondary sm" data-act="record-absent" data-id="${a.id}" style="min-height:var(--tap);flex:1;font-size:11px;padding:4px 6px">
+          ${icon('clock', 12)} Buyer absent / Reschedule
         </button>
       `}
-    </div>
-
-    
-    <!-- Multi-Role Visit Coordination Hub -->
-    <div class="card tight" style="margin-top:8px;background:var(--surface-subtle);border:1px solid var(--line-soft)">
-      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px">
-        <b>Multi-role location coordination</b>
-        ${pill('Synchronized', 'good')}
-      </div>
-      <p class="small muted" style="margin:0 0 6px 0;font-size:11px">Shared graph across merchandiser, pre-sell rep, and delivery driver to prevent conflicting execution.</p>
-      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(95px,1fr));gap:4px;font-size:11px">
-        <div style="padding:4px 6px;background:var(--surface);border-radius:4px;border:1px solid var(--line-soft)">
-          <span class="muted">Merchandiser:</span>
-          <b style="display:block" class="good-text">Display set (07:30)</b>
-        </div>
-        <div style="padding:4px 6px;background:var(--surface);border-radius:4px;border:1px solid var(--line-soft)">
-          <span class="muted">Pre-Sell (You):</span>
-          <b style="display:block;color:var(--accent)">Active in-visit</b>
-        </div>
-        <div style="padding:4px 6px;background:var(--surface);border-radius:4px;border:1px solid var(--line-soft)">
-          <span class="muted">Driver Route:</span>
-          <b style="display:block">ETA 14:15 (Tomorrow)</b>
-        </div>
-      </div>
-    </div>
-
-    <!-- Rapid In-Visit Blitz Mode Bar -->
-    <div style="margin-top:8px;display:flex;justify-content:space-between;align-items:center;gap:8px">
-      <button class="btn ${ui.blitzMode ? 'primary' : 'secondary'} sm" data-act="toggle-blitz" style="min-height:var(--tap);flex:1;display:flex;align-items:center;justify-content:center;gap:6px">
-        ${icon('clock', 14)} ${ui.blitzMode ? 'Exit Rapid Blitz Mode' : 'Rapid In-Visit Blitz Mode (45s)'}
+      <button class="btn ${ui.blitzMode ? 'primary' : 'secondary'} sm" data-act="toggle-blitz" style="min-height:var(--tap);flex:1;font-size:11px;padding:4px 6px">
+        ${icon('clock', 12)} ${ui.blitzMode ? 'Exit Blitz' : 'Blitz Mode (45s)'}
       </button>
     </div>
     ${ui.blitzMode ? `

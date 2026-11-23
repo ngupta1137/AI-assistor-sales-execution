@@ -73,13 +73,38 @@ export function render(ctx) {
   const segment = 'All territory segments';
   const channel = 'Direct Field Sales';
   const repRole = ctx.industry.personas?.rep || 'Sales Rep';
-  const contextBar = `<div class="context-bar" style="background:var(--surface-subtle);border-left:3px solid var(--accent);padding:6px 10px;margin-bottom:var(--s3);border-radius:var(--radius-sm);font-size:11px;color:var(--muted)">
-    <span style="font-weight:600;color:var(--ink)">Recommendations apply to this context:</span> ${esc(market)}, ${esc(segment)}, ${esc(channel)}, ${esc(repRole)}
-  </div>`;
+  const contextBar = !ctx.ui?.contextBarDismissed ? `<div class="context-bar" style="background:var(--surface-subtle);border-left:3px solid var(--accent);padding:4px 8px;margin-bottom:var(--s2);border-radius:var(--radius-sm);font-size:11px;color:var(--muted);display:flex;align-items:center;justify-content:space-between;gap:8px">
+    <div><span style="font-weight:600;color:var(--ink)">Context:</span> ${esc(market)}, ${esc(segment)}, ${esc(channel)}, ${esc(repRole)}</div>
+    <button class="icon-btn sm" data-act="dismiss-context-bar" aria-label="Dismiss context info" style="min-height:var(--tap);min-width:var(--tap);flex:none">${icon('x', 14)}</button>
+  </div>` : '';
+
+  const heroHtml = ctx.ui?.briefsHeroDismissed ? `
+  <section class="hero compact-hero" style="padding:4px 10px;display:flex;flex-direction:row;align-items:center;justify-content:space-between;gap:8px">
+    <div style="display:flex;align-items:center;gap:6px;min-width:0">
+      <span class="hero-ic" style="width:28px;height:28px;border-radius:4px">${icon('agent', 16)}</span>
+      <span style="font-size:12px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis"><b>Briefs:</b> ${pending ? `${pending} to review` : 'Reviewed'}</span>
+    </div>
+    <div style="display:flex;align-items:center;gap:4px;flex:none">
+      <a class="btn primary sm" href="#/brief/${nextAcc.id}" id="overnight-banner" style="min-height:var(--tap);font-size:11px;padding:4px 10px">${esc(t(`Open: ${nextAcc.name}`))}${icon('chevron', 14)}</a>
+      <button class="icon-btn sm" data-act="restore-briefs-hero" aria-label="Expand briefs section" title="Expand briefs section" style="min-height:var(--tap);min-width:var(--tap)">${icon('chevron', 14)}</button>
+    </div>
+  </section>` : `
+  <section class="hero">
+    <div class="hero-top">
+      <span class="hero-ic">${icon('agent', 22)}</span>
+      <span class="row-main"><b>Briefs ready</b>
+      <small>${esc(t(`${ordered.length} {visit} briefs, ${totalActions} ranked actions, prepared overnight by 3 agents.`))}</small></span>
+      <div style="display:flex;align-items:center;gap:4px;flex:none">
+        ${pill(`${pending} to review`, pending ? 'warn' : 'good')}
+        <button class="icon-btn sm" data-act="dismiss-briefs-hero" aria-label="Dismiss briefs section" title="Dismiss briefs section" style="min-height:var(--tap);min-width:var(--tap);margin:-4px -4px 0 0">${icon('x', 16)}</button>
+      </div>
+    </div>
+    <a class="btn primary block" href="#/brief/${nextAcc.id}" id="overnight-banner">${esc(t(`Open next brief: ${nextAcc.name}`))}${icon('chevron', 18)}</a>
+  </section>`;
 
   return `${adhocModal}
   ${contextBar}
-  ${ctx.ui?.todayToast ? `<div class="notice good" style="margin-bottom:var(--s3)">${icon('check', 16)}<span>${esc(ctx.ui.todayToast)}</span></div>` : ''}
+  ${ctx.ui?.todayToast ? `<div class="notice good" style="margin-bottom:var(--s2)">${icon('check', 16)}<span>${esc(ctx.ui.todayToast)}</span></div>` : ''}
   <section class="page-head">
     <h1>${greeting()}, ${esc(data.rep.first)}</h1>
     <p class="muted">${esc(fmt.weekday(today))} ${esc(fmt.dateShort(today))} · ${esc(data.city.name)} · ${ordered.length} ${esc(t('{visits}'))} planned</p>
@@ -87,29 +112,26 @@ export function render(ctx) {
 
   ${stopped.length ? `<div class="notice warn">${icon('stop', 18)}<span>${esc(stopped.map((a) => AGENT_LABEL[a.id]).join(', '))} stopped. Its items are paused in every brief.</span></div>` : ''}
 
-  <section class="hero">
-    <div class="hero-top">
-      <span class="hero-ic">${icon('agent', 22)}</span>
-      <span class="row-main"><b>Briefs ready</b>
-      <small>${esc(t(`${ordered.length} {visit} briefs, ${totalActions} ranked actions, prepared overnight by 3 agents.`))}</small></span>
-      ${pill(`${pending} to review`, pending ? 'warn' : 'good')}
-    </div>
-    <a class="btn primary block" href="#/brief/${nextAcc.id}" id="overnight-banner">${esc(t(`Open next brief: ${nextAcc.name}`))}${icon('chevron', 18)}</a>
-  </section>
+  ${heroHtml}
   ${fieldNotices(ctx)}
 
   <div class="quick tight">
     <a class="btn secondary" href="#/route" id="open-route">${icon('route', 20)}Route plan</a>
     <a class="btn secondary" href="#/ask" id="open-ask">${icon('ask', 20)}Ask AI</a>
   </div>
-  <button class="btn secondary sm" data-act="open-adhoc" style="min-height:var(--tap);margin-bottom:var(--s3);width:100%">${icon('route', 16)} Log ad-hoc customer drop-in</button>
+  <button class="btn secondary sm" data-act="open-adhoc" style="min-height:var(--tap);margin-bottom:var(--s2);width:100%">${icon('route', 16)} Log ad-hoc customer drop-in</button>
+
+  <section>
+    <div class="section-head"><h2>${esc(t("Today's {accounts}"))}</h2><small>Ranked by estimated opportunity</small></div>
+    <ol class="group list">${rows}</ol>
+  </section>
 
   <!-- Field Rep Analytics Hub: Daily, Weekly, Monthly Views Against Target -->
-  <section class="card tight" style="margin-bottom:var(--s3)">
+  <section class="card tight" style="margin-top:var(--s3);margin-bottom:var(--s2)">
     <div class="stat-row"><span class="small muted">Month to date</span><span class="small"><b class="money">${esc(fmt.moneyShort(tr.achieved))}</b> of ${esc(fmt.moneyShort(tr.target))} · ${pct}%</span></div>
     ${bar(tr.achieved, tr.target)}
 
-    <div style="display:flex;justify-content:space-between;align-items:center;margin-top:10px;margin-bottom:8px;flex-wrap:wrap;gap:6px;border-top:1px solid var(--line-soft);padding-top:8px">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-top:8px;margin-bottom:6px;flex-wrap:wrap;gap:6px;border-top:1px solid var(--line-soft);padding-top:6px">
       <b>Performance analytics</b>
       <div class="seg-ctl" role="group" aria-label="Analytics timeframe">
         <button class="seg ${(ctx.ui?.repTf || 'daily') === 'daily' ? 'on' : ''}" data-act="set-rep-tf" data-tf="daily" style="min-height:var(--tap);min-width:44px;font-size:11px">Daily</button>
@@ -315,11 +337,6 @@ export function render(ctx) {
     </div>
   </section>
 
-  <section>
-    <div class="section-head"><h2>${esc(t("Today's {accounts}"))}</h2><small>Ranked by estimated opportunity</small></div>
-    <ol class="group list">${rows}</ol>
-  </section>
-
   <details class="fold" id="territory">
     <summary>${esc(t('{Territory}'))}<span class="sum-end">${esc(kpiValue(kpi, tr.headlineKpi.value, fmt))}</span></summary>
     <div class="facts">
@@ -332,6 +349,9 @@ export function render(ctx) {
 }
 
 export const actions = {
+  'dismiss-briefs-hero': ({ ctx }) => { (ctx.ui ||= {}).briefsHeroDismissed = true; },
+  'restore-briefs-hero': ({ ctx }) => { (ctx.ui ||= {}).briefsHeroDismissed = false; },
+  'dismiss-context-bar': ({ ctx }) => { (ctx.ui ||= {}).contextBarDismissed = true; },
   'set-rep-tf': ({ ctx, data }) => {
     (ctx.ui ||= {}).repTf = data.tf;
   },
