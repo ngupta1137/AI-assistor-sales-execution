@@ -697,7 +697,5 @@ body.text-size-lg {
 [dir="rtl"] .back { flex-direction: row-reverse; }
 [dir="rtl"] .btn-row { flex-direction: row-reverse; }
 [dir="rtl"] .facts { direction: rtl; }
-[dir="rtl"] .as-launcher { right: auto; left: var(--s4, 16px); }
-[dir="rtl"] .lab-btn { left: auto; right: var(--s4, 16px); }
-[dir="rtl"] .try-case-btn { left: auto; right: var(--s4, 16px); }
+/* Floating demo buttons keep their LTR corners in RTL: mirrored, they covered the primary action buttons (Mark done). */
 [dir="rtl"] .tbl th, [dir="rtl"] .tbl td { text-align: right; }
