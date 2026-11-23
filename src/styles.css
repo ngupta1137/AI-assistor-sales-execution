@@ -767,6 +767,6 @@ body.text-size-lg {
 .jump { flex-wrap: nowrap; overflow-x: auto; scrollbar-width: none; max-width: 100%; }
 .jump a { flex: none; white-space: nowrap; }
 .logo { min-width: var(--tap); justify-content: center; }
-.num, .money, .facts b.num, .stat-row .num { white-space: nowrap; overflow-wrap: normal; word-break: keep-all; }
+.facts b.tnum, .stat-row .tnum { white-space: nowrap; overflow-wrap: normal; }
 .stat-row > span:last-child { flex: none; }
 .tnum { font-variant-numeric: tabular-nums; white-space: nowrap; }
