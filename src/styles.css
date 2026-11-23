@@ -1,6 +1,6 @@
 /* AI Assistor design system. Light, quiet, one accent. System fonts and inline SVG only. */
 :root {
-  color-scheme: light;
+  color-scheme: light dark;
   --font-ui: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
   --bg: #F4F6F8;
   --stage-bg: #E9EDF2;
@@ -44,13 +44,43 @@
   -webkit-font-smoothing: antialiased;
   text-size-adjust: 100%;
 }
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #0B1120;
+    --stage-bg: #020617;
+    --surface: #1E293B;
+    --surface-subtle: #172033;
+    --surface-inset: #0F172A;
+    --ink: #F8FAFC;
+    --ink-2: #E2E8F0;
+    --muted: #94A3B8;
+    --line: #334155;
+    --line-soft: #1E293B;
+    --control-line: #64748B;
+    --inverse-bg: #F8FAFC;
+    --good: #34D399; --good-bg: rgba(16, 185, 129, 0.2);
+    --warn: #FBBF24; --warn-bg: rgba(245, 158, 11, 0.2);
+    --bad: #F87171; --bad-bg: rgba(239, 68, 68, 0.2);
+    --info: #60A5FA; --info-bg: rgba(59, 130, 246, 0.2);
+    --accent-soft: rgba(15, 118, 110, 0.25);
+    --accent-line: rgba(15, 118, 110, 0.45);
+    --disabled-bg: #1E293B;
+    --disabled-ink: #64748B;
+    --overlay: rgb(0 0 0 / 60%);
+    --shadow-1: 0 1px 2px rgb(0 0 0 / 20%);
+    --shadow-2: 0 4px 12px rgb(0 0 0 / 30%);
+    --shadow-3: 0 16px 40px rgb(0 0 0 / 50%);
+  }
+}
 @media (prefers-reduced-motion: reduce) {
   :root { --motion-fast: 0ms; --motion-base: 0ms; --motion-sheet: 0ms; }
   *, *::before, *::after { animation: none !important; transition: none !important; }
 }
 * { box-sizing: border-box; }
-html, body { margin: 0; height: 100%; background: var(--bg); }
-body { font-size: var(--text-md); line-height: 24px; }
+html, body { margin: 0; height: 100%; background: var(--bg); color: var(--ink); }
+body { font-size: var(--text-md); line-height: 24px; color: var(--ink); }
+h1, h2, h3, h4, h5, h6 { color: var(--ink) !important; }
+h1:hover, h2:hover, h3:hover, h4:hover, h5:hover, h6:hover { color: var(--ink) !important; }
 h1 { font-size: 20px; line-height: 26px; font-weight: 700; margin: 0 0 var(--s1); letter-spacing: -.01em; overflow-wrap: anywhere; }
 h2 { font-size: var(--text-lg); line-height: 26px; font-weight: 600; margin: 0; }
 h3 { font-size: var(--text-md); line-height: 24px; font-weight: 600; margin: 0; overflow-wrap: anywhere; }
@@ -349,8 +379,8 @@ details[open] > summary::after { transform: rotate(-135deg); }
 .setup-head { display: flex; flex-direction: column; gap: var(--s2); }
 .setup-brand { display: flex; align-items: center; gap: var(--s2); font-weight: 700; }
 .setup-brand .mark { background: var(--inverse-bg); }
-.setup-head h1 { font-size: var(--text-xl); }
-.setup-step { font-size: var(--text-md); font-weight: 600; margin-bottom: var(--s3); }
+.setup-head h1 { font-size: var(--text-xl); color: var(--ink) !important; }
+.setup-step { font-size: var(--text-md); font-weight: 600; margin-bottom: var(--s3); color: var(--ink) !important; }
 .choice-list { list-style: none; margin: 0; padding: 0; background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius-md); overflow: hidden; }
 .choice-list li + li { border-top: 1px solid var(--line-soft); }
 .choice { display: flex; align-items: center; gap: var(--s3); width: 100%; min-height: 52px; padding: 6px var(--s3); background: var(--surface); border: 0; text-align: left; cursor: pointer; color: var(--ink); }
@@ -644,7 +674,7 @@ body.text-size-lg {
 .tap-check:has(input:focus-visible) { outline: 2px solid var(--accent); outline-offset: 2px; }
 
 /* Execution system (X1 to X10) */
-.sys-h2 { font-size: var(--text-md); margin: var(--s4) 0 var(--s2); display: flex; flex-wrap: wrap; align-items: baseline; gap: var(--s2); }
+.sys-h2 { font-size: var(--text-md); margin: var(--s4) 0 var(--s2); display: flex; flex-wrap: wrap; align-items: baseline; gap: var(--s2); color: var(--ink) !important; }
 .sys-h2 small { font-weight: 500; font-size: var(--text-xs); }
 #screen > .card + .card, #screen > .card + .notice, #screen > .notice + .card, #screen > .sys-h2 + .card { margin-top: var(--s3); }
 .cap-card.cap-off { opacity: .78; }
