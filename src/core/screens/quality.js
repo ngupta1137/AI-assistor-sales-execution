@@ -9,15 +9,16 @@ export function render(ctx) {
 
   // Real test counts from build or fallback
   const testCounts = {
-    industries: 20,
+    industries: 21,
     countries: 11,
-    personas: 3,
-    staticChecks: 333318,
-    assistantUnitChecks: 667760,
-    companionUnitChecks: 29028,
+    personas: 7,
+    staticChecks: 426139,
+    assistantUnitChecks: 697284,
+    companionUnitChecks: 30494,
     floatingCollisionAssertions: 27,
-    totalAssertions: 1030663,
-    executionTimeMs: 1420,
+    browserAssertions: 81211 + 438144 + 54391,
+    totalAssertions: 426139 + 697284 + 30494 + 27 + 81211 + 438144 + 54391,
+    runMinutes: 57,
     buildStatus: 'Passing',
     gateStatus: 'Go',
   };
@@ -356,9 +357,9 @@ export function render(ctx) {
     <section class="card">
       <div class="section-head" style="margin-bottom:8px">
         <h2>Automated Regression Verification Counts</h2>
-        ${pill('Real Build Counts', 'good')}
+        ${pill('Recorded run', 'good')}
       </div>
-      <p class="small muted" style="margin-bottom:12px">Real test metrics consumed live from the build artifact. No mocked test figures.</p>
+      <p class="small muted" style="margin-bottom:12px">Counts recorded from the last full test run and updated at each release.</p>
 
       <div class="facts" style="grid-template-columns:repeat(auto-fit,minmax(130px,1fr));margin-bottom:14px">
         <div><small>Industries verified</small><b>${testCounts.industries} Packs</b></div>
@@ -368,9 +369,9 @@ export function render(ctx) {
         <div><small>Assistant unit checks</small><b>${testCounts.assistantUnitChecks.toLocaleString()}</b></div>
         <div><small>Companion unit checks</small><b>${testCounts.companionUnitChecks.toLocaleString()}</b></div>
         <div><small>Collision assertions</small><b>${testCounts.floatingCollisionAssertions}</b></div>
-        <div><small>Total live assertions</small><b class="good-text">${testCounts.totalAssertions.toLocaleString()}</b></div>
+        <div><small>Total assertions</small><b class="good-text">${testCounts.totalAssertions.toLocaleString()}</b></div>
       </div>
-      <div class="small muted">Execution velocity: <b>${testCounts.executionTimeMs} ms</b>. Status: <b>100% Green (Zero regressions)</b>.</div>
+      <div class="small muted">Last full run: about <b>${testCounts.runMinutes} min</b> including ${testCounts.browserAssertions.toLocaleString('en-US')} browser assertions. Status: <b>all passing</b> on the recorded run.</div>
     </section>
   ` : tab === 'errors' ? `
     <!-- E6 Error Rate Budgets -->

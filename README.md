@@ -257,7 +257,7 @@ Regression checks from the October 2026 functional review are part of the suite:
 
 **Assistant checks.** `tests/assistant-unit.mjs` answers every suggested question on every screen for every persona, industry and country without a browser (249,720 checks). `tests/assistant.mjs` (about 10 minutes with 4 workers; it uses Playwright's controlled clock for the 400 to 700 ms typing delay) opens every screen in all 220 combinations for the rep and the manager, clicks every suggested question and checks for an answer, a "Based on" line, no leftover token, no wrong-industry word and no console error. It also covers the guardrail refusals and audit entries, an answer that reflects an override, the focus trap, Escape and tap targets, navigation that never submits, the shared conversation, the presenter toggle, `?assistant=off`, the Setup questions, and that the live provider is absent from the build.
 
-Last full run: static 193,616 checks; assistant engine 609,372; Companion engine 29,028; browser suite 220 combinations, 3 personas, 16,250 screens, 62,663 assertions; assistant suite 22,440 questions, 380,806 assertions; Companion suite 8,800 screens, 220 flows, 51,816 assertions. All passing.
+Last full run: static 426,139 checks; assistant engine 697,284; Companion engine 30,494; browser suite 231 combinations, up to 7 personas, 20,370 screens, 81,211 assertions; assistant suite 231 combinations, 26,103 questions, 438,144 assertions; Companion suite 231 combinations, 54,391 assertions.
 
 ## Publish on GitHub Pages
 
