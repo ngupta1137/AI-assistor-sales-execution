@@ -6,6 +6,6 @@
 - No performance claims; all numbers are sample data and labelled as such.
 - UI copy: plain language, short sentences, no em dashes, no hype words.
 - Regulated industries: no clinical claims (pharma, medical devices); agents never set price or approve credit (financial services); crop-protection advice follows the label (agri).
-- Git: commit after each meaningful step and push immediately. Never force-push or rewrite history. If you cannot push to `main`, push to your branch and open a pull request into `main`.
+- Git: work on a branch, commit after each meaningful step and push it. Never push to `main`, never force-push or rewrite history. Merge through a pull request; `main` requires the CI check "Build and tests" (see AGENTS.md).
 - Before finishing any task: run `npm test` (all industry x country combinations) and `npm run build` (refreshes `docs/index.html`), and commit the build.
 - Live demo (Vercel, deploys from `main`): https://ai-assistor-sales-execution.vercel.app . Use this link when you tell the user where to look. The older address ai-assistor.vercel.app is retired.
