@@ -280,13 +280,13 @@ function renderItem(ctx, it, isNext, a, itemIndex) {
       controls = `<div class="decide-row">
         <span class="small muted" style="align-self:center;font-size:11px">Read wording above to approve.</span>
         <button class="btn secondary" data-act="panel" data-id="${it.id}" data-kind="adjust">Adjust</button>
-        <button class="btn secondary" data-act="panel" data-id="${it.id}" data-kind="override">Override</button>
+        <button class="btn text danger" data-act="panel" data-id="${it.id}" data-kind="override">Override</button>
       </div>`;
     } else {
       controls = `<div class="decide-row">
         <button class="btn primary" data-act="decide" data-id="${it.id}" data-status="approved">Approve</button>
         <button class="btn secondary" data-act="panel" data-id="${it.id}" data-kind="adjust">Adjust</button>
-        <button class="btn secondary" data-act="panel" data-id="${it.id}" data-kind="override">Override</button>
+        <button class="btn text danger" data-act="panel" data-id="${it.id}" data-kind="override">Override</button>
       </div>`;
     }
   } else {
@@ -301,14 +301,10 @@ function renderItem(ctx, it, isNext, a, itemIndex) {
     : `<div style="margin:4px 0"><button class="btn text sm flag-link" data-act="open-flag-sheet" data-id="${it.id}" style="min-height:var(--tap);display:inline-flex;align-items:center;padding:0 8px;font-size:11px;color:var(--muted)">${icon('flag', 12)} Flag this recommendation</button></div>`;
 
   // G2 Chips row
-  const chipsRow = `<div class="rule-chips" data-act="open-rule-drawer" data-id="${it.id}" data-rule="${rule.id}" role="button" tabindex="0" aria-label="Rule details" style="cursor:pointer;display:flex;gap:4px;flex-wrap:wrap;align-items:center;margin:6px 0;min-height:var(--tap)">
-    ${pill('Rule approved', 'good')}
-    ${pill('In date', 'info')}
-    ${pill('Applies here', 'good')}
-    ${pill(rule.version || 'v2.4', 'muted')}
+  const chipsRow = `<button class="rule-chips" data-act="open-rule-drawer" data-id="${it.id}" data-rule="${rule.id}" aria-label="Rule details">
+    ${pill(`Rule approved · ${rule.version || 'v2.4'}`, 'good')}
     ${isExact ? pill('Exact wording', 'warn') : ''}
-    ${isExact ? pill('Wording approved', 'good') : ''}
-  </div>`;
+  </button>`;
 
   // G6 Record kept
   const evtId = 1000 + (Math.abs(rule.id.length * 37 + it.id.length * 13) % 9000);
@@ -328,20 +324,16 @@ function renderItem(ctx, it, isNext, a, itemIndex) {
 
   const lead = it.kind === 'plan' ? icon('route', 16) : it.kind === 'order' ? icon('cart', 16) : it.rank;
   return `<article class="item ${state}${isNext ? ' next' : ''}" id="item-${it.id}" data-item="${it.id}" data-kind="${it.kind}" data-state="${state}">
-    <div class="item-head">${agentTag(it.agent)}${it.overBudget ? pill('If time allows', 'muted') : ''}<span class="state">${pill(stateLabel[0], stateLabel[1])}</span></div>
+    <div class="item-head">${agentTag(it.agent)}${confBadge(it.confidence)}${it.overBudget ? pill('If time allows', 'muted') : ''}<span class="state">${pill(stateLabel[0], stateLabel[1])}</span></div>
     <div class="item-title"><span class="rank">${lead}</span><h3>${esc(t(it.title, v))}</h3></div>
-    ${chipsRow}
-    <div style="margin:4px 0 6px 0;padding:4px 6px;background:var(--surface-subtle);border-radius:4px;border-left:3px solid var(--accent);font-size:11px">
-      <b>Rationale:</b> ${esc(t(it.saw, v).replace(/\.+\s*$/, '')).slice(0, 110)}.
-    </div>
-    <div class="metrics"><span>${esc(valueText)}</span>${it.effort ? `<span>${icon('clock', 16)} ${it.effort} min</span>` : ''}${confBadge(it.confidence)}</div>
+    <dl class="evi-grid">
+      <div><dt>Saw</dt><dd>${esc(t(it.saw, v))}</dd></div>
+      <div><dt>Compared</dt><dd>${esc(t(it.compared, v))}</dd></div>
+    </dl>
+    <div class="metrics"><span class="num">${esc(valueText)}</span>${it.effort ? `<span>${icon('clock', 14)} ${it.effort} min</span>` : ''}${chipsRow}</div>
     ${outcomeUi}
     ${exactBox}
-    <details class="evi"${isNext ? ' open' : ''}><summary>What the agent saw</summary>
-      <dl class="evidence">
-        <dt>Saw</dt><dd>${esc(t(it.saw, v))}</dd>
-        <dt>Compared</dt><dd>${esc(t(it.compared, v))}</dd>
-      </dl>
+    <details class="evi"><summary>Audit record</summary>
       ${recordKept}
     </details>
     ${flagHtml}
@@ -480,10 +472,7 @@ export function render(ctx, [accountId]) {
     <p class="small muted">${esc(typeLine(t, a))} · ${esc(a.area)} · Tier ${a.tier}</p>
     <p class="small">${esc(fmt.time(p.start))} · ${a.visitMinutes} min · ${esc(contact.name)}, ${esc(t(contact.role))}</p>
     <div style="margin-top:6px;padding:6px 10px;background:var(--surface-subtle);border-radius:var(--radius-sm);border:1px solid var(--line-soft)">
-      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px">
-        <small style="font-weight:600">${esc(t('Objective'))}: ${pill(t(OBJ), 'good')}</small>
-        <span class="small muted">${a.visitMinutes} min planned</span>
-      </div>
+      <span class="eyebrow">${esc(t('Call objective'))}</span>
       <div class="seg-ctl" role="group" aria-label="${esc(t('Call objective'))}">
         ${BF.objectives.map((o) => `<button class="seg ${OBJ === o ? 'on' : ''}" data-act="set-objective" data-obj="${esc(o)}" style="min-height:var(--tap);min-width:var(--tap)">${esc(t(o))}</button>`).join('')}
       </div>
@@ -544,6 +533,7 @@ export function render(ctx, [accountId]) {
   </div>
 
   <div class="counts tight" id="counts" aria-live="polite">
+    <span data-count="total"><b>${items.length}</b>Total</span>
     <span data-count="approved"${bump('approved')}><b>${c.approved}</b>Approved</span>
     <span data-count="adjusted"${bump('adjusted')}><b>${c.adjusted}</b>Adjusted</span>
     <span data-count="overridden"${bump('overridden')}><b>${c.overridden}</b>Overridden</span>

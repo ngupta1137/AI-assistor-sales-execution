@@ -79,19 +79,19 @@ export function render(ctx) {
       </div>
     ` : ''}
   </details>
-  <details class="fold" id="rules-workbench"${ctx.ui?.rulesWorkbenchOpen ? ' open' : ''}><summary>Business Rules Ingestion Workbench (Excel &amp; PDF Policy Upload)<span class="sum-end">Policy Engine</span></summary>
+  <details class="fold" id="rules-workbench"${ctx.ui?.rulesWorkbenchOpen ? ' open' : ''}><summary>Business rules workbench<span class="sum-end">Excel, CSV, PDF</span></summary>
     <p class="small muted" style="margin-bottom:8px">Import enterprise commercial policies, discount thresholds, regulatory guardrails, and approval rules directly from spreadsheets (.xlsx, .csv) or policy SOP documents (.pdf, text).</p>
     
     <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:8px">
-      <button class="btn secondary sm" data-act="load-sample-rules-excel" style="min-height:var(--tap);flex:1;font-size:11px">${icon('note', 14)} Load Excel Trade Policy (.xlsx / .csv)</button>
-      <button class="btn secondary sm" data-act="load-sample-rules-pdf" style="min-height:var(--tap);flex:1;font-size:11px">${icon('brief', 14)} Load Regulatory Policy SOP (.pdf / doc)</button>
+      <button class="btn secondary sm outline-badge" data-act="load-sample-rules-excel">${icon('note', 14)} Load sample trade policy sheet</button>
+      <button class="btn secondary sm outline-badge" data-act="load-sample-rules-pdf">${icon('brief', 14)} Load sample policy document</button>
     </div>
 
     <div style="margin-bottom:8px">
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px">
         <label class="small" style="font-weight:600">Rule Data / Policy Text</label>
-        <label class="btn secondary sm" style="min-height:var(--tap);padding:4px 10px;cursor:pointer;font-size:11px;display:inline-flex;align-items:center;gap:4px">
-          ${icon('sync', 12)} Choose File (.xlsx, .csv, .pdf, .txt)
+        <label class="drop-zone">
+          ${icon('sync', 14)} <span><b>Choose a file</b> <small class="muted">CSV or text is read here. Excel and PDF: export to CSV or paste the clauses.</small></span>
           <input type="file" id="rule-file-input" accept=".xlsx,.xls,.csv,.pdf,.txt" style="display:none" data-change="rule-file-selected">
         </label>
       </div>
@@ -502,16 +502,22 @@ export const actions = {
     ctx.ui.rulesParsed = false;
   },
 
-  'rule-file-selected': ({ ctx, el }) => {
+  'rule-file-selected': ({ ctx, el, api }) => {
     const file = el.files?.[0];
     if (!file) return;
+    const ui = (ctx.ui ||= {});
+    ui.rulesWorkbenchOpen = true;
+    ui.rulesParsed = false;
+    // No parsing libraries ship with the prototype: CSV and text are read here; Excel and PDF need a CSV export or pasted clauses.
+    if (!/\.(csv|txt)$/i.test(file.name)) {
+      ui.rulesToast = `${file.name}: this prototype reads CSV and text files in the browser. Save the sheet as CSV, or paste the policy clauses below.`;
+      return;
+    }
     const reader = new FileReader();
     reader.onload = (e) => {
-      const text = e.target.result;
-      (ctx.ui ||= {}).rulesDraft = typeof text === 'string' ? text : `[Ingested File: ${file.name} (${Math.round(file.size / 1024)} KB)]\nRule ID, Title, Category, Condition, Approver Role, Enforcement\nORD-TH-01, High-Value Order Threshold, order, Total order exceeds $25000, Commercial Director, Needs approval\nDSC-TIER-02, Tier-2 Promo Discount Ceiling, order, Promotional line discount exceeds quota, Key Account Lead, Blocked\nPRQ-SURV-03, Technical Site Survey Audit, prerequisite, Requires verified technical audit before quote generation, Area Sales Manager, Blocked\nREG-LBL-04, Strict Regulatory Compliance, guardrail, Product detailing must follow approved label specs, Compliance Officer, Exact wording`;
-      ctx.ui.rulesWorkbenchOpen = true;
-      ctx.ui.rulesParsed = false;
-      ctx.ui.rulesToast = `Loaded file: ${file.name}. Click "Validate & Extract Rules" to parse.`;
+      ui.rulesDraft = String(e.target.result || '');
+      ui.rulesToast = `Loaded ${file.name}. Select Validate and extract rules to parse it.`;
+      api.render();
     };
     reader.readAsText(file);
   },

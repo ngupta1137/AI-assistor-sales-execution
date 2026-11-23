@@ -132,7 +132,7 @@ for (const p of INDUSTRIES) {
 }
 
 // 5. Core screens must not hard-code industry nouns: they come from vocabulary tokens.
-const NOUNS = ['store', 'stores', 'shop', 'shops', 'clinic', 'clinics', 'hospital', 'hospitals', 'pharmacy', 'dealer', 'dealers', 'outlet', 'outlets', 'merchant', 'merchants', 'workshop', 'workshops', 'SKU', 'SKUs', 'doctor', 'physician', 'farmer', 'farmers', 'shelf', 'HCP', 'patient', 'contractor', 'retailer'];
+const NOUNS = ['store', 'stores', 'shop', 'shops', 'clinic', 'clinics', 'hospital', 'hospitals', 'pharmacy', 'dealer', 'dealers', 'outlet', 'outlets', 'merchant', 'merchants', 'workshop', 'workshops', 'SKU', 'SKUs', 'doctor', 'physician', 'farmer', 'farmers', 'shelf', 'shelves', 'HCP', 'HCPs', 'patient', 'patients', 'contractor', 'contractors', 'retailer', 'retailers', 'doctors', 'physicians', 'pharmacies'];
 for (const f of srcFiles.filter((x) => x.includes(`${path.sep}core${path.sep}`) || x.includes(`${path.sep}data${path.sep}`))) {
   const code = stripComments(await readFile(f, 'utf8'));
   const literals = code.match(/'(?:[^'\\]|\\.)*'|`(?:[^`\\]|\\.)*`|"(?:[^"\\]|\\.)*"/g) || [];

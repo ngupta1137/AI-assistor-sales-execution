@@ -1,4 +1,4 @@
-// Comprehensive Domain Intelligence for all 20 industry verticals.
+// Comprehensive Domain Intelligence for all 21 industry verticals.
 // Captures authentic route-to-market channels, frontline friction, decision trees,
 // regulatory firewalls, and deep operational use cases.
 // Fictional demonstration content. Plain language, short sentences, zero em dashes.
@@ -17,7 +17,7 @@ export const DOMAIN_INTELLIGENCE = {
       {
         title: 'Phantom inventory and back-room disconnect',
         friction: 'Retailer inventory systems report stock present, but the shelf sits empty while cases gather dust in the stockroom.',
-        costOfFailure: 'Shoppers substitute the competitor brand within 8 seconds. Up to 15% of promotional lift is lost.',
+        costOfFailure: 'Shoppers who cannot find the line switch to another brand, and the promotion pays for traffic it does not convert.',
         solvedBy: 'Diagnostics agent flags out-of-stock from computer vision shelf scans and prompts stockroom retrieval before ordering.'
       },
       {
@@ -95,7 +95,7 @@ export const DOMAIN_INTELLIGENCE = {
         scenario: 'A major supermarket has paid promotion space booked for sparkling beverages starting Thursday morning.',
         agentPreparation: 'Planner identifies the promotional start date, confirms POS material in the rep vehicle, and generates display task.',
         repExecution: 'Rep arrives at 8:00 AM, confirms pallet delivery at the dock, builds the aisle-end display, and captures verification photo.',
-        verifiedOutcome: 'Display live 24 hours before weekend traffic surge; 34% volume lift captured with verified photo proof.'
+        verifiedOutcome: 'Display is live before the weekend, with photo proof attached to the visit record.'
       },
       {
         title: 'Independent grocer whitespace expansion',
@@ -138,7 +138,7 @@ export const DOMAIN_INTELLIGENCE = {
       {
         title: 'Retail pharmacy prescription leakage',
         friction: 'Hospitals prescribe the therapy, but local retail pharmacies do not stock it, forcing patient substitution.',
-        costOfFailure: 'Up to 30% first-fill abandonment; wasted specialist detailing effort.',
+        costOfFailure: 'Patients who never fill the first prescription, and specialist detailing effort that goes nowhere.',
         solvedBy: 'Route planner links high-prescribing clinic clusters to surrounding dispensing pharmacies for immediate stocking calls.'
       },
       {
@@ -198,7 +198,7 @@ export const DOMAIN_INTELLIGENCE = {
         scenario: 'A major hospital added Zentrova to its formulary 3 weeks ago, but ward junior doctors still prescribe the old generic.',
         agentPreparation: 'System alerts rep that formulary listing is active and schedules calls with department registrars.',
         repExecution: 'Rep details the approved hospital protocol changes with the lead registrar and leaves approved pocket dosing guides.',
-        verifiedOutcome: 'First hospital pharmacy bulk reorder triggered within 10 days; 100% adherence to approved medical leave-behinds.'
+        verifiedOutcome: 'Hospital pharmacy reorder raised through the normal channel; only approved leave-behind material used.'
       },
       {
         title: 'Surrounding pharmacy buffer stock replenishment',
@@ -308,7 +308,7 @@ export const DOMAIN_INTELLIGENCE = {
         scenario: 'Hospital consignment locker contains trauma screw kits approaching 90-day sterile packaging expiration.',
         agentPreparation: 'Diagnostic agent scans inventory timestamps and alerts rep to rotate 4 expiring sets to high-volume trauma center.',
         repExecution: 'Rep inspects sterile blister packs, arranges swap with materials management, and replenishes fresh lot numbers.',
-        verifiedOutcome: 'Avoided \$4,800 inventory write-down; zero sterile expiry incidents during regulatory audit.'
+        verifiedOutcome: 'Short-dated stock rotated before expiry; the audit trail shows each lot checked.'
       }
     ]
   },
@@ -404,7 +404,7 @@ export const DOMAIN_INTELLIGENCE = {
         scenario: 'A city-center mini-mart placed dairy products and competitor energy drinks into the company-owned beverage cooler.',
         agentPreparation: 'Computer vision identifies 3 non-authorized SKUs occupying 40% of the middle shelf in last week photo.',
         repExecution: 'Rep shows the store manager the contract chiller terms, assists in relocating dairy items, and restocks cold tea.',
-        verifiedOutcome: '100% brand purity restored; cold beverage impulse sales increased by 28% over 14 days.'
+        verifiedOutcome: 'Cooler restored to the agreed planogram, with photo proof on the visit record.'
       },
       {
         title: 'Festival weekend draught surge buffer preparation',
@@ -507,13 +507,13 @@ export const DOMAIN_INTELLIGENCE = {
         scenario: 'A general contractor begins framing on a 40-unit residential build in 10 days.',
         agentPreparation: 'Takeoff module calculates required dimensional lumber, structural fasteners, and sheathing panels.',
         repExecution: 'Rep reviews delivery phases with the site superintendent, confirms crane staging area, and locks 3-truck delivery schedule.',
-        verifiedOutcome: 'First truck staged at 6:45 AM; zero framing downtime; \$68,000 commercial order booked on time.'
+        verifiedOutcome: 'First truck staged before the crew starts; the order is booked against the confirmed delivery window.'
       },
       {
         title: 'Contractor annual rebate tier acceleration',
-        scenario: 'A major framing contractor is \$12,000 short of unlocking their 3% annual rebate tier before fiscal year-end.',
+        scenario: 'A major framing contractor is $12,000 short of unlocking their 3% annual rebate tier before fiscal year-end.',
         agentPreparation: 'Account intelligence identifies the gap and matches it to upcoming sheathing orders on their secondary build.',
-        repExecution: 'Rep presents the rebate ROI calculation to the owner, showing that consolidating orders earns \$8,400 in rebate savings.',
+        repExecution: 'Rep presents the rebate ROI calculation to the owner, showing that consolidating orders earns $8,400 in rebate savings.',
         verifiedOutcome: 'Contractor consolidates all dry-in materials; annual account retention secured for another 12 months.'
       }
     ]
@@ -617,7 +617,7 @@ export const DOMAIN_INTELLIGENCE = {
         scenario: 'A 3,500-acre soybean producer is finalizing seed hybrid selections for next spring planting.',
         agentPreparation: 'Synthesizes weigh-wagon harvest data from neighboring test plots showing a 4.2 bushel advantage for the new trait.',
         repExecution: 'Rep presents the localized yield comparison, structures an early-order volume discount, and secures financing sign-off.',
-        verifiedOutcome: 'Grower commits 100% of soybean acreage to priority hybrid seed; delivery scheduled for early spring.'
+        verifiedOutcome: 'Grower confirms the seed plan for the season; delivery is scheduled for early spring.'
       }
     ]
   },
@@ -640,7 +640,7 @@ export const DOMAIN_INTELLIGENCE = {
       },
       {
         title: 'VIN-specific fitment verification errors and high return rates',
-        friction: 'Reps and counter staff order parts without precise VIN verification, resulting in a 25% return rate of opened, greasy boxes.',
+        friction: 'Reps and counter staff order parts without checking the VIN, so wrong parts come back opened and unsellable.',
         costOfFailure: 'Restocking costs, damaged packaging write-offs, and wasted hot-shot delivery runs.',
         solvedBy: 'Integrated VIN scanner and fitment engine verifies exact sub-model, engine code, and brake rotor diameter before order.'
       },
@@ -717,10 +717,10 @@ export const DOMAIN_INTELLIGENCE = {
       },
       {
         title: 'Core deposit recovery and credit release',
-        scenario: 'A major transmission shop has \$4,200 in pending core deductions blocking their open credit line.',
+        scenario: 'A major transmission shop has $4,200 in pending core deductions blocking their open credit line.',
         agentPreparation: 'Generates core audit manifest listing 8 unreturned remanufactured transmissions and steering racks.',
         repExecution: 'Rep inspects scrap pallets, scans serial tags on 6 valid cores, and issues instant electronic credit release.',
-        verifiedOutcome: 'Credit hold cleared on the spot; shop orders \$7,800 in new commercial fleet parts for immediate dispatch.'
+        verifiedOutcome: 'Credit desk clears the hold through the normal approval; the fleet parts order is released for dispatch.'
       }
     ]
   },
@@ -814,7 +814,7 @@ export const DOMAIN_INTELLIGENCE = {
       {
         title: 'Labor-saving sous-vide braised beef chef demonstration',
         scenario: 'A high-volume gastropub is struggling with cook turnover and cannot keep up with slow-braised short rib demand.',
-        agentPreparation: 'Synthesizes plate cost economics showing a \$3.20 per portion labor saving using fully cooked sous-vide ribs.',
+        agentPreparation: 'Synthesizes plate cost economics showing a $3.20 per portion labor saving using fully cooked sous-vide ribs.',
         repExecution: 'Rep visits at 2:45 PM with portable induction burner, plates hot samples for the chef, and reviews portion yield.',
         verifiedOutcome: 'Chef adds sous-vide ribs to weekly specials; converts account to 15 cases per week standing delivery.'
       },
@@ -846,7 +846,7 @@ export const DOMAIN_INTELLIGENCE = {
       },
       {
         title: 'Excessive chargeback ratios and fraud risk freezes',
-        friction: 'Merchants suffer fraud spikes, breaching 1% chargeback thresholds and triggering sudden account freezes by risk underwriting.',
+        friction: 'Merchants hit fraud spikes, cross the scheme chargeback threshold and face sudden account freezes by risk underwriting.',
         costOfFailure: 'Merchant business disruption, furious customer escalation, and merchant cancellation.',
         solvedBy: 'App flags chargeback ratio warnings early and prompts rep to install 3D-Secure or chip/PIN terminal upgrades.'
       },
@@ -917,13 +917,13 @@ export const DOMAIN_INTELLIGENCE = {
       {
         title: 'High-volume restaurant group POS terminal upgrade and retention',
         scenario: 'A premier 3-location bistro group is considering switching card processing to a cloud tablet competitor.',
-        agentPreparation: 'Identifies processing volume (\$1.8M annual card turnover) and generates total-cost-of-acceptance comparison.',
+        agentPreparation: 'Identifies processing volume ($1.8M annual card turnover) and generates total-cost-of-acceptance comparison.',
         repExecution: 'Rep visits during afternoon lull, presents smart 4G pay-at-table terminals, and demonstrates tableside tip optimization.',
         verifiedOutcome: 'Merchant signs 3-year processing extension; 12 new smart terminals deployed with full KYC verification.'
       },
       {
         title: 'SME commercial merchant cash advance application packaging',
-        scenario: 'A retail boutique needs \$45,000 in seasonal working capital for inventory ahead of holiday shopping.',
+        scenario: 'A retail boutique needs $45,000 in seasonal working capital for inventory ahead of holiday shopping.',
         agentPreparation: 'Analyzes merchant 12-month terminal card swipe velocity and calculates compliant loan sizing options.',
         repExecution: 'Rep reviews loan repayment mechanics tied to daily card settlement and collects updated tax filings on mobile app.',
         verifiedOutcome: 'Complete document package submitted to underwriting; human credit officer issues loan approval within 24 hours.'
@@ -943,7 +943,7 @@ export const DOMAIN_INTELLIGENCE = {
     frontlinePainPoints: [
       {
         title: 'Unplanned production line downtime crises',
-        friction: 'Critical pump bearings or conveyor motors fail unexpectedly, shutting down automotive or food packaging lines at \$10k/hr.',
+        friction: 'Critical pump bearings or conveyor motors fail without warning and stop a production line for hours.',
         costOfFailure: 'Catastrophic manufacturing downtime, unfulfilled production quotas, and emergency courier expenses.',
         solvedBy: 'Telemetry integration flags vibration sensor anomalies and generates proactive replacement motor delivery.'
       },
@@ -987,7 +987,7 @@ export const DOMAIN_INTELLIGENCE = {
       },
       inVisit: {
         question: 'What technical audit tasks must be performed on the factory floor?',
-        traditionalFlaw: 'Sitting in purchasing offices negotiating 2% discounts on drill bits.',
+        traditionalFlaw: 'Sitting in purchasing offices negotiating small discounts on consumables.',
         assistorSolution: '1. Inspect tool crib vending inventory; 2. Pull oil samples from critical gearboxes; 3. Review PM downtime schedule; 4. Draft order.',
         kpi: 'Plant floor inspection completion rate'
       },
@@ -1026,10 +1026,10 @@ export const DOMAIN_INTELLIGENCE = {
       },
       {
         title: 'Tool crib RFID vending machine deployment and spend consolidation',
-        scenario: 'A heavy machinery manufacturer is losing \$18,000 annually in unreturned carbide cutting inserts and grinding wheels.',
+        scenario: 'A heavy machinery manufacturer is losing $18,000 annually in unreturned carbide cutting inserts and grinding wheels.',
         agentPreparation: 'Analyzes 6 months of fragmented purchase orders and proposes a managed smart dispensing locker solution.',
         repExecution: 'Rep presents the consignment vending model to the VP of Operations, proving a 22% reduction in indirect tool spend.',
-        verifiedOutcome: 'Contract signed; two smart vending lockers installed; 100% automated replenishment with zero stockouts.'
+        verifiedOutcome: 'Contract signed; two vending lockers installed with automatic replenishment set up.'
       }
     ]
   },
@@ -1125,14 +1125,14 @@ export const DOMAIN_INTELLIGENCE = {
         scenario: 'A major carrier launches its latest 5G flagship phone with nationwide marketing campaign starting Friday.',
         agentPreparation: 'Identifies 14 authorized franchised stores in the territory and generates display installation priority tasks.',
         repExecution: 'Rep visits stores on Thursday, verifies security wire power, activates interactive demo software, and mounts window poster.',
-        verifiedOutcome: '100% launch compliance verified by 6:00 PM Thursday; zero demo fixture blackouts during launch weekend.'
+        verifiedOutcome: 'Launch checklist confirmed before the weekend, with every demo fixture checked and logged.'
       },
       {
         title: 'Franchise dealer safe IMEI audit and accessory expansion',
         scenario: 'A 3-store dealer franchise has high device sales but bottom-decile accessory and protection plan attach rates.',
-        agentPreparation: 'Calculates \$4,200 monthly margin loss from missing accessory bundles compared to regional peers.',
+        agentPreparation: 'Calculates $4,200 monthly margin loss from missing accessory bundles compared to regional peers.',
         repExecution: 'Rep runs safe IMEI inventory audit, shows dealer margin simulator, and conducts 15-minute sales team bundling huddle.',
-        verifiedOutcome: 'Accessory attach rate increases from 14% to 38%; dealer commits to premium protective case display end-cap.'
+        verifiedOutcome: 'Partner agrees to an accessory display next to the handsets; attach rate is tracked from the next week.'
       }
     ]
   },
@@ -1167,7 +1167,7 @@ export const DOMAIN_INTELLIGENCE = {
       },
       {
         title: 'Extended warranty and premium cable attach failure',
-        friction: 'Customers buy \$2,000 televisions but leave without high-speed HDMI cables, surge protectors, or accidental damage plans.',
+        friction: 'Customers buy premium televisions but leave without the cables, surge protection or damage cover they need.',
         costOfFailure: 'Loss of highest-margin retail basket add-ons; customers experience sub-par 4K HDR performance at home.',
         solvedBy: 'Order engine suggests pre-bundled accessory packages placed directly beside display pallets.'
       },
@@ -1228,14 +1228,14 @@ export const DOMAIN_INTELLIGENCE = {
         scenario: 'A major electronics chain is preparing for Black Friday weekend doorbuster sales in 10 days.',
         agentPreparation: 'Identifies promotional pallet drops and generates pre-Black Friday fixture readiness checklists.',
         repExecution: 'Rep visits store, mounts updated 4K Dolby Vision demo flash drives, tunes soundbars, and briefs 12 floor associates.',
-        verifiedOutcome: '100% fixture functionality verified; store achieves #1 regional sell-through on premium soundbars.'
+        verifiedOutcome: 'Every demo fixture working and logged with photo proof.'
       },
       {
         title: 'Independent custom AV integrator project package',
         scenario: 'A high-end smart home integrator is designing custom whole-home audio and home theater installations.',
         agentPreparation: 'Packs project bill-of-materials featuring multi-zone architectural amplifiers and in-ceiling speakers.',
         repExecution: 'Rep reviews architectural blueprints with the integrator, demonstrates room-calibration software, and locks order.',
-        verifiedOutcome: 'Integrator specifies brand for 4 luxury residential builds; \$32,000 commercial equipment order confirmed.'
+        verifiedOutcome: 'Integrator specifies the range for its next residential builds; the equipment order goes through normal approval.'
       }
     ]
   },
@@ -1303,7 +1303,7 @@ export const DOMAIN_INTELLIGENCE = {
       order: {
         question: 'What bulk transport drops of ultra-low sulfur diesel, DEF, and 55-gallon oil drums should be scheduled?',
         traditionalFlaw: 'Fleets running dry on Diesel Exhaust Fluid (DEF), causing engine computers to de-rate truck horsepower.',
-        assistorSolution: 'Telemetry-driven replenishment models reorder bulk DEF and lubricants before tanks reach 25% safety reserve.',
+        assistorSolution: 'Telemetry-driven replenishment reorders bulk DEF and lubricants before tanks reach the agreed safety reserve.',
         kpi: 'Unplanned fuel runout avoidance'
       },
       evidence: {
@@ -1321,7 +1321,7 @@ export const DOMAIN_INTELLIGENCE = {
       },
       {
         rule: 'Commercial credit exposure limits on bulk fuel drops',
-        rationale: 'Bulk fuel tanker loads carry massive dollar values (\$40,000+ per drop); credit limits must be strictly honored.',
+        rationale: 'Bulk fuel loads are high in value per drop, so credit limits must be strictly honored.',
         enforcement: 'Automated fuel terminal loading lock prevents tanker dispatch if customer credit balance is exceeded.'
       }
     ],
@@ -1331,7 +1331,7 @@ export const DOMAIN_INTELLIGENCE = {
         scenario: 'A logistics fleet with 85 Class-8 diesel tractors is changing engine oil every 15,000 miles at high annual cost.',
         agentPreparation: 'Analyzes previous lab oil results showing low soot and high TBN reserve, supporting extended 35,000-mile drains.',
         repExecution: 'Rep pulls 6 hot oil samples from tractors, presents certified lab data to the Maintenance Director, and adjusts PM schedule.',
-        verifiedOutcome: 'Fleet safely extends drain interval to 35,000 miles, saving \$42,000 annually while upgrading to premium synthetic oil.'
+        verifiedOutcome: 'Fleet agrees an oil-analysis program to set drain intervals from its own data.'
       },
       {
         title: 'Highway travel plaza underground bulk tank water mitigation',
@@ -1374,7 +1374,7 @@ export const DOMAIN_INTELLIGENCE = {
       {
         title: 'Single-policy account vulnerability and low cross-sell density',
         friction: 'Commercial clients hold general liability policies but place their workers compensation and commercial umbrella with competitors.',
-        costOfFailure: 'Account retention drops by 40% compared to clients with 3 or more bundled policies.',
+        costOfFailure: 'Clients with a single policy are easier to lose at renewal than clients with several.',
         solvedBy: 'Whitespace engine scans agency commercial client lists and suggests targeted multi-line policy bundling proposals.'
       },
       {
@@ -1431,17 +1431,17 @@ export const DOMAIN_INTELLIGENCE = {
     deepUseCases: [
       {
         title: 'Commercial manufacturing 90-day renewal defense and cyber cross-sell',
-        scenario: 'A \$120,000 manufacturing commercial package policy is up for renewal in 90 days with aggressive competitor shopping.',
+        scenario: 'A $120,000 manufacturing commercial package policy is up for renewal in 90 days with aggressive competitor shopping.',
         agentPreparation: 'Identifies account, prepares 3-year loss-free credit justification, and packages an integrated cyber liability rider.',
         repExecution: 'Rep meets with the agency producer, reviews the rate defense story, and provides co-branded renewal proposal for the client.',
-        verifiedOutcome: 'Client binds 100% renewal 45 days prior to expiration; adds \$14,000 cyber liability policy to package.'
+        verifiedOutcome: 'Client renews well before expiry; the cyber cover goes to underwriting for a quote.'
       },
       {
         title: 'Stalled commercial fleet underwriting quote rescue',
         scenario: 'A top broker submitted a 40-vehicle commercial contractor fleet application that has been stalled in underwriting for 8 days.',
         agentPreparation: 'Identifies missing vehicle maintenance telematics and driver MVR records that caused the underwriter hold.',
         repExecution: 'Rep visits broker, helps collect telematics safety logs, and presents the risk package directly to the senior underwriter.',
-        verifiedOutcome: 'Underwriter releases competitive quote within 4 hours; broker successfully binds \$84,000 commercial auto policy.'
+        verifiedOutcome: 'Underwriter releases the quote the same day; the broker presents it to the client.'
       }
     ]
   },
@@ -1459,7 +1459,7 @@ export const DOMAIN_INTELLIGENCE = {
       {
         title: 'Online pet pharmacy prescription leakage',
         friction: 'Pet owners take veterinary prescription scripts to low-cost online pet pharmacy websites rather than buying at the clinic desk.',
-        costOfFailure: 'Veterinary clinic loses its highest-margin pharmacy revenue stream (30% of total clinic profit).',
+        costOfFailure: 'The practice loses one of its most valuable dispensing revenue streams.',
         solvedBy: 'Clinic home-delivery platform integration empowers clinics to dispense directly to client doorsteps at competitive margins.'
       },
       {
@@ -1537,14 +1537,14 @@ export const DOMAIN_INTELLIGENCE = {
         scenario: 'A 5-doctor suburban companion animal hospital is entering peak spring flea and tick season in 3 weeks.',
         agentPreparation: 'Analyzes previous year clinic dispensing history and forecasts a 40% surge in parasiticide demand.',
         repExecution: 'Rep reviews seasonal pet parent footfall with the practice manager and presents a clinic volume rebate bundle.',
-        verifiedOutcome: 'Practice secures 3-month inventory at preferred tier; clinic captures \$28,000 in direct pharmacy sales.'
+        verifiedOutcome: 'Practice places a quarterly order at the agreed tier, priced from the approved terms.'
       },
       {
         title: 'Commercial beef feedlot respiratory vaccine protocol implementation',
         scenario: 'A 15,000-head commercial cattle feedlot is receiving autumn calf shipments with high shipping fever risk.',
         agentPreparation: 'Identifies arrival dates, checks vaccine lot availability at the distributor, and prepares protocol briefing.',
         repExecution: 'Rep walks the processing chutes with the feedlot manager, inspects vaccine chillers, and demonstrates low-stress injection.',
-        verifiedOutcome: 'Calf processing completed with 100% vaccination compliance; feedlot bovine respiratory disease incidence reduced by 22%.'
+        verifiedOutcome: 'Processing plan agreed and logged; product use follows the label and the protocol set by the herd veterinarian.'
       }
     ]
   },
@@ -1562,7 +1562,7 @@ export const DOMAIN_INTELLIGENCE = {
       {
         title: 'Chemical dispenser dilution calibration drift and chemical waste',
         friction: 'Automated wall dilution units get clogged by hard water minerals, either overdosing chemical (wasting money) or underdosing (failing sanitation).',
-        costOfFailure: 'Hospital surface disinfection fails health inspections; cleaning contractor chemical costs rise by 35%.',
+        costOfFailure: 'Surface disinfection fails inspection and chemical spend climbs from overdosing.',
         solvedBy: 'In-visit titration check measures active chemical parts per million (PPM) with test strips and recalibrates metering tips.'
       },
       {
@@ -1585,7 +1585,7 @@ export const DOMAIN_INTELLIGENCE = {
       },
       {
         title: 'High janitorial staff turnover and chemical safety training gaps',
-        friction: 'Cleaning contractors experience 200% annual janitorial turnover; new hires mix bleach and ammonia with catastrophic results.',
+        friction: 'Cleaning teams turn over fast, and untrained new hires mix chemicals that must never be mixed.',
         costOfFailure: 'Toxic chlorine gas exposure emergencies, emergency room visits, and facility evacuations.',
         solvedBy: 'Companion provides multilingual, pictographic 90-second chemical safety training modules completed on phone.'
       }
@@ -1670,14 +1670,14 @@ export const DOMAIN_INTELLIGENCE = {
       },
       {
         title: 'Truck driver detention time and staging bay congestion',
-        friction: 'Trailers sit waiting for hours at congested warehouse loading docks, incurring \$75/hour detention fees and angry driver walk-offs.',
+        friction: 'Trailers wait for hours at congested docks, running up detention fees and losing drivers.',
         costOfFailure: 'Astronomical detention accessorial bills and carriers blacklisting the shipper facility.',
         solvedBy: 'Visit planner tracks warehouse dock appointment adherence and coordinates drop-and-hook trailer pre-staging.'
       },
       {
         title: 'Empty backhaul miles destroying transport operating margins',
         friction: 'Delivery trucks return empty after delivering outward loads, burning expensive diesel fuel and driver hours with zero revenue.',
-        costOfFailure: 'Carriers operating at loss-making 15% empty mile ratios, dragging down fleet profitability.',
+        costOfFailure: 'Carriers run too many empty miles, which drags down fleet profitability.',
         solvedBy: 'Freight matchmaking engine matches outbound shippers with reverse-logistics backhaul accounts along the return corridor.'
       },
       {
@@ -1728,7 +1728,7 @@ export const DOMAIN_INTELLIGENCE = {
     complianceFirewalls: [
       {
         rule: 'Federal carrier operating authority and cargo insurance verification',
-        rationale: 'Freight can only be tendered to carriers holding active DOT authority and verified \$100k+ cargo insurance binders.',
+        rationale: 'Freight can only be tendered to carriers with active operating authority and verified cargo insurance at the required level.',
         enforcement: 'System automatically locks load tender dispatch if carrier operating status or insurance has expired.'
       },
       {
@@ -1742,15 +1742,15 @@ export const DOMAIN_INTELLIGENCE = {
         title: 'Major food manufacturing multi-lane contract tender consolidation',
         scenario: 'A national food manufacturer is preparing its annual freight RFP across 12 high-volume distribution corridors.',
         agentPreparation: 'Synthesizes historical tender rejection data and models dedicated fleet capacity with committed 98% acceptance.',
-        repExecution: 'Rep presents the lane reliability model to the VP of Supply Chain, proving a \$180,000 annual reduction in spot-market exposure.',
-        verifiedOutcome: 'Shipper awards 4 primary dedicated lanes (45 loads per week); \$2.4M annual freight contract secured.'
+        repExecution: 'Rep presents the lane reliability model to the VP of Supply Chain, proving a $180,000 annual reduction in spot-market exposure.',
+        verifiedOutcome: 'Shipper awards primary dedicated lanes; the rate goes through the pricing desk before it is confirmed.'
       },
       {
         title: 'Warehouse loading dock detention time crisis intervention',
         scenario: 'A beverage bottling plant has driver detention times averaging 3.2 hours, causing major carriers to refuse tenders.',
         agentPreparation: 'Identifies dock congestion bottlenecks during afternoon shift changes and models a drop-and-hook trailer pool.',
         repExecution: 'Rep meets with the plant shipping manager, presents the drop-trailer staging plan, and re-allocates 8 staging spots.',
-        verifiedOutcome: 'Detention dropped to under 30 minutes; carrier tender acceptance restored to 99% with zero detention penalties.'
+        verifiedOutcome: 'Dock appointments agreed with the shipper; detention is tracked from the next week.'
       }
     ]
   },
@@ -1780,7 +1780,7 @@ export const DOMAIN_INTELLIGENCE = {
       {
         title: 'Automated case erector line jam shutdowns',
         friction: 'Inconsistent die-cut box scores or warped corrugated blanks jam automated case erectors on high-speed food packaging lines.',
-        costOfFailure: 'Packaging line stops at \$5,000/hour while operators manually clear jammed cardboard blanks.',
+        costOfFailure: 'The packing line stops while operators clear jammed blanks by hand.',
         solvedBy: 'In-visit line audit inspects case erector suction cups, measures cardboard caliper scoring, and replaces warped bundles.'
       },
       {
@@ -1846,7 +1846,7 @@ export const DOMAIN_INTELLIGENCE = {
         scenario: 'A high-speed frozen pizza packaging facility is experiencing 14 case erector jams per shift with high scrap waste.',
         agentPreparation: 'Identifies scoring caliper defects in competitor box blanks and designs precision die-cut test samples.',
         repExecution: 'Rep runs trial test bundle on the customer case erector, adjusts vacuum cup timing, and proves 10,000 jam-free cycles.',
-        verifiedOutcome: 'Customer converts entire annual corrugated box contract (1.2M cases annually); \$340,000 order secured.'
+        verifiedOutcome: 'Customer agrees a trial run on one line, with full conversion decided at the quarterly review.'
       },
       {
         title: 'Heavy equipment parts pallet compression redesign',
@@ -1871,13 +1871,13 @@ export const DOMAIN_INTELLIGENCE = {
       {
         title: 'Broken size runs and lost high-margin full-price sales',
         friction: 'Racks hold excess extra-small and extra-large sizes while high-velocity medium and large core sizes run out completely.',
-        costOfFailure: 'Shoppers cannot find their size and leave without buying; remaining odd sizes are dumped at heavy 50% discount markdowns.',
+        costOfFailure: 'Shoppers cannot find their size and leave without buying; the odd sizes left end up marked down.',
         solvedBy: 'Size-curve replenishment algorithm identifies broken size runs from inventory photos and suggests pre-packed core size assortments.'
       },
       {
         title: 'Visual merchandising mannequin non-compliance',
         friction: 'Store associates dress mannequins haphazardly with non-promotional or out-of-stock garments instead of corporate campaign looks.',
-        costOfFailure: 'Loss of visual storytelling impulse footfall; marketing campaign conversions drop by 30%.',
+        costOfFailure: 'The campaign story is lost on the floor, and the campaign does not convert.',
         solvedBy: 'Computer vision mannequin photo audit compares display against seasonal visual merchandising lookbook guidelines.'
       },
       {
@@ -1949,7 +1949,7 @@ export const DOMAIN_INTELLIGENCE = {
         scenario: 'A major department store is launching its seasonal autumn outerwear marketing campaign on Thursday.',
         agentPreparation: 'Identifies store location, confirms delivery of new wool coats, and loads official visual styling guide.',
         repExecution: 'Rep arrives at 8:30 AM, steams coats, dresses two display mannequins to campaign lookbook specs, and verifies lighting.',
-        verifiedOutcome: '100% visual compliance verified; coat category full-price sell-through increases by 32% in opening week.'
+        verifiedOutcome: 'Campaign floor set confirmed with photo proof before opening.'
       },
       {
         title: 'Running footwear broken size-curve rapid replenishment',
@@ -2052,14 +2052,110 @@ export const DOMAIN_INTELLIGENCE = {
         scenario: 'A major state university is reviewing course materials for its multi-section General Chemistry sequence.',
         agentPreparation: 'Identifies 1,200 annual enrollments, loads homework platform demo, and maps learning objectives to existing syllabus.',
         repExecution: 'Rep conducts live demo for the 4-member course committee, proving automatic grading integration with university Canvas LMS.',
-        verifiedOutcome: 'Department adopts digital courseware for all sections; \$108,000 annual digital access revenue secured.'
+        verifiedOutcome: 'Department agrees to pilot the digital courseware in its large sections next term.'
       },
       {
         title: 'Campus bookstore semester inventory reconciliation',
         scenario: 'Campus bookstore is preparing course packet orders 6 weeks before autumn semester classes begin.',
         agentPreparation: 'Cross-references faculty adoption confirmations against actual enrolled student seat counts.',
         repExecution: 'Rep reviews enrollment caps with the bookstore textbook buyer and adjusts print versus digital code split.',
-        verifiedOutcome: 'Bookstore stocks optimal mix; bookstore achieves 94% sell-through with zero return freight charges.'
+        verifiedOutcome: 'Campus store orders print and digital to the adoption numbers, so fewer copies go back.'
+      }
+    ]
+  },
+  lastmile: {
+    id: 'lastmile',
+    name: 'Last-mile delivery',
+    tagline: 'Online merchants, small shippers and pickup points',
+    icon: 'pin',
+    accent: '#9A3412',
+    channelModel: 'Parcel network selling to online merchants and small shippers, with a pickup and drop-off point network run by partner sites',
+    decisionMakers: ['Merchant operations lead', 'Ecommerce manager', 'Small business owner', 'Pickup point site manager'],
+    economicDrivers: 'Parcel volume won and kept, first-attempt delivery rate, cutoff adherence, returns handled through the network',
+    frontlinePainPoints: [
+      {
+        title: 'Merchants miss the collection cutoff',
+        friction: 'Parcels are packed after the collection cutoff, so they sit overnight and the delivery promise to the end customer slips.',
+        costOfFailure: 'Late parcels, complaints to the merchant, and volume moved to another carrier.',
+        solvedBy: 'Visit planner flags merchants with repeated late hand-overs and prepares a cutoff review with the packing team.'
+      },
+      {
+        title: 'Bad addresses at checkout',
+        friction: 'Checkout forms accept incomplete addresses, so drivers cannot find the door and parcels come back.',
+        costOfFailure: 'Failed first attempts, extra delivery runs and returns the merchant pays for.',
+        solvedBy: 'Gap agent spots merchants with high failed-attempt counts and suggests the address check at checkout.'
+      },
+      {
+        title: 'Pickup points run out of space',
+        friction: 'Partner sites fill up before peak, refuse parcels, and the network reroutes them to a depot.',
+        costOfFailure: 'Customers travel further to collect, and the partner site loses goodwill.',
+        solvedBy: 'Capacity check before peak, with overflow routing agreed in advance with the site manager.'
+      },
+      {
+        title: 'Rates agreed in the field',
+        friction: 'Reps promise rate cuts to keep a merchant, outside the approved rate card.',
+        costOfFailure: 'Margin leakage and rates the pricing desk cannot honor.',
+        solvedBy: 'The agent only offers rates from the approved card; anything else goes to the pricing desk.'
+      }
+    ],
+    coreDecisions: {
+      coverage: {
+        question: 'Which merchants and small shippers are worth a visit this week?',
+        traditionalFlaw: 'Visiting the friendliest accounts while merchants with falling volume are never called.',
+        assistorSolution: 'Volume trend, failed-attempt counts and cutoff misses rank the accounts to visit.',
+        kpi: 'At-risk merchants visited'
+      },
+      route: {
+        question: 'When should each merchant be visited?',
+        traditionalFlaw: 'Arriving during the packing rush when nobody can talk.',
+        assistorSolution: 'Visits are timed outside the packing window and before the collection run.',
+        kpi: 'Visits held in the agreed window'
+      },
+      inVisit: {
+        question: 'What should be checked on site?',
+        traditionalFlaw: 'A general chat with no look at the packing area or the scanner.',
+        assistorSolution: '1. Check cutoff hand-over; 2. Check labels and scanner; 3. Review failed attempts; 4. Agree the next step.',
+        kpi: 'Site check completed'
+      },
+      order: {
+        question: 'What volume, service level and rate should be proposed?',
+        traditionalFlaw: 'A verbal rate with no written volume commitment.',
+        assistorSolution: 'Proposal built from the approved rate card; any change goes to the pricing desk.',
+        kpi: 'Proposals within the rate card'
+      },
+      evidence: {
+        question: 'How is the visit and the agreement recorded?',
+        traditionalFlaw: 'Notes in a personal notebook.',
+        assistorSolution: 'Photo of the packing area, scanner test result and a signed service summary.',
+        kpi: 'Visits with evidence attached'
+      }
+    },
+    complianceFirewalls: [
+      {
+        rule: 'Rates come only from the approved rate card',
+        rationale: 'The field cannot set price. Changes need the pricing desk.',
+        enforcement: 'Proposals outside the card are blocked and routed to the pricing desk.'
+      },
+      {
+        rule: 'Driver hours and safe loading',
+        rationale: 'Peak plans must respect driver hours rules and vehicle load limits.',
+        enforcement: 'Peak bookings that need extra runs are checked by network planning before they are confirmed.'
+      }
+    ],
+    deepUseCases: [
+      {
+        title: 'Merchant with repeated late hand-overs',
+        scenario: 'An online merchant has missed the collection cutoff on several days this month.',
+        agentPreparation: 'Pulls the hand-over times and failed-attempt counts and drafts a cutoff review.',
+        repExecution: 'Rep walks the packing area with the operations lead and agrees an earlier packing start on collection days.',
+        verifiedOutcome: 'New cutoff routine agreed and logged; hand-over times are tracked from the next week.'
+      },
+      {
+        title: 'Pickup point capacity before peak',
+        scenario: 'A partner site expects more parcels than its shelves can hold during the seasonal peak.',
+        agentPreparation: 'Compares last peak parcel counts with the site capacity and drafts an overflow plan.',
+        repExecution: 'Rep agrees an overflow route to the nearest depot and extra collection runs with the site manager.',
+        verifiedOutcome: 'Overflow plan agreed and sent to network planning for confirmation.'
       }
     ]
   }
