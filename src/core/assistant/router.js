@@ -43,6 +43,7 @@ export const link = {
   manager: () => ({ label: 'Open the exception queue', href: '#/manager' }),
   agents: () => ({ label: 'Open agent controls', href: '#/agents' }),
   config: () => ({ label: 'See how this is configured', href: '#/config' }),
+  partner: () => ({ label: 'Open the partner distributor portal', href: '#/partner' }),
   complete: (id) => ({ label: 'Finish the {visit}', href: `#/complete/${id}` }),
   today: () => ({ label: 'Back to Today', href: '#/today' }),
 };

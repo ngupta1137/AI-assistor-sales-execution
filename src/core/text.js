@@ -1,5 +1,7 @@
 // The single gate for all visible copy: vocabulary tokens, data values, spelling.
 
+import { tr } from './i18n.js';
+
 const US_TO_UK = {
   color: 'colour', colors: 'colours', center: 'centre', centers: 'centres',
   centered: 'centred', prioritize: 'prioritise', prioritized: 'prioritised',
@@ -42,7 +44,7 @@ export const capitalise = (s) => (s ? s[0].toUpperCase() + s.slice(1) : s);
  * Tokens: {key} replaced from vars; {Key} gives the capitalised value.
  * Unknown tokens are left in place on purpose, so tests catch them.
  */
-export function createText(vocab, spelling) {
+export function createText(vocab, spelling, lang = 'en') {
   const fill = (template, vars = {}) => {
     if (template == null) return '';
     let out = String(template).replace(/\{([A-Za-z][A-Za-z0-9_]*)\}/g, (m, key) => {
@@ -62,6 +64,7 @@ export function createText(vocab, spelling) {
       if (lower in vocab) return capitalise(vocab[lower]);
       return m;
     });
+    if (lang && lang !== 'en') out = tr(out, lang);
     return spelling === 'uk' ? toUkSpelling(out) : out;
   };
   return fill;

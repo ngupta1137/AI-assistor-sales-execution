@@ -99,8 +99,15 @@ export function render(ctx) {
   return `
   <a class="back" href="#/today">${icon('back', 18)} Today</a>
   <section class="page-head">
-    <h1>Route plan</h1>
-    <p class="small muted">${esc(t('Time order from the Visit Planner, by opening hours and travel. Today ranks by estimated opportunity.'))}</p>
+    <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:8px;flex-wrap:wrap">
+      <div>
+        <h1>Route plan</h1>
+        <p class="small muted">${esc(t('Time order from the Visit Planner, by opening hours and travel. Today ranks by estimated opportunity.'))}</p>
+      </div>
+      <a class="btn secondary sm" href="#/partner" style="min-height:var(--tap);font-size:11px;display:inline-flex;align-items:center;gap:4px">
+        ${icon('route', 14)} Partner portal (P2)
+      </a>
+    </div>
   </section>
   <div class="seg-ctl" role="tablist" style="margin-bottom:12px">
     <button class="seg ${view === 'timeline' ? 'on' : ''}" data-act="route-view" data-view="timeline" role="tab" aria-selected="${view === 'timeline'}">${icon('route', 16)} Timeline view</button>

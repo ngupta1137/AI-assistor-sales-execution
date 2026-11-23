@@ -2,17 +2,18 @@
 
 import { esc, icon } from '../ui.js';
 import { PERSONA_INFO, PERSONAS, personasFor, titleFor, personFor } from '../personas.js';
-
+import { UI_LANGUAGES, getActiveLang, tr } from '../i18n.js';
 
 export function render({ app, INDUSTRIES, COUNTRIES, buildContext }) {
   const s = app.ui.setup || (app.ui.setup = {
     industry: app.config?.industryId || '', country: app.config?.countryId || '', persona: app.config?.persona || 'rep', prepared: app.config?.prepared || '', color: app.config?.color || '',
   });
   const ready = s.industry && s.country;
-  let preview = '<p class="signin">Choose an industry and a country to start.</p>';
+  const activeLang = app.ui?.lang || getActiveLang(app, s.country);
+  let preview = `<p class="signin">${esc(tr('Choose an industry and a country to start.', activeLang))}</p>`;
   let ctx = null;
   if (ready) {
-    ctx = buildContext(s.industry, s.country);
+    ctx = buildContext(s.industry, s.country, activeLang);
     if (!personasFor(ctx.industry).includes(s.persona)) s.persona = 'rep';
     const who = personFor(ctx, s.persona);
     preview = `<p class="signin">Signs in as <b>${esc(who.name)}</b>, ${esc(ctx.t(who.title))}, ${esc(ctx.data.city.name)}</p>`;
@@ -27,6 +28,10 @@ export function render({ app, INDUSTRIES, COUNTRIES, buildContext }) {
   const countries = COUNTRIES.map((c) => `
     <button class="chip${s.country === c.id ? ' on' : ''}" data-act="setup-country" data-id="${c.id}" aria-pressed="${s.country === c.id}">
       <b>${esc(c.name)}</b><small>${esc(c.currency)}</small>
+    </button>`).join('');
+  const languages = Object.values(UI_LANGUAGES).map((l) => `
+    <button class="chip${activeLang === l.code ? ' on' : ''}" data-act="set-ui-lang" data-lang="${l.code}" aria-pressed="${activeLang === l.code}">
+      <b>${esc(l.label)}</b>
     </button>`).join('');
   const personas = (ctx ? personasFor(ctx.industry) : PERSONAS).map((id) => {
     const p = PERSONA_INFO[id];
@@ -43,13 +48,14 @@ export function render({ app, INDUSTRIES, COUNTRIES, buildContext }) {
       <header class="setup-head">
         <div class="setup-brand"><span class="mark">${icon('agent', 18)}</span>AI Assistor</div>
         <h1>AI Assistor Sales Execution</h1>
-        <p class="muted small">Plans each rep's day, ranks what to do in every visit, and shows what happened. Choose a scenario.</p>
-        <span><span class="sample-tag">All names are fictional.</span></span>
+        <p class="muted small">${esc(tr("Plans each rep's day, ranks what to do in every visit, and shows what happened. Choose a scenario.", activeLang))}</p>
+        <span><span class="sample-tag">${esc(tr('All names are fictional.', activeLang))}</span></span>
       </header>
       ${app.notice ? `<div class="notice warn">${icon('flag', 18)}<span>${esc(app.notice)}</span></div>` : ''}
-      <section><h2 class="setup-step">Industry</h2><ul class="choice-list tiles">${tiles}</ul></section>
-      <section><h2 class="setup-step">Country</h2><div class="chips">${countries}</div></section>
-      <section><h2 class="setup-step">Role</h2><div class="personas">${personas}</div></section>
+      <section><h2 class="setup-step">${esc(tr('Language', activeLang))}</h2><div class="chips" role="radiogroup" aria-label="Language">${languages}</div></section>
+      <section><h2 class="setup-step">${esc(tr('Industry', activeLang))}</h2><ul class="choice-list tiles">${tiles}</ul></section>
+      <section><h2 class="setup-step">${esc(tr('Country', activeLang))}</h2><div class="chips">${countries}</div></section>
+      <section><h2 class="setup-step">${esc(tr('Role', activeLang))}</h2><div class="personas">${personas}</div></section>
       <details ${s.prepared || s.color ? 'open' : ''}><summary>Prepared for (optional)</summary>
         <label class="field">Prospect name, shown as Prepared for
           <input class="input" type="text" maxlength="40" value="${esc(s.prepared)}" data-change="setup-prepared" id="setup-prepared"></label>
@@ -82,12 +88,16 @@ export function render({ app, INDUSTRIES, COUNTRIES, buildContext }) {
       ${chosen ? `<p class="small"><b>${esc(chosen)}</b></p>` : ''}
       ${preview}
       
-      <button class="btn primary block" data-act="setup-start" id="start-demo" ${ready ? '' : 'disabled'}>${ready ? 'Start demo' : 'Choose an industry and a country'}</button>
+      <button class="btn primary block" data-act="setup-start" id="start-demo" ${ready ? '' : 'disabled'}>${ready ? esc(tr('Start demo', activeLang)) : esc(tr('Choose an industry and a country', activeLang))}</button>
     </div>
   </div>`;
 }
 
 export const actions = {
+  'set-ui-lang': ({ app, data, api }) => {
+    (app.ui ||= {}).lang = data.lang;
+    api.render();
+  },
   'preset-brand': ({ app, data, api }) => {
     (app.ui.setup ||= {}).color = data.color;
     if (app.config) app.config.color = data.color;

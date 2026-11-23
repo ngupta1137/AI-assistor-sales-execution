@@ -21,7 +21,7 @@ export function render(ctx) {
   const rules = industry.orderRules.map((r) => `<li>${esc(t(r.text, { limit: r.amount != null ? fmt.money(localPrice(r.amount, country)) : '', max: r.max ?? '', lines: '' }))}</li>`).join('');
   const events = upcomingEvents(country, fmt.today).slice(0, 4).map((e) => `<li><b>${esc(e.name)}</b> <small class="muted">${esc(fmt.dateShort(e.date))} · ${esc(e.note)}</small></li>`).join('');
 
-  const jump = [['vocab', 'Vocabulary'], ['segments', 'Segments'], ['actions', 'Actions'], ['editor', 'Pack Editor'], ['csv-importer', 'CSV Importer'], ['offerings', t('{Offerings}')], ['kpis', 'KPIs'], ['rules', 'Guardrails'], ['integrations', 'Integrations'], ['readiness', 'System Readiness'], ['coexistence', 'Coexistence & TCO'], ['ops', 'Commercial Ops'], ['country', 'Country']]
+  const jump = [['vocab', 'Vocabulary'], ['segments', 'Segments'], ['actions', 'Actions'], ['editor', 'Pack Editor'], ['csv-importer', 'CSV Importer'], ['partner', 'Partner Portal'], ['offerings', t('{Offerings}')], ['kpis', 'KPIs'], ['rules', 'Guardrails'], ['integrations', 'Integrations'], ['readiness', 'System Readiness'], ['coexistence', 'Coexistence & TCO'], ['ops', 'Commercial Ops'], ['country', 'Country']]
     .map(([id, label]) => `<a href="#/config" data-act="jump" data-id="${id}">${esc(label)}</a>`).join('');
   return `
   <section class="page-head">
@@ -77,6 +77,14 @@ export function render(ctx) {
         </ul>
       </div>
     ` : ''}
+  </details>
+  <details class="fold" id="partner" open><summary>Partner &amp; Distributor Operations (PRD Section 4, P2)<span class="sum-end">Wholesale Portal</span></summary>
+    <p class="small muted" style="margin-bottom:8px">Third-party logistics &amp; distributor interface. Confirm proposed daily delivery beats, review incoming rep orders, manage depot safety stock, and adjust distributor credit float limits.</p>
+    <div style="display:flex;gap:6px;flex-wrap:wrap;align-items:center">
+      <a class="btn primary sm" href="#/partner" style="min-height:var(--tap);flex:1;text-align:center;display:inline-flex;align-items:center;justify-content:center;gap:6px">
+        ${icon('route', 16)} Open Partner &amp; Distributor Portal
+      </a>
+    </div>
   </details>
   <details class="fold" id="offerings"><summary>${esc(t('{Offerings}'))}<span class="sum-end">${industry.offerings.length}</span></summary><div class="tbl-wrap"><table class="tbl"><thead><tr><th>Name</th><th>Category</th><th>Status</th></tr></thead><tbody>${offerings}</tbody></table></div></details>
   <details class="fold" id="kpis"><summary>KPIs<span class="sum-end">${industry.kpis.length}</span></summary><table class="tbl"><tbody>${kpis}</tbody></table></details>
@@ -169,8 +177,13 @@ export function render(ctx) {
       <li><b>Security:</b> AES-256 storage encryption at rest, TLS 1.3 enforced in transit.</li>
       <li><b>Compliance:</b> SOC 2 Type II certified, GDPR and HIPAA compliant field storage.</li>
     </ul>
-    <div class="btn-row" style="margin-top:12px">
-      <button class="btn secondary" data-act="download-audit-csv">${icon('note', 18)}Download compliance audit log (CSV)</button>
+    <div class="btn-row" style="margin-top:12px;gap:8px;flex-wrap:wrap">
+      <button class="btn primary sm" data-act="open-sync-modal" style="min-height:var(--tap);flex:1">
+        ${icon('sync', 16)} Open CRM &amp; ERP Gateway Simulator
+      </button>
+      <button class="btn secondary sm" data-act="download-audit-csv" style="min-height:var(--tap);flex:1">
+        ${icon('note', 16)} Download compliance audit log (CSV)
+      </button>
     </div>
   </details>
   
@@ -366,7 +379,7 @@ export const actions = {
   'set-weight-preset': ({ ctx, data }) => {
     const w = data.preset === 'growth' ? { dist: 20, promo: 30, range: 50 }
       : data.preset === 'margin' ? { dist: 50, promo: 20, range: 30 }
-      : { dist: 40, promo: 35, range: 25 };
+        : { dist: 40, promo: 35, range: 25 };
     (ctx.ui ||= {}).actionWeights = w;
     ctx.ui.weightsToast = `Recalibrated scoring model with ${data.preset} weights.`;
     if (ctx.m?.logAudit) ctx.m.logAudit('Pack Config', `Updated scoring weights to ${data.preset} profile (${w.dist}% dist, ${w.promo}% promo, ${w.range}% range)`);
