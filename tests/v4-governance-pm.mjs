@@ -25,9 +25,9 @@ const countsFile = path.join(root, 'docs', 'test-counts.json');
 assert(existsSync(countsFile), 'docs/test-counts.json must exist');
 if (existsSync(countsFile)) {
   const counts = JSON.parse(readFileSync(countsFile, 'utf8'));
-  assert(counts.industries === 20, 'test-counts.json records 20 industries');
+  assert(counts.industries === 21, 'test-counts.json records 21 industries');
   assert(counts.countries === 11, 'test-counts.json records 11 countries');
-  assert(counts.personas === 3, 'test-counts.json records 3 personas');
+  assert(counts.personas === 7, 'test-counts.json records 7 personas');
   assert(counts.totalAssertions >= 1000000, 'test-counts.json records >= 1M assertions');
   assert(counts.gateStatus === 'Go', 'test-counts.json reports Go gate status');
 }

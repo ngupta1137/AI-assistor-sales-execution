@@ -4,6 +4,16 @@
 import { esc, icon, pill, confBadge, agentTag, typeLine, AGENT_LABEL } from '../ui.js';
 import { mergePanel, fieldNotices } from '../execution/views.js';
 
+/** Visit-frame copy on the brief. Packs can replace any part with `briefFrame`. */
+const BRIEF_FRAME = {
+  objectives: ['Expand whitespace', 'Volume reorder', 'Merchandising'],
+  constraints: [['Receiving', 'Open'], ['Depot stock', 'Allocated'], ['Credit', 'Available'], ['Contract', 'Active']],
+  constraintNote: 'Recommendations hard-filtered against receiving dock windows, distributor depot inventory, and customer credit limits.',
+  coordTitle: 'Multi-role location coordination',
+  coordNote: 'Shared graph across merchandiser, pre-sell rep, and delivery driver to prevent conflicting execution.',
+  coord: [['Merchandiser', 'Display set (07:30)'], ['Pre-Sell (You)', 'Active in-visit'], ['Driver Route', 'ETA 14:15 (Tomorrow)']],
+};
+
 const ADJUST = {
   action: ['Do it first', 'Do it later in the {visit}', 'Only if time allows', 'Smaller scope today'],
   plan: ['Start earlier', 'Start later', 'Shorter {visit}', 'Longer {visit}'],
@@ -350,6 +360,7 @@ function renderItem(ctx, it, isNext, a, itemIndex) {
 }
 
 export function render(ctx, [accountId]) {
+  const BF = { ...BRIEF_FRAME, ...(ctx.industry.briefFrame || {}) };
   const { t, fmt, data, m, ui } = ctx;
   const p = m.plannedFor(accountId) || data.planned[0];
   const a = data.byId[p.accountId];
@@ -477,12 +488,10 @@ export function render(ctx, [accountId]) {
     <div style="margin-top:10px;padding:8px 10px;background:var(--surface-subtle);border-radius:var(--radius-sm);border:1px solid var(--line-soft)">
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px">
         <small style="font-weight:600">Primary call objective:</small>
-        ${pill(ui.callObjective || 'Expand whitespace', 'good')}
+        ${pill(t(BF.objectives.includes(ui.callObjective) ? ui.callObjective : BF.objectives[0]), 'good')}
       </div>
       <div class="seg-ctl" role="group" aria-label="Call objective" style="margin-top:4px">
-        <button class="seg ${(ui.callObjective || 'Expand whitespace') === 'Expand whitespace' ? 'on' : ''}" data-act="set-objective" data-obj="Expand whitespace" style="min-height:var(--tap);min-width:var(--tap)">Expand whitespace</button>
-        <button class="seg ${ui.callObjective === 'Volume reorder' ? 'on' : ''}" data-act="set-objective" data-obj="Volume reorder" style="min-height:var(--tap);min-width:var(--tap)">Volume reorder</button>
-        <button class="seg ${ui.callObjective === 'Merchandising' ? 'on' : ''}" data-act="set-objective" data-obj="Merchandising" style="min-height:var(--tap);min-width:var(--tap)">Merchandising</button>
+        ${BF.objectives.map((o, i) => `<button class="seg ${(BF.objectives.includes(ui.callObjective) ? ui.callObjective : BF.objectives[0]) === o ? 'on' : ''}" data-act="set-objective" data-obj="${esc(o)}" style="min-height:var(--tap);min-width:var(--tap)">${esc(t(o))}</button>`).join('')}
       </div>
     </div>
     <!-- Commercial Shared Constraints Verification Strip -->
@@ -494,59 +503,24 @@ export function render(ctx, [accountId]) {
         ${pill('All constraints passed', 'good')}
       </div>
       <div class="facts" style="grid-template-columns:repeat(auto-fit,minmax(70px,1fr));margin-bottom:4px">
-        <div><small>Receiving</small><b class="good-text">Open</b></div>
-        <div><small>Depot stock</small><b class="good-text">Allocated</b></div>
-        <div><small>Credit</small><b class="good-text">Available</b></div>
-        <div><small>Contract</small><b>Active</b></div>
+        ${BF.constraints.map(([k, v], i) => `<div><small>${esc(t(k))}</small><b${i < 3 ? ' class="good-text"' : ''}>${esc(t(v))}</b></div>`).join('')}
       </div>
-      <p class="small muted" style="margin:0;font-size:11px">Recommendations hard-filtered against receiving dock windows, distributor depot inventory, and customer credit limits.</p>
-    </div>
-
-    
-    <div style="margin-top:8px">
-      ${ui.accountAbsentRescheduled ? `
-        <div class="notice good">
-          ${icon('check', 14)}
-          <span><b>Account closed / Buyer absent.</b> First reschedule within 14-day SLA window confirmed. Rep score protected.</span>
-        </div>
-        ${ui.rescheduleChainWarning ? `
-          <div class="notice warn" style="margin-top:4px">
-            ${icon('shield', 14)}
-            <span><b>Second reschedule attempted:</b> Requires District Field Manager approval. Score protection suspended until approved.</span>
-          </div>
-        ` : `
-          <button class="btn text sm" data-act="try-second-reschedule" data-id="${a.id}" style="font-size:10px;min-height:var(--tap);display:inline-flex;align-items:center;padding:0;color:var(--muted)">
-            Need to reschedule again? (Requires manager approval)
-          </button>
-        `}
-      ` : `
-        <button class="btn secondary sm" data-act="record-absent" data-id="${a.id}" style="min-height:var(--tap);width:100%;font-size:11px">
-          ${icon('clock', 12)} Account closed / Buyer absent? Reschedule with SLA protection
-        </button>
-      `}
+      <p class="small muted" style="margin:0;font-size:11px">${esc(t(BF.constraintNote))}</p>
     </div>
 
     
     <!-- Multi-Role Visit Coordination Hub -->
     <div class="card tight" style="margin-top:8px;background:var(--surface-subtle);border:1px solid var(--line-soft)">
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px">
-        <b>Multi-role location coordination</b>
+        <b>${esc(t(BF.coordTitle))}</b>
         ${pill('Synchronized', 'good')}
       </div>
-      <p class="small muted" style="margin:0 0 6px 0;font-size:11px">Shared graph across merchandiser, pre-sell rep, and delivery driver to prevent conflicting execution.</p>
+      <p class="small muted" style="margin:0 0 6px 0;font-size:11px">${esc(t(BF.coordNote))}</p>
       <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(95px,1fr));gap:4px;font-size:11px">
-        <div style="padding:4px 6px;background:var(--surface);border-radius:4px;border:1px solid var(--line-soft)">
-          <span class="muted">Merchandiser:</span>
-          <b style="display:block" class="good-text">Display set (07:30)</b>
-        </div>
-        <div style="padding:4px 6px;background:var(--surface);border-radius:4px;border:1px solid var(--line-soft)">
-          <span class="muted">Pre-Sell (You):</span>
-          <b style="display:block;color:var(--accent)">Active in-visit</b>
-        </div>
-        <div style="padding:4px 6px;background:var(--surface);border-radius:4px;border:1px solid var(--line-soft)">
-          <span class="muted">Driver Route:</span>
-          <b style="display:block">ETA 14:15 (Tomorrow)</b>
-        </div>
+        ${BF.coord.map(([k, v], i) => `<div style="padding:4px 6px;background:var(--surface);border-radius:4px;border:1px solid var(--line-soft)">
+          <span class="muted">${esc(t(k))}:</span>
+          <b style="display:block"${i === 0 ? ' class="good-text"' : i === 1 ? ' style="display:block;color:var(--accent)"' : ''}>${esc(t(v))}</b>
+        </div>`).join('')}
       </div>
     </div>
 
@@ -588,7 +562,7 @@ export function render(ctx, [accountId]) {
     <span data-count="overridden"${bump('overridden')}><b>${c.overridden}</b>Overridden</span>
     <span data-count="pending"${bump('pending')}><b>${c.pending}</b>To review</span>
   </div>
-  <p class="small muted tight guard">${esc(t('Reviewing this brief does not submit an {order}.'))}${c.paused ? ` ${c.paused} paused.` : ''}</p>
+  <p class="small muted tight guard">${esc(t('Reviewing this brief does not submit the {order}.'))}${c.paused ? ` ${c.paused} paused.` : ''}</p>
 
   <div class="items tight">${items.map((it, idx) => renderItem(ctx, it, it === firstPending, a, idx)).join('')}</div>
   ${mergePanel(ctx, a.id)}

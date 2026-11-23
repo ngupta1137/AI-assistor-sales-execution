@@ -21,7 +21,7 @@ This project strictly adheres to honest enterprise architecture labeling:
 | **BUILT** | Rapid In-Visit Blitz Mode (45s) & Account Camera Exemption | Built & Interactive | Client-side execution with KAM-governed policy verification |
 | **BUILT** | RMA Return Claim Logging & Substitute Selector | Built & Interactive | Segregation of duties: AR approval queue, contract parity |
 | **BUILT** | Supervisory Anti-Gaming & Works Council Safe Mode | Built & Interactive | Anomaly queue, BetrVG 87 rep telemetry anonymization |
-| **BUILT** | 20 Industry Packs x 11 Country Packs (220 Permutations) | Built & Interactive | 360,000+ automated static assertions |
+| **BUILT** | 21 Industry Packs x 11 Country Packs (231 Permutations) | Built & Interactive | 360,000+ automated static assertions |
 | **BUILT** | Enterprise Governance (G1 to G14: 7 Outcomes, Rights, Audit Replay) | Built & Interactive | Deterministic card outcomes, exact-wording gate, rule health |
 | **BUILT** | 5-Layer Autonomous Agent Fleet (A1 to A6: Layers, Trace, Memory) | Built & Interactive | Visit orchestrator knapsack trace, tools catalog, memory |
 | **BUILT** | Quality, Evaluation & Release Gate System (E1 to E8: Blind Set, Evals) | Built & Interactive | Real test counts (>1M assertions), composite Go/Fix/Stop gate |
@@ -75,7 +75,7 @@ This builds, then runs the static checks and the browser checks. The browser che
 | `...#/brief/A03` | Goes straight to a screen (hash routes below) |
 | no parameters | Setup screen |
 
-- **Industries:** `cpg`, `pharma`, `meddevices`, `beverages`, `building` (also `paints`), `agri`, `telecom`, `electronics`, `autoparts`, `finserv` (also `fs`), `foodservice`, `industrial`, `apparel`, `energy`, `insurance`, `animalhealth`, `hygiene`, `logistics`, `education`, `packaging`.
+- **Industries:** `cpg`, `pharma`, `meddevices`, `beverages`, `building` (also `paints`), `agri`, `telecom`, `electronics`, `autoparts`, `finserv` (also `fs`), `foodservice`, `industrial`, `apparel`, `energy`, `insurance`, `animalhealth`, `hygiene`, `logistics`, `lastmile` (also `parcel`, `delivery`), `education`, `packaging`.
 - **Countries:** `US`, `UK` (also `GB`), `DE`, `FR`, `AU`, `NZ`, `IN`, `BR`, `ID`, `MX`, `AE` (also `UAE`). Case does not matter. ANZ is two packs, `AU` and `NZ`, because the two have different currencies, holidays and cities.
 - **Personas:** `rep`, `manager`, `admin`.
 - **Hash routes:** `#/today`, `#/brief/<id>`, `#/account/<id>`, `#/action/<actionId>`, `#/order/<id>`, `#/complete/<id>`, `#/route`, `#/ask`, `#/manager`, `#/agents`, `#/config`, `#/problems`, `#/setup`.
@@ -209,7 +209,7 @@ Screens never contain industry nouns. They write `{account}`, `{contact}`, `{vis
 9. Run `npm test`. The validator reports anything missing. The duplicate-text check fails if you copied sentences from another pack, so rewrite them in the new industry's own words. The browser checks then open the new industry in all 8 countries.
 10. Run `npm run build` and commit `docs/index.html`.
 
-Update the count check in `tests/static.mjs` (`expected 20 industries`, and the country count) when you add one.
+Update the count check in `tests/static.mjs` (`expected 21 industries`, and the country count) when you add one.
 
 ## Add a country pack
 
@@ -237,16 +237,16 @@ Update the count check in `tests/static.mjs` (`expected 20 industries`, and the 
    - No sentence copied between industries.
    - No industry nouns hard-coded in `src/core`.
    - US spelling in source.
-   - Generation is deterministic for all 220 combinations: 24 to 30 accounts, 6 to 8 visits, 3 to 6 actions, every visit inside opening hours.
+   - Generation is deterministic for all 231 combinations: 24 to 30 accounts, 6 to 8 visits, 3 to 6 actions, every visit inside opening hours.
    - Country formatting: lakh and crore, comma decimals, date orders.
-3. **Browser checks** (`tests/e2e.mjs`, Playwright against the built file, about 80 seconds with 4 workers). For each of the 220 combinations, the rep flow opens every brief, action, account, order and complete screen. It also:
+3. **Browser checks** (`tests/e2e.mjs`, Playwright against the built file, about 80 seconds with 4 workers). For each of the 231 combinations, the rep flow opens every brief, action, account, order and complete screen. It also:
    - Runs approve, adjust and override and checks the live counts.
    - Captures the typed evidence, including drawing a signature.
    - Triggers the order rules: approval threshold, and the sample limit block.
    - Closes the visit and switches to manager through the presenter menu, then checks the override and its note are in the exception queue.
    - Checks coaching prompts and coverage, then stops and resumes the Order agent and checks paused items and the audit log.
    - Opens config, problems, route re-plan and Ask AI.
-   - Opens manager and admin direct links for all 220 combinations, and starts the demo from the setup screen for all 220.
+   - Opens manager and admin direct links for all 231 combinations, and starts the demo from the setup screen for all 231.
    - Edge cases: bad links, aliases, HTML escaping of "Prepared for", the contrast guard, the same data after a reload, long press, switch time and reset.
 
 Any console error, leftover `{token}`, `undefined` or `NaN`, or one of the pack's forbidden words (for example "store" in pharma or financial services) fails the run. `E2E_ONLY=pharma:IN npm run test:e2e` runs one combination. `E2E_WORKERS=8` runs more in parallel.
