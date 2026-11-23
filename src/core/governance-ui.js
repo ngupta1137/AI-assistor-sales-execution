@@ -69,15 +69,7 @@ export function renderTryCase(app, ctx) {
   const forced = ctx.m.getForcedCase?.();
   const isOpen = !!app.ui?.tryCaseOpen;
 
-  const floatingButtons = `
-  <button class="try-case-btn" id="try-case-btn" data-act="toggle-try-case" aria-haspopup="dialog" aria-expanded="${isOpen}" title="Try a case">
-    ${icon('wrench', 16)}<span class="btn-text">Try a case</span>${forced ? ' <span class="sync-dot"></span>' : ''}
-  </button>
-  <button class="lab-btn" id="lab-btn" data-act="open-lab-modal" aria-haspopup="dialog" title="Portfolio Lab">
-    ${icon('screen', 16)}<span class="btn-text">Portfolio Lab</span>
-  </button>`;
-
-  if (!isOpen) return floatingButtons;
+  if (!isOpen) return '';
 
   const cases = [
     { id: 'conflict', title: 'Two rules disagree', desc: 'Sets Conflict outcome on card 3 and opens rule drawer.' },
@@ -91,7 +83,6 @@ export function renderTryCase(app, ctx) {
   ];
 
   return `
-  ${floatingButtons}
   <div class="presenter-backdrop" data-act="close-try-case" aria-hidden="true"></div>
   <section class="as-sheet enterprise-modal" role="dialog" aria-modal="true" aria-labelledby="try-case-title" style="height:auto;max-height:85%;overflow-y:auto;z-index:90">
     <header class="as-head">
@@ -213,3 +204,13 @@ export const governanceActions = {
   },
 };
 
+
+/** Demo tools in the app bar: Try a case and Portfolio Lab. They sit in the header so they never cover screen content. */
+export function demoToolButtons(app, ctx) {
+  if (!ctx) return '';
+  const forced = ctx.m.getForcedCase?.();
+  return `<span class="bar-tools">
+    <button class="icon-btn bar-tool try-case-btn" id="try-case-btn" data-act="toggle-try-case" aria-haspopup="dialog" aria-expanded="${!!app.ui?.tryCaseOpen}" aria-label="Try a case" title="Try a case">${icon('wrench', 18)}${forced ? '<span class="sync-dot bar-dot"></span>' : ''}</button>
+    <button class="icon-btn bar-tool lab-btn" id="lab-btn" data-act="open-lab-modal" aria-haspopup="dialog" aria-label="Portfolio Lab" title="Portfolio Lab">${icon('screen', 18)}</button>
+  </span>`;
+}

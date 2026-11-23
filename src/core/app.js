@@ -1,5 +1,5 @@
 import { renderLabModal, labActions } from './lab-modal.js';
-import { renderGuideModal, renderTryCase, governanceActions } from './governance-ui.js';
+import { renderGuideModal, renderTryCase, governanceActions, demoToolButtons } from './governance-ui.js';
 // App shell: configuration from the URL, hash routing, rendering, event delegation.
 
 import { INDUSTRIES, COUNTRIES, findIndustry, findCountry } from '../packs/index.js';
@@ -445,6 +445,7 @@ function shell(ctx, name, result) {
       <button class="logo" id="logo" aria-label="AI Assistor home">
         <span class="mark">${icon(ctx.industry.icon, 18)}</span><span class="brand">AI Assistor</span>
       </button>
+      ${demoToolButtons(app, ctx)}
       <button class="who" data-act="open-sync-modal" aria-haspopup="dialog" aria-label="Enterprise sync telemetry and user profile"><span class="who-text"><b>${esc(user.name)}</b><small><span class="sync-dot ${app.offline ? 'offline' : ''}" aria-hidden="true"></span> ${app.offline ? 'Offline' : esc(t(user.title))}</small></span><span class="avatar" aria-hidden="true">${esc(initials(user.name))}</span></button>
     </header>${actingAsBar}${deniedHtml}${app.offline ? `<div class="offline-strip" id="offline-strip">${icon('sync', 16)} <span>${esc(offlineText)}</span><button class="pill-btn sm" data-act="toggle-offline" style="margin-left:auto;background:rgba(255,255,255,0.2);color:#fff;min-height:var(--tap);display:inline-flex;align-items:center">${esc(goOnlineText)}</button></div>` : ''}${prepared}
     <main class="screen" id="screen" data-region="screen">${out}</main>
