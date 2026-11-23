@@ -24,7 +24,7 @@ export function foundationCard(ctx, accountId) {
       <div data-sig="potential"><small class="muted">${esc(t(CAPS.potential.name))}</small><b>${esc(t('{pct}% captured', { pct: sg.captured }))}</b></div>
       <div data-sig="type"><small class="muted">${esc(t('{Visit} type'))}</small><b class="small">${esc(t(ARCHETYPES[sg.archetype].name))}</b></div>
     </div>
-    <p class="small"><b>${esc(t('Risk drivers'))}:</b></p>
+    <p class="small"><b>${esc(t('Why at risk'))}:</b></p>
     <ul class="bullets small" id="risk-drivers">${sg.risk.drivers.map((d) => `<li>${esc(t(d.t, d.v))}</li>`).join('')}</ul>
     <p class="small"><b>${esc(t(CAPS.diagnostics.name))}:</b> ${sg.growth.map((d) => esc(t(d.t, d.v))).join('. ')}.</p>
     ${(() => {

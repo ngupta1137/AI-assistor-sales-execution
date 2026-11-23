@@ -16,6 +16,41 @@ export default {
       program: "the approved peak capacity plan",
       decider: "The logistics director"
     },
+    fulfillment: {
+      physical: false,
+      source: "depot operations",
+      sourceShort: "Depot",
+      partnerOrg: "depot team",
+      cutoff: "Collection cutoff",
+      slot: "Next collection",
+      runner: "Collection loop",
+      load: ["Est. volume", "1.2 pallets"],
+      beat: "collection loop",
+      plan: "Account plan and rate agreements",
+      planShort: "Account plan",
+      milestones: ["Late collection agreed", "Peak capacity booked", "Claims review held"],
+      fund: null,
+      flowIn: "Booked",
+      flowOut: "Shipped",
+      outSource: "Manifest data",
+      dock: "Loading dock",
+      asset: ["Label printer", "Status", "Operational"]
+    },
+    briefFrame: {
+      objectives: ["Grow shipments", "Capacity and cutoffs", "Claims and declarations"],
+      coord: [
+        ["Depot operations", "Dock slot 16:30"],
+        ["{Rep} (you)", "In the visit"],
+        ["Collection driver", "Next pickup 17:00"]
+      ],
+      constraints: [
+        ["Collection loop", "Running"],
+        ["Network capacity", "Available"],
+        ["Credit", "Available"],
+        ["Rate card", "Filed"]
+      ],
+      constraintNote: "Suggestions are checked against the collection loop, network capacity, credit and the filed rate card."
+    },
     flows: {
       visibility: {
         name: "Pickup cutoffs and returns service",

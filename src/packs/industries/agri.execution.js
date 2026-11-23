@@ -15,6 +15,41 @@ export default {
       mode: "on",
       tiers: ["Early-season scheme", "Volume scheme", "Cooperative scheme"]
     },
+    fulfillment: {
+      physical: true,
+      source: "distributor warehouse",
+      sourceShort: "Warehouse",
+      partnerOrg: "distributor",
+      cutoff: "Dispatch cutoff",
+      slot: "Next truck",
+      runner: "Distributor truck",
+      load: ["Est. load", "40 bags"],
+      beat: "distributor run",
+      plan: "Season plan and schemes",
+      planShort: "Season plan",
+      milestones: ["Pre-season stock plan agreed", "Farmer meeting held", "Demo plot reviewed"],
+      fund: "Scheme fund",
+      flowIn: "Sell-in",
+      flowOut: "Sell-out",
+      outSource: "Dealer sales data",
+      dock: "Dealer store room",
+      asset: ["Demo plot signage", "Condition", "Good"]
+    },
+    briefFrame: {
+      objectives: ["Season sell-in", "Farmer demand", "Label-compliant advice"],
+      coord: [
+        ["Agronomist", "Demo plot Fri"],
+        ["{Rep} (you)", "In the visit"],
+        ["Distributor truck", "Next drop Tue"]
+      ],
+      constraints: [
+        ["Crop stage", "Checked"],
+        ["Warehouse stock", "Allocated"],
+        ["Dealer credit", "Available"],
+        ["Label", "On file"]
+      ],
+      constraintNote: "Suggestions are checked against crop stage, distributor stock, dealer credit and the product label."
+    },
     flows: {
       visibility: {
         name: "Demo plots and farmer meetings",

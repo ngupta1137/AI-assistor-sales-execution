@@ -16,6 +16,34 @@ export default {
       program: "the approved contract renewal terms",
       decider: "The pricing desk"
     },
+    fulfillment: {
+      physical: true,
+      source: "branch warehouse",
+      sourceShort: "Branch",
+      partnerOrg: "branch",
+      cutoff: "Same-day cutoff",
+      slot: "Next delivery",
+      runner: "Branch van",
+      load: ["Est. shipment", "3 cartons"],
+      beat: "branch van run",
+      plan: "Site plan and contract terms",
+      planShort: "Site plan",
+      milestones: ["Restock bins installed", "Toolbox talk held", "Contract item review"],
+      fund: null,
+      flowIn: "Supplied",
+      flowOut: "Issued from crib",
+      outSource: "Crib data",
+      dock: "Goods-in",
+      asset: ["Vending machine", "Fill level", "85% (sample)"]
+    },
+    briefFrame: {
+      objectives: ["Contract compliance", "Restock bins", "Safety and ratings"],
+      coord: [
+        ["Vending technician", "Bin refill Tue"],
+        ["{Rep} (you)", "In the visit"],
+        ["Branch van", "Next drop 14:00"]
+      ]
+    },
     flows: {
       visibility: {
         name: "New items and toolbox talks",

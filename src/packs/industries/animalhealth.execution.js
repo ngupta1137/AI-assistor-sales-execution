@@ -15,6 +15,41 @@ export default {
       mode: "off",
       note: "Not used in animal health. Prescription products go only through vets, and no incentives are targeted."
     },
+    fulfillment: {
+      physical: true,
+      source: "wholesaler warehouse",
+      sourceShort: "Wholesaler",
+      partnerOrg: "wholesaler",
+      cutoff: "Wholesaler cutoff",
+      slot: "Next delivery",
+      runner: "Cold chain courier",
+      load: ["Est. shipment", "2 cool boxes"],
+      beat: "wholesaler run",
+      plan: "Practice plan and protocols",
+      planShort: "Practice plan",
+      milestones: ["Protocol review held", "Seasonal stock plan agreed", "Cold chain check passed"],
+      fund: null,
+      flowIn: "Supplied",
+      flowOut: "Dispensed",
+      outSource: "Practice records",
+      dock: "Practice store room",
+      asset: ["Vaccine fridge", "Temperature log", "In range"]
+    },
+    briefFrame: {
+      objectives: ["Protocol adoption", "Seasonal stock", "Cold chain and label"],
+      coord: [
+        ["Vet technical advisor", "Herd review Wed"],
+        ["{Rep} (you)", "In the visit"],
+        ["Cold chain courier", "Next drop Tue"]
+      ],
+      constraints: [
+        ["Prescription", "Authorized"],
+        ["Wholesaler stock", "Allocated"],
+        ["Credit", "Available"],
+        ["Cold chain", "Within range"]
+      ],
+      constraintNote: "Suggestions are checked against prescription authorization, wholesaler stock, credit and the cold chain."
+    },
     flows: {
       visibility: {
         name: "Label literature and protocols",

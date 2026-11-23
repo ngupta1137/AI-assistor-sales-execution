@@ -15,6 +15,41 @@ export default {
       mode: "off",
       note: "Not used in insurance distribution. Rates and terms come from underwriting and filed rates only."
     },
+    fulfillment: {
+      physical: false,
+      source: "underwriting",
+      sourceShort: "Underwriting",
+      partnerOrg: "underwriting team",
+      cutoff: "Submission cutoff",
+      slot: "Next underwriting review",
+      runner: "Underwriting queue",
+      load: ["Est. turnaround", "3 working days"],
+      beat: "underwriting cycle",
+      plan: "Agency plan and appetite",
+      planShort: "Agency plan",
+      milestones: ["Appetite briefing held", "Producer licensing checked", "Book review completed"],
+      fund: null,
+      flowIn: "Submitted",
+      flowOut: "Bound",
+      outSource: "Policy data",
+      dock: "Agency office",
+      asset: ["Agency signage", "Branding", "Current"]
+    },
+    briefFrame: {
+      objectives: ["Grow submissions", "Retention", "Licensing and appetite"],
+      coord: [
+        ["Underwriter", "Review Thu"],
+        ["{Rep} (you)", "In the visit"],
+        ["Claims liaison", "No open escalation"]
+      ],
+      constraints: [
+        ["Licensing", "Current"],
+        ["Appetite", "Within guidelines"],
+        ["Commission terms", "Active"],
+        ["Compliance", "Clear"]
+      ],
+      constraintNote: "Suggestions are checked against producer licensing and published appetite. Rates come from underwriting only."
+    },
     flows: {
       visibility: {
         name: "Approved brochures and briefings",

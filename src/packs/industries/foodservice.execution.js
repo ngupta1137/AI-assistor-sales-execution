@@ -16,6 +16,41 @@ export default {
       program: "the approved menu support program",
       decider: "The account manager and the contract"
     },
+    fulfillment: {
+      physical: true,
+      source: "distribution center",
+      sourceShort: "DC",
+      partnerOrg: "fleet",
+      cutoff: "Order cutoff",
+      slot: "Next delivery",
+      runner: "Delivery route",
+      load: ["Est. load", "2 roll cages"],
+      beat: "delivery route",
+      plan: "Account plan and menu support",
+      planShort: "Account plan",
+      milestones: ["Menu placement confirmed", "Chef tasting held", "Standing order review"],
+      fund: "Menu support fund",
+      flowIn: "Delivered",
+      flowOut: "Used on menu",
+      outSource: "Kitchen usage",
+      dock: "Kitchen door",
+      asset: ["Branded dispenser", "Hygiene check", "Passed"]
+    },
+    briefFrame: {
+      objectives: ["Menu wins", "Core range", "Delivery quality"],
+      coord: [
+        ["Chef consultant", "Tasting Thu"],
+        ["{Rep} (you)", "In the visit"],
+        ["Delivery driver", "Next drop 06:00"]
+      ],
+      constraints: [
+        ["Delivery window", "Open"],
+        ["DC stock", "Allocated"],
+        ["Credit", "Available"],
+        ["Contract price", "Current"]
+      ],
+      constraintNote: "Suggestions are checked against delivery windows, distribution center stock, credit and the contract price list."
+    },
     flows: {
       visibility: {
         name: "Menu placement and tastings",

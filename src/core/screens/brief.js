@@ -3,16 +3,8 @@
 
 import { esc, icon, pill, confBadge, agentTag, typeLine, AGENT_LABEL } from '../ui.js';
 import { mergePanel, fieldNotices } from '../execution/views.js';
+import { wording, briefFrame } from '../wording.js';
 
-/** Visit-frame copy on the brief. Packs can replace any part with `briefFrame`. */
-const BRIEF_FRAME = {
-  objectives: ['Expand whitespace', 'Volume reorder', 'Merchandising'],
-  constraints: [['Receiving', 'Open'], ['Depot stock', 'Allocated'], ['Credit', 'Available'], ['Contract', 'Active']],
-  constraintNote: 'Recommendations hard-filtered against receiving dock windows, distributor depot inventory, and customer credit limits.',
-  coordTitle: 'Multi-role location coordination',
-  coordNote: 'Shared graph across merchandiser, pre-sell rep, and delivery driver to prevent conflicting execution.',
-  coord: [['Merchandiser', 'Display set (07:30)'], ['Pre-Sell (You)', 'Active in-visit'], ['Driver Route', 'ETA 14:15 (Tomorrow)']],
-};
 
 const ADJUST = {
   action: ['Do it first', 'Do it later in the {visit}', 'Only if time allows', 'Smaller scope today'],
@@ -235,7 +227,7 @@ function renderItem(ctx, it, isNext, a, itemIndex) {
       <div style="font-weight:600;font-size:12px;margin-bottom:4px;color:var(--ink)">Data is stale</div>
       <p class="small" style="margin-bottom:8px">Account metrics were last refreshed 18 days ago (threshold: ${ctx.industry.governance?.staleLimitDays || 14} days).</p>
       <button class="btn primary sm" data-act="refresh-stale" data-id="${it.id}" style="min-height:var(--tap)">${icon('sync', 14)} Refresh</button>
-      <div class="next-step-line" style="margin-top:8px;font-size:11px;color:var(--muted)"><b>Next step:</b> Tap Refresh to sync current depot inventory and return to active recommendation.</div>
+      <div class="next-step-line" style="margin-top:8px;font-size:11px;color:var(--muted)"><b>Next step:</b> ${esc(ctx.t('Tap Refresh to sync current {source} data and return to the recommendation.', { source: wording(ctx.industry).source }))}</div>
     </div>`;
   } else if (outcome === 'role') {
     outcomeUi = `<div class="gov-outcome role" style="margin:8px 0;padding:10px;border-left:3px solid var(--muted);background:var(--surface-subtle);border-radius:var(--radius-sm)">
@@ -326,7 +318,7 @@ function renderItem(ctx, it, isNext, a, itemIndex) {
     </div>
     <div class="facts" style="grid-template-columns:repeat(auto-fit,minmax(110px,1fr));margin-top:6px">
       <div><small>Rule version</small><b>${esc(rule.version || 'v2.4')}</b></div>
-      <div><small>Data used &amp; age</small><b>14-day depot CRM</b></div>
+      <div><small>Data used &amp; age</small><b>${esc(ctx.t('14-day {short} and CRM data', { short: wording(ctx.industry).sourceShort.toLowerCase() }))}</b></div>
       <div><small>Outcome</small><b>${esc(outcome)}</b></div>
       <div><small>Model use</small><b>Rules decide; model words reason</b></div>
       <div><small>Audited viewer</small><b>${esc(ctx.persona)} (${esc(data.rep.name)})</b></div>
@@ -360,7 +352,8 @@ function renderItem(ctx, it, isNext, a, itemIndex) {
 }
 
 export function render(ctx, [accountId]) {
-  const BF = { ...BRIEF_FRAME, ...(ctx.industry.briefFrame || {}) };
+  const BF = briefFrame(ctx.industry);
+  const W = wording(ctx.industry);
   const { t, fmt, data, m, ui } = ctx;
   const p = m.plannedFor(accountId) || data.planned[0];
   const a = data.byId[p.accountId];
@@ -536,11 +529,11 @@ export function render(ctx, [accountId]) {
           <b style="color:var(--ink)">Rapid execution priority</b>
           ${pill('Highest feasible yield', 'good')}
         </div>
-        <p class="small" style="margin-bottom:8px">Streamlined for rushed buyer interactions. Single high-yield verified action and fast replenishment reorder.</p>
+        <p class="small" style="margin-bottom:8px">${esc(t('For a rushed {contact}: one verified action and a quick {order}.'))}</p>
         <small class="muted" style="display:block;margin-bottom:8px;font-size:10px">Supervisory threshold: Reps exceeding 25% Blitz mode over 14 days flagged for territory coaching review.</small>
         <div style="padding:6px 8px;background:var(--surface);border-radius:4px;margin-bottom:8px;border:1px solid var(--line-soft)">
           <b>${esc(t(items[0]?.title || 'Core Priority Action', items[0]?.vars))}</b>
-          <div class="small muted">Distributor stock verified · Estimated upside: ${esc(fmt.money(items[0]?.value || 500))}</div>
+          <div class="small muted">${esc(t('{short} availability verified', { short: W.sourceShort }))} · Estimated upside: ${esc(fmt.money(items[0]?.value || 500))}</div>
         </div>
         <div class="btn-row" style="gap:6px">
           <a class="btn primary sm" href="#/action/${items[0]?.id || ''}" style="min-height:var(--tap);flex:1;display:flex;align-items:center;justify-content:center">Execute priority action</a>

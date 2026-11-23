@@ -2,6 +2,7 @@
 // KPIs, guardrails, order rules and country settings.
 
 import { esc, icon, pill, kpiValue, AGENT_LABEL, EVIDENCE } from '../ui.js';
+import { wording } from '../wording.js';
 import { exportAuditCsv } from '../telemetry.js';
 import { upcomingEvents, localPrice } from '../../data/generate.js';
 
@@ -78,14 +79,14 @@ export function render(ctx) {
       </div>
     ` : ''}
   </details>
-  <details class="fold" id="partner" open><summary>Partner &amp; Distributor Operations (PRD Section 4, P2)<span class="sum-end">Wholesale Portal</span></summary>
-    <p class="small muted" style="margin-bottom:8px">Third-party logistics &amp; distributor interface. Confirm proposed daily delivery beats, review incoming rep orders, manage depot safety stock, and adjust distributor credit float limits.</p>
+  ${industry.execution?.partner ? `<details class="fold" id="partner" open><summary>${esc(t('Partner operations: the {partner}', { partner: industry.execution.partner }))}<span class="sum-end">${esc(t('Partner view'))}</span></summary>
+    <p class="small muted" style="margin-bottom:8px">${esc(t('The {partner} confirms routes, receives {orders} from the field, shares invoices back and chooses how its system connects.', { partner: industry.execution.partner }))}</p>
     <div style="display:flex;gap:6px;flex-wrap:wrap;align-items:center">
       <a class="btn primary sm" href="#/partner" style="min-height:var(--tap);flex:1;text-align:center;display:inline-flex;align-items:center;justify-content:center;gap:6px">
-        ${icon('route', 16)} Open Partner &amp; Distributor Portal
+        ${icon('route', 16)} ${esc(t('Open the {partner} view', { partner: industry.execution.partner }))}
       </a>
     </div>
-  </details>
+  </details>` : ''}
   <details class="fold" id="offerings"><summary>${esc(t('{Offerings}'))}<span class="sum-end">${industry.offerings.length}</span></summary><div class="tbl-wrap"><table class="tbl"><thead><tr><th>Name</th><th>Category</th><th>Status</th></tr></thead><tbody>${offerings}</tbody></table></div></details>
   <details class="fold" id="kpis"><summary>KPIs<span class="sum-end">${industry.kpis.length}</span></summary><table class="tbl"><tbody>${kpis}</tbody></table></details>
   <details class="fold" id="rules"><summary>Guardrails</summary><ul class="guards">${industry.guardrails.map((g) => `<li>${icon('shield', 16)} ${esc(t(g.text))}</li>`).join('')}</ul>
@@ -95,9 +96,9 @@ export function render(ctx) {
     <p class="small muted" style="margin-bottom:8px"><b>The Core Differentiator:</b> A single versioned state shared across all five decisions. Trigger a live constraint perturbation below to inspect the reactive event-driven solver trace recomputing Coverage, Routing, Actions, Orders, and Overrides.</p>
     
     <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px">
-      <button class="btn secondary sm" data-act="trigger-solver" data-event="depot-oos" style="min-height:var(--tap);flex:1;font-size:11px">Set Core Line to 0 Depot Stock</button>
-      <button class="btn secondary sm" data-act="trigger-solver" data-event="dock-cutoff" style="min-height:var(--tap);flex:1;font-size:11px">Move Dock Cutoff 2h Early</button>
-      <button class="btn secondary sm" data-act="trigger-solver" data-event="credit-hold" style="min-height:var(--tap);flex:1;font-size:11px">Trigger Customer Credit Hold</button>
+      <button class="btn secondary sm" data-act="trigger-solver" data-event="depot-oos" style="min-height:var(--tap);flex:1;font-size:11px">${esc(t(wording(industry).physical ? 'Set a core line to zero {short} stock' : 'Set {short} capacity to zero', { short: wording(industry).sourceShort.toLowerCase() }))}</button>
+      <button class="btn secondary sm" data-act="trigger-solver" data-event="dock-cutoff" style="min-height:var(--tap);flex:1;font-size:11px">${esc(t('Move the {cutoff} 2h earlier', { cutoff: wording(industry).cutoff.toLowerCase() }))}</button>
+      <button class="btn secondary sm" data-act="trigger-solver" data-event="credit-hold" style="min-height:var(--tap);flex:1;font-size:11px">${esc(t('Put the {account} on credit hold'))}</button>
       <button class="btn secondary sm" data-act="trigger-solver" data-event="reset" style="min-height:var(--tap);font-size:11px">Reset</button>
     </div>
 
@@ -117,16 +118,16 @@ export function render(ctx) {
             <b>Decision 1 (Coverage &amp; Prioritization):</b> ${ev === 'depot-oos' ? 'Urgency recalibrated: Account visit score updated based on remaining feasible line upside.' : ev === 'dock-cutoff' ? 'Priority adjusted to high-velocity accounts able to receive delivery.' : 'Account priority maintained; commercial terms flagged.'}
           </div>
           <div style="padding:4px 6px;background:var(--surface-subtle);border-radius:4px;border-left:3px solid var(--accent)">
-            <b>Decision 2 (Dynamic Routing &amp; Logistics):</b> ${ev === 'dock-cutoff' ? 'Stop sequence re-routed: Account moved from Stop 4 to Stop 1 to beat 08:30 dock closure window.' : 'Route sequence maintained; carrier delivery batch re-allocated.'}
+            <b>Decision 2 (Dynamic Routing &amp; Logistics):</b> ${ev === 'dock-cutoff' ? esc(t('Stop sequence changed: the {account} moves from stop 4 to stop 1 to beat the earlier cutoff.')) : esc(t('Route kept; the {beat} slot re-allocated.', { beat: wording(industry).beat }))}
           </div>
           <div style="padding:4px 6px;background:var(--surface-subtle);border-radius:4px;border-left:3px solid var(--accent)">
-            <b>Decision 3 (In-Visit Action Prioritization):</b> ${ev === 'depot-oos' ? 'Action suppressed: Core promotional display action disabled (out of stock). Substituted with inventory audit.' : 'Display verification action confirmed.'}
+            <b>Decision 3 (In-Visit Action Prioritization):</b> ${ev === 'depot-oos' ? esc(t('Action held back: it depends on a line that is not available. A check action replaces it.')) : esc(t('Top action confirmed.'))}
           </div>
           <div style="padding:4px 6px;background:var(--surface-subtle);border-radius:4px;border-left:3px solid var(--accent)">
-            <b>Decision 4 (Suggested Order &amp; Terms):</b> ${ev === 'depot-oos' ? 'Order line adapted: Out-of-stock line automatically swapped to pre-authorized contract substitute at price parity.' : ev === 'credit-hold' ? 'Provisional order requires Credit Desk release code before submission.' : 'Order lines re-validated against available freight capacity.'}
+            <b>Decision 4 (Suggested Order &amp; Terms):</b> ${ev === 'depot-oos' ? esc(t('{Order} line adapted: the unavailable line is swapped for a pre-approved substitute at the same contract price.')) : ev === 'credit-hold' ? 'Provisional order requires Credit Desk release code before submission.' : 'Order lines re-validated against available freight capacity.'}
           </div>
           <div style="padding:4px 6px;background:var(--surface-subtle);border-radius:4px;border-left:3px solid var(--accent)">
-            <b>Decision 5 (Outcomes &amp; Overrides):</b> ${ev === 'depot-oos' ? 'Root-cause pre-attributed: Reason logged as Supply Chain Allocation constraint. Rep score protected.' : 'Standard debrief flow verified.'}
+            <b>Decision 5 (Outcomes &amp; Overrides):</b> ${ev === 'depot-oos' ? esc(t('Reason pre-filled as a supply constraint, so the {rep} is not blamed.')) : 'Standard debrief flow verified.'}
           </div>
         </div>
       </div>`;
@@ -143,7 +144,7 @@ export function render(ctx) {
         <tbody>
           <tr><td><b>Edge Client Engine</b></td><td>Offline visits, suggested orders, routing</td><td><span class="pill good sm">BUILT</span></td><td>Client-side browser prototype (IndexedDB)</td></tr>
           <tr><td><b>Shared Constraint Solver</b></td><td>Dynamic 5-decision reactive recomputation</td><td><span class="pill good sm">BUILT</span></td><td>Deterministic event-driven constraint engine</td></tr>
-          <tr><td><b>Multi-Tier Entity Model</b></td><td>Payer, physical site, wholesale depot</td><td><span class="pill good sm">BUILT</span></td><td>Commercial account data structure</td></tr>
+          <tr><td><b>Multi-Tier Entity Model</b></td><td>${esc(t('Payer, site and who fulfills it ({source})', { source: wording(industry).source }))}</td><td><span class="pill good sm">BUILT</span></td><td>Commercial account data structure</td></tr>
           <tr><td><b>Offline State Machine</b></td><td>Provisional reservation tokens &amp; outbox</td><td><span class="pill good sm">BUILT</span></td><td>Client-side state machine with durability check</td></tr>
           <tr><td><b>ERP Middleware Gateway</b></td><td>SAP S/4HANA BAPI/IDoc dedupe table</td><td><span class="pill info sm">DESIGNED</span></td><td>API specification &amp; compensating flows</td></tr>
           <tr><td><b>Enterprise Identity</b></td><td>Microsoft Entra ID, Okta SAML 2.0 / OIDC</td><td><span class="pill info sm">DESIGNED</span></td><td>SSO &amp; RBAC architectural specification</td></tr>

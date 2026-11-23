@@ -25,7 +25,7 @@ export const CAPS = {
   },
   diagnostics: {
     group: 'foundation', name: 'Gap Diagnostics', q: 'What is driving growth or decline here?', agent: 'gap',
-    out: 'Gaps with type, severity and evidence, plus growth and decline drivers',
+    out: 'Gaps with type, severity and evidence, plus the reasons for growth or decline',
     without: 'Gaps are found during the {visit}, or never.',
     built: 'Rules over sample sales, evidence and history',
     designed: 'Rules plus a model, triggered by new evidence',
@@ -33,7 +33,7 @@ export const CAPS = {
   },
   retention: {
     group: 'foundation', name: 'Retention Risk', q: 'Which {accounts} are at risk of leaving?', agent: 'gap',
-    out: 'Risk score, band and the drivers behind it',
+    out: 'Risk score, band and the reasons behind it',
     without: 'Loss is noticed after the {orders} stop.',
     built: 'Score from {order} trend, {visit} gaps and open gaps',
     designed: 'Survival or classification model, weekly',
@@ -340,7 +340,7 @@ export function signals(ctx) {
     const growth = [];
     if (trend > 5) growth.push({ t: '{Order} value up {pct}% across the last three {orders}', v: { pct: trend } });
     if (captured < 60) growth.push({ t: 'Only {pct}% of potential captured. White space is the main lever', v: { pct: captured } });
-    if (trend < -5) growth.push({ t: 'Decline driver: {Order} value is falling. Check gaps before pushing new lines', v: {} });
+    if (trend < -5) growth.push({ t: 'Falling: {Order} value is down. Check gaps before pushing new lines', v: {} });
     if (!growth.length) growth.push({ t: 'Stable. {pct}% of potential captured', v: { pct: captured } });
 
     // Offer Targeting: incremental vs would buy anyway.
@@ -480,7 +480,7 @@ export const TESTS = {
   retention: { unit: 'Flagged {accounts} against matched unflagged ones', measure: 'Loss rate in flagged {accounts}', guard: 'No over-investment in low-value at-risk {accounts}' },
   actions: { unit: 'Randomized by {rep} or team, never by {account}', measure: 'Share of {visits} with a high-value action done', guard: '{Visit} time and {rep} feedback' },
   planning: { unit: 'Matched territories, before and after', measure: 'Selling time per day; travel per {visit}', guard: 'Must-{visit} {accounts} still covered' },
-  order: { unit: 'Randomized by {account} within a partner', measure: 'Lines per {order}', guard: 'Stock-outs, returns and partner stock' },
+  order: { unit: 'Randomized by {account} within a partner', measure: 'Lines per {order}', guard: 'Shortfalls, returns and partner capacity' },
   offers: { unit: 'Randomized by {account} within a region', measure: 'Extra volume per offer against a blanket offer', guard: 'Total offer spend inside budget; no loss of base sales' },
 };
 export const TEST_STAGES = [
@@ -492,7 +492,7 @@ export const TEST_STAGES = [
 
 /** Structured reasons: why a suggestion was not followed, and which capability learns. */
 export const LEARN_REASONS = [
-  { id: 'stock', label: 'Stock issue', learns: ['order', 'diagnostics'], match: /stock|supply|deliver|float|capacity/i },
+  { id: 'stock', label: 'Supply or capacity issue', learns: ['order', 'diagnostics'], match: /stock|supply|deliver|float|capacity/i },
   { id: 'money', label: 'Cannot buy now', learns: ['order', 'retention'], match: /credit|afford|budget|hold|dues|arrears|price/i },
   { id: 'done', label: 'Already done', learns: ['diagnostics'], match: /already|fixed|done/i },
   { id: 'notallowed', label: 'Not allowed here', learns: ['actions', 'offers'], match: /not allowed|agreement|rule|policy|licen|consent|suitab|compliance/i },

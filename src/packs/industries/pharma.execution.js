@@ -15,6 +15,41 @@ export default {
       mode: "off",
       note: "Not used in pharma. No offers, discounts or free goods to HCPs. Contract terms are set by the contracts team."
     },
+    fulfillment: {
+      physical: true,
+      source: "wholesaler warehouse",
+      sourceShort: "Wholesaler",
+      partnerOrg: "wholesaler",
+      cutoff: "Wholesaler cutoff",
+      slot: "Next delivery",
+      runner: "Wholesaler run",
+      load: ["Est. volume", "2 totes"],
+      beat: "wholesaler run",
+      plan: "Account plan and contract terms",
+      planShort: "Account plan",
+      milestones: ["Formulary review submitted", "Education session for staff", "Contract renewal review"],
+      fund: null,
+      flowIn: "Shipped",
+      flowOut: "Dispensed",
+      outSource: "Pharmacy data",
+      dock: "Pharmacy receiving",
+      asset: ["Cold storage unit", "Temperature log", "In range"]
+    },
+    briefFrame: {
+      objectives: ["Reach priority HCPs", "Formulary follow-up", "Samples and compliance"],
+      coord: [
+        ["{Kam}", "Contract review Tue"],
+        ["{Rep} (you)", "In the call"],
+        ["Medical information", "Request open"]
+      ],
+      constraints: [
+        ["Contact consent", "Valid"],
+        ["Wholesaler stock", "Allocated"],
+        ["Contract", "Active"],
+        ["Samples", "Logged"]
+      ],
+      constraintNote: "Suggestions are checked against contact consent, wholesaler stock and the account contract."
+    },
     flows: {
       visibility: {
         name: "Approved material and education",

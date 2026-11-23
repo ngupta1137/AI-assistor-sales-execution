@@ -2,6 +2,7 @@
 // Month actual comes from source data only. Completed actions are shown as an estimate, never added to actuals.
 
 import { esc, icon, pill, bar, kpiValue, AGENT_LABEL } from '../ui.js';
+import { wording } from '../wording.js';
 import { fieldNotices } from '../execution/views.js';
 
 function greeting() {
@@ -226,7 +227,7 @@ export function render(ctx) {
             
             <!-- Mid-week delivery lag dip -->
             <circle cx="134" cy="54" r="3.5" fill="var(--warn)"/>
-            <text x="134" y="65" font-size="7" fill="var(--warn)" text-anchor="middle">${esc(fmt.moneyShort(4600))} (Depot lag)</text>
+            <text x="134" y="65" font-size="7" fill="var(--warn)" text-anchor="middle">${esc(fmt.moneyShort(4600))} (${esc(t('{short} lag', { short: wording(ctx.industry).sourceShort }))})</text>
             
             <!-- Thursday re-order surge -->
             <circle cx="178" cy="26" r="3.5" fill="var(--accent)"/>

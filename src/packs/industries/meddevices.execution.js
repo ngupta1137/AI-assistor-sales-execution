@@ -15,6 +15,41 @@ export default {
       mode: "off",
       note: "Not used in medical devices. Contract prices and terms are set by the contracts team."
     },
+    fulfillment: {
+      physical: true,
+      source: "regional distribution center",
+      sourceShort: "DC",
+      partnerOrg: "logistics team",
+      cutoff: "Shipping cutoff",
+      slot: "Next delivery",
+      runner: "Courier run",
+      load: ["Est. shipment", "3 cartons"],
+      beat: "courier run",
+      plan: "Account plan and contract renewals",
+      planShort: "Account plan",
+      milestones: ["Value analysis file submitted", "In-service training for OR staff", "Contract renewal review"],
+      fund: null,
+      flowIn: "Shipped",
+      flowOut: "Used in cases",
+      outSource: "Usage logs",
+      dock: "Materials receiving",
+      asset: ["Installed analyzer", "Uptime", "98% (sample)"]
+    },
+    briefFrame: {
+      objectives: ["Grow procedures", "Consumables pull-through", "Uptime and quality"],
+      coord: [
+        ["Clinical specialist", "Case support 07:30"],
+        ["{Rep} (you)", "In the visit"],
+        ["Field service engineer", "Maintenance Thu"]
+      ],
+      constraints: [
+        ["OR schedule", "Checked"],
+        ["DC stock", "Allocated"],
+        ["Contract", "Active"],
+        ["Quality holds", "None"]
+      ],
+      constraintNote: "Suggestions are checked against the OR schedule, distribution center stock and quality holds."
+    },
     flows: {
       visibility: {
         name: "Trials and in-service training",

@@ -12,6 +12,41 @@ export default {
     standardOwner: 'The network operations team and the pickup point handbook',
     retentionSignal: 'Weekly parcel count fell three weeks in a row',
     offers: { mode: 'limited', program: 'the approved volume tier program', decider: 'The pricing desk' },
+    fulfillment: {
+      physical: false,
+      source: "network operations",
+      sourceShort: "Network",
+      partnerOrg: "network team",
+      cutoff: "Collection cutoff",
+      slot: "Next collection",
+      runner: "Driver loop",
+      load: ["Est. volume", "180 parcels"],
+      beat: "collection loop",
+      plan: "Merchant plan and volume tiers",
+      planShort: "Merchant plan",
+      milestones: ["Later collection agreed", "Pickup point option live at checkout", "Peak capacity booked"],
+      fund: null,
+      flowIn: "Booked",
+      flowOut: "Delivered",
+      outSource: "Scan data",
+      dock: "Packing floor",
+      asset: ["Pickup point scanner", "Last sync", "Today"]
+    },
+    briefFrame: {
+      objectives: ["Grow parcel volume", "Fix a service gap", "Network standards"],
+      coord: [
+        ["Network support", "Scanner check (07:30)"],
+        ["{Rep} (you)", "In the site visit"],
+        ["Driver loop", "Next pickup 14:15"]
+      ],
+      constraints: [
+        ["Collection loop", "Running"],
+        ["Network capacity", "Available"],
+        ["Credit", "Available"],
+        ["Rate card", "Current"]
+      ],
+      constraintNote: "Suggestions are checked against the collection loop, network capacity in the area and the account credit status."
+    },
     flows: {
       visibility: { name: 'Delivery choices at checkout', goal: 'Shoppers see pickup point and evening options, each with its published service level', actions: ['checkout'], kpis: ['Merchants showing pickup point delivery', 'Checkout choices per merchant', 'Share of parcels to pickup points', 'Actual versus expected first-attempt success'] },
       range: { name: 'Service mix, collection and peak capacity', goal: 'Each merchant has the collection time, returns and peak capacity its volume needs', actions: ['cutoff', 'peakbook', 'returnsetup', 'supplies'], kpis: ['Parcels per week', 'Parcels that waited overnight', 'Peak capacity booked in time', 'Returns through pickup points'] },

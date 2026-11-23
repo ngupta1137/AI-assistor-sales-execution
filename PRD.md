@@ -111,6 +111,8 @@ Each capability can run alone; together they close the loop (gaps become actions
 
 ## 6. Industry packs (twenty-one)
 
+Each pack also sets the wording of shared screens through its execution overlay: `fulfillment` (where supply or capacity comes from, who fulfills, cutoffs, the account plan and its milestones, the field asset) and `briefFrame` (call objectives, constraints checked and who else serves the account). Packs without physical stock (financial services, insurance, logistics, last-mile delivery) describe processing and capacity instead of depots and pallets. Defaults live in `src/core/wording.js`.
+
 | Industry | Account (the "store") | Contacts | Rep title | What is sold or ordered | Typical actions | Headline KPI | Guardrail |
 |---|---|---|---|---|---|---|---|
 | Consumer goods | Supermarkets, convenience stores, independent shops | Store manager, owner | Sales rep | Products by the case | Fix out-of-stock, secure a display, list a new product, place promo material | Distribution, lines per store | Follow each retailer agreement |

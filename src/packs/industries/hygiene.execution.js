@@ -16,6 +16,34 @@ export default {
       program: "the approved equipment program",
       decider: "The contractor director"
     },
+    fulfillment: {
+      physical: true,
+      source: "regional warehouse",
+      sourceShort: "Warehouse",
+      partnerOrg: "logistics team",
+      cutoff: "Dispatch cutoff",
+      slot: "Next delivery",
+      runner: "Delivery route",
+      load: ["Est. load", "6 drums"],
+      beat: "delivery route",
+      plan: "Site plan and service levels",
+      planShort: "Site plan",
+      milestones: ["Dispensers installed", "Safety documents refreshed", "Dilution audit passed"],
+      fund: null,
+      flowIn: "Supplied",
+      flowOut: "Used on site",
+      outSource: "Dispenser data",
+      dock: "Site store room",
+      asset: ["Dosing dispenser", "Calibration", "Current"]
+    },
+    briefFrame: {
+      objectives: ["Site standards", "Bulk supply", "Dispensers and safety"],
+      coord: [
+        ["Service technician", "Dispenser check Tue"],
+        ["{Rep} (you)", "In the visit"],
+        ["Delivery route", "Next drop Thu"]
+      ]
+    },
     flows: {
       visibility: {
         name: "Dispenser installation",

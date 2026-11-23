@@ -15,6 +15,34 @@ export default {
       mode: "on",
       tiers: ["Counter promotion", "Loyalty bonus tier", "Bulk lubricant deal"]
     },
+    fulfillment: {
+      physical: true,
+      source: "distributor warehouse",
+      sourceShort: "Warehouse",
+      partnerOrg: "distributor",
+      cutoff: "Same-day cutoff",
+      slot: "Next delivery",
+      runner: "Distributor van",
+      load: ["Est. shipment", "4 boxes"],
+      beat: "distributor van run",
+      plan: "Account plan and counter promotions",
+      planShort: "Account plan",
+      milestones: ["Counter display placed", "Mechanic training held", "Loyalty enrollment drive"],
+      fund: "Promotion fund",
+      flowIn: "Sell-in",
+      flowOut: "Fitted",
+      outSource: "Job card data",
+      dock: "Parts counter",
+      asset: ["Parts display rack", "Range on display", "92% (sample)"]
+    },
+    briefFrame: {
+      objectives: ["Grow genuine parts", "Fast movers", "Training and loyalty"],
+      coord: [
+        ["Technical trainer", "Workshop session Thu"],
+        ["{Rep} (you)", "In the visit"],
+        ["Distributor van", "Next drop 15:00"]
+      ]
+    },
     flows: {
       visibility: {
         name: "Counter displays and training",

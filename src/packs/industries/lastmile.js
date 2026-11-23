@@ -332,13 +332,5 @@ export default {
     'Switch to the city commercial manager: overrides with reasons, retention watch, and a retention site visit assigned to the field.',
     'System: the eight capabilities, the pickup point standard flow, and how activation by tier works for a new city.',
   ],
-  briefFrame: {
-    objectives: ['Grow parcel volume', 'Fix a service gap', 'Network standards'],
-    constraints: [['Collection loop', 'Running'], ['Network capacity', 'Available'], ['Credit', 'Available'], ['Rate card', 'Current']],
-    constraintNote: 'Suggestions are checked against the collection loop, network capacity in the area and the account credit status.',
-    coordTitle: 'Who else touches this site',
-    coordNote: 'Network support, the account executive and the driver loop share one view, so nobody undoes another’s work.',
-    coord: [['Network support', 'Scanner check (07:30)'], ['Account executive (you)', 'In the site visit'], ['Driver loop', 'Next pickup 14:15']],
-  },
   forbidden: ['patient', 'prescription', 'livestock', 'crop', 'insurance policy', 'mortgage', 'clinic', 'planogram'],
 };

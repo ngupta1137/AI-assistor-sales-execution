@@ -1,10 +1,13 @@
 // R3 Account 360: current work first (open gaps, recorded outcomes), then potential, KPIs, contacts and history.
 
 import { esc, icon, pill, bar, kpiValue, kpiOk, typeLine } from '../ui.js';
+import { wording } from '../wording.js';
 import { foundationCard } from '../execution/views.js';
 
 export function render(ctx, [accountId]) {
   const { t, fmt, data, m, industry } = ctx;
+  const W = wording(industry);
+  const wt = (x, v) => esc(t(x, { source: W.source, short: W.sourceShort, partner: W.partnerOrg, beat: W.beat, ...v }));
   const a = data.byId[accountId] || data.accounts[0];
   const p = m.plannedFor(a.id);
   const open = p ? m.openGaps(a.id) : [];
@@ -209,11 +212,11 @@ export function render(ctx, [accountId]) {
     <div style="padding:var(--s2) 0">
       <div class="facts" style="margin-bottom:8px;grid-template-columns:repeat(auto-fit,minmax(80px,1fr))">
         <div><small>Asset tag</small><b>EQ-9821</b></div>
-        <div><small>Asset type</small><b>Branded display unit</b></div>
+        <div><small>Asset type</small><b>${wt(W.asset[0])}</b></div>
         <div><small>Condition</small><b class="good-text">Operational</b></div>
-        <div><small>Purity</small><b class="good-text">96% compliant</b></div>
+        <div><small>${wt(W.asset[1])}</small><b class="good-text">${wt(W.asset[2])}</b></div>
       </div>
-      <p class="small muted" style="margin-bottom:8px">Company-owned commercial equipment assigned to this account. Purity audit verified against contractual standards.</p>
+      <p class="small muted" style="margin-bottom:8px">${wt('Company-owned equipment at this {account}, checked against the agreed standard.')}</p>
       <button class="btn secondary sm" data-act="log-asset-audit" data-id="${a.id}" style="min-height:var(--tap);width:100%">${icon('wrench', 14)} Log asset inspection and maintenance check</button>
     </div>
   </details>
@@ -248,46 +251,46 @@ export function render(ctx, [accountId]) {
     </div>
   </details>
         <details class="fold" id="acc-jbp">
-    <summary>Joint Business Plan (JBP) and trade promotions<span class="sum-end">Q4 Active</span></summary>
+    <summary>${wt(W.plan)}<span class="sum-end">Q4 active</span></summary>
     <div style="padding:var(--s2) 0">
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
-        <b>Annual Joint Business Plan (JBP)</b>
-        ${pill('On Target (+14%)', 'good')}
+        <b>${wt('Annual {plan}', { plan: W.planShort.toLowerCase() })}</b>
+        ${pill(t('On target (sample)'), 'good')}
       </div>
-      <p class="small muted" style="margin-bottom:8px">Co-investment agreement establishing joint turnover targets, trade promotion funding, and milestone verification.</p>
+      <p class="small muted" style="margin-bottom:8px">${wt(W.fund ? 'Agreement on joint targets, the {fund} and how milestones are verified.' : 'Agreement on joint targets and how milestones are verified.', { fund: (W.fund || '').toLowerCase() })}</p>
       <div class="facts" style="grid-template-columns:repeat(auto-fit,minmax(80px,1fr));margin-bottom:8px">
-        <div><small>JBP Target</small><b class="money">${esc(fmt.money(a.potential * 2.5))}</b></div>
-        <div><small>Co-op fund</small><b class="money">${esc(fmt.money(a.potential * 0.15))}</b></div>
-        <div><small>Fund used</small><b class="money good-text">${esc(fmt.money(a.potential * 0.10))}</b></div>
+        <div><small>${wt('Plan target')}</small><b class="money">${esc(fmt.money(a.potential * 2.5))}</b></div>
+        ${W.fund ? `<div><small>${wt(W.fund)}</small><b class="money">${esc(fmt.money(a.potential * 0.15))}</b></div>
+        <div><small>${wt('Fund used')}</small><b class="money good-text">${esc(fmt.money(a.potential * 0.10))}</b></div>` : ''}
         <div><small>Baseline vol</small><b class="money">${esc(fmt.money(a.current * 1.8))}</b></div>
       </div>
       <div style="font-size:12px;padding:6px 8px;background:var(--surface-subtle);border-radius:4px;border:1px solid var(--line-soft);margin-bottom:8px">
         <b>Quarterly execution milestones:</b>
         <div style="display:flex;justify-content:space-between;margin-top:4px">
-          <span>1. Eye-level feature placement (Week 44)</span>
+          <span>1. ${wt(W.milestones[0])} (Week 44)</span>
           <b class="good-text">Verified</b>
         </div>
         <div style="display:flex;justify-content:space-between;margin-top:2px">
-          <span>2. Volume promotional bundle (Week 46)</span>
-          <b class="good-text">Active (10% Co-op)</b>
+          <span>2. ${wt(W.milestones[1])} (Week 46)</span>
+          <b class="good-text">${wt('Active')}</b>
         </div>
         <div style="display:flex;justify-content:space-between;margin-top:2px">
-          <span>3. Commercial staff product briefing (Week 48)</span>
+          <span>3. ${wt(W.milestones[2])} (Week 48)</span>
           <b class="muted">Scheduled</b>
         </div>
       </div>
-      <button class="btn secondary sm" data-act="download-jbp-charter" data-id="${a.id}" style="min-height:var(--tap);width:100%">${icon('note', 14)} Export Joint Business Plan (JBP) charter</button>
+      <button class="btn secondary sm" data-act="download-jbp-charter" data-id="${a.id}" style="min-height:var(--tap);width:100%">${icon('note', 14)} ${wt('Export the {plan} charter', { plan: W.planShort.toLowerCase() })}</button>
       ${ctx.ui?.jbpToast ? `<div class="notice good" style="margin-top:8px">${icon('check', 14)}<span>${esc(ctx.ui.jbpToast)}</span></div>` : ''}
     </div>
   </details>
   <details class="fold" id="acc-entity">
-    <summary>Commercial trade network and multi-tier structure<span class="sum-end">Multi-Tier</span></summary>
+    <summary>${wt('Commercial network and multi-tier structure')}<span class="sum-end">${wt('Multi-tier')}</span></summary>
     <div style="padding:var(--s2) 0">
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
         <b>Enterprise Commercial Hierarchy</b>
-        ${pill('Trade Network Mapped', 'good')}
+        ${pill(t('Network mapped'), 'good')}
       </div>
-      <p class="small muted" style="margin-bottom:8px">Multi-tier mapping of contracting entity, invoice payer, physical delivery site, and wholesale fulfillment stockist.</p>
+      <p class="small muted" style="margin-bottom:8px">${wt(W.physical ? 'Who signs, who pays, where the {order} is delivered and who fulfills it.' : 'Who signs, who pays, where the service runs and who processes it.')}</p>
       <div style="display:flex;flex-direction:column;gap:6px;font-size:12px;margin-bottom:8px">
         <div style="padding:6px 8px;background:var(--surface-subtle);border-radius:4px;border:1px solid var(--line-soft)">
           <span class="muted">1. Contracting Parent / Legal Entity:</span>
@@ -298,19 +301,19 @@ export function render(ctx, [accountId]) {
           <b>Central Invoicing ACC-${10000 + (a.name.length * 47) % 90000} · Credit: Net 30 Days</b>
         </div>
         <div style="padding:6px 8px;background:var(--surface-subtle);border-radius:4px;border:1px solid var(--line-soft)">
-          <span class="muted">3. Physical Delivery Ship-To Site:</span>
-          <b>${esc(a.name)} (${esc(a.address)}) · Dock 2 (08:00 - 15:30)</b>
+          <span class="muted">${wt(W.physical ? '3. Delivery site:' : '3. Service site:')}</span>
+          <b>${esc(a.name)} (${esc(a.address)}) · ${wt(W.dock)} (08:00 - 15:30)</b>
         </div>
         <div style="padding:6px 8px;background:var(--surface-subtle);border-radius:4px;border:1px solid var(--line-soft)">
-          <span class="muted">4. Wholesale Stockist Channel:</span>
-          <b>Regional Distribution Partner Depot #402 · Standard Beat 4B Delivery</b>
+          <span class="muted">${wt('4. Fulfilled by:')}</span>
+          <b>${wt(W.physical ? '{Partner}, {short} #402 · {beat} 4B' : '{Partner} · {beat} 4B', { Partner: W.partnerOrg[0].toUpperCase() + W.partnerOrg.slice(1) })}</b>
         </div>
       </div>
       <div class="facts" style="grid-template-columns:repeat(auto-fit,minmax(80px,1fr))">
-        <div><small>Trade flow</small><b>Direct contract</b></div>
-        <div><small>Fulfillment</small><b>Wholesale depot</b></div>
-        <div><small>Sell-in</small><b class="good-text">Invoiced</b></div>
-        <div><small>Sell-out</small><b>POS tracked</b></div>
+        <div><small>${wt('Contract')}</small><b>${wt('Direct')}</b></div>
+        <div><small>${wt('Fulfillment')}</small><b>${wt(W.sourceShort)}</b></div>
+        <div><small>${wt(W.flowIn)}</small><b class="good-text">${wt(W.physical ? 'Invoiced' : 'Recorded')}</b></div>
+        <div><small>${wt(W.flowOut)}</small><b>${wt(W.outSource)}</b></div>
       </div>
     </div>
   </details>
@@ -320,7 +323,7 @@ export function render(ctx, [accountId]) {
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;flex-wrap:wrap;gap:6px">
         <div>
           <b style="font-size:14px">${esc(a.name.split(' ')[0])} Enterprise Network</b>
-          <div class="small muted">Multi-location account rollup &amp; JBP commitments</div>
+          <div class="small muted">${wt('Multi-location rollup and {plan} commitments', { plan: W.planShort.toLowerCase() })}</div>
         </div>
         <div class="seg-ctl" role="group" aria-label="KAM analytics timeframe">
           <button class="seg ${(ctx.ui?.kamTf || 'monthly') === 'daily' ? 'on' : ''}" data-act="set-kam-tf" data-tf="daily" style="min-height:var(--tap);min-width:44px;font-size:11px">Daily</button>
@@ -335,16 +338,16 @@ export function render(ctx, [accountId]) {
           return `
           <div class="facts" style="grid-template-columns:repeat(auto-fit,minmax(75px,1fr));margin-bottom:8px">
             <div><small>Locations</small><b>14 sites</b></div>
-            <div><small>Dock dispatch</small><b class="good-text">100% met</b></div>
-            <div><small>Stock status</small><b class="good-text">Allocated</b></div>
-            <div><small>Daily replenishment</small><b>${esc(fmt.moneyShort(a.current * 0.1))}</b></div>
+            <div><small>${wt(W.cutoff)}</small><b class="good-text">${wt('Met (sample)')}</b></div>
+            <div><small>${wt(W.physical ? 'Stock status' : 'Capacity')}</small><b class="good-text">${wt(W.physical ? 'Allocated' : 'Available')}</b></div>
+            <div><small>${wt('Daily run rate')}</small><b>${esc(fmt.moneyShort(a.current * 0.1))}</b></div>
           </div>
           <div style="padding:10px 12px;background:var(--surface-inset);border-radius:var(--radius-sm);border:1px solid var(--line-soft);margin-top:6px">
             <div style="display:flex;justify-content:space-between;align-items:center;font-size:11px;margin-bottom:6px">
-              <span class="muted">14-branch daily delivery &amp; replenishment pacing</span>
-              <span class="good-text"><b>100% on-time</b> ($16,800 received)</span>
+              <span class="muted">${wt('Daily pacing across 14 locations')}</span>
+              <span class="good-text">${esc(fmt.moneyShort(a.current * 0.1 * 1.68))} ${wt('received (sample)')}</span>
             </div>
-            <svg viewBox="0 0 320 80" style="width:100%;height:auto;overflow:visible" role="img" aria-label="KAM daily replenishment pacing">
+            <svg viewBox="0 0 320 80" style="width:100%;height:auto;overflow:visible" role="img" aria-label="${wt('Daily pacing')}">
               <defs>
                 <linearGradient id="kamDailyGrad" x1="0" y1="0" x2="0" y2="1">
                   <stop offset="0%" stop-color="var(--good)" stop-opacity="0.3"/>
@@ -379,16 +382,16 @@ export function render(ctx, [accountId]) {
           return `
           <div class="facts" style="grid-template-columns:repeat(auto-fit,minmax(75px,1fr));margin-bottom:8px">
             <div><small>Weekly target</small><b>${esc(fmt.moneyShort((a.potential * 4) / 12))}</b></div>
-            <div><small>Wholesale sell-in</small><b class="good-text">${esc(fmt.moneyShort((a.current * 3.8) / 11))}</b></div>
-            <div><small>Sell-out POS</small><b class="good-text">96% scan</b></div>
-            <div><small>Rebate accrual</small><b>4.0%</b></div>
+            <div><small>${wt(W.flowIn)}</small><b class="good-text">${esc(fmt.moneyShort((a.current * 3.8) / 11))}</b></div>
+            <div><small>${wt(W.flowOut)}</small><b class="good-text">${wt('96% matched (sample)')}</b></div>
+            <div><small>${wt('Rebate accrual')}</small><b>4.0%</b></div>
           </div>
           <div style="padding:10px 12px;background:var(--surface-inset);border-radius:var(--radius-sm);border:1px solid var(--line-soft);margin-top:6px">
             <div style="display:flex;justify-content:space-between;align-items:center;font-size:11px;margin-bottom:6px">
-              <span class="muted">Wholesale sell-in vs site sell-out POS scan</span>
-              <span class="good-text"><b>96.2% scan match</b> ($31,200 sell-out)</span>
+              <span class="muted">${wt('{a} against {b}, from {src}', { a: W.flowIn.toLowerCase(), b: W.flowOut.toLowerCase(), src: W.outSource.toLowerCase() })}</span>
+              <span class="good-text">${wt('Sample data')}</span>
             </div>
-            <svg viewBox="0 0 320 85" style="width:100%;height:auto;overflow:visible" role="img" aria-label="KAM weekly sell-in vs sell-out">
+            <svg viewBox="0 0 320 85" style="width:100%;height:auto;overflow:visible" role="img" aria-label="${wt('{a} against {b}', { a: W.flowIn, b: W.flowOut.toLowerCase() })}">
               <line x1="38" y1="18" x2="310" y2="18" stroke="var(--line-soft)" stroke-dasharray="2,2"/>
               <text x="32" y="21" font-size="8" fill="var(--muted)" text-anchor="end">$40k</text>
               <line x1="38" y1="44" x2="310" y2="44" stroke="var(--line-soft)" stroke-dasharray="2,2"/>
@@ -415,9 +418,9 @@ export function render(ctx, [accountId]) {
               <text x="295" y="80" font-size="8" font-weight="700" fill="var(--accent)">W5 (MTD)</text>
             </svg>
             <div style="display:flex;justify-content:space-between;font-size:10px;color:var(--muted);margin-top:4px">
-              <span><span style="color:var(--accent)">●</span> In-Market POS Sell-Out</span>
-              <span><span style="color:var(--muted)">---</span> Wholesale Sell-In Depot</span>
-              <span class="good-text">Low stockout risk</span>
+              <span><span style="color:var(--accent)">●</span> ${wt(W.flowOut)}</span>
+              <span><span style="color:var(--muted)">---</span> ${wt(W.flowIn)}</span>
+              <span class="good-text">${wt(W.physical ? 'Low stock-out risk' : 'Within capacity')}</span>
             </div>
           </div>`;
         } else {
@@ -430,10 +433,10 @@ export function render(ctx, [accountId]) {
           </div>
           <div style="padding:10px 12px;background:var(--surface-inset);border-radius:var(--radius-sm);border:1px solid var(--line-soft);margin-top:6px">
             <div style="display:flex;justify-content:space-between;align-items:center;font-size:11px;margin-bottom:6px">
-              <b>Multi-month JBP trajectory vs commitment</b>
+              <b>${wt('{plan}: trajectory against commitment', { plan: W.planShort })}</b>
               ${pill('Commitment pacing 94.1%', 'good')}
             </div>
-            <svg viewBox="0 0 320 95" style="width:100%;height:auto;overflow:visible" role="img" aria-label="JBP quarterly trajectory">
+            <svg viewBox="0 0 320 95" style="width:100%;height:auto;overflow:visible" role="img" aria-label="${wt('Quarterly trajectory')}">
               <defs>
                 <linearGradient id="jbpAreaGrad" x1="0" y1="0" x2="0" y2="1">
                   <stop offset="0%" stop-color="var(--accent)" stop-opacity="0.3"/>
@@ -475,8 +478,8 @@ export function render(ctx, [accountId]) {
               <text x="295" y="88" font-size="8" font-weight="700" fill="var(--good)" text-anchor="middle">Month 3 (QTD)</text>
             </svg>
             <div style="display:flex;justify-content:space-between;font-size:10px;color:var(--muted);margin-top:4px">
-              <span><span style="color:var(--accent)">●</span> In-Market POS Sell-Out: $301,000</span>
-              <span><span style="color:var(--muted)">---</span> Contract Commitment: $320,000</span>
+              <span><span style="color:var(--accent)">●</span> ${wt(W.flowOut)}: ${esc(fmt.moneyShort(a.current * 3.8))}</span>
+              <span><span style="color:var(--muted)">---</span> ${wt('Commitment')}: ${esc(fmt.moneyShort(a.potential * 4))}</span>
               <span class="good-text">On track for Tier 1 rebate</span>
             </div>
           </div>`;
@@ -536,25 +539,25 @@ export const actions = {
   'download-jbp-charter': ({ ctx, data }) => {
     const a = ctx.data.byId[data.id];
     const fmt = ctx.fmt;
-    (ctx.ui ||= {}).jbpToast = `Joint Business Plan charter exported for ${a ? a.name : 'account'}.`;
-    if (ctx.m?.logAudit) ctx.m.logAudit('JBP Governance', `Exported Joint Business Plan charter for ${a ? a.name : data.id}`);
+    const W = wording(ctx.industry);
+    (ctx.ui ||= {}).jbpToast = `${W.planShort} charter exported for ${a ? a.name : 'account'}.`;
+    if (ctx.m?.logAudit) ctx.m.logAudit('Account plan', `Exported the ${W.planShort.toLowerCase()} charter for ${a ? a.name : data.id}`);
     const content = [
       '========================================================================',
-      'ANNUAL JOINT BUSINESS PLAN (JBP) CHARTER',
+      `ANNUAL ${W.planShort.toUpperCase()} CHARTER (SAMPLE DATA)`,
       `Commercial Account: ${a ? a.name : 'Customer'} (${a ? a.address : ''})`,
-      `Agreement ID: JBP-2026-${1000 + (a ? a.name.length * 97 : 50) % 9000}`,
+      `Agreement ID: PLAN-2026-${1000 + (a ? a.name.length * 97 : 50) % 9000}`,
       '========================================================================',
       '',
       '1. MUTUALLY AGREED COMMERCIAL COMMITMENTS',
-      `   - Annual Target Turnover: ${fmt.money(a.potential * 2.5)} (+14% year-on-year expansion)`,
+      `   - Annual target: ${fmt.money(a.potential * 2.5)}`,
       `   - Baseline Contract Volume: ${fmt.money(a.current * 1.8)}`,
-      `   - Incremental Trade Spend Uplift Target: ${fmt.money(a.whiteSpace * 0.8)}`,
-      `   - Co-Investment Trade Marketing Pool: ${fmt.money(a.potential * 0.15)} (67% deployed)`,
+      `   - White space in scope: ${fmt.money(a.whiteSpace * 0.8)}`,
+      ...(W.fund ? [`   - ${W.fund}: ${fmt.money(a.potential * 0.15)}`] : []),
       '',
       '2. CONTRACTED EXECUTION MILESTONES',
-      '   - Feature Placement: Confirmed eye-level placement on primary fixture',
-      '   - Promotional Schedule: 10% volume discount tier co-funded via trade spend pool',
-      '   - Proof of Performance: Electronic photo audit and scan reconciliation',
+      ...W.milestones.map((x) => `   - ${x}`),
+      `   - Proof: evidence captured in the field and checked against ${W.outSource.toLowerCase()}`,
       '',
       '3. FINANCIAL REBATE ACCRUAL SCHEDULE',
       '   - 5% retrospective bonus earned upon achieving 90% of annual turnover target',
@@ -567,7 +570,7 @@ export const actions = {
     const url = URL.createObjectURL(blob);
     const link = document.createElement('a');
     link.href = url;
-    link.download = `JBP-Charter-${(a ? a.name : 'Customer').replace(/\s+/g, '-')}.txt`;
+    link.download = `${W.planShort.replace(/\s+/g, '-')}-Charter-${(a ? a.name : 'Customer').replace(/\s+/g, '-')}.txt`;
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
@@ -618,7 +621,7 @@ export const actions = {
   'log-asset-audit': ({ ctx, data }) => {
     const a = ctx.data.byId[data.id];
     (ctx.ui ||= {}).accountToast = `Asset inspection EQ-9821 verified for ${a ? a.name : 'account'}.`;
-    if (ctx.m?.logAudit) ctx.m.logAudit('Asset Management', `Verified operating status and 96% purity for asset EQ-9821 at ${a ? a.name : data.id}`);
+    if (ctx.m?.logAudit) ctx.m.logAudit('Asset Management', `Verified ${wording(ctx.industry).asset[0].toLowerCase()} EQ-9821 at ${a ? a.name : data.id}`);
   },
   'download-dossier': ({ ctx, data }) => {
     const a = ctx.data.byId[data.id];

@@ -15,6 +15,34 @@ export default {
       mode: "on",
       tiers: ["Single-case deal", "Multi-case deal", "Display deal"]
     },
+    fulfillment: {
+      physical: true,
+      source: "distributor depot",
+      sourceShort: "Depot",
+      partnerOrg: "distributor",
+      cutoff: "Carrier cutoff",
+      slot: "Next delivery",
+      runner: "Delivery run",
+      load: ["Est. freight", "1.2 pallets"],
+      beat: "delivery run",
+      plan: "Joint business plan and trade promotions",
+      planShort: "Joint business plan",
+      milestones: ["Eye-level feature placement", "Volume promotion bundle", "Store staff product briefing"],
+      fund: "Co-op fund",
+      flowIn: "Sell-in",
+      flowOut: "Sell-out",
+      outSource: "POS scan",
+      dock: "Receiving dock",
+      asset: ["Branded display unit", "Range on display", "96% (sample)"]
+    },
+    briefFrame: {
+      objectives: ["Expand white space", "Volume reorder", "Merchandising"],
+      coord: [
+        ["Merchandiser", "Display set (07:30)"],
+        ["{Rep} (you)", "In the visit"],
+        ["Delivery driver", "Next drop tomorrow 14:15"]
+      ]
+    },
     flows: {
       visibility: {
         name: "Secondary displays",

@@ -2,11 +2,14 @@
 // approval rules and prerequisites from the pack, evaluated live and re-checked on submit.
 
 import { esc, icon, pill, agentTag } from '../ui.js';
+import { wording } from '../wording.js';
 
 const recipientName = (t, route) => t(route === 'kam' ? '{kam}' : '{manager}');
 
 export function render(ctx, [accountId]) {
   const { t, fmt, data, m } = ctx;
+  const W = wording(ctx.industry);
+  const wv = { source: W.source, short: W.sourceShort, partner: W.partnerOrg, beat: W.beat };
   const a = data.byId[accountId] || data.byId[data.planned[0].accountId];
   const st = m.orderState(a.id);
   const lines = m.orderLines(a.id);
@@ -56,8 +59,8 @@ export function render(ctx, [accountId]) {
         </div>
         <div class="small muted" style="margin-bottom:6px">
           ${ctx.app.offline
-            ? 'Provisional reservation token #RES-9410. Pending ERP inventory allocation and credit release upon sync.'
-            : 'Authoritative confirmation from ERP OData gateway. Central warehouse inventory batch reserved and delivery beat dispatched.'}
+            ? t(W.physical ? 'Provisional reservation token #RES-9410. Pending {source} allocation and credit release on sync.' : 'Provisional reservation token #RES-9410. Pending {source} confirmation and credit release on sync.', wv)
+            : t(W.physical ? 'Confirmed by the ERP gateway. {Short} stock reserved and the {beat} scheduled.' : 'Confirmed by the ERP gateway. {Short} has the request and the {beat} is scheduled.', { ...wv, Short: W.sourceShort })}
         </div>
         <div style="display:flex;justify-content:space-between;align-items:center;font-size:11px;padding:4px 6px;background:var(--surface);border-radius:4px;border:1px solid var(--line-soft)">
           <span>Storage persistence:</span>
@@ -73,7 +76,7 @@ export function render(ctx, [accountId]) {
             <div style="margin-top:6px;padding:6px;background:var(--surface);border-radius:4px;border:1px solid var(--line-soft);font-size:11px">
               <b>Compensating reconciliation scenarios:</b>
               <div style="display:flex;gap:4px;margin-top:4px;flex-wrap:wrap">
-                <button class="btn secondary sm" data-act="comp-scenario" data-type="stock" style="min-height:var(--tap);flex:1;font-size:10px">Depot oversold</button>
+                <button class="btn secondary sm" data-act="comp-scenario" data-type="stock" style="min-height:var(--tap);flex:1;font-size:10px">${esc(t(W.physical ? '{short} oversold' : '{short} at capacity', wv))}</button>
                 <button class="btn secondary sm" data-act="comp-scenario" data-type="credit" style="min-height:var(--tap);flex:1;font-size:10px">Credit hold</button>
                 <button class="btn secondary sm" data-act="comp-scenario" data-type="price" style="min-height:var(--tap);flex:1;font-size:10px">Price drift</button>
               </div>
@@ -153,7 +156,7 @@ export function render(ctx, [accountId]) {
       <h3>Eligible product substitution and split delivery</h3>
       ${pill('Eligible substitute found', 'good')}
     </div>
-    <p class="small" style="margin-bottom:8px">Constrained item alternative verified for contract price parity and depot stock availability.</p>
+    <p class="small" style="margin-bottom:8px">${esc(t('Alternative checked for contract price parity and {source} availability.', wv))}</p>
     
     <div style="padding:6px 8px;background:var(--surface);border-radius:4px;border:1px solid var(--line-soft);margin-bottom:8px;font-size:12px">
       <div style="display:flex;justify-content:space-between">
@@ -162,7 +165,7 @@ export function render(ctx, [accountId]) {
       </div>
       <div style="display:flex;justify-content:space-between;margin-top:4px">
         <b>Recommended substitute:</b>
-        <b class="good-text">Premium Alternate (Depot #402 In Stock)</b>
+        <b class="good-text">${esc(t('Premium alternate ({short} #402, available)', wv))}</b>
       </div>
       <div style="display:flex;justify-content:space-between;margin-top:2px">
         <span class="muted">Contract price parity:</span>
@@ -182,7 +185,7 @@ export function render(ctx, [accountId]) {
       <h3>Vehicle and field trunk inventory</h3>
       ${pill('Direct delivery stock', 'good')}
     </div>
-    <p class="small muted" style="margin-bottom:8px">On-hand vehicle inventory available for immediate customer handover without warehouse logistics delay.</p>
+    <p class="small muted" style="margin-bottom:8px">${esc(t('Stock in the {rep}\'s vehicle, ready to hand over without waiting for the {beat}.', wv))}</p>
     
     <div style="display:flex;flex-direction:column;gap:6px">
       <div style="padding:8px 10px;background:var(--surface-subtle);border:1px solid var(--line);border-radius:var(--radius-sm);display:flex;justify-content:space-between;align-items:center">
@@ -273,35 +276,35 @@ export function render(ctx, [accountId]) {
       <!-- Carrier Cutoff & Logistics Dispatch Engine -->
       <div style="margin-top:8px;padding:8px 10px;background:var(--surface-subtle);border:1px solid var(--line-soft);border-radius:var(--radius-sm);font-size:11px">
         <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px">
-          <b>Carrier cutoff and dynamic delivery slot</b>
-          ${pill('Qualified: Priority run', 'good')}
+          <b>${esc(t('{cutoff} and next slot', { cutoff: W.cutoff }))}</b>
+          ${pill(t('Qualified: priority {beat}', wv), 'good')}
         </div>
         <div class="facts" style="grid-template-columns:repeat(auto-fit,minmax(70px,1fr));margin-bottom:4px">
-          <div><small>Carrier cutoff</small><b>14:00 (Met)</b></div>
-          <div><small>Next slot</small><b>Tomorrow AM</b></div>
-          <div><small>Carrier</small><b>Route 04-B</b></div>
-          <div><small>Est. freight</small><b>1.2 pallets</b></div>
+          <div><small>${esc(t(W.cutoff))}</small><b>14:00 (Met)</b></div>
+          <div><small>${esc(t(W.slot))}</small><b>Tomorrow AM</b></div>
+          <div><small>${esc(t(W.runner))}</small><b>04-B</b></div>
+          <div><small>${esc(t(W.load[0]))}</small><b>${esc(t(W.load[1]))}</b></div>
         </div>
-        <div class="muted">Calculated dynamically from wholesale depot lead time, daily carrier cutoff, and dock receiving windows.</div>
+        <div class="muted">${esc(t(W.physical ? 'Calculated from {source} lead time, the daily cutoff and {dock} hours.' : 'Calculated from {source} turnaround and the daily cutoff.', { ...wv, dock: W.dock.toLowerCase() }))}</div>
       </div>
 
     </section>
     <section class="card tight" id="partner-fulfillment" style="margin-top:var(--s3)">
       <div class="section-head" style="margin-bottom:6px">
-        <h3>Partner and distributor fulfillment beat</h3>
+        <h3>${esc(t('Fulfillment by the {partner}', wv))}</h3>
         ${ctx.ui?.partnerBeatConfirmed ? pill('Beat confirmed', 'good') : pill('Beat pending', 'info')}
       </div>
       <div class="facts" style="grid-template-columns:repeat(auto-fit,minmax(80px,1fr));margin-bottom:8px">
-        <div><small>Partner</small><b>Depot #402</b></div>
-        <div><small>Stock status</small><b class="good-text">Allocated</b></div>
-        <div><small>Beat slot</small><b>Beat 4B</b></div>
+        <div><small>${esc(t('Fulfilled by'))}</small><b>${esc(t('{short} #402', wv))}</b></div>
+        <div><small>${esc(t(W.physical ? 'Stock status' : 'Capacity'))}</small><b class="good-text">${esc(t(W.physical ? 'Allocated' : 'Available'))}</b></div>
+        <div><small>${esc(t('Slot'))}</small><b>4B</b></div>
         <div><small>Queue ID</small><b>ODATA-7749</b></div>
       </div>
-      <p class="small muted" style="margin-bottom:8px">Regional wholesale partner delivery schedule for bulk replenishment without central warehouse delays.</p>
+      <p class="small muted" style="margin-bottom:8px">${esc(t('The {partner} confirms the slot in the {beat}, so the {order} is fulfilled without waiting.', wv))}</p>
       ${ctx.ui?.partnerBeatConfirmed ? `
-        <div class="notice good">${icon('check', 14)}<span>Wholesale fulfillment beat 4B confirmed with partner logistics depot.</span></div>
+        <div class="notice good">${icon('check', 14)}<span>${esc(t('Slot 4B in the {beat} confirmed with the {partner}.', wv))}</span></div>
       ` : `
-        <button class="btn secondary sm" data-act="confirm-partner-beat" data-id="${a.id}" style="min-height:var(--tap);width:100%">${icon('route', 14)} Confirm wholesale fulfillment beat</button>
+        <button class="btn secondary sm" data-act="confirm-partner-beat" data-id="${a.id}" style="min-height:var(--tap);width:100%">${icon('route', 14)} ${esc(t('Confirm the slot with the {partner}', wv))}</button>
       `}
     </section>`;
   })()}
@@ -316,7 +319,8 @@ export const actions = {
   'comp-scenario': ({ ctx, data }) => {
     const ui = (ctx.ui ||= {});
     if (data.type === 'stock') {
-      ui.compNotice = 'Compensating flow: Depot oversold. Auto-split shipment initiated: available units dispatch, backorder queued.';
+      const W = wording(ctx.industry);
+      ui.compNotice = ctx.t(W.physical ? 'Compensating flow: {short} oversold. The {order} is split: available lines go now, the rest wait.' : 'Compensating flow: {short} at capacity. The request is split: part goes now, the rest is queued.', { short: W.sourceShort });
     } else if (data.type === 'credit') {
       ui.compNotice = 'Compensating flow: ERP credit hold. Provisional order locked. Release request dispatched to Credit Desk.';
     } else {
@@ -348,8 +352,9 @@ export const actions = {
   'confirm-partner-beat': ({ ctx, data }) => {
     const a = ctx.data.byId[data.id];
     (ctx.ui ||= {}).partnerBeatConfirmed = true;
-    (ctx.ui ||= {}).promoNotice = 'Wholesale fulfillment beat 4B confirmed with partner depot.';
-    if (ctx.m?.logAudit) ctx.m.logAudit('Partner Logistics', `Confirmed wholesale fulfillment beat 4B for ${a ? a.name : data.id}`);
+    const W = wording(ctx.industry);
+    (ctx.ui ||= {}).promoNotice = ctx.t('Slot 4B in the {beat} confirmed with the {partner}.', { beat: W.beat, partner: W.partnerOrg });
+    if (ctx.m?.logAudit) ctx.m.logAudit('Fulfillment', `Confirmed slot 4B in the ${W.beat} for ${a ? a.name : data.id}`);
   },
 
   'request-credit-override': ({ ctx, data }) => {

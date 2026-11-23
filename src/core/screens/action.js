@@ -89,11 +89,9 @@ export function render(ctx, [id]) {
         </div>
       </div>
       <section class="card" style="margin:0">
-        <h3>Customer-facing value drivers</h3>
+        <h3>${esc(t('Why it matters to the {contact}'))}</h3>
         <ul class="why" style="margin-top:6px">
-          <li>Accelerates inventory turnover based on regional sell-through patterns.</li>
-          <li>Optimizes display or operational allocation with zero risk of stockout.</li>
-          <li>Protected by vendor volume terms and point-of-sale support.</li>
+          ${def.why.slice(0, 3).map((w) => `<li>${esc(t(w, v))}</li>`).join('')}
         </ul>
       </section>
       <button class="btn primary block" data-act="close-pitch-modal" style="min-height:var(--tap)">Close presentation</button>
@@ -128,15 +126,15 @@ export function render(ctx, [id]) {
     <div style="display:flex;flex-direction:column;gap:6px">
       <div style="display:flex;align-items:center;gap:8px;font-size:13px;padding:8px 10px;background:var(--surface-subtle);border-radius:var(--radius-xs);border:1px solid var(--line-soft)">
         <span style="color:var(--good);display:inline-flex;align-items:center">${icon('check', 16)}</span>
-        <span>Display alignment and visibility standards met</span>
+        <span>${esc(t('{type} done as agreed', { type: t(it.type) }))}</span>
       </div>
       <div style="display:flex;align-items:center;gap:8px;font-size:13px;padding:8px 10px;background:var(--surface-subtle);border-radius:var(--radius-xs);border:1px solid var(--line-soft)">
         <span style="color:var(--good);display:inline-flex;align-items:center">${icon('check', 16)}</span>
-        <span>Promotional collateral and POS placement confirmed</span>
+        <span>${esc(t('Evidence captured: {ev}', { ev: t(it.evidence || 'note') }))}</span>
       </div>
       <div style="display:flex;align-items:center;gap:8px;font-size:13px;padding:8px 10px;background:var(--surface-subtle);border-radius:var(--radius-xs);border:1px solid var(--line-soft)">
         <span style="color:var(--good);display:inline-flex;align-items:center">${icon('check', 16)}</span>
-        <span>Stock rotation and packaging integrity verified</span>
+        <span>${esc(t('Outcome agreed with the {contact}'))}</span>
       </div>
     </div>
     
@@ -163,25 +161,25 @@ export function render(ctx, [id]) {
   </section>
   <section class="card tight" id="vision-diagnostics" style="margin-top:var(--s3)">
     <div class="section-head" style="margin-bottom:6px">
-      <h3>AI layout and display vision diagnostics</h3>
+      <h3>${esc(t('Evidence quality check'))}</h3>
       ${pill(ui?.visionChecked ? 'Vision verified' : 'Pre-flight check', ui?.visionChecked ? 'good' : 'info')}
     </div>
-    <p class="small muted" style="margin-bottom:8px">Automated edge computer-vision pre-check on captured display evidence before departure.</p>
+    <p class="small muted" style="margin-bottom:8px">${esc(t('On-device check of the captured evidence before leaving the {account}. Sample values.'))}</p>
     <div class="facts" style="grid-template-columns:repeat(auto-fit,minmax(75px,1fr));margin-bottom:8px">
-      <div><small>Clarity (Sample)</small><b class="good-text">98% clear</b></div>
-      <div><small>Layout match (Sample)</small><b class="good-text">92% match</b></div>
-      <div><small>Facings</small><b>6 of 6</b></div>
-      <div><small>Price tag</small><b class="good-text">Verified</b></div>
+      <div><small>Clarity (sample)</small><b class="good-text">98% clear</b></div>
+      <div><small>Matches the standard (sample)</small><b class="good-text">92%</b></div>
+      <div><small>Items checked</small><b>6 of 6</b></div>
+      <div><small>Time and place</small><b class="good-text">Recorded</b></div>
     </div>
     <div style="font-size:12px;padding:6px 8px;background:var(--surface-subtle);border-radius:4px;border:1px solid var(--line-soft);margin-bottom:8px">
-      <div><b>Automated display verification findings:</b></div>
+      <div><b>${esc(t('Findings'))}:</b></div>
       <ul class="bullets small" style="padding-left:14px;margin-top:2px">
-        <li>Lighting and focus check: Passed (Zero reflection glare detected).</li>
-        <li>Position check: Eye-level priority fixture placement confirmed.</li>
-        <li>Promotional callout: Verified promotional tag displayed.</li>
+        <li>${esc(t('Light and focus: passed.'))}</li>
+        <li>${esc(t('The evidence shows the {type} described in the action.', { type: t(it.type).toLowerCase() }))}</li>
+        <li>${esc(t('Time stamp and location match this {visit}.'))}</li>
       </ul>
     </div>
-    <button class="btn secondary sm" data-act="run-vision-check" style="min-height:var(--tap);width:100%">${icon('scan', 14)} Run computer-vision display diagnostic</button>
+    <button class="btn secondary sm" data-act="run-vision-check" style="min-height:var(--tap);width:100%">${icon('scan', 14)} ${esc(t('Check the evidence'))}</button>
     ${ui?.visionToast ? `<div class="notice good" style="margin-top:8px">${icon('check', 14)}<span>${esc(ui.visionToast)}</span></div>` : ''}
   </section>
 
@@ -227,17 +225,17 @@ export function render(ctx, [id]) {
         </div>
       </details>
       <details class="fold-sub" style="border:1px solid var(--line-soft);border-radius:var(--radius-sm);padding:8px">
-        <summary style="font-weight:600;font-size:13px;cursor:pointer">${icon('bulb', 14)} Objection: "We have no room or inventory space"</summary>
+        <summary style="font-weight:600;font-size:13px;cursor:pointer">${icon('bulb', 14)} ${esc(t('Objection: "We have no room or capacity for this"'))}</summary>
         <div style="margin-top:6px;font-size:12px;color:var(--ink-2)">
-          <p><b>Recommended response:</b> Propose rationalizing declining lines to optimize high-velocity capacity. Offer split delivery cadence to conserve working capital and backroom space.</p>
-          <p class="small muted" style="margin-top:4px">Approved trade term: Flexible weekly delivery schedule available through logistics dispatch.</p>
+          <p><b>Recommended response:</b> ${esc(t('Start smaller. Agree what can come out to make room, and split the {order} over two {visits}.'))}</p>
+          <p class="small muted" style="margin-top:4px">${esc(t('Only terms on the approved list can be offered.'))}</p>
         </div>
       </details>
       <details class="fold-sub" style="border:1px solid var(--line-soft);border-radius:var(--radius-sm);padding:8px">
-        <summary style="font-weight:600;font-size:13px;cursor:pointer">${icon('bulb', 14)} Objection: "Our customers prefer the incumbent alternative"</summary>
+        <summary style="font-weight:600;font-size:13px;cursor:pointer">${icon('bulb', 14)} ${esc(t('Objection: "We are happy with what we have"'))}</summary>
         <div style="margin-top:6px;font-size:12px;color:var(--ink-2)">
-          <p><b>Recommended response:</b> Share regional commercial data showing 28% customer switch rate when merchandised at eye level with introductory promotional signage.</p>
-          <p class="small muted" style="margin-top:4px">Approved trade term: Point-of-sale display collateral provided at no additional charge.</p>
+          <p><b>Recommended response:</b> ${esc(t('Show the {account}\'s own data and suggest a small trial with a review date. Do not quote results from other {accounts}.'))}</p>
+          <p class="small muted" style="margin-top:4px">${esc(t('Only terms on the approved list can be offered.'))}</p>
         </div>
       </details>
     </div>
@@ -274,8 +272,8 @@ export const actions = {
 
   'run-vision-check': ({ ctx }) => {
     (ctx.ui ||= {}).visionChecked = true;
-    ctx.ui.visionToast = 'Layout compliance score 92%: Display alignment verified.';
-    if (ctx.m?.logAudit) ctx.m.logAudit('Display Vision', 'Verified 92% layout compliance and 6 eye-level facings via edge vision check');
+    ctx.ui.visionToast = 'Evidence check passed (sample): clear, matches the standard, time and place recorded.';
+    if (ctx.m?.logAudit) ctx.m.logAudit('Evidence check', 'Evidence passed the on-device quality check (sample)');
   },
 
   'schedule-followup': ({ ctx, data }) => {

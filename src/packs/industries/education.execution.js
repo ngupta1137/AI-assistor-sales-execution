@@ -15,6 +15,41 @@ export default {
       mode: "off",
       note: "Not used in education. Tenders follow public procurement rules, so no offers are targeted."
     },
+    fulfillment: {
+      physical: true,
+      source: "publisher warehouse",
+      sourceShort: "Warehouse",
+      partnerOrg: "logistics team",
+      cutoff: "Order cutoff",
+      slot: "Next delivery",
+      runner: "Courier",
+      load: ["Est. shipment", "8 cartons"],
+      beat: "term delivery",
+      plan: "Institution plan and tender terms",
+      planShort: "Institution plan",
+      milestones: ["Evaluation packs delivered", "Curriculum workshop held", "Tender submitted"],
+      fund: null,
+      flowIn: "Supplied",
+      flowOut: "In use",
+      outSource: "Requisition data",
+      dock: "School office",
+      asset: ["Display stand", "Range on display", "Current titles"]
+    },
+    briefFrame: {
+      objectives: ["Curriculum adoption", "Requisitions", "Safety and tenders"],
+      coord: [
+        ["Curriculum consultant", "Workshop Thu"],
+        ["{Rep} (you)", "In the visit"],
+        ["Courier", "Next delivery Mon"]
+      ],
+      constraints: [
+        ["Planning period", "Open"],
+        ["Warehouse stock", "Allocated"],
+        ["Budget", "Approved"],
+        ["Tender", "Compliant"]
+      ],
+      constraintNote: "Suggestions are checked against planning periods, warehouse stock, approved budgets and tender rules."
+    },
     flows: {
       visibility: {
         name: "Evaluation packs and displays",
