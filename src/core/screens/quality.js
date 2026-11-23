@@ -90,7 +90,7 @@ export function render(ctx) {
   // E8 Release gate composite calculation
   const openGapsCount = m.openGaps ? m.openGaps().length : 0;
   const gates = [
-    { id: 'ab', name: 'A/B Simulation Rollout Rule', status: 'Go', detail: '+4.2% lift at 99% confidence (sample)' },
+    { id: 'ab', name: 'Pilot rollout rule', status: 'Pending', detail: 'Needs a test and control result before wider rollout. Not yet measured.' },
     { id: 'eval', name: 'Multidimensional Eval Gate (E4)', status: evalGatePassed ? 'Go' : 'Stop', detail: evalGatePassed ? 'All 5 dimensions meet threshold' : 'Threshold breach in candidate metrics' },
     { id: 'golden', name: 'Golden Test Suite (E2)', status: goldenGatePassed ? 'Go' : 'Stop', detail: `${critPassPct}% critical, ${nonCritPassPct}% non-critical pass` },
     { id: 'regression', name: 'Regression Suite (E5)', status: 'Go', detail: `${testCounts.totalAssertions.toLocaleString()} assertions passing` },
@@ -139,7 +139,7 @@ export function render(ctx) {
               <b style="font-size:12px;color:var(--ink)">${esc(g.name)}</b>
               <div class="small muted" style="margin-top:2px">${esc(g.detail)}</div>
             </div>
-            ${pill(g.status, g.status === 'Go' ? 'good' : g.status === 'Fix' ? 'warn' : 'bad')}
+            ${pill(g.status, g.status === 'Go' ? 'good' : g.status === 'Fix' || g.status === 'Pending' ? 'warn' : 'bad')}
           </div>
         `).join('')}
       </div>

@@ -1,7 +1,8 @@
 // M2 Exception queue first, then M1 team today, M3 coaching prompts and M4 coverage.
 // Acknowledge is acknowledgement only; this demo has no approve or reject transaction.
 
-import { esc, icon, pill, initials } from '../ui.js';
+import { spark, performance } from './today.js';
+import { esc, icon, pill, initials, bar } from '../ui.js';
 
 const KIND = { override: ['Override', 'info'], blocked: ['Blocked', 'bad'], approval: ['Pending approval', 'warn'] };
 
@@ -132,8 +133,8 @@ export function render(ctx) {
   <section class="card tight" id="ai-impact" style="margin-bottom:var(--s4)">
     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;flex-wrap:wrap;gap:6px">
       <div>
-        <h3 style="margin:0">District analytics &amp; quota pace</h3>
-        <small class="muted">Live operational performance vs commitments</small>
+        <h3 style="margin:0">Team pace</h3>
+        <small class="muted">Sample territory data</small>
       </div>
       <div class="seg-ctl" role="group" aria-label="District analytics timeframe">
         <button class="seg ${(ctx.ui?.mgrTf || 'monthly') === 'daily' ? 'on' : ''}" data-act="set-mgr-tf" data-tf="daily" style="min-height:var(--tap);min-width:44px;font-size:11px">Daily</button>
@@ -143,183 +144,24 @@ export function render(ctx) {
     </div>
 
     ${(() => {
-      const tf = ctx.ui?.mgrTf || 'monthly';
+      const tf = ['daily', 'weekly', 'monthly'].includes(ctx.ui?.mgrTf) ? ctx.ui.mgrTf : 'monthly';
+      const tr = data.territory;
+      const pct = Math.round((tr.achieved / tr.target) * 100);
       if (tf === 'daily') {
-        return `
-        <div class="facts" style="grid-template-columns:repeat(auto-fit,minmax(80px,1fr));margin-bottom:8px">
-          <div><small>District calls</small><b>54 of 68</b></div>
-          <div><small>Open exceptions</small><b class="good-text">3 items</b></div>
-          <div><small>SLA turnaround</small><b>42 min</b></div>
-          <div><small>Time saved</small><b>Measured in a pilot</b></div>
-        </div>
-        <div style="padding:10px 12px;background:var(--surface-inset);border-radius:var(--radius-sm);border:1px solid var(--line-soft)">
-          <div style="display:flex;justify-content:space-between;align-items:center;font-size:11px;margin-bottom:6px">
-            <span class="muted">Hourly team visit &amp; revenue pace</span>
-            <span class="good-text"><b>54 of 68 visits done</b> (79.4% on schedule)</span>
-          </div>
-          <svg viewBox="0 0 340 85" style="width:100%;height:auto;overflow:visible" role="img" aria-label="District daily pace">
-            <defs>
-              <linearGradient id="mgrDailyGrad" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="0%" stop-color="var(--good)" stop-opacity="0.3"/>
-                <stop offset="100%" stop-color="var(--good)" stop-opacity="0.0"/>
-              </linearGradient>
-            </defs>
-            <line x1="38" y1="18" x2="325" y2="18" stroke="var(--line-soft)" stroke-dasharray="2,2"/>
-            <text x="32" y="21" font-size="8" fill="var(--muted)" text-anchor="end">60 stops</text>
-            <line x1="38" y1="44" x2="325" y2="44" stroke="var(--line-soft)" stroke-dasharray="2,2"/>
-            <text x="32" y="47" font-size="8" fill="var(--muted)" text-anchor="end">30 stops</text>
-            <line x1="38" y1="70" x2="325" y2="70" stroke="var(--line-soft)"/>
-            <text x="32" y="72" font-size="8" fill="var(--muted)" text-anchor="end">0</text>
-            
-            <!-- SLA target pace line -->
-            <line x1="42" y1="70" x2="320" y2="14" stroke="var(--muted)" stroke-width="1.5" stroke-dasharray="4,4"/>
-            <text x="320" y="10" font-size="7" fill="var(--muted)" text-anchor="end">Target: 68 stops</text>
-            
-            <!-- Actual pace polygon and curve -->
-            <polygon points="42,70 95,58 160,42 225,26 280,18 280,70 42,70" fill="url(#mgrDailyGrad)"/>
-            <polyline points="42,70 95,58 160,42 225,26 280,18" fill="none" stroke="var(--good)" stroke-width="2.5"/>
-            
-            <circle cx="95" cy="58" r="3.5" fill="var(--good)"/>
-            <text x="95" y="52" font-size="7" fill="var(--muted)" text-anchor="middle">10:30 (18)</text>
-            
-            <circle cx="160" cy="42" r="3.5" fill="var(--good)"/>
-            <text x="160" y="36" font-size="7" fill="var(--muted)" text-anchor="middle">13:00 (36)</text>
-            
-            <circle cx="280" cy="18" r="4.5" fill="var(--good)"/>
-            <text x="280" y="12" font-size="8" font-weight="700" fill="var(--good)" text-anchor="middle">15:30 (54 stops)</text>
-            
-            <text x="42" y="80" font-size="8" fill="var(--muted)">08:30</text>
-            <text x="160" y="80" font-size="8" fill="var(--muted)">Mid-day</text>
-            <text x="280" y="80" font-size="8" font-weight="700" fill="var(--good)">Current (15:30)</text>
-            <text x="320" y="80" font-size="8" fill="var(--muted)">17:30</text>
-          </svg>
-        </div>`;
-      } else if (tf === 'weekly') {
-        return `
-        <div class="facts" style="grid-template-columns:repeat(auto-fit,minmax(80px,1fr));margin-bottom:8px">
-          <div><small>Weekly quota</small><b>${esc(fmt.moneyShort(1350000 / 12))}</b></div>
-          <div><small>Actual booked</small><b class="good-text">${esc(fmt.moneyShort(1420000 / 12))}</b></div>
-          <div><small>Adherence</small><b class="good-text">88.4%</b></div>
-          <div><small>Exception rate</small><b>3.8%</b></div>
-        </div>
-        <div style="padding:10px 12px;background:var(--surface-inset);border-radius:var(--radius-sm);border:1px solid var(--line-soft)">
-          <div style="display:flex;justify-content:space-between;align-items:center;font-size:11px;margin-bottom:6px">
-            <span class="muted">District 6-day revenue run-rate vs weekly quota</span>
-            <span class="good-text"><b>${esc(fmt.money(118300))} booked</b> (+5.2% vs ${esc(fmt.money(112500))} quota)</span>
-          </div>
-          <svg viewBox="0 0 340 90" style="width:100%;height:auto;overflow:visible" role="img" aria-label="Weekly district run rate">
-            <defs>
-              <linearGradient id="mgrWeeklyGrad" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="0%" stop-color="var(--accent)" stop-opacity="0.3"/>
-                <stop offset="100%" stop-color="var(--accent)" stop-opacity="0.0"/>
-              </linearGradient>
-            </defs>
-            <line x1="38" y1="18" x2="325" y2="18" stroke="var(--line-soft)" stroke-dasharray="2,2"/>
-            <text x="32" y="21" font-size="8" fill="var(--muted)" text-anchor="end">${esc(fmt.moneyShort(30000))}</text>
-            <line x1="38" y1="46" x2="325" y2="46" stroke="var(--line-soft)" stroke-dasharray="2,2"/>
-            <text x="32" y="49" font-size="8" fill="var(--muted)" text-anchor="end">${esc(fmt.moneyShort(20000))}</text>
-            <line x1="38" y1="72" x2="325" y2="72" stroke="var(--line-soft)"/>
-            <text x="32" y="74" font-size="8" fill="var(--muted)" text-anchor="end">${esc(fmt.moneyShort(10000))}</text>
-            
-            <!-- Daily district quota: $18.75k (y=49) -->
-            <line x1="42" y1="49" x2="320" y2="49" stroke="var(--muted)" stroke-width="1.5" stroke-dasharray="4,4"/>
-            <text x="320" y="45" font-size="7" fill="var(--muted)" text-anchor="end">Daily Quota (${esc(fmt.moneyShort(18800))})</text>
-            
-            <polygon points="46,46 95,38 145,54 195,30 245,18 295,48 295,72 46,72" fill="url(#mgrWeeklyGrad)"/>
-            <polyline points="46,46 95,38 145,54 195,30 245,18 295,48" fill="none" stroke="var(--accent)" stroke-width="2.5"/>
-            
-            <circle cx="46" cy="46" r="3.5" fill="var(--accent)"/>
-            <text x="46" y="40" font-size="7" fill="var(--muted)" text-anchor="middle">${esc(fmt.moneyShort(19200))}</text>
-            
-            <circle cx="95" cy="38" r="3.5" fill="var(--accent)"/>
-            <text x="95" y="32" font-size="7" fill="var(--muted)" text-anchor="middle">${esc(fmt.moneyShort(22400))}</text>
-            
-            <circle cx="145" cy="54" r="3.5" fill="var(--warn)"/>
-            <text x="145" y="65" font-size="7" fill="var(--warn)" text-anchor="middle">${esc(fmt.moneyShort(16800))} (Logistics lag)</text>
-            
-            <circle cx="195" cy="30" r="3.5" fill="var(--accent)"/>
-            <text x="195" y="24" font-size="7" fill="var(--muted)" text-anchor="middle">${esc(fmt.moneyShort(24800))}</text>
-            
-            <circle cx="245" cy="18" r="4.5" fill="var(--good)"/>
-            <text x="245" y="12" font-size="8" font-weight="700" fill="var(--good)" text-anchor="middle">${esc(fmt.moneyShort(29600))} (Fri Surge)</text>
-            
-            <circle cx="295" cy="48" r="3.5" fill="var(--accent)"/>
-            <text x="295" y="42" font-size="7" fill="var(--muted)" text-anchor="middle">${esc(fmt.moneyShort(18200))}</text>
-            
-            <text x="46" y="82" font-size="8" fill="var(--muted)" text-anchor="middle">Mon</text>
-            <text x="95" y="82" font-size="8" fill="var(--muted)" text-anchor="middle">Tue</text>
-            <text x="145" y="82" font-size="8" fill="var(--muted)" text-anchor="middle">Wed</text>
-            <text x="195" y="82" font-size="8" fill="var(--muted)" text-anchor="middle">Thu</text>
-            <text x="245" y="82" font-size="8" font-weight="700" fill="var(--good)" text-anchor="middle">Fri</text>
-            <text x="295" y="82" font-size="8" fill="var(--muted)" text-anchor="middle">Sat</text>
-          </svg>
-        </div>`;
-      } else {
-        return `
-        <div class="facts" style="grid-template-columns:repeat(auto-fit,minmax(80px,1fr));margin-bottom:8px">
-          <div><small>Quota target</small><b>${esc(fmt.moneyShort(1350000))}</b></div>
-          <div><small>Actual booked</small><b class="good-text">${esc(fmt.moneyShort(1420000))}</b></div>
-          <div><small>Attainment</small><b class="good-text">105.2%</b></div>
-          <div><small>Data</small><b>Sample</b></div>
-        </div>
-        <div style="padding:10px 12px;background:var(--surface-inset);border-radius:var(--radius-sm);border:1px solid var(--line-soft)">
-          <div style="display:flex;justify-content:space-between;align-items:center;font-size:11px;margin-bottom:6px">
-            <span class="muted">12-week district quota trajectory (illustrative, sample data)</span>
-            <span class="good-text"><b>${esc(fmt.money(1420000))} Actual</b> (+${esc(fmt.money(70000))} vs ${esc(fmt.money(1350000))} quota)</span>
-          </div>
-          <svg viewBox="0 0 340 100" style="width:100%;height:auto;overflow:visible" role="img" aria-label="12-week district quota attainment">
-            <defs>
-              <linearGradient id="mgrAreaGrad" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="0%" stop-color="var(--good)" stop-opacity="0.35"/>
-                <stop offset="100%" stop-color="var(--good)" stop-opacity="0.0"/>
-              </linearGradient>
-            </defs>
-            <!-- Grid lines and Y-axis scale -->
-            <line x1="42" y1="20" x2="325" y2="20" stroke="var(--line-soft)" stroke-dasharray="2,2"/>
-            <text x="36" y="23" font-size="8" fill="var(--muted)" text-anchor="end">${esc(fmt.moneyShort(180000))}</text>
-            <line x1="42" y1="50" x2="325" y2="50" stroke="var(--line-soft)" stroke-dasharray="2,2"/>
-            <text x="36" y="53" font-size="8" fill="var(--muted)" text-anchor="end">${esc(fmt.moneyShort(120000))}</text>
-            <line x1="42" y1="78" x2="325" y2="78" stroke="var(--line-soft)"/>
-            <text x="36" y="80" font-size="8" fill="var(--muted)" text-anchor="end">${esc(fmt.moneyShort(80000))}</text>
-            
-            <!-- Target line: gradual ramp from $95k to $135k/wk -->
-            <line x1="48" y1="72" x2="320" y2="35" stroke="var(--muted)" stroke-width="1.5" stroke-dasharray="4,4"/>
-            <text x="320" y="31" font-size="7" fill="var(--muted)" text-anchor="end">Target (${esc(fmt.moneyShort(1350000))})</text>
-            
-            <!-- W6 AI Intervention Marker -->
-            <line x1="168" y1="12" x2="168" y2="82" stroke="var(--warn)" stroke-width="1.5" stroke-dasharray="3,3"/>
-            <text x="168" y="10" font-size="8" font-weight="700" fill="var(--warn)" text-anchor="middle">Pilot start (W6, sample)</text>
-            
-            <!-- Shaded Area post-W6 -->
-            <polygon points="48,76 72,74 96,70 120,73 144,68 168,58 192,50 216,42 240,34 264,28 288,22 320,14 320,78 48,78" fill="url(#mgrAreaGrad)"/>
-            
-            <!-- Actual revenue curve: realistic fluctuation W1-W5, sharp acceleration post W6 -->
-            <polyline points="48,76 72,74 96,70 120,73 144,68 168,58 192,50 216,42 240,34 264,28 288,22 320,14" fill="none" stroke="var(--good)" stroke-width="2.5"/>
-            
-            <!-- Data callouts -->
-            <circle cx="48" cy="76" r="3" fill="var(--muted)"/>
-            <circle cx="120" cy="73" r="3" fill="var(--warn)"/>
-            <text x="120" y="86" font-size="7" fill="var(--muted)" text-anchor="middle">W4: ${esc(fmt.moneyShort(95000))} (Lag)</text>
-            
-            <circle cx="168" cy="58" r="4" fill="var(--warn)"/>
-            <circle cx="240" cy="34" r="3.5" fill="var(--good)"/>
-            <text x="240" y="27" font-size="7" fill="var(--good)" text-anchor="middle">${esc(fmt.moneyShort(148000))}</text>
-            
-            <circle cx="320" cy="14" r="4.5" fill="var(--good)"/>
-            <text x="320" y="8" font-size="8" font-weight="700" fill="var(--good)" text-anchor="middle">${esc(fmt.moneyShort(182000))} (W12)</text>
-            
-            <!-- X-axis weeks -->
-            <text x="48" y="92" font-size="8" fill="var(--muted)" text-anchor="middle">W1</text>
-            <text x="96" y="92" font-size="8" fill="var(--muted)" text-anchor="middle">W3</text>
-            <text x="168" y="92" font-size="8" font-weight="700" fill="var(--warn)" text-anchor="middle">W6</text>
-            <text x="240" y="92" font-size="8" fill="var(--muted)" text-anchor="middle">W9</text>
-            <text x="320" y="92" font-size="8" font-weight="700" fill="var(--good)" text-anchor="middle">W12 (105%)</text>
-          </svg>
-        </div>`;
+        const self = m.selfStats();
+        const reps = (data.reps || []).map((r) => ({ name: r.name, done: r.self ? self.done : r.done, planned: r.planned }));
+        const done = reps.reduce((s, r) => s + r.done, 0), planned = reps.reduce((s, r) => s + r.planned, 0);
+        return `<div class="facts perf-facts"><div><small>Team ${esc(t('{visits}'))}</small><b class="tnum">${done} of ${planned}</b></div><div><small>Reps</small><b class="tnum">${reps.length}</b></div></div>
+          <div class="perf-bars">${reps.map((r) => `<div class="stat-row"><span class="small">${esc(r.name)}</span><span class="small tnum">${r.done} of ${r.planned}</span></div>${bar(r.done, r.planned)}`).join('')}</div>
+          <p class="small muted">${esc(t('Team {visits} done today. Sample data; your own row updates as you complete {visits}.'))}</p>`;
       }
+      const perf = performance(ctx, data.planned, tf, pct);
+      return `<div class="facts perf-facts">${perf.facts.map(([k, v, tone]) => `<div><small>${esc(t(k))}</small><b class="tnum${tone ? ` ${tone}-text` : ''}">${esc(v)}</b></div>`).join('')}</div>
+        ${perf.bars ? `<div class="perf-bars">${perf.bars.map(([k, v]) => `<div class="stat-row"><span class="small muted">${esc(t(k))}</span><span class="small tnum">${esc(fmt.moneyShort(v))}</span></div>${bar(v, Math.max(...perf.bars.map((b) => b[1])) || 1)}`).join('')}</div>` : spark(perf.points, perf.goal)}
+        <p class="small muted">${esc(t(perf.caption))} · ${esc(t('Sample data'))}</p>`;
     })()}
     <div class="btn-row" style="margin-top:10px;gap:8px;flex-wrap:wrap">
-      <button class="btn secondary sm" data-act="open-qbr" style="min-height:var(--tap);flex:1;min-width:140px">${icon('note', 14)} Executive QBR report</button>
+      <button class="btn secondary sm" data-act="open-qbr" style="min-height:var(--tap);flex:1;min-width:140px">${icon('note', 14)} Quarterly review</button>
       <button class="btn secondary sm" data-act="toggle-simulator" style="min-height:var(--tap);flex:1;min-width:140px">${icon('route', 14)} What-if simulator</button>
       <button class="btn secondary sm" data-act="toggle-reassign" style="min-height:var(--tap);flex:1;min-width:140px">${icon('route', 14)} Mid-day re-balance</button>
     </div>
@@ -462,157 +304,106 @@ export function render(ctx) {
     <header class="as-head" style="align-items:center">
       <div>
         <h2 id="qbr-title" style="display:flex;align-items:center;gap:8px">
-          ${icon('note', 20)} Executive QBR and AI ROI Review
+          ${icon('note', 20)} Quarterly review
         </h2>
-        <small>Quarterly business summary and deterministic algorithmic attribution</small>
+        <small>Sample territory data and this session's decisions. Impact is measured in a pilot, not shown here.</small>
       </div>
-      <button class="icon-btn" data-act="close-qbr" aria-label="Close QBR report" style="min-height:var(--tap);min-width:var(--tap)">${icon('x', 20)}</button>
+      <button class="icon-btn" data-act="close-qbr" aria-label="Close quarterly review" style="min-height:var(--tap);min-width:var(--tap)">${icon('x', 20)}</button>
     </header>
 
     <div style="padding:var(--s4);display:flex;flex-direction:column;gap:var(--s3)">
-      <section class="card" style="margin:0;background:var(--surface-subtle)">
-        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
-          <b>Quarterly Performance Pace</b>
-          ${pill('105.2% Attainment', 'good')}
-        </div>
-        <div class="facts" style="grid-template-columns:repeat(auto-fit,minmax(80px,1fr))">
-          <div><small>Quota target</small><b>${esc(fmt.moneyShort(1350000))}</b></div>
-          <div><small>Current actual</small><b class="good-text">${esc(fmt.moneyShort(1420000))}</b></div>
-          <div><small>AI revenue lift</small><b class="money">+${esc(fmt.moneyShort(184200))}</b></div>
-          <div><small>Time returned</small><b>38.4h/rep</b></div>
+      ${(() => {
+        const q = qbrModel(ctx);
+        return `
+      <section class="card" id="qbr-pace" style="margin:0">
+        <div class="section-head"><h3>${esc(t('Territory pace'))}</h3>${pill(t('Sample data'), 'muted')}</div>
+        <div class="facts" style="grid-template-columns:repeat(auto-fit,minmax(90px,1fr))">
+          <div><small>Month target</small><b class="tnum">${esc(fmt.moneyShort(q.target))}</b></div>
+          <div><small>Achieved</small><b class="tnum">${esc(fmt.moneyShort(q.achieved))} · ${q.pct}%</b></div>
+          <div><small>Team ${esc(t('{visits}'))} done today</small><b class="tnum">${q.teamDone} of ${q.teamPlanned}</b></div>
+          <div><small>Open opportunity</small><b class="tnum">${esc(fmt.moneyShort(q.opportunity))}</b></div>
         </div>
       </section>
 
-      <section class="card" style="margin:0">
-        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
-          <b>AI Revenue Attribution Waterfall</b>
-          ${pill('Audited', 'info')}
-        </div>
-        <ul class="bullets small" style="margin-top:4px">
-          <li><b>Proactive Gap Identification:</b> +${esc(fmt.moneyShort(112400))} across 42 high-potential accounts.</li>
-          <li><b>Whitespace Category Expansion:</b> +${esc(fmt.moneyShort(71800))} addressed in non-core portfolio lines.</li>
-          <li><b>Route Efficiency:</b> 342 km saved across district (-18% transit wear, 68 kg CO2 offset).</li>
-        </ul>
+      <section class="card" id="qbr-decisions" style="margin:0">
+        <div class="section-head"><h3>${esc(t('Brief decisions this session'))}</h3>${pill(t('Live from this demo'), 'info')}</div>
+        ${q.decided ? `<div class="facts" style="grid-template-columns:repeat(auto-fit,minmax(80px,1fr))">
+          <div><small>Approved</small><b class="tnum">${q.approved}</b></div>
+          <div><small>Adjusted</small><b class="tnum">${q.adjusted}</b></div>
+          <div><small>Overridden</small><b class="tnum">${q.overridden}</b></div>
+          <div><small>Accepted as is</small><b class="tnum">${q.acceptPct}%</b></div>
+        </div>` : `<p class="small muted">${esc(t('No brief decisions yet. Approve, adjust or override items in a brief and they show here.'))}</p>`}
+        <p class="small muted">${esc(t('Guardrails are enforced in code: the agent cannot submit an {order}, set a price or skip an approval, so there is no breach rate to report.'))}</p>
       </section>
 
-      <section class="card" style="margin:0">
-        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
-          <b>Governance and Algorithmic Precision</b>
-          ${pill('Pattern: SOC 2 Aligned', 'info')}
-        </div>
-        <ul class="bullets small" style="margin-top:4px">
-          <li><b>Guardrail Compliance:</b> 100% adherence (zero regulatory or pricing policy breaches).</li>
-          <li><b>Recommendation Acceptance:</b> 88.4% rep agreement rate across all brief recommendations.</li>
-          <li><b>Exception Turnaround:</b> 42 minutes average decisioning time (SLA target: 120 minutes).</li>
-        </ul>
-      </section>
-
-            <section class="card" style="margin:0;background:var(--surface-subtle);border:1px solid var(--line-soft)">
-        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
-          <b>Difference-in-Differences (DiD) Causal Margin Lift</b>
-          ${pill('Parallel Pre-Trends: p=0.42', 'good')}
-        </div>
-        <p class="small muted" style="margin-bottom:8px">12-week empirical comparison: Test Territory (AI Assistor) vs Matched Control (Legacy rules). Parallel pre-trends verified W1 to W5.</p>
-        <svg viewBox="0 0 340 110" style="width:100%;height:auto;overflow:visible" role="img" aria-label="Difference in differences longitudinal uplift">
-          <defs>
-            <linearGradient id="didUpliftGrad" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="0%" stop-color="var(--good)" stop-opacity="0.3"/>
-              <stop offset="100%" stop-color="var(--good)" stop-opacity="0.05"/>
-            </linearGradient>
-          </defs>
-          <!-- Y-axis scale -->
-          <line x1="38" y1="20" x2="325" y2="20" stroke="var(--line-soft)" stroke-dasharray="2,2"/>
-          <text x="32" y="23" font-size="8" fill="var(--muted)" text-anchor="end">+10%</text>
-          <line x1="38" y1="52" x2="325" y2="52" stroke="var(--line-soft)" stroke-dasharray="2,2"/>
-          <text x="32" y="55" font-size="8" fill="var(--muted)" text-anchor="end">+5%</text>
-          <line x1="38" y1="84" x2="325" y2="84" stroke="var(--line-soft)"/>
-          <text x="32" y="86" font-size="8" fill="var(--muted)" text-anchor="end">0%</text>
-          
-          <!-- Intervention Cutoff Line -->
-          <line x1="168" y1="14" x2="168" y2="88" stroke="var(--warn)" stroke-width="1.5" stroke-dasharray="3,3"/>
-          <text x="168" y="11" text-anchor="middle" font-size="8" font-weight="700" fill="var(--warn)">Intervention (W6)</text>
-          
-          <!-- Shaded Spread between Test and Control (Attributable Uplift: +6.4%) -->
-          <polygon points="168,64 192,54 216,44 240,36 264,28 288,22 320,16 320,68 288,68 264,69 240,68 216,68 192,67 168,66" fill="url(#didUpliftGrad)"/>
-          
-          <!-- Control Territory line (stagnant/flat growth +2.8%) -->
-          <polyline points="46,73 70,74 94,71 118,72 142,70 168,66 192,67 216,68 240,68 264,69 288,68 320,68" fill="none" stroke="var(--muted)" stroke-width="2" stroke-dasharray="4,4"/>
-          <circle cx="320" cy="68" r="3.5" fill="var(--muted)"/>
-          <text x="320" y="78" font-size="8" fill="var(--muted)" text-anchor="middle">+2.8% Baseline</text>
-          
-          <!-- Test Territory line (parallel W1-W5, strong divergence W6-W12) -->
-          <polyline points="46,72 70,74 94,70 118,71 142,69 168,64 192,54 216,44 240,36 264,28 288,22 320,16" fill="none" stroke="var(--good)" stroke-width="2.5"/>
-          <circle cx="46" cy="72" r="3" fill="var(--muted)"/>
-          <circle cx="118" cy="71" r="3" fill="var(--muted)"/>
-          <circle cx="168" cy="64" r="3.5" fill="var(--warn)"/>
-          <circle cx="240" cy="36" r="3.5" fill="var(--good)"/>
-          <circle cx="320" cy="16" r="4.5" fill="var(--good)"/>
-          <text x="320" y="10" font-size="9" font-weight="700" fill="var(--good)" text-anchor="middle">+9.2% (Test)</text>
-          
-          <text x="250" y="48" font-size="8" font-weight="700" fill="var(--good)">Net Lift: +6.4%</text>
-          
-          <!-- X-axis -->
-          <text x="46" y="98" font-size="8" fill="var(--muted)" text-anchor="middle">W1</text>
-          <text x="94" y="98" font-size="8" fill="var(--muted)" text-anchor="middle">W3</text>
-          <text x="142" y="98" font-size="8" fill="var(--muted)" text-anchor="middle">W5 (Pre-test)</text>
-          <text x="216" y="98" font-size="8" fill="var(--muted)" text-anchor="middle">W8</text>
-          <text x="288" y="98" font-size="8" fill="var(--muted)" text-anchor="middle">W11</text>
-          <text x="320" y="98" font-size="8" font-weight="700" fill="var(--good)" text-anchor="middle">W12</text>
+      <section class="card" id="qbr-measure" style="margin:0">
+        <div class="section-head"><h3>${esc(t('How impact will be measured'))}</h3>${pill(t('Not yet measured'), 'warn')}</div>
+        <ol class="bullets small">
+          <li>${esc(t('Pick test and control territories matched on volume, {account} mix and distance.'))}</li>
+          <li>${esc(t('Check that both trended the same way for at least five weeks before go-live.'))}</li>
+          <li>${esc(t('Run for a full quarter and compare the change in each, not the end values.'))}</li>
+          <li>${esc(t('Count only margin after trade spend, and time savings only when they show up in hours or headcount.'))}</li>
+          <li>${esc(t('Agree the method with finance before the pilot starts, so nobody picks it after seeing the numbers.'))}</li>
+        </ol>
+        <svg viewBox="0 0 340 70" class="design-chart" role="img" aria-label="Design illustration with no data">
+          <line x1="20" y1="60" x2="330" y2="60" stroke="var(--line)"/>
+          <line x1="170" y1="6" x2="170" y2="62" stroke="var(--muted)" stroke-dasharray="3,3"/>
+          <text x="174" y="14" font-size="9" fill="var(--muted)">Go-live</text>
+          <polyline points="20,48 90,46 170,44 330,40" fill="none" stroke="var(--muted)" stroke-width="1.5" stroke-dasharray="4,4"/>
+          <polyline points="20,50 90,48 170,46 330,30" fill="none" stroke="var(--accent)" stroke-width="2"/>
+          <text x="20" y="69" font-size="9" fill="var(--muted)">Test (solid) vs control (dashed). Shape only, no data.</text>
         </svg>
-        <div style="display:flex;justify-content:space-between;margin-top:6px;font-size:10px;color:var(--muted)">
-          <span><span style="color:var(--good)">●</span> Test Territory (+9.2% POS growth)</span>
-          <span><span style="color:var(--muted)">---</span> Control Group (+2.8% growth)</span>
-          <span class="good-text"><b>P-value: P &lt; 0.008</b> (Verified significant)</span>
-        </div>
-      </section>
-
-      <section class="card" style="margin:0;background:var(--surface-subtle);border:1px solid var(--line-soft)">
-        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
-          <b>Net commercial value model (sample)</b>
-          ${pill('Sample Model Spec', 'info')}
-        </div>
-        <table class="tbl" style="width:100%;font-size:12px">
-          <tbody>
-            <tr><td>Attributable gross margin expansion (Test vs Control)</td><td style="text-align:right" class="good-text"><b>+${esc(fmt.money(18400))}</b></td></tr>
-            <tr><td>Field capacity savings (19m/rep redeployed to high-tier calls)</td><td style="text-align:right" class="good-text"><b>+${esc(fmt.money(2640))}</b></td></tr>
-            <tr><td class="muted">Less incremental co-op trade promotion investment</td><td style="text-align:right" class="warn-text">-${esc(fmt.money(4800))}</td></tr>
-            <tr><td class="muted">Less commercial platform &amp; integration operating costs</td><td style="text-align:right" class="muted">-${esc(fmt.money(1960))}</td></tr>
-            <tr style="border-top:2px solid var(--line)"><td><b>Net realized commercial value (Attributable profit)</b></td><td style="text-align:right" class="good-text"><b style="font-size:14px">+${esc(fmt.money(14280))}</b></td></tr>
-          </tbody>
-        </table>
-        <small class="muted" style="display:block;margin-top:6px">Formula: Net Realized Value = Attributable Margin (Gross Margin post-trade) + Realized Capacity (GL-verified headcount/overtime reduction only) - Trade Spend - Operating Costs. Sample benchmark data. Pre-registration &amp; FP&amp;A sign-off required before pilot launch.</small>
-        <button class="btn secondary sm" data-act="download-causal-audit" style="min-height:var(--tap);margin-top:8px;width:100%">${icon('note', 14)} Export Causal Attribution Ledger</button>
-      </section>
+        <p class="small muted">${esc(t('Value = margin difference against control + measured capacity - added trade spend - platform cost. Each term is filled from the pilot.'))}</p>
+        <button class="btn secondary sm" data-act="download-causal-audit" style="width:100%">${icon('note', 14)} ${esc(t('Export measurement plan'))}</button>
+      </section>`;
+      })()}
 
       <div class="btn-row" style="margin-top:4px;gap:8px;flex-wrap:wrap">
-        <button class="btn primary" data-act="download-qbr-csv" style="flex:1;min-height:var(--tap);min-width:140px">${icon('note', 18)} Export QBR (CSV)</button>
-        <button class="btn secondary" data-act="dispatch-qbr-exec" style="flex:1;min-height:var(--tap);min-width:140px">${icon('brief', 18)} Send to VP Sales</button>
+        <button class="btn primary" data-act="download-qbr-csv" style="flex:1;min-width:140px">${icon('note', 18)} ${esc(t('Export review (CSV)'))}</button>
+        <button class="btn secondary" data-act="dispatch-qbr-exec" style="flex:1;min-width:140px">${icon('brief', 18)} ${esc(t('Send to sales leadership'))}</button>
       </div>
     </div>
   </section>` : ''}`;
 }
 
 
+/** Quarterly review figures: sample territory data plus this session's brief decisions. No impact numbers. */
+export function qbrModel(ctx) {
+  const { data, m } = ctx;
+  const tr = data.territory;
+  const reps = data.reps || [];
+  const self = m.selfStats();
+  let approved = 0, adjusted = 0, overridden = 0;
+  for (const p of data.planned) { const c = m.counts(p.accountId); approved += c.approved; adjusted += c.adjusted; overridden += c.overridden; }
+  const decided = approved + adjusted + overridden;
+  return {
+    target: tr.target, achieved: tr.achieved, pct: Math.round((tr.achieved / tr.target) * 100), opportunity: tr.opportunity,
+    teamPlanned: reps.reduce((s, r) => s + r.planned, 0), teamDone: reps.reduce((s, r) => s + (r.self ? self.done : r.done), 0),
+    approved, adjusted, overridden, decided, acceptPct: decided ? Math.round((approved / decided) * 100) : 0,
+  };
+}
+
 export function exportQbrCsv(ctx) {
   if (!ctx || !ctx.m) return;
   const fmt = ctx.fmt;
-  const headers = ['Metric', 'Target_or_Baseline', 'Actual_or_Achieved', 'Status_or_Lift'];
+  const q = qbrModel(ctx);
+  const headers = ['Metric', 'Value', 'Source'];
   const rows = [
-    ['District Quota Pace', fmt.money(1350000), fmt.money(1420000), '105.2% Attainment'],
-    ['AI Revenue Attribution', 'Baseline', fmt.money(184200), 'Directly Influenced'],
-    ['Rep Selling Time Recaptured', '0 hr', '38.4 hr/rep/month', 'Brief and Debrief Automation'],
-    ['Proactive Gap Closes', '0', fmt.money(112400), '42 Accounts'],
-    ['Whitespace Conversions', '0', fmt.money(71800), 'Non-core Expansion'],
-    ['Route Fuel and Transit', 'Baseline', '342 km saved', '-18% Transit Fatigue'],
-    ['Guardrail Compliance Rate', '100% Target', '100% Verified', 'Zero Policy Breaches'],
-    ['Recommendation Adherence', '75% Target', '88.4% Actual', 'Calibrated']
+    ['Month target', fmt.money(q.target), 'Sample data'],
+    ['Achieved to date', `${fmt.money(q.achieved)} (${q.pct}%)`, 'Sample data'],
+    ['Open opportunity', fmt.money(q.opportunity), 'Sample data'],
+    ['Team visits done today', `${q.teamDone} of ${q.teamPlanned}`, 'Sample data and this session'],
+    ['Brief items approved', String(q.approved), 'This session'],
+    ['Brief items adjusted', String(q.adjusted), 'This session'],
+    ['Brief items overridden', String(q.overridden), 'This session'],
+    ['Impact against control', 'Not yet measured', 'Measured in a pilot'],
   ];
-  const csvContent = [headers.join(','), ...rows.map((r) => r.map((c) => `"${String(c).replace(/"/g, '""')}"`).join(', '))].join('\r\n');
+  const csvContent = [headers.join(','), ...rows.map((r) => r.map((c) => `"${String(c).replace(/"/g, '""')}"`).join(','))].join('\r\n');
   const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
   const url = URL.createObjectURL(blob);
   const link = document.createElement('a');
   link.setAttribute('href', url);
-  link.setAttribute('download', `executive-qbr-roi-${new Date().toISOString().slice(0, 10)}.csv`);
+  link.setAttribute('download', `quarterly-review-${new Date().toISOString().slice(0, 10)}.csv`);
   document.body.appendChild(link);
   link.click();
   document.body.removeChild(link);
@@ -640,34 +431,19 @@ export const actions = {
   },
 
   'download-causal-audit': ({ ctx }) => {
-    (ctx.ui ||= {}).causalToast = 'Longitudinal causal attribution ledger exported.';
-    if (ctx.m?.logAudit) ctx.m.logAudit('Causal Ledger', 'Exported decision-to-outcome attribution log comparing territory against matched control');
+    (ctx.ui ||= {}).causalToast = 'Measurement plan exported.';
+    if (ctx.m?.logAudit) ctx.m.logAudit('Measurement plan', 'Exported the test and control measurement plan');
     const content = [
-      '========================================================================',
-      'LONGITUDINAL DECISION-TO-OUTCOME CAUSAL ATTRIBUTION LEDGER',
-      'Evaluation Method: Matched Control Territory Comparison (Difference-in-Differences & Synthetic Control)',
-      'Parallel Trends Pre-Test: Passed (P = 0.42, no pre-treatment differential drift)',
-      'Synthetic Control Covariate Balance: 8 dimensions matched (Volume, Account Density, Distance)',
-      'Territory: Central Metro District | Baseline: North Corridor Control Group',
-      '========================================================================',
+      'MEASUREMENT PLAN: TEST AND CONTROL TERRITORIES',
+      'Status: not yet measured. This file holds the method, not results.',
       '',
-      '1. CONSTRAINT-COUPLED EXECUTION METRICS',
-      '   - Total Planned Recommendations: 142 items',
-      '   - Constraints Enforced: Receiving Dock (100%), Depot Stock (100%), Credit Hold (100%)',
-      '   - Feasible Actions Executed: 124 actions (87.3% execution rate)',
-      '   - Override Root-Causes: Supply Shortage (5), Price Resistance (3), Absent (2), Rep (8)',
+      '1. Match test and control territories on volume, account mix and distance.',
+      '2. Confirm parallel trends for at least five weeks before go-live.',
+      '3. Run for one full quarter. Compare the change in each territory (difference in differences).',
+      '4. Value = margin difference against control + measured capacity - added trade spend - platform cost.',
+      '5. Count capacity only when it shows up in hours or headcount.',
+      '6. Agree the method with finance before the pilot starts.',
       '',
-      '2. COMMERCIAL CAUSAL IMPACT ANALYSIS',
-      '   - Test Territory 30-Day POS Growth: +9.2%',
-      '   - Matched Control 30-Day POS Growth: +2.8%',
-      '   - Attributable Incremental Uplift: +6.4% Net Margin Expansion',
-      '   - Net Realized Commercial Contribution: ${esc(fmt.money(14280))} (Post trade and platform costs)',
-      '',
-      '3. VALIDATION ASSURANCE',
-      '   - Spurious correlation filter: Passed (P < 0.01)',
-      '   - Selection bias correction: Applied matched-propensity scoring across account tiers',
-      '========================================================================',
-      'CONFIDENTIAL - FOR COMMERCIAL EXCELLENCE REVIEW ONLY',
       `Generated: ${new Date().toISOString()}`
     ].join('\r\n');
     const blob = new Blob([content], { type: 'text/plain;charset=utf-8;' });
@@ -693,12 +469,12 @@ export const actions = {
   'close-qbr': ({ ctx }) => { (ctx.ui ||= {}).qbrOpen = false; },
   'download-qbr-csv': ({ ctx }) => {
     exportQbrCsv(ctx);
-    if (ctx.m?.logAudit) ctx.m.logAudit('Manager', 'Exported executive QBR and AI ROI summary (CSV)');
+    if (ctx.m?.logAudit) ctx.m.logAudit('Manager', 'Exported the quarterly review (CSV)');
   },
   'dispatch-qbr-exec': ({ ctx }) => {
-    (ctx.ui ||= {}).managerToast = 'Executive QBR package dispatched to Chief Commercial Officer via secure ERP link.';
+    (ctx.ui ||= {}).managerToast = 'Simulated: the review would go to sales leadership. Nothing was sent.';
     ctx.ui.qbrOpen = false;
-    if (ctx.m?.logAudit) ctx.m.logAudit('Manager', 'Dispatched QBR executive package to VP Commercial Sales');
+    if (ctx.m?.logAudit) ctx.m.logAudit('Manager', 'Simulated sending the quarterly review to sales leadership');
   },
   'toggle-simulator': ({ ctx }) => {
     (ctx.ui ||= {}).showSimulator = !ctx.ui.showSimulator;

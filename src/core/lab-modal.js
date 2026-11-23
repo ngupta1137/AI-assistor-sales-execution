@@ -13,7 +13,12 @@ export function renderLabModal(app, ctx) {
   const abSample = app.ui?.abSample ?? 2500;
   const abMde = app.ui?.abMde ?? 2.0;
   const abNoise = app.ui?.abNoise ?? 1.5;
-  const abConfident = abLift >= abMde && abNoise < 2.0;
+  // Two-group z-test on the simulated inputs. Assumption: per-account variation is 20% of the mean per noise unit; accounts split evenly.
+  const abSe = 100 * 0.2 * abNoise * Math.sqrt(4 / abSample);
+  const phi = (z) => { const t = 1 / (1 + 0.2316419 * Math.abs(z)); const d = 0.3989423 * Math.exp(-z * z / 2); const q = d * t * (0.3193815 + t * (-0.3565638 + t * (1.781478 + t * (-1.821256 + t * 1.330274)))); return z > 0 ? 1 - q : q; };
+  const abP = 2 * (1 - phi(abLift / abSe));
+  const abPower = phi(abMde / abSe - 1.96);
+  const abConfident = abLift >= abMde && abP < 0.05;
 
   // L-ROI Sliders
   const roiOverlap = app.ui?.roiOverlap ?? 20;
@@ -109,7 +114,7 @@ export function renderLabModal(app, ctx) {
             <h3>A/B Testing Simulation &amp; Rollout Gate</h3>
             ${pill(abConfident ? 'Rollout Cleared (>=95% Conf, >=2% Lift)' : 'Insufficient Lift', abConfident ? 'good' : 'warn')}
           </div>
-          <p class="small muted" style="margin-bottom:12px">Decision rule, set before the test runs: roll out only if the result reaches 95% confidence and at least 2.0% uplift.</p>
+          <p class="small muted" style="margin-bottom:12px">A simulator: move the inputs to see how sample size and noise change the decision. No real test data. Decision rule, set before the test runs: roll out only if the result reaches 95% confidence and at least 2.0% uplift.</p>
 
           <div style="display:flex;flex-direction:column;gap:12px">
             <div>
@@ -135,8 +140,8 @@ export function renderLabModal(app, ctx) {
           </div>
 
           <div class="facts" style="margin-top:14px;grid-template-columns:repeat(auto-fit,minmax(110px,1fr))">
-            <div><small>Calculated p-value</small><b>${abConfident ? 'p = 0.012' : 'p = 0.084'}</b></div>
-            <div><small>Statistical power</small><b>${abSample >= 2000 ? '92%' : '78%'}</b></div>
+            <div><small>p-value (simulated)</small><b class="tnum">${abP < 0.001 ? 'below 0.001' : abP.toFixed(3)}</b></div>
+            <div><small>Power at the minimum lift</small><b class="tnum">${Math.round(abPower * 100)}%</b></div>
             <div><small>Decision</small><b class="${abConfident ? 'good-text' : 'warn-text'}">${abConfident ? 'Roll Out Fleetwide' : 'Continue Pilot'}</b></div>
           </div>
         </section>
