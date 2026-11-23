@@ -38,6 +38,16 @@ export function renderPresenter(app, ctx, { INDUSTRIES, COUNTRIES, PERSONAS, sha
         </select></label>
       <label class="field"><span>Persona</span>
         <select data-change="p-persona" id="p-persona">${avail.map((p) => `<option value="${p}"${p === c.persona ? ' selected' : ''}>${personaName[p]}</option>`).join('')}</select></label>
+      <label class="field"><span>Language</span>
+        <select data-change="p-language" id="p-language">
+          <option value="en"${(app.ui?.lang || 'en') === 'en' ? ' selected' : ''}>English</option>
+          <option value="es"${app.ui?.lang === 'es' ? ' selected' : ''}>Español (Spanish)</option>
+          <option value="fr"${app.ui?.lang === 'fr' ? ' selected' : ''}>Français (French)</option>
+          <option value="de"${app.ui?.lang === 'de' ? ' selected' : ''}>Deutsch (German)</option>
+          <option value="pt"${app.ui?.lang === 'pt' ? ' selected' : ''}>Português (Portuguese)</option>
+          <option value="ar"${app.ui?.lang === 'ar' ? ' selected' : ''}>العربية (Arabic - RTL)</option>
+          <option value="hi"${app.ui?.lang === 'hi' ? ' selected' : ''}>हिन्दी (Hindi)</option>
+        </select></label>
             <div style="margin-bottom:10px">
         <label class="field"><span>Brand accent theme</span></label>
         <div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:4px">
@@ -93,6 +103,10 @@ export const presenterActions = {
   },
   'p-color-swatch': ({ app, data, api }) => {
     if (app.config) app.config.color = data.color;
+    api.render();
+  },
+  'p-language': ({ app, value, api }) => {
+    (app.ui ||= {}).lang = value;
     api.render();
   },
 

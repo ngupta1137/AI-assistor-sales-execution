@@ -688,3 +688,16 @@ body.text-size-lg {
 #new-form { display: flex; flex-direction: column; gap: var(--s3); }
 .calc-row { display: grid; grid-template-columns: minmax(0, 1fr) 112px 40px; align-items: center; gap: var(--s2); margin-top: var(--s2); }
 .calc-row input { min-height: var(--tap); width: 100%; font: inherit; border: 1px solid var(--control-line); border-radius: var(--radius-sm); padding: 0 var(--s2); background: var(--surface); color: var(--ink); }
+
+/* Multi-lingual & RTL Direction Support (Point 4) */
+[dir="rtl"] { text-align: right; }
+[dir="rtl"] .appbar { flex-direction: row-reverse; }
+[dir="rtl"] .who { flex-direction: row-reverse; text-align: left; }
+[dir="rtl"] .who-text { text-align: left; }
+[dir="rtl"] .back { flex-direction: row-reverse; }
+[dir="rtl"] .btn-row { flex-direction: row-reverse; }
+[dir="rtl"] .facts { direction: rtl; }
+[dir="rtl"] .as-launcher { right: auto; left: var(--s4, 16px); }
+[dir="rtl"] .lab-btn { left: auto; right: var(--s4, 16px); }
+[dir="rtl"] .try-case-btn { left: auto; right: var(--s4, 16px); }
+[dir="rtl"] .tbl th, [dir="rtl"] .tbl td { text-align: right; }

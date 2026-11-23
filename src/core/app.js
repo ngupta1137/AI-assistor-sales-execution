@@ -17,6 +17,7 @@ import { renderSyncModal, syncActions } from './telemetry.js';
 import { renderAssistant, syncContext, afterRender, onKeydown, newAssistantState } from './assistant/ui.js';
 import { LIVE_ENABLED } from './assistant/provider.js';
 import { PERSONAS, HOME, NAV, roleKey as roleKeyOf, titleFor, personFor, validPersona } from './personas.js';
+import { UI_LANGUAGES, getActiveLang, isRtl, tr } from './i18n.js';
 
 export { PERSONAS, HOME };
 
@@ -42,6 +43,10 @@ function readConfig() {
   const ind = findIndustry(q.get('industry'));
   const ctry = findCountry(q.get('country'));
   const persona = ind && validPersona(ind, q.get('persona')) ? q.get('persona') : 'rep';
+  const lang = q.get('lang');
+  if (lang && UI_LANGUAGES[lang]) {
+    (app.ui ||= {}).lang = lang;
+  }
   if ((q.get('industry') || q.get('country')) && (!ind || !ctry)) {
     app.notice = 'That link has an unknown industry or country. Pick one below.';
   }
@@ -61,6 +66,7 @@ function writeUrl(hash) {
     if (c.prepared) q.set('prepared', c.prepared);
     if (c.color) q.set('color', c.color.replace('#', ''));
   }
+  if (app.ui?.lang && app.ui.lang !== 'en') q.set('lang', app.ui.lang);
   if (app.assistantEnabled === false) q.set('assistant', 'off');
   const qs = q.toString();
   const url = `${location.pathname}${qs ? `?${qs}` : ''}${hash ?? location.hash}`;
@@ -73,20 +79,22 @@ export function shareLink() {
   const q = new URLSearchParams({ industry: c.industryId, country: c.countryId, persona: c.persona });
   if (c.prepared) q.set('prepared', c.prepared);
   if (c.color) q.set('color', c.color.replace('#', ''));
+  if (app.ui?.lang && app.ui.lang !== 'en') q.set('lang', app.ui.lang);
   if (app.assistantEnabled === false) q.set('assistant', 'off');
   return `${location.origin === 'null' ? 'file://' : location.origin}${location.pathname}?${q}`;
 }
 
 /** Context for one industry + country. Cached so switching back is instant. */
-export function buildContext(industryId, countryId) {
-  const key = `${industryId}|${countryId}`;
+export function buildContext(industryId, countryId, explicitLang) {
+  const lang = explicitLang || app.ui?.lang || getActiveLang(app, countryId);
+  const key = `${industryId}|${countryId}|${lang || 'en'}`;
   if (app.cache.has(key)) return app.cache.get(key);
   const industry = findIndustry(industryId);
   const country = findCountry(countryId);
-  const t = createText(industry.vocab, country.spelling);
+  const t = createText(industry.vocab, country.spelling, lang);
   const fmt = createFormat(country);
   const data = generate(industry, country, { fmt });
-  const ctx = { industry, country, t, fmt, data };
+  const ctx = { industry, country, t, fmt, data, lang };
   ctx.m = createModel(ctx);
   // Companion data exists only for packs (and countries) that define Companion content.
   ctx.comp = industry.companion && country.publicHolidays ? generateCompanion(ctx) : null;
@@ -189,6 +197,9 @@ export function render() {
     const out = SCREENS[name].render(ctx, route.args);
     html = shell(ctx, name, out);
   }
+  const lang = app.ui?.lang || getActiveLang(app, app.config?.countryId);
+  document.documentElement.dir = isRtl(lang) ? 'rtl' : 'ltr';
+  document.documentElement.lang = lang || 'en';
   document.body.classList.remove('text-size-sm', 'text-size-md', 'text-size-lg');
   document.body.classList.add(`text-size-${app.textSize || 'sm'}`);
   document.body.classList.toggle('simple-view', !!app.simpleView);
@@ -411,9 +422,12 @@ function shell(ctx, name, result) {
     const firstBrief = ctx.m.nextAccount(null)?.accountId || data.planned[0].accountId;
     const href = id === 'brief' ? `#/brief/${firstBrief}` : `#/${id}`;
     const active = name === id || (id === 'brief' && ['brief', 'action', 'order', 'complete'].includes(name)) || (id === 'today' && ['account', 'route', 'ask'].includes(name)) || (id === 'config' && (name === 'problems' || (name === 'system' && !NAV[ctx.persona].some(([n]) => n === 'system')))) || (id === 'sales' && name === 'sales');
-    return `<a class="tab${active ? ' on' : ''}" href="${href}" data-nav="${id}"${active ? ' aria-current="page"' : ''}><span class="tab-ic">${icon(ic, 22)}</span><span>${esc(label)}</span></a>`;
+    const displayLabel = tr(label, ctx.lang || 'en');
+    return `<a class="tab${active ? ' on' : ''}" href="${href}" data-nav="${id}"${active ? ' aria-current="page"' : ''}><span class="tab-ic">${icon(ic, 22)}</span><span>${esc(displayLabel)}</span></a>`;
   }).join('');
   const prepared = app.config.prepared ? `<div class="prepared-band" id="prepared">Prepared for ${esc(app.config.prepared)}</div>` : '';
+  const offlineText = tr('Offline mode active. Local AES-256 encrypted storage.', ctx.lang || 'en');
+  const goOnlineText = tr('Go online', ctx.lang || 'en');
   return `
   <div class="app" data-region="app" data-screen="${name}">
     <header class="appbar">
@@ -421,7 +435,7 @@ function shell(ctx, name, result) {
         <span class="mark">${icon(ctx.industry.icon, 18)}</span><span class="brand">AI Assistor</span>
       </button>
       <button class="who" data-act="open-sync-modal" aria-haspopup="dialog" aria-label="Enterprise sync telemetry and user profile"><span class="who-text"><b>${esc(user.name)}</b><small><span class="sync-dot ${app.offline ? 'offline' : ''}" aria-hidden="true"></span> ${app.offline ? 'Offline' : esc(t(user.title))}</small></span><span class="avatar" aria-hidden="true">${esc(initials(user.name))}</span></button>
-    </header>${actingAsBar}${deniedHtml}${app.offline ? `<div class="offline-strip" id="offline-strip">${icon('sync', 16)} <span>Offline mode active. Local AES-256 encrypted storage.</span><button class="pill-btn sm" data-act="toggle-offline" style="margin-left:auto;background:rgba(255,255,255,0.2);color:#fff;min-height:var(--tap);display:inline-flex;align-items:center">Go online</button></div>` : ''}${prepared}
+    </header>${actingAsBar}${deniedHtml}${app.offline ? `<div class="offline-strip" id="offline-strip">${icon('sync', 16)} <span>${esc(offlineText)}</span><button class="pill-btn sm" data-act="toggle-offline" style="margin-left:auto;background:rgba(255,255,255,0.2);color:#fff;min-height:var(--tap);display:inline-flex;align-items:center">${esc(goOnlineText)}</button></div>` : ''}${prepared}
     <main class="screen" id="screen" data-region="screen">${out}</main>
     ${dock ? `<div class="dock" data-region="dock">${dock}</div>` : ''}
     <nav class="tabs" aria-label="Main">${nav}</nav>
