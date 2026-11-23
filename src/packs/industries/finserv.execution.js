@@ -16,6 +16,41 @@ export default {
       program: "an approved product within suitability",
       decider: "Credit and underwriting"
     },
+    fulfillment: {
+      physical: false,
+      source: "product operations",
+      sourceShort: "Operations",
+      partnerOrg: "operations team",
+      cutoff: "Processing cutoff",
+      slot: "Next processing window",
+      runner: "Back-office queue",
+      load: ["Est. turnaround", "2 working days"],
+      beat: "processing cycle",
+      plan: "Relationship plan and approved products",
+      planShort: "Relationship plan",
+      milestones: ["Terminal installed", "Merchant staff trained", "Annual KYC refresh"],
+      fund: null,
+      flowIn: "Approved",
+      flowOut: "In use",
+      outSource: "Transaction data",
+      dock: "Merchant counter",
+      asset: ["Payment terminal", "Uptime", "99% (sample)"]
+    },
+    briefFrame: {
+      objectives: ["Grow merchant volume", "Activate products", "KYC and compliance"],
+      coord: [
+        ["Terminal engineer", "Install Wed"],
+        ["{Rep} (you)", "In the visit"],
+        ["Credit team", "No open request"]
+      ],
+      constraints: [
+        ["KYC", "Complete"],
+        ["Terminal stock", "Available"],
+        ["Credit review", "Not needed"],
+        ["Suitability", "Recorded"]
+      ],
+      constraintNote: "Suggestions are checked against KYC status, suitability notes and the credit policy. Credit and pricing stay with people."
+    },
     flows: {
       visibility: {
         name: "Terminal and QR presence",

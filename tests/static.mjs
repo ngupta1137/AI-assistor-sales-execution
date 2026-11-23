@@ -50,7 +50,7 @@ for (const p of INDUSTRIES) {
   for (const r of g.rules || []) if (r.exactWording) check(!!r.approvedWording, `${p.id}: exact-wording rule ${r.id} has no approved wording`);
   check(!!g.generalRule && g.generalRule.general === true, `${p.id}: governance.generalRule missing`);
 }
-check(INDUSTRIES.length === 20, `expected 20 industries, found ${INDUSTRIES.length}`);
+check(INDUSTRIES.length === 21, `expected 21 industries, found ${INDUSTRIES.length}`);
 check(COUNTRIES.length === 11, `expected 11 countries, found ${COUNTRIES.length}`);
 check(new Set(INDUSTRIES.map((p) => p.id)).size === INDUSTRIES.length, 'duplicate industry ids');
 check(new Set(INDUSTRIES.map((p) => p.accent.toLowerCase())).size === INDUSTRIES.length, 'two industries share an accent colour');
@@ -132,7 +132,7 @@ for (const p of INDUSTRIES) {
 }
 
 // 5. Core screens must not hard-code industry nouns: they come from vocabulary tokens.
-const NOUNS = ['store', 'stores', 'shop', 'shops', 'clinic', 'clinics', 'hospital', 'hospitals', 'pharmacy', 'dealer', 'dealers', 'outlet', 'outlets', 'merchant', 'merchants', 'workshop', 'workshops', 'SKU', 'SKUs', 'doctor', 'physician', 'farmer', 'farmers', 'shelf', 'HCP', 'patient', 'contractor', 'retailer'];
+const NOUNS = ['store', 'stores', 'shop', 'shops', 'clinic', 'clinics', 'hospital', 'hospitals', 'pharmacy', 'dealer', 'dealers', 'outlet', 'outlets', 'merchant', 'merchants', 'workshop', 'workshops', 'SKU', 'SKUs', 'doctor', 'physician', 'farmer', 'farmers', 'shelf', 'shelves', 'HCP', 'HCPs', 'patient', 'patients', 'contractor', 'contractors', 'retailer', 'retailers', 'doctors', 'physicians', 'pharmacies'];
 for (const f of srcFiles.filter((x) => x.includes(`${path.sep}core${path.sep}`) || x.includes(`${path.sep}data${path.sep}`))) {
   const code = stripComments(await readFile(f, 'utf8'));
   const literals = code.match(/'(?:[^'\\]|\\.)*'|`(?:[^`\\]|\\.)*`|"(?:[^"\\]|\\.)*"/g) || [];

@@ -3,6 +3,8 @@
 
 import { esc, icon, pill, confBadge, agentTag, typeLine, AGENT_LABEL } from '../ui.js';
 import { mergePanel, fieldNotices } from '../execution/views.js';
+import { wording, briefFrame } from '../wording.js';
+
 
 const ADJUST = {
   action: ['Do it first', 'Do it later in the {visit}', 'Only if time allows', 'Smaller scope today'],
@@ -225,7 +227,7 @@ function renderItem(ctx, it, isNext, a, itemIndex) {
       <div style="font-weight:600;font-size:12px;margin-bottom:4px;color:var(--ink)">Data is stale</div>
       <p class="small" style="margin-bottom:8px">Account metrics were last refreshed 18 days ago (threshold: ${ctx.industry.governance?.staleLimitDays || 14} days).</p>
       <button class="btn primary sm" data-act="refresh-stale" data-id="${it.id}" style="min-height:var(--tap)">${icon('sync', 14)} Refresh</button>
-      <div class="next-step-line" style="margin-top:8px;font-size:11px;color:var(--muted)"><b>Next step:</b> Tap Refresh to sync current depot inventory and return to active recommendation.</div>
+      <div class="next-step-line" style="margin-top:8px;font-size:11px;color:var(--muted)"><b>Next step:</b> ${esc(ctx.t('Tap Refresh to sync current {source} data and return to the recommendation.', { source: wording(ctx.industry).source }))}</div>
     </div>`;
   } else if (outcome === 'role') {
     outcomeUi = `<div class="gov-outcome role" style="margin:8px 0;padding:10px;border-left:3px solid var(--muted);background:var(--surface-subtle);border-radius:var(--radius-sm)">
@@ -278,13 +280,13 @@ function renderItem(ctx, it, isNext, a, itemIndex) {
       controls = `<div class="decide-row">
         <span class="small muted" style="align-self:center;font-size:11px">Read wording above to approve.</span>
         <button class="btn secondary" data-act="panel" data-id="${it.id}" data-kind="adjust">Adjust</button>
-        <button class="btn secondary" data-act="panel" data-id="${it.id}" data-kind="override">Override</button>
+        <button class="btn text danger" data-act="panel" data-id="${it.id}" data-kind="override">Override</button>
       </div>`;
     } else {
       controls = `<div class="decide-row">
         <button class="btn primary" data-act="decide" data-id="${it.id}" data-status="approved">Approve</button>
         <button class="btn secondary" data-act="panel" data-id="${it.id}" data-kind="adjust">Adjust</button>
-        <button class="btn secondary" data-act="panel" data-id="${it.id}" data-kind="override">Override</button>
+        <button class="btn text danger" data-act="panel" data-id="${it.id}" data-kind="override">Override</button>
       </div>`;
     }
   } else {
@@ -299,14 +301,10 @@ function renderItem(ctx, it, isNext, a, itemIndex) {
     : `<div style="margin:4px 0"><button class="btn text sm flag-link" data-act="open-flag-sheet" data-id="${it.id}" style="min-height:var(--tap);display:inline-flex;align-items:center;padding:0 8px;font-size:11px;color:var(--muted)">${icon('flag', 12)} Flag this recommendation</button></div>`;
 
   // G2 Chips row
-  const chipsRow = `<div class="rule-chips" data-act="open-rule-drawer" data-id="${it.id}" data-rule="${rule.id}" role="button" tabindex="0" aria-label="Rule details" style="cursor:pointer;display:flex;gap:4px;flex-wrap:wrap;align-items:center;margin:6px 0;min-height:var(--tap)">
-    ${pill('Rule approved', 'good')}
-    ${pill('In date', 'info')}
-    ${pill('Applies here', 'good')}
-    ${pill(rule.version || 'v2.4', 'muted')}
+  const chipsRow = `<button class="rule-chips" data-act="open-rule-drawer" data-id="${it.id}" data-rule="${rule.id}" aria-label="Rule details">
+    ${pill(`Rule approved · ${rule.version || 'v2.4'}`, 'good')}
     ${isExact ? pill('Exact wording', 'warn') : ''}
-    ${isExact ? pill('Wording approved', 'good') : ''}
-  </div>`;
+  </button>`;
 
   // G6 Record kept
   const evtId = 1000 + (Math.abs(rule.id.length * 37 + it.id.length * 13) % 9000);
@@ -316,7 +314,7 @@ function renderItem(ctx, it, isNext, a, itemIndex) {
     </div>
     <div class="facts" style="grid-template-columns:repeat(auto-fit,minmax(110px,1fr));margin-top:6px">
       <div><small>Rule version</small><b>${esc(rule.version || 'v2.4')}</b></div>
-      <div><small>Data used &amp; age</small><b>14-day depot CRM</b></div>
+      <div><small>Data used &amp; age</small><b>${esc(ctx.t('14-day {short} and CRM data', { short: wording(ctx.industry).sourceShort.toLowerCase() }))}</b></div>
       <div><small>Outcome</small><b>${esc(outcome)}</b></div>
       <div><small>Model use</small><b>Rules decide; model words reason</b></div>
       <div><small>Audited viewer</small><b>${esc(ctx.persona)} (${esc(data.rep.name)})</b></div>
@@ -326,20 +324,16 @@ function renderItem(ctx, it, isNext, a, itemIndex) {
 
   const lead = it.kind === 'plan' ? icon('route', 16) : it.kind === 'order' ? icon('cart', 16) : it.rank;
   return `<article class="item ${state}${isNext ? ' next' : ''}" id="item-${it.id}" data-item="${it.id}" data-kind="${it.kind}" data-state="${state}">
-    <div class="item-head">${agentTag(it.agent)}${it.overBudget ? pill('If time allows', 'muted') : ''}<span class="state">${pill(stateLabel[0], stateLabel[1])}</span></div>
+    <div class="item-head">${agentTag(it.agent)}${confBadge(it.confidence)}${it.overBudget ? pill('If time allows', 'muted') : ''}<span class="state">${pill(stateLabel[0], stateLabel[1])}</span></div>
     <div class="item-title"><span class="rank">${lead}</span><h3>${esc(t(it.title, v))}</h3></div>
-    ${chipsRow}
-    <div style="margin:4px 0 6px 0;padding:4px 6px;background:var(--surface-subtle);border-radius:4px;border-left:3px solid var(--accent);font-size:11px">
-      <b>Rationale:</b> ${esc(t(it.saw, v).replace(/\.+\s*$/, '')).slice(0, 110)}.
-    </div>
-    <div class="metrics"><span>${esc(valueText)}</span>${it.effort ? `<span>${icon('clock', 16)} ${it.effort} min</span>` : ''}${confBadge(it.confidence)}</div>
+    <dl class="evi-grid">
+      <div><dt>Saw</dt><dd>${esc(t(it.saw, v))}</dd></div>
+      <div><dt>Compared</dt><dd>${esc(t(it.compared, v))}</dd></div>
+    </dl>
+    <div class="metrics"><span class="num">${esc(valueText)}</span>${it.effort ? `<span>${icon('clock', 14)} ${it.effort} min</span>` : ''}${chipsRow}</div>
     ${outcomeUi}
     ${exactBox}
-    <details class="evi"${isNext ? ' open' : ''}><summary>What the agent saw</summary>
-      <dl class="evidence">
-        <dt>Saw</dt><dd>${esc(t(it.saw, v))}</dd>
-        <dt>Compared</dt><dd>${esc(t(it.compared, v))}</dd>
-      </dl>
+    <details class="evi"><summary>Audit record</summary>
       ${recordKept}
     </details>
     ${flagHtml}
@@ -350,6 +344,9 @@ function renderItem(ctx, it, isNext, a, itemIndex) {
 }
 
 export function render(ctx, [accountId]) {
+  const BF = briefFrame(ctx.industry);
+  const OBJ = BF.objectives.includes(ctx.ui?.callObjective) ? ctx.ui.callObjective : BF.objectives[0];
+  const W = wording(ctx.industry);
   const { t, fmt, data, m, ui } = ctx;
   const p = m.plannedFor(accountId) || data.planned[0];
   const a = data.byId[p.accountId];
@@ -475,61 +472,38 @@ export function render(ctx, [accountId]) {
     <p class="small muted">${esc(typeLine(t, a))} · ${esc(a.area)} · Tier ${a.tier}</p>
     <p class="small">${esc(fmt.time(p.start))} · ${a.visitMinutes} min · ${esc(contact.name)}, ${esc(t(contact.role))}</p>
     <div style="margin-top:6px;padding:6px 10px;background:var(--surface-subtle);border-radius:var(--radius-sm);border:1px solid var(--line-soft)">
-      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px">
-        <small style="font-weight:600">Objective: ${pill(ui.callObjective || 'Expand whitespace', 'good')}</small>
-        <span class="small muted">${a.visitMinutes} min planned</span>
-      </div>
-      <div class="seg-ctl" role="group" aria-label="Call objective">
-        <button class="seg ${(ui.callObjective || 'Expand whitespace') === 'Expand whitespace' ? 'on' : ''}" data-act="set-objective" data-obj="Expand whitespace" style="min-height:var(--tap);min-width:var(--tap);font-size:11px">Expand whitespace</button>
-        <button class="seg ${ui.callObjective === 'Volume reorder' ? 'on' : ''}" data-act="set-objective" data-obj="Volume reorder" style="min-height:var(--tap);min-width:var(--tap);font-size:11px">Volume reorder</button>
-        <button class="seg ${ui.callObjective === 'Merchandising' ? 'on' : ''}" data-act="set-objective" data-obj="Merchandising" style="min-height:var(--tap);min-width:var(--tap);font-size:11px">Merchandising</button>
+      <span class="eyebrow">${esc(t('Call objective'))}</span>
+      <div class="seg-ctl" role="group" aria-label="${esc(t('Call objective'))}">
+        ${BF.objectives.map((o) => `<button class="seg ${OBJ === o ? 'on' : ''}" data-act="set-objective" data-obj="${esc(o)}" style="min-height:var(--tap);min-width:var(--tap)">${esc(t(o))}</button>`).join('')}
       </div>
     </div>
 
-    <!-- Commercial Constraints & Coordination Fold -->
-    <details class="fold" style="margin-top:6px">
-      <summary style="font-size:11px">
-        <span style="display:inline-flex;align-items:center;gap:4px">${icon('shield', 14)} Constraints &amp; Coordination</span>
-        <span class="sum-end">${pill('All passed · Synced', 'good')}</span>
+    <details class="fold" id="brief-checks" style="margin-top:6px">
+      <summary>
+        <span style="display:inline-flex;align-items:center;gap:4px">${icon('shield', 14)} ${esc(t('Checks and coordination'))}</span>
+        <span class="sum-end">${pill(t('All passed · Synced'), 'good')}</span>
       </summary>
-      <div style="padding:6px 8px;background:var(--surface-subtle);border-radius:var(--radius-sm);margin-top:4px">
-        <div class="facts" style="grid-template-columns:repeat(4,minmax(0,1fr));margin-bottom:6px">
-          <div><small>Receiving</small><b class="good-text">Open</b></div>
-          <div><small>Depot</small><b class="good-text">Allocated</b></div>
-          <div><small>Credit</small><b class="good-text">Available</b></div>
-          <div><small>Contract</small><b>Active</b></div>
+      <div class="fold-body">
+        <div class="facts check-grid">
+          ${BF.constraints.map(([k, v], i) => `<div><small>${esc(t(k))}</small><b${i < 3 ? ' class="good-text"' : ''}>${esc(t(v))}</b></div>`).join('')}
         </div>
-        <div style="display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:4px;font-size:10px;border-top:1px solid var(--line-soft);padding-top:4px">
-          <div><span class="muted">Merch:</span> <b class="good-text">07:30</b></div>
-          <div><span class="muted">Pre-Sell:</span> <b style="color:var(--accent)">Active</b></div>
-          <div><span class="muted">Driver:</span> <b>14:15</b></div>
+        <p class="small muted">${esc(t(BF.constraintNote))}</p>
+        <p class="eyebrow">${esc(t(BF.coordTitle))}</p>
+        <p class="small muted">${esc(t(BF.coordNote))}</p>
+        <div class="coord-grid">
+          ${BF.coord.map(([k, v], i) => `<div><span class="muted">${esc(t(k))}</span><b${i === 0 ? ' class="good-text"' : ''}>${esc(t(v))}</b></div>`).join('')}
         </div>
       </div>
     </details>
 
-    <div style="margin-top:6px;display:flex;gap:6px">
+    <div style="margin-top:6px;display:flex;gap:6px;flex-wrap:wrap">
       ${ui.accountAbsentRescheduled ? `
-        <div class="notice good" style="flex:1;padding:4px 8px;font-size:11px">
-          ${icon('check', 14)}
-          <span><b>Rescheduled.</b> Score protected.</span>
-        </div>
-        ${ui.rescheduleChainWarning ? `
-          <div class="notice warn" style="margin-top:4px;font-size:11px">
-            ${icon('shield', 14)}
-            <span><b>Second reschedule:</b> Requires manager approval.</span>
-          </div>
-        ` : `
-          <button class="btn text sm" data-act="try-second-reschedule" data-id="${a.id}" style="font-size:10px;min-height:var(--tap);display:inline-flex;align-items:center;padding:0;color:var(--muted)">
-            Need to reschedule again?
-          </button>
-        `}
-      ` : `
-        <button class="btn secondary sm" data-act="record-absent" data-id="${a.id}" style="min-height:var(--tap);flex:1;font-size:11px;padding:4px 6px">
-          ${icon('clock', 12)} Buyer absent / Reschedule
-        </button>
-      `}
-      <button class="btn ${ui.blitzMode ? 'primary' : 'secondary'} sm" data-act="toggle-blitz" style="min-height:var(--tap);flex:1;font-size:11px;padding:4px 6px">
-        ${icon('clock', 12)} ${ui.blitzMode ? 'Exit Blitz' : 'Blitz Mode (45s)'}
+        <div class="notice good" style="flex:1">${icon('check', 14)}<span><b>${esc(t('Rescheduled.'))}</b> ${esc(t('Score protected.'))}</span></div>
+        ${ui.rescheduleChainWarning ? `<div class="notice warn">${icon('shield', 14)}<span><b>${esc(t('Second reschedule:'))}</b> ${esc(t('needs {manager} approval.'))}</span></div>`
+          : `<button class="btn text sm" data-act="try-second-reschedule" data-id="${a.id}" style="min-height:var(--tap)">${esc(t('Need to reschedule again?'))}</button>`}
+      ` : `<button class="btn secondary sm" data-act="record-absent" data-id="${a.id}" style="min-height:var(--tap);flex:1">${icon('clock', 12)} ${esc(t('{Contact} away: reschedule'))}</button>`}
+      <button class="btn ${ui.blitzMode ? 'primary' : 'secondary'} sm" data-act="toggle-blitz" style="min-height:var(--tap);flex:1">
+        ${icon('clock', 12)} ${ui.blitzMode ? esc(t('Exit quick mode')) : esc(t('Quick mode (45s)'))}
       </button>
     </div>
     ${ui.blitzMode ? `
@@ -538,11 +512,11 @@ export function render(ctx, [accountId]) {
           <b style="color:var(--ink)">Rapid execution priority</b>
           ${pill('Highest feasible yield', 'good')}
         </div>
-        <p class="small" style="margin-bottom:8px">Streamlined for rushed buyer interactions. Single high-yield verified action and fast replenishment reorder.</p>
+        <p class="small" style="margin-bottom:8px">${esc(t('For a rushed {contact}: one verified action and a quick {order}.'))}</p>
         <small class="muted" style="display:block;margin-bottom:8px;font-size:10px">Supervisory threshold: Reps exceeding 25% Blitz mode over 14 days flagged for territory coaching review.</small>
         <div style="padding:6px 8px;background:var(--surface);border-radius:4px;margin-bottom:8px;border:1px solid var(--line-soft)">
           <b>${esc(t(items[0]?.title || 'Core Priority Action', items[0]?.vars))}</b>
-          <div class="small muted">Distributor stock verified · Estimated upside: ${esc(fmt.money(items[0]?.value || 500))}</div>
+          <div class="small muted">${esc(t('{short} availability verified', { short: W.sourceShort }))} · Estimated upside: ${esc(fmt.money(items[0]?.value || 500))}</div>
         </div>
         <div class="btn-row" style="gap:6px">
           <a class="btn primary sm" href="#/action/${items[0]?.id || ''}" style="min-height:var(--tap);flex:1;display:flex;align-items:center;justify-content:center">Execute priority action</a>
@@ -559,12 +533,13 @@ export function render(ctx, [accountId]) {
   </div>
 
   <div class="counts tight" id="counts" aria-live="polite">
+    <span data-count="total"><b>${items.length}</b>Total</span>
     <span data-count="approved"${bump('approved')}><b>${c.approved}</b>Approved</span>
     <span data-count="adjusted"${bump('adjusted')}><b>${c.adjusted}</b>Adjusted</span>
     <span data-count="overridden"${bump('overridden')}><b>${c.overridden}</b>Overridden</span>
     <span data-count="pending"${bump('pending')}><b>${c.pending}</b>To review</span>
   </div>
-  <p class="small muted tight guard">${esc(t('Reviewing this brief does not submit an {order}.'))}${c.paused ? ` ${c.paused} paused.` : ''}</p>
+  <p class="small muted tight guard">${esc(t('Reviewing this brief does not submit the {order}.'))}${c.paused ? ` ${c.paused} paused.` : ''}</p>
 
   <div class="items tight">${items.map((it, idx) => renderItem(ctx, it, it === firstPending, a, idx)).join('')}</div>
   ${mergePanel(ctx, a.id)}

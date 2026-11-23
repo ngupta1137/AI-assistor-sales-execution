@@ -62,7 +62,7 @@ export function renderLayersView(ctx) {
       title: '5. Shared Foundations Layer',
       subtitle: 'Enterprise governance, security, and data infrastructure',
       items: [
-        { name: 'Schema & Contracts', desc: 'Enforces type safety across 20 industries and 11 countries' },
+        { name: 'Schema & Contracts', desc: 'Enforces type safety across 21 industries and 11 countries' },
         { name: 'Memory Repository', desc: 'Account timeline with retention rules and forget actions' },
         { name: 'Audit & Telemetry', desc: 'Append-only ledger of proposals, decisions, and denials' },
         { name: 'Policy Registry', desc: 'Versioned commercial rules with named legal approvers' },

@@ -16,6 +16,34 @@ export default {
       program: "the approved channel program",
       decider: "The sales manager"
     },
+    fulfillment: {
+      physical: true,
+      source: "regional warehouse",
+      sourceShort: "Warehouse",
+      partnerOrg: "logistics team",
+      cutoff: "Dispatch cutoff",
+      slot: "Next delivery",
+      runner: "Freight run",
+      load: ["Est. load", "2 pallets"],
+      beat: "freight run",
+      plan: "Partner plan and channel programs",
+      planShort: "Partner plan",
+      milestones: ["Counter display set up", "Installer training held", "Project pipeline review"],
+      fund: "Channel fund",
+      flowIn: "Supplied",
+      flowOut: "Installed",
+      outSource: "Installer data",
+      dock: "Trade counter",
+      asset: ["Demo battery unit", "Status", "Operational"]
+    },
+    briefFrame: {
+      objectives: ["Project pipeline", "Range and stock", "Compatibility and warranty"],
+      coord: [
+        ["Technical support", "Design review Wed"],
+        ["{Rep} (you)", "In the visit"],
+        ["Freight carrier", "Next drop Thu"]
+      ]
+    },
     flows: {
       visibility: {
         name: "Counter displays and training",

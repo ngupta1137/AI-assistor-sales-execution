@@ -228,12 +228,8 @@ function renderActingAsBar(ctx) {
   const roleKey = roleKeyOf(ctx.persona);
   const roleTitle = titleFor(ctx.industry, ctx.persona);
   if (ctx.app?.ui?.actingAsDismissed) {
-    return `<div class="acting-as-bar dismissed" style="background:var(--surface-subtle);border-bottom:1px solid var(--line-soft);padding:2px var(--s4);font-size:11px;display:flex;align-items:center;justify-content:space-between">
-      <span class="muted" style="display:inline-flex;align-items:center;gap:6px">
-        <span style="font-weight:600;color:var(--ink)">${esc(roleTitle)}</span>
-        <span>· permissions active</span>
-      </span>
-      <button class="btn text sm" data-act="restore-acting-as" aria-label="Show role details" style="min-height:var(--tap);min-width:var(--tap);padding:0 8px;font-size:11px;text-decoration:underline">Show role details</button>
+    return `<div class="acting-as-bar dismissed">
+      <button class="aa-chip" data-act="restore-acting-as" aria-label="Show role details">${icon('shield', 12)}<span>${esc(roleTitle)}</span><span class="muted">· permissions active</span></button>
     </div>`;
   }
   const allowed = ctx.industry.governance?.rights?.actions?.[roleKey] || [];
@@ -280,22 +276,18 @@ function renderActingAsBar(ctx) {
   };
   const canText = allowed.slice(0, 3).map((a) => actionLabels[a] || a.replace(/_/g, " ")).join(", ");
   const cannotText = forbidden.slice(0, 3).map((a) => actionLabels[a] || a.replace(/_/g, " ")).join(", ");
-  return `<div class="acting-as-bar" style="background:var(--surface-subtle);border-bottom:1px solid var(--line-soft);padding:4px var(--s4);font-size:11px;display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap">
-    <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;flex:1">
-      <span style="font-weight:600;color:var(--ink)">You are ${esc(roleTitle)}.</span>
-      <span class="muted">You can: ${esc(canText || "view assigned views")}.</span>
-      <span class="muted">You cannot: ${esc(cannotText || "modify governance rules")}.</span>
-    </div>
-    <div style="display:flex;align-items:center;gap:4px;flex-wrap:wrap">
-      <div class="font-stepper" style="display:inline-flex;align-items:center;gap:2px">
-        <button class="seg sm ${(ctx.app?.textSize || 'sm') === 'sm' ? 'on' : ''}" data-act="set-text-size" data-size="sm" title="Standard text size" style="min-height:var(--tap);min-width:var(--tap);font-size:11px">A</button>
-        <button class="seg sm ${ctx.app?.textSize === 'md' ? 'on' : ''}" data-act="set-text-size" data-size="md" title="Large text size" style="min-height:var(--tap);min-width:var(--tap);font-size:13px">A+</button>
-        <button class="seg sm ${ctx.app?.textSize === 'lg' ? 'on' : ''}" data-act="set-text-size" data-size="lg" title="Extra large text size" style="min-height:var(--tap);min-width:var(--tap);font-size:15px">A++</button>
-      </div>
-      <button class="btn text sm" data-act="toggle-simple-view" style="min-height:var(--tap);min-width:var(--tap);display:inline-flex;align-items:center;padding:0 6px;font-size:11px;text-decoration:underline">${ctx.app?.simpleView ? 'Full view' : 'Simple view'}</button>
-      <button class="btn text sm" data-act="open-guide" style="min-height:var(--tap);min-width:var(--tap);display:inline-flex;align-items:center;padding:0 6px;font-size:11px;text-decoration:underline">How this works</button>
-      <button class="btn text sm" data-act="open-rights-matrix" style="min-height:var(--tap);min-width:var(--tap);display:inline-flex;align-items:center;padding:0 6px;font-size:11px;text-decoration:underline">See all rights</button>
-      <button class="icon-btn sm" data-act="dismiss-acting-as" aria-label="Dismiss banner" title="Dismiss banner" style="min-height:var(--tap);min-width:var(--tap)">${icon('x', 14)}</button>
+  return `<div class="acting-as-bar">
+    <p class="aa-text">${icon('shield', 12)} <b>Acting as ${esc(roleTitle)}.</b> <span class="muted">Can ${esc(canText || "view assigned views")}. Cannot ${esc(cannotText || "modify governance rules")}.</span></p>
+    <div class="aa-tools">
+      <span class="font-stepper" role="group" aria-label="Text size">
+        <button class="seg sm ${(ctx.app?.textSize || 'sm') === 'sm' ? 'on' : ''}" data-act="set-text-size" data-size="sm" title="Standard text size">A</button>
+        <button class="seg sm ${ctx.app?.textSize === 'md' ? 'on' : ''}" data-act="set-text-size" data-size="md" title="Large text size">A+</button>
+        <button class="seg sm ${ctx.app?.textSize === 'lg' ? 'on' : ''}" data-act="set-text-size" data-size="lg" title="Extra large text size">A++</button>
+      </span>
+      <button class="btn text sm" data-act="toggle-simple-view">${ctx.app?.simpleView ? 'Full view' : 'Simple view'}</button>
+      <button class="btn text sm" data-act="open-guide">How this works</button>
+      <button class="btn text sm" data-act="open-rights-matrix">All rights</button>
+      <button class="icon-btn sm" data-act="dismiss-acting-as" aria-label="Minimize role banner" title="Minimize">${icon('x', 14)}</button>
     </div>
   </div>`;
 }

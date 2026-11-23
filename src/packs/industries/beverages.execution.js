@@ -16,6 +16,34 @@ export default {
       program: "the approved consumer promotion",
       decider: "The brand team and the outlet"
     },
+    fulfillment: {
+      physical: true,
+      source: "wholesaler depot",
+      sourceShort: "Depot",
+      partnerOrg: "wholesaler",
+      cutoff: "Delivery cutoff",
+      slot: "Next delivery",
+      runner: "Delivery run",
+      load: ["Est. load", "14 cases"],
+      beat: "delivery run",
+      plan: "Outlet plan and brand activations",
+      planShort: "Outlet plan",
+      milestones: ["Menu listing confirmed", "Brand activation night", "Staff serve training"],
+      fund: "Activation fund",
+      flowIn: "Sell-in",
+      flowOut: "Sell-through",
+      outSource: "Till data",
+      dock: "Cellar door",
+      asset: ["Branded cooler", "Cooler purity", "96% (sample)"]
+    },
+    briefFrame: {
+      objectives: ["Grow distribution", "Reorder", "Activation and quality"],
+      coord: [
+        ["Draught technician", "Line clean Mon"],
+        ["{Rep} (you)", "In the visit"],
+        ["Delivery driver", "Next drop tomorrow"]
+      ]
+    },
     flows: {
       visibility: {
         name: "Coolers, menus and activations",

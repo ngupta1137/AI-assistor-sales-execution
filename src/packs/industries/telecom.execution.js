@@ -15,6 +15,41 @@ export default {
       mode: "on",
       tiers: ["Standard offer", "Bundle offer", "Festival port-in offer"]
     },
+    fulfillment: {
+      physical: true,
+      source: "distributor hub",
+      sourceShort: "Hub",
+      partnerOrg: "distributor",
+      cutoff: "Float top-up cutoff",
+      slot: "Next stock drop",
+      runner: "Distributor van",
+      load: ["Est. stock", "2 SIM boxes"],
+      beat: "distributor van run",
+      plan: "Retailer plan and offers",
+      planShort: "Retailer plan",
+      milestones: ["Branding refreshed", "Staff trained on new plans", "Festival offer live"],
+      fund: "Branding fund",
+      flowIn: "SIMs supplied",
+      flowOut: "SIMs activated",
+      outSource: "Activation data",
+      dock: "Shop counter",
+      asset: ["Branded kiosk", "Branding", "Compliant"]
+    },
+    briefFrame: {
+      objectives: ["Grow activations", "Float and stock", "Branding and KYC"],
+      coord: [
+        ["Brand promoter", "Weekend demo"],
+        ["{Rep} (you)", "In the visit"],
+        ["Distributor van", "Next drop 16:00"]
+      ],
+      constraints: [
+        ["Float", "Above minimum"],
+        ["SIM stock", "Allocated"],
+        ["Retailer credit", "Available"],
+        ["KYC", "Compliant"]
+      ],
+      constraintNote: "Suggestions are checked against float, SIM stock, retailer credit and KYC status."
+    },
     flows: {
       visibility: {
         name: "Branding and device demos",

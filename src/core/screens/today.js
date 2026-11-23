@@ -2,11 +2,69 @@
 // Month actual comes from source data only. Completed actions are shown as an estimate, never added to actuals.
 
 import { esc, icon, pill, bar, kpiValue, AGENT_LABEL } from '../ui.js';
+import { wording } from '../wording.js';
 import { fieldNotices } from '../execution/views.js';
 
 function greeting() {
   const h = new Date().getHours();
   return h < 12 ? 'Good morning' : h < 17 ? 'Good afternoon' : 'Good evening';
+}
+
+/** Compact 50px trend line. points: values 0..1 in order; goal: optional straight pace line end value. */
+function spark(points, goal) {
+  if (!points.length) return '';
+  const W = 320, H = 50, pad = 3;
+  const x = (i) => pad + (i * (W - 2 * pad)) / Math.max(1, points.length - 1);
+  const y = (v) => H - pad - Math.max(0, Math.min(1, v)) * (H - 2 * pad);
+  const line = points.map((v, i) => `${x(i).toFixed(1)},${y(v).toFixed(1)}`).join(' ');
+  return `<svg class="spark" viewBox="0 0 ${W} ${H}" preserveAspectRatio="none" role="img" aria-label="Trend line, sample data">
+    <defs><linearGradient id="sparkFill" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="var(--accent)" stop-opacity="0.22"/><stop offset="100%" stop-color="var(--accent)" stop-opacity="0"/></linearGradient></defs>
+    ${goal != null ? `<line x1="${x(0)}" y1="${y(0)}" x2="${x(points.length - 1)}" y2="${y(goal)}" class="spark-goal"/>` : ''}
+    <polygon points="${x(0)},${H - pad} ${line} ${x(points.length - 1)},${H - pad}" fill="url(#sparkFill)"/>
+    <polyline points="${line}" class="spark-line"/>
+  </svg>`;
+}
+
+/** Daily, weekly and monthly views. Arithmetic on the sample territory only; nothing is a recorded result. */
+function performance(ctx, ordered, tf, pct) {
+  const { fmt, data, m } = ctx;
+  const tr = data.territory;
+  if (tf === 'daily') {
+    const total = ordered.reduce((s, p) => s + p.opportunity, 0) || 1;
+    const byTime = ordered.slice().sort((a, b) => a.start - b.start);
+    let run = 0;
+    const pts = [0, ...byTime.map((p) => (run += p.opportunity) / total)];
+    const done = byTime.filter((p) => m.visitDone(p.accountId));
+    const doneValue = done.reduce((s, p) => s + p.opportunity, 0);
+    return {
+      points: pts, goal: null,
+      facts: [['Planned opportunity', fmt.moneyShort(total)], ['{Visits} done', `${done.length} of ${ordered.length}`, done.length ? 'good' : ''], ['Opportunity visited', fmt.moneyShort(doneValue)], ['Last {visit} ends', fmt.time(Math.max(...byTime.map((p) => p.end || p.start)))]],
+      caption: 'Cumulative planned opportunity across today, in {visit} order',
+    };
+  }
+  const d = fmt.today;
+  const dim = new Date(d.getFullYear(), d.getMonth() + 1, 0).getDate();
+  const day = d.getDate();
+  const left = tr.target - tr.achieved;
+  if (tf === 'weekly') {
+    const weeksGone = Math.max(1, day / 7);
+    const weeksLeft = Math.max(1, (dim - day) / 7);
+    const rate = tr.achieved / weeksGone;
+    const need = Math.max(0, left) / weeksLeft;
+    return {
+      points: [], bars: [['Run rate a week', rate], ['Needed a week', need]],
+      facts: [['Run rate a week', fmt.moneyShort(rate)], ['Needed a week', fmt.moneyShort(need), need > rate ? 'warn' : 'good'], ['Weeks left', String(Math.round(weeksLeft * 10) / 10)], ['Gap to target', fmt.moneyShort(Math.max(0, left))]],
+      caption: 'Run rate so far against the weekly rate still needed',
+    };
+  }
+  const steps = 6;
+  const pts = Array.from({ length: steps + 1 }, (_, i) => (tr.achieved / tr.target) * (i / steps));
+  const projected = Math.round((tr.achieved / Math.max(1, day)) * dim);
+  return {
+    points: pts, goal: Math.min(1, day / dim),
+    facts: [['Month target', fmt.moneyShort(tr.target)], ['Achieved', `${fmt.moneyShort(tr.achieved)} · ${pct}%`], ['Days left', String(dim - day)], ['Projected at this pace', fmt.moneyShort(projected), projected >= tr.target ? 'good' : 'warn']],
+    caption: 'Month to date, with the straight-line pace to target',
+  };
 }
 
 export function render(ctx) {
@@ -69,25 +127,17 @@ export function render(ctx) {
   </section>` : '';
 
 
-  const market = ctx.country.market || ctx.country.name;
-  const segment = 'All territory segments';
-  const channel = 'Direct Field Sales';
-  const repRole = ctx.industry.personas?.rep || 'Sales Rep';
-  const contextBar = !ctx.ui?.contextBarDismissed ? `<div class="context-bar" style="background:var(--surface-subtle);border-left:3px solid var(--accent);padding:4px 8px;margin-bottom:var(--s2);border-radius:var(--radius-sm);font-size:11px;color:var(--muted);display:flex;align-items:center;justify-content:space-between;gap:8px">
-    <div><span style="font-weight:600;color:var(--ink)">Context:</span> ${esc(market)}, ${esc(segment)}, ${esc(channel)}, ${esc(repRole)}</div>
-    <button class="icon-btn sm" data-act="dismiss-context-bar" aria-label="Dismiss context info" style="min-height:var(--tap);min-width:var(--tap);flex:none">${icon('x', 14)}</button>
+  const contextBar = !ctx.ui?.contextBarDismissed ? `<div class="context-bar" id="context-bar">
+    <span class="ctx-text"><b>${esc(industry.name)}</b> · ${esc(ctx.country.name)} · ${esc(data.city.name)} · ${esc(t('{Rep}'))}</span>
+    <button class="icon-btn sm" data-act="dismiss-context-bar" aria-label="Dismiss context">${icon('x', 14)}</button>
   </div>` : '';
 
   const heroHtml = ctx.ui?.briefsHeroDismissed ? `
-  <section class="hero compact-hero" style="padding:4px 10px;display:flex;flex-direction:row;align-items:center;justify-content:space-between;gap:8px">
-    <div style="display:flex;align-items:center;gap:6px;min-width:0">
-      <span class="hero-ic" style="width:28px;height:28px;border-radius:4px">${icon('agent', 16)}</span>
-      <span style="font-size:12px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis"><b>Briefs:</b> ${pending ? `${pending} to review` : 'Reviewed'}</span>
-    </div>
-    <div style="display:flex;align-items:center;gap:4px;flex:none">
-      <a class="btn primary sm" href="#/brief/${nextAcc.id}" id="overnight-banner" style="min-height:var(--tap);font-size:11px;padding:4px 10px">${esc(t(`Open: ${nextAcc.name}`))}${icon('chevron', 14)}</a>
-      <button class="icon-btn sm" data-act="restore-briefs-hero" aria-label="Expand briefs section" title="Expand briefs section" style="min-height:var(--tap);min-width:var(--tap)">${icon('chevron', 14)}</button>
-    </div>
+  <section class="hero hero-bar" id="hero-bar">
+    <span class="hero-ic">${icon('agent', 14)}</span>
+    <span class="hero-bar-text"><b>${esc(t('Briefs'))}:</b> ${pending ? esc(t('{n} to review', { n: pending })) : esc(t('Reviewed'))}</span>
+    <a class="btn primary sm" href="#/brief/${nextAcc.id}" id="overnight-banner">${esc(t('Open next'))}${icon('chevron', 14)}</a>
+    <button class="icon-btn sm" data-act="restore-briefs-hero" aria-label="Expand briefs">${icon('chevron', 14)}</button>
   </section>` : `
   <section class="hero">
     <div class="hero-top">
@@ -102,6 +152,8 @@ export function render(ctx) {
     <a class="btn primary block" href="#/brief/${nextAcc.id}" id="overnight-banner">${esc(t(`Open next brief: ${nextAcc.name}`))}${icon('chevron', 18)}</a>
   </section>`;
 
+  const tf = ['daily', 'weekly', 'monthly'].includes(ctx.ui?.repTf) ? ctx.ui.repTf : 'daily';
+  const perf = performance(ctx, ordered, tf, pct);
   return `${adhocModal}
   ${contextBar}
   ${ctx.ui?.todayToast ? `<div class="notice good" style="margin-bottom:var(--s2)">${icon('check', 16)}<span>${esc(ctx.ui.todayToast)}</span></div>` : ''}
@@ -115,225 +167,30 @@ export function render(ctx) {
   ${heroHtml}
   ${fieldNotices(ctx)}
 
-  <div class="quick tight">
-    <a class="btn secondary" href="#/route" id="open-route">${icon('route', 20)}Route plan</a>
-    <a class="btn secondary" href="#/ask" id="open-ask">${icon('ask', 20)}Ask AI</a>
+  <div class="quick quick-3">
+    <a class="btn secondary" href="#/route" id="open-route">${icon('route', 18)}${esc(t('Route plan'))}</a>
+    <a class="btn secondary" href="#/ask" id="open-ask">${icon('ask', 18)}${esc(t('Ask AI'))}</a>
+    <button class="btn secondary" data-act="open-adhoc" id="open-adhoc">${icon('pin', 18)}${esc(t('Log ad-hoc stop'))}</button>
   </div>
-  <button class="btn secondary sm" data-act="open-adhoc" style="min-height:var(--tap);margin-bottom:var(--s2);width:100%">${icon('route', 16)} Log ad-hoc customer drop-in</button>
 
   <section>
     <div class="section-head"><h2>${esc(t("Today's {accounts}"))}</h2><small>Ranked by estimated opportunity</small></div>
     <ol class="group list">${rows}</ol>
   </section>
 
-  <!-- Field Rep Analytics Hub: Daily, Weekly, Monthly Views Against Target -->
-  <section class="card tight" style="margin-top:var(--s3);margin-bottom:var(--s2)">
-    <div class="stat-row"><span class="small muted">Month to date</span><span class="small"><b class="money">${esc(fmt.moneyShort(tr.achieved))}</b> of ${esc(fmt.moneyShort(tr.target))} · ${pct}%</span></div>
-    ${bar(tr.achieved, tr.target)}
-
-    <div style="display:flex;justify-content:space-between;align-items:center;margin-top:8px;margin-bottom:6px;flex-wrap:wrap;gap:6px;border-top:1px solid var(--line-soft);padding-top:6px">
-      <b>Performance analytics</b>
-      <div class="seg-ctl" role="group" aria-label="Analytics timeframe">
-        <button class="seg ${(ctx.ui?.repTf || 'daily') === 'daily' ? 'on' : ''}" data-act="set-rep-tf" data-tf="daily" style="min-height:var(--tap);min-width:44px;font-size:11px">Daily</button>
-        <button class="seg ${ctx.ui?.repTf === 'weekly' ? 'on' : ''}" data-act="set-rep-tf" data-tf="weekly" style="min-height:var(--tap);min-width:44px;font-size:11px">Weekly</button>
-        <button class="seg ${ctx.ui?.repTf === 'monthly' ? 'on' : ''}" data-act="set-rep-tf" data-tf="monthly" style="min-height:var(--tap);min-width:44px;font-size:11px">Monthly</button>
+  <!-- Performance: every figure is derived from this territory's sample data. -->
+  <section class="card tight perf" id="perf" data-tf="${tf}">
+    <div class="section-head"><h2>${esc(t('Performance'))}</h2>
+      <div class="seg-ctl pill-seg" role="group" aria-label="${esc(t('Timeframe'))}">
+        ${[['daily', 'Daily'], ['weekly', 'Weekly'], ['monthly', 'Monthly']].map(([k, l]) => `<button class="seg ${tf === k ? 'on' : ''}" data-act="set-rep-tf" data-tf="${k}" aria-pressed="${tf === k}">${esc(t(l))}</button>`).join('')}
       </div>
     </div>
-
-    ${(() => {
-      const tf = ctx.ui?.repTf || 'daily';
-      if (tf === 'daily') {
-        return `
-        <div class="facts" style="grid-template-columns:repeat(auto-fit,minmax(75px,1fr));margin-bottom:8px">
-          <div><small>Today visits</small><b>${done} of ${ordered.length}</b></div>
-          <div><small>Opportunity</small><b class="money">${esc(fmt.moneyShort(self.estimated))}</b></div>
-          <div><small>Pace</small><b class="good-text">On track</b></div>
-          <div><small>Actions done</small><b>${self.actionsDone}</b></div>
-        </div>
-        <div style="padding:10px 12px;background:var(--surface-inset);border-radius:var(--radius-sm);border:1px solid var(--line-soft)">
-          <div style="display:flex;justify-content:space-between;align-items:center;font-size:11px;margin-bottom:6px">
-            <span class="muted">Intraday opportunity realization curve (08:00 - 17:00)</span>
-            <span class="muted">Illustrative curve · sample data</span>
-          </div>
-          <svg viewBox="0 0 320 85" style="width:100%;height:auto;overflow:visible" role="img" aria-label="Intraday progress curve">
-            <defs>
-              <linearGradient id="dailyAreaGrad" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="0%" stop-color="var(--accent)" stop-opacity="0.35"/>
-                <stop offset="100%" stop-color="var(--accent)" stop-opacity="0.0"/>
-              </linearGradient>
-            </defs>
-            <!-- Y-axis guide lines -->
-            <line x1="38" y1="18" x2="310" y2="18" stroke="var(--line-soft)" stroke-dasharray="2,2"/>
-            <text x="32" y="21" font-size="8" fill="var(--muted)" text-anchor="end">${esc(fmt.moneyShort(20000))}</text>
-            <line x1="38" y1="46" x2="310" y2="46" stroke="var(--line-soft)" stroke-dasharray="2,2"/>
-            <text x="32" y="49" font-size="8" fill="var(--muted)" text-anchor="end">${esc(fmt.moneyShort(10000))}</text>
-            <line x1="38" y1="70" x2="310" y2="70" stroke="var(--line-soft)"/>
-            <text x="32" y="72" font-size="8" fill="var(--muted)" text-anchor="end">${esc(fmt.moneyShort(0))}</text>
-            
-            <!-- Target pace line (dashed) -->
-            <line x1="40" y1="70" x2="305" y2="18" stroke="var(--muted)" stroke-width="1.5" stroke-dasharray="4,4"/>
-            
-            <!-- Actual S-Curve Area fill -->
-            <polygon points="40,70 78,61 122,48 160,48 215,34 265,22 265,70" fill="url(#dailyAreaGrad)"/>
-            
-            <!-- Actual stepped realization line -->
-            <polyline points="40,70 78,61 122,48 160,48 215,34 265,22" fill="none" stroke="var(--accent)" stroke-width="2.5"/>
-            
-            <!-- Data callouts on completed stops -->
-            <circle cx="78" cy="61" r="3.5" fill="var(--accent)"/>
-            <text x="78" y="56" font-size="7" fill="var(--muted)" text-anchor="middle">${esc(fmt.moneyShort(3400))}</text>
-            
-            <circle cx="122" cy="48" r="3.5" fill="var(--accent)"/>
-            <text x="122" y="43" font-size="7" fill="var(--muted)" text-anchor="middle">${esc(fmt.moneyShort(7800))}</text>
-            
-            <circle cx="215" cy="34" r="3.5" fill="var(--accent)"/>
-            <text x="215" y="29" font-size="7" fill="var(--muted)" text-anchor="middle">${esc(fmt.moneyShort(15600))}</text>
-            
-            <circle cx="265" cy="22" r="4.5" fill="var(--good)"/>
-            <text x="265" y="15" font-size="8" font-weight="700" fill="var(--good)" text-anchor="middle">${esc(fmt.moneyShort(18400))}</text>
-            
-            <!-- X-axis ticks -->
-            <text x="40" y="81" font-size="8" fill="var(--muted)">08:00</text>
-            <text x="122" y="81" font-size="8" fill="var(--muted)">10:30</text>
-            <text x="160" y="81" font-size="8" fill="var(--muted)">12:30</text>
-            <text x="215" y="81" font-size="8" fill="var(--muted)">14:30</text>
-            <text x="265" y="81" font-size="8" font-weight="700" fill="var(--accent)">16:00 (Now)</text>
-            <text x="305" y="81" font-size="8" fill="var(--muted)">17:15</text>
-          </svg>
-        </div>`;
-      } else if (tf === 'weekly') {
-        return `
-        <div class="facts" style="grid-template-columns:repeat(auto-fit,minmax(75px,1fr));margin-bottom:8px">
-          <div><small>Week quota</small><b>${esc(fmt.moneyShort(tr.target / 4))}</b></div>
-          <div><small>Actual booked</small><b class="good-text">${esc(fmt.moneyShort(tr.achieved / 3.5))}</b></div>
-          <div><small>Weekly pace</small><b class="good-text">108%</b></div>
-          <div><small>Calls met</small><b>26 of 25</b></div>
-        </div>
-        <div style="padding:10px 12px;background:var(--surface-inset);border-radius:var(--radius-sm);border:1px solid var(--line-soft)">
-          <div style="display:flex;justify-content:space-between;align-items:center;font-size:11px;margin-bottom:6px">
-            <span class="muted">7-day call volume &amp; revenue trajectory</span>
-            <span class="good-text"><b>${esc(fmt.money(37600))} booked</b> (+7.4% vs ${esc(fmt.money(35000))} target)</span>
-          </div>
-          <svg viewBox="0 0 320 90" style="width:100%;height:auto;overflow:visible" role="img" aria-label="7-day realistic revenue trajectory">
-            <defs>
-              <linearGradient id="weeklyAreaGrad" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="0%" stop-color="var(--accent)" stop-opacity="0.3"/>
-                <stop offset="100%" stop-color="var(--accent)" stop-opacity="0.0"/>
-              </linearGradient>
-            </defs>
-            <!-- Guide lines -->
-            <line x1="38" y1="20" x2="310" y2="20" stroke="var(--line-soft)" stroke-dasharray="2,2"/>
-            <text x="32" y="23" font-size="8" fill="var(--muted)" text-anchor="end">${esc(fmt.moneyShort(8000))}</text>
-            <line x1="38" y1="48" x2="310" y2="48" stroke="var(--line-soft)" stroke-dasharray="2,2"/>
-            <text x="32" y="51" font-size="8" fill="var(--muted)" text-anchor="end">${esc(fmt.moneyShort(5000))}</text>
-            <line x1="38" y1="74" x2="310" y2="74" stroke="var(--line-soft)"/>
-            <text x="32" y="76" font-size="8" fill="var(--muted)" text-anchor="end">${esc(fmt.moneyShort(2000))}</text>
-            
-            <!-- Daily target baseline: ${esc(fmt.money(5000))} (y=48) -->
-            <line x1="42" y1="48" x2="305" y2="48" stroke="var(--muted)" stroke-width="1.5" stroke-dasharray="4,4"/>
-            <text x="305" y="44" font-size="7" fill="var(--muted)" text-anchor="end">Daily Quota (${esc(fmt.moneyShort(5000))})</text>
-            
-            <!-- Shaded Area -->
-            <polygon points="46,42 90,32 134,54 178,26 222,14 266,46 266,74 46,74" fill="url(#weeklyAreaGrad)"/>
-            
-            <!-- Realistic undulating trendline -->
-            <polyline points="46,42 90,32 134,54 178,26 222,14 266,46" fill="none" stroke="var(--accent)" stroke-width="2.5"/>
-            
-            <!-- Data points with real values -->
-            <circle cx="46" cy="42" r="3.5" fill="var(--accent)"/>
-            <text x="46" y="36" font-size="7" fill="var(--muted)" text-anchor="middle">${esc(fmt.moneyShort(5800))}</text>
-            
-            <circle cx="90" cy="32" r="3.5" fill="var(--accent)"/>
-            <text x="90" y="26" font-size="7" fill="var(--muted)" text-anchor="middle">${esc(fmt.moneyShort(6700))}</text>
-            
-            <!-- Mid-week delivery lag dip -->
-            <circle cx="134" cy="54" r="3.5" fill="var(--warn)"/>
-            <text x="134" y="65" font-size="7" fill="var(--warn)" text-anchor="middle">${esc(fmt.moneyShort(4600))} (Depot lag)</text>
-            
-            <!-- Thursday re-order surge -->
-            <circle cx="178" cy="26" r="3.5" fill="var(--accent)"/>
-            <text x="178" y="20" font-size="7" fill="var(--muted)" text-anchor="middle">${esc(fmt.moneyShort(7400))}</text>
-            
-            <!-- Friday promo push peak -->
-            <circle cx="222" cy="14" r="4.5" fill="var(--good)"/>
-            <text x="222" y="8" font-size="8" font-weight="700" fill="var(--good)" text-anchor="middle">${esc(fmt.moneyShort(8900))} (Peak)</text>
-            
-            <!-- Saturday half-day -->
-            <circle cx="266" cy="46" r="3.5" fill="var(--accent)"/>
-            <text x="266" y="40" font-size="7" fill="var(--muted)" text-anchor="middle">${esc(fmt.moneyShort(4200))}</text>
-            
-            <!-- Day labels -->
-            <text x="46" y="84" font-size="8" fill="var(--muted)" text-anchor="middle">Mon</text>
-            <text x="90" y="84" font-size="8" fill="var(--muted)" text-anchor="middle">Tue</text>
-            <text x="134" y="84" font-size="8" fill="var(--muted)" text-anchor="middle">Wed</text>
-            <text x="178" y="84" font-size="8" fill="var(--muted)" text-anchor="middle">Thu</text>
-            <text x="222" y="84" font-size="8" font-weight="700" fill="var(--good)" text-anchor="middle">Fri</text>
-            <text x="266" y="84" font-size="8" fill="var(--muted)" text-anchor="middle">Sat</text>
-          </svg>
-        </div>`;
-      } else {
-        return `
-        <div class="facts" style="grid-template-columns:repeat(auto-fit,minmax(75px,1fr));margin-bottom:8px">
-          <div><small>Month target</small><b>${esc(fmt.moneyShort(tr.target))}</b></div>
-          <div><small>Current pace</small><b class="good-text">106% projected</b></div>
-          <div><small>Days left</small><b>8 days</b></div>
-          <div><small>Rank</small><b class="good-text">#2 in district</b></div>
-        </div>
-        <div style="padding:10px 12px;background:var(--surface-inset);border-radius:var(--radius-sm);border:1px solid var(--line-soft)">
-          <div style="display:flex;justify-content:space-between;align-items:center;font-size:11px;margin-bottom:6px">
-            <span class="muted">Month-to-date trajectory vs target</span>
-            <span class="good-text"><b>91.4% achieved</b> (${esc(fmt.money(38400))} of ${esc(fmt.money(42000))} target)</span>
-          </div>
-          <svg viewBox="0 0 320 80" style="width:100%;height:auto;overflow:visible" role="img" aria-label="Monthly burn-up curve">
-            <defs>
-              <linearGradient id="monthAreaGrad" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="0%" stop-color="var(--good)" stop-opacity="0.3"/>
-                <stop offset="100%" stop-color="var(--good)" stop-opacity="0.0"/>
-              </linearGradient>
-            </defs>
-            <line x1="38" y1="18" x2="310" y2="18" stroke="var(--line-soft)" stroke-dasharray="2,2"/>
-            <text x="32" y="21" font-size="8" fill="var(--muted)" text-anchor="end">${esc(fmt.moneyShort(42000))}</text>
-            <line x1="38" y1="44" x2="310" y2="44" stroke="var(--line-soft)" stroke-dasharray="2,2"/>
-            <text x="32" y="47" font-size="8" fill="var(--muted)" text-anchor="end">${esc(fmt.moneyShort(20000))}</text>
-            <line x1="38" y1="68" x2="310" y2="68" stroke="var(--line-soft)"/>
-            <text x="32" y="70" font-size="8" fill="var(--muted)" text-anchor="end">${esc(fmt.moneyShort(0))}</text>
-            
-            <!-- Linear monthly target line -->
-            <line x1="42" y1="68" x2="305" y2="18" stroke="var(--muted)" stroke-width="1.5" stroke-dasharray="4,4"/>
-            
-            <!-- Cumulative burn-up curve -->
-            <polygon points="42,68 100,56 168,40 236,24 236,68 42,68" fill="url(#monthAreaGrad)"/>
-            <polyline points="42,68 100,56 168,40 236,24" fill="none" stroke="var(--good)" stroke-width="2.5"/>
-            
-            <circle cx="100" cy="56" r="3.5" fill="var(--good)"/>
-            <text x="100" y="50" font-size="7" fill="var(--muted)" text-anchor="middle">${esc(fmt.moneyShort(9200))} (W1)</text>
-            
-            <circle cx="168" cy="40" r="3.5" fill="var(--good)"/>
-            <text x="168" y="34" font-size="7" fill="var(--muted)" text-anchor="middle">${esc(fmt.moneyShort(21400))} (W2)</text>
-            
-            <circle cx="236" cy="24" r="4.5" fill="var(--good)"/>
-            <text x="236" y="16" font-size="8" font-weight="700" fill="var(--good)" text-anchor="middle">${esc(fmt.moneyShort(38400))} (W3 Actual)</text>
-            
-            <!-- Projected W4 finish line -->
-            <line x1="236" y1="24" x2="305" y2="12" stroke="var(--good)" stroke-width="2" stroke-dasharray="3,3"/>
-            <circle cx="305" cy="12" r="3.5" fill="var(--accent)"/>
-            <text x="305" y="8" font-size="8" font-weight="700" fill="var(--accent)" text-anchor="end">Proj: ${esc(fmt.moneyShort(44500))} (106%)</text>
-            
-            <text x="42" y="78" font-size="8" fill="var(--muted)">W1</text>
-            <text x="100" y="78" font-size="8" fill="var(--muted)">W2</text>
-            <text x="168" y="78" font-size="8" fill="var(--muted)">W3</text>
-            <text x="236" y="78" font-size="8" font-weight="700" fill="var(--good)">Current (Day 22)</text>
-            <text x="305" y="78" font-size="8" fill="var(--muted)">Month End</text>
-          </svg>
-        </div>`;
-      }
-    })()}
-
-    <div style="display:flex;align-items:center;justify-content:space-between;margin-top:8px;padding-top:6px;border-top:1px solid var(--line-soft)">
-    </div>
-    <div style="margin-top:8px;padding-top:6px;border-top:1px solid var(--line-soft);display:flex;justify-content:space-between;align-items:center">
-      <span class="small muted">${icon('clock', 12)} Shift finish: 17:15 (On track)</span>
-      <button class="btn secondary sm" data-act="time-crunch" style="min-height:var(--tap);font-size:11px">${icon('route', 12)} Re-balance for time crunch</button>
+    <div class="stat-row" id="mtd"><span class="small muted">${esc(t('Month to date, from source data'))}</span><span class="small"><b class="money">${esc(fmt.moneyShort(tr.achieved))}</b> of ${esc(fmt.moneyShort(tr.target))} · ${pct}%</span></div>
+    ${bar(tr.achieved, tr.target)}
+    <div class="facts perf-facts">${perf.facts.map(([k, v, tone]) => `<div><small>${esc(t(k))}</small><b class="num${tone ? ` ${tone}-text` : ''}">${esc(v)}</b></div>`).join('')}</div>
+    ${perf.bars ? `<div class="perf-bars">${perf.bars.map(([k, v]) => `<div class="stat-row"><span class="small muted">${esc(t(k))}</span><span class="small num">${esc(fmt.moneyShort(v))}</span></div>${bar(v, Math.max(...perf.bars.map((b) => b[1])) || 1)}`).join('')}</div>` : spark(perf.points, perf.goal)}
+    <div class="perf-foot"><span class="small muted">${esc(t(perf.caption))} · ${esc(t('Sample data'))}</span>
+      <button class="btn secondary sm" data-act="time-crunch">${icon('route', 12)} ${esc(t('Re-balance for less time'))}</button>
     </div>
   </section>
 

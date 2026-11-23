@@ -16,6 +16,41 @@ export default {
       program: "the approved seasonal supply terms",
       decider: "The enterprise director"
     },
+    fulfillment: {
+      physical: true,
+      source: "plant warehouse",
+      sourceShort: "Plant",
+      partnerOrg: "plant logistics",
+      cutoff: "Production cutoff",
+      slot: "Next run",
+      runner: "Plant freight",
+      load: ["Est. load", "6 pallets"],
+      beat: "production run",
+      plan: "Supply plan and tooling agreements",
+      planShort: "Supply plan",
+      milestones: ["Artwork signed off", "Line trial completed", "Certificate renewal"],
+      fund: null,
+      flowIn: "Supplied",
+      flowOut: "Run on line",
+      outSource: "Line data",
+      dock: "Goods-in",
+      asset: ["Sample library", "Samples current", "Yes"]
+    },
+    briefFrame: {
+      objectives: ["Grow volume", "Artwork and launch", "Certificates and quality"],
+      coord: [
+        ["Packaging technologist", "Line trial Wed"],
+        ["{Rep} (you)", "In the visit"],
+        ["Plant freight", "Next drop Thu"]
+      ],
+      constraints: [
+        ["Production slot", "Booked"],
+        ["Substrate stock", "Allocated"],
+        ["Credit", "Available"],
+        ["Certificates", "Current"]
+      ],
+      constraintNote: "Suggestions are checked against the production slot, substrate stock, credit and certificates on file."
+    },
     flows: {
       visibility: {
         name: "Artwork and print proofing",

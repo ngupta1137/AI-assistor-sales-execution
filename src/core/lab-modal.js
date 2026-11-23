@@ -265,7 +265,7 @@ export function renderLabModal(app, ctx) {
           <div class="card tight" style="margin:0;background:var(--surface-subtle);display:flex;flex-direction:column;gap:6px">
             <div><small>Inspected rule:</small> <b>Standard Cycle Volume Target</b></div>
             <div><small>Approver:</small> <b>Regional Legal Counsel</b></div>
-            <div><small>Scope:</small> <b>Tier A &amp; Tier B Retailers</b></div>
+            <div><small>Scope:</small> <b>${esc(ctx.t('Tier A and Tier B {accounts}'))}</b></div>
             <div><small>Never-decides check:</small> <span class="good-text">Pass (Does not alter prices or judge rep)</span></div>
             <div><small>Edit drift flag:</small> <span class="good-text">Clean (Matches signed SHA256 checksum)</span></div>
           </div>

@@ -15,6 +15,41 @@ export default {
       mode: "on",
       tiers: ["Scheme level 1", "Scheme level 2", "Scheme level 3"]
     },
+    fulfillment: {
+      physical: true,
+      source: "regional depot",
+      sourceShort: "Depot",
+      partnerOrg: "logistics team",
+      cutoff: "Dispatch cutoff",
+      slot: "Next truck",
+      runner: "Depot truck",
+      load: ["Est. load", "0.8 truck"],
+      beat: "depot truck run",
+      plan: "Dealer plan and schemes",
+      planShort: "Dealer plan",
+      milestones: ["Shade display refreshed", "Contractor meet held", "Scheme level review"],
+      fund: "Scheme fund",
+      flowIn: "Sell-in",
+      flowOut: "Sell-out",
+      outSource: "Dealer sales data",
+      dock: "Dealer yard",
+      asset: ["Tinting machine", "Calibration", "Current"]
+    },
+    briefFrame: {
+      objectives: ["Grow dealer sell-in", "Contractor demand", "Shade and tinting"],
+      coord: [
+        ["Tinting technician", "Machine service Wed"],
+        ["{Rep} (you)", "In the visit"],
+        ["Depot truck", "Next drop Thu"]
+      ],
+      constraints: [
+        ["Depot dispatch", "Open"],
+        ["Depot stock", "Allocated"],
+        ["Dealer credit", "Available"],
+        ["Scheme", "Active"]
+      ],
+      constraintNote: "Suggestions are checked against depot dispatch, depot stock and dealer credit."
+    },
     flows: {
       visibility: {
         name: "Shade displays and counter presence",

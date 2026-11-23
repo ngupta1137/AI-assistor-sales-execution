@@ -15,6 +15,34 @@ export default {
       mode: "on",
       tiers: ["Standard sell-out scheme", "Display scheme", "Launch scheme"]
     },
+    fulfillment: {
+      physical: true,
+      source: "distributor warehouse",
+      sourceShort: "Warehouse",
+      partnerOrg: "distributor",
+      cutoff: "Dispatch cutoff",
+      slot: "Next delivery",
+      runner: "Distributor truck",
+      load: ["Est. shipment", "6 cartons"],
+      beat: "distributor run",
+      plan: "Retailer plan and schemes",
+      planShort: "Retailer plan",
+      milestones: ["Launch display set up", "Promoters trained", "Aged stock review"],
+      fund: "Display fund",
+      flowIn: "Sell-in",
+      flowOut: "Sell-out",
+      outSource: "Retailer sales data",
+      dock: "Stock room",
+      asset: ["Demo wall", "Units live", "11 of 12"]
+    },
+    briefFrame: {
+      objectives: ["Grow sell-out", "Display and launch", "Aged stock"],
+      coord: [
+        ["In-store promoter", "On shift today"],
+        ["{Rep} (you)", "In the visit"],
+        ["Distributor truck", "Next drop Fri"]
+      ]
+    },
     flows: {
       visibility: {
         name: "Launch and display share",

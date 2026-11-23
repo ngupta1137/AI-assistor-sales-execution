@@ -16,6 +16,34 @@ export default {
       program: "the approved in-season support terms",
       decider: "The account manager"
     },
+    fulfillment: {
+      physical: true,
+      source: "distribution center",
+      sourceShort: "DC",
+      partnerOrg: "logistics team",
+      cutoff: "Shipping cutoff",
+      slot: "Next shipment",
+      runner: "Carrier",
+      load: ["Est. shipment", "5 cartons"],
+      beat: "replenishment cycle",
+      plan: "Season plan and trade terms",
+      planShort: "Season plan",
+      milestones: ["Floor reset done", "New styles shown", "In-season reorder agreed"],
+      fund: "Marketing fund",
+      flowIn: "Sell-in",
+      flowOut: "Sell-through",
+      outSource: "Retailer sales data",
+      dock: "Stock room",
+      asset: ["Branded fixture", "Season reset", "Done"]
+    },
+    briefFrame: {
+      objectives: ["In-season reorder", "Floor and launch", "Aged stock"],
+      coord: [
+        ["Visual merchandiser", "Floor reset Fri"],
+        ["{Rep} (you)", "In the visit"],
+        ["Carrier", "Next delivery Mon"]
+      ]
+    },
     flows: {
       visibility: {
         name: "Floor display and new styles",
