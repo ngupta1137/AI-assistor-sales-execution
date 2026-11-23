@@ -30,10 +30,10 @@ export function render(ctx) {
 
   // P2 Decision Log
   const defaultDecisions = [
-    { date: '2026-10-15', decider: 'Commercial Director', change: 'Adjusted replenishment buffer from 10 to 14 days', reason: 'Prevent stock-outs ahead of seasonal surge', evalResult: '+3.8% sales lift proven in pilot', status: 'In production' },
-    { date: '2026-09-28', decider: 'Operations Lead', change: 'Set max visit travel time limit to 45 minutes', reason: 'Avoid rep overtime during metro congestion', evalResult: 'Travel fatigue reduced 14%', status: 'In production' },
+    { date: '2026-10-15', decider: 'Commercial Director', change: 'Adjusted replenishment buffer from 10 to 14 days', reason: 'Prevent stock-outs ahead of seasonal surge', evalResult: 'Sample eval: fewer stock gaps flagged in the test group', status: 'In production' },
+    { date: '2026-09-28', decider: 'Operations Lead', change: 'Set max visit travel time limit to 45 minutes', reason: 'Avoid rep overtime during metro congestion', evalResult: 'Sample eval: fewer late finishes on test routes', status: 'In production' },
     { date: '2026-09-02', decider: 'Pricing Desk Lead', change: 'Autonomous volume rebate approval cap tested at 8%', reason: 'Accelerate closing on key distributor accounts', evalResult: 'Margin compression exceeded guardrail', status: 'Rolled back' },
-    { date: '2026-08-14', decider: 'Product Manager', change: 'Integrated depot EDI stock feed with daily sync', reason: 'Reduce stale inventory recommendation flags', evalResult: 'Flagged error rate dropped from 4.2 to 1.1', status: 'In production' },
+    { date: '2026-08-14', decider: 'Product Manager', change: 'Integrated depot EDI stock feed with daily sync', reason: 'Reduce stale inventory recommendation flags', evalResult: 'Sample eval: fewer stale-data flags', status: 'In production' },
   ];
   const decisions = [...defaultDecisions, ...(ui?.customDecisions || [])];
   const filterStatus = ui?.pmDecisionStatus || 'all';

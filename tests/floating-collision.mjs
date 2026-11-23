@@ -1,5 +1,6 @@
 // T7 Floating button collision test at 1280px, 390px, and 360px.
-// Asserts that the Lab button, the Try a Case button, the Ask AI button,
+// Asserts that the Lab and Try a case buttons sit in the app bar, clear of content,
+// and that they, the Ask AI button
 // and the bottom navigation bar never overlap each other, never obscure
 // the primary action on a card, and remain clickable.
 
@@ -99,6 +100,23 @@ async function run() {
     });
     if (!labClickable) failures.push(`${vp.name}: Lab button not clickable`);
     else passedAssertions++;
+
+    // 2b. Demo tools live in the app bar, so they can never cover screen content.
+    const inBar = await page.evaluate(() => {
+      const bar = document.querySelector('.appbar');
+      const scr = document.getElementById('screen').getBoundingClientRect();
+      return ['try-case-btn', 'lab-btn'].map((id) => {
+        const el = document.getElementById(id);
+        const r = el.getBoundingClientRect();
+        return { id, inBar: bar.contains(el), clear: r.bottom <= scr.top, tap: r.width >= 44 && r.height >= 44 };
+      });
+    });
+    for (const x of inBar) {
+      if (!x.inBar || !x.clear) failures.push(`${vp.name}: ${x.id} must sit in the app bar, clear of screen content`);
+      else passedAssertions++;
+      if (!x.tap) failures.push(`${vp.name}: ${x.id} smaller than a 44px tap target`);
+      else passedAssertions++;
+    }
 
     // 3. Card primary action not obscured by floating buttons
     if (check.rPrim) {

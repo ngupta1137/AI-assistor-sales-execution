@@ -67,6 +67,14 @@ for (const f of srcFiles) {
   for (const w of HYPE) check(!new RegExp(`\\b${w}\\b`).test(lower), `${rel}: hype word "${w}"`);
 }
 
+// 2a. No result claims in shipped copy: a lift, growth or reduction stated as a percentage
+// reads as a measured outcome. Impact is measured in a pilot; the app describes the method.
+const RESULT_CLAIM = /((lift|uplift|increase[sd]?|grew|growth|reduc(?:ed|tion)|improve(?:d|ment)?|boost(?:ed)?|drop(?:ped)?)\s+(of\s+|by\s+)?[+-]?\d+(\.\d+)?\s?%)|([+-]\d+(\.\d+)?\s?%\s*(lift|uplift|vs|versus|growth|improvement))|(\bp\s?[<=]\s?0?\.\d+)|verified significant/i;
+for (const f of srcFiles) {
+  const lines = stripComments(await readFile(f, 'utf8')).split('\n');
+  lines.forEach((line, i) => { const hit = line.match(RESULT_CLAIM); check(!hit, `${path.relative(root, f)}:${i + 1}: result claim "${hit?.[0]}" (describe the method; results come from a pilot)`); });
+}
+
 // 2b. Source copy is US English; the text gate converts it for UK-spelling countries.
 // Country packs are exempt: their place names are local (City Centre).
 const UK_ONLY = ['colour', 'centre', 'centres', 'licence', 'organise', 'organised', 'organiser', 'catalogue', 'behaviour', 'prioritise', 'analyse', 'analyser', 'fertiliser', 'theatre', 'programme', 'tyre', 'tyres', 'neighbourhood', 'favourite', 'enrolment', 'orthopaedic', 'litre', 'metre'];

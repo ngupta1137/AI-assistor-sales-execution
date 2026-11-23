@@ -11,7 +11,7 @@ function greeting() {
 }
 
 /** Compact 50px trend line. points: values 0..1 in order; goal: optional straight pace line end value. */
-function spark(points, goal) {
+export function spark(points, goal) {
   if (!points.length) return '';
   const W = 320, H = 50, pad = 3;
   const x = (i) => pad + (i * (W - 2 * pad)) / Math.max(1, points.length - 1);
@@ -26,7 +26,7 @@ function spark(points, goal) {
 }
 
 /** Daily, weekly and monthly views. Arithmetic on the sample territory only; nothing is a recorded result. */
-function performance(ctx, ordered, tf, pct) {
+export function performance(ctx, ordered, tf, pct) {
   const { fmt, data, m } = ctx;
   const tr = data.territory;
   if (tf === 'daily') {
@@ -187,8 +187,8 @@ export function render(ctx) {
     </div>
     <div class="stat-row" id="mtd"><span class="small muted">${esc(t('Month to date, from source data'))}</span><span class="small"><b class="money">${esc(fmt.moneyShort(tr.achieved))}</b> of ${esc(fmt.moneyShort(tr.target))} · ${pct}%</span></div>
     ${bar(tr.achieved, tr.target)}
-    <div class="facts perf-facts">${perf.facts.map(([k, v, tone]) => `<div><small>${esc(t(k))}</small><b class="num${tone ? ` ${tone}-text` : ''}">${esc(v)}</b></div>`).join('')}</div>
-    ${perf.bars ? `<div class="perf-bars">${perf.bars.map(([k, v]) => `<div class="stat-row"><span class="small muted">${esc(t(k))}</span><span class="small num">${esc(fmt.moneyShort(v))}</span></div>${bar(v, Math.max(...perf.bars.map((b) => b[1])) || 1)}`).join('')}</div>` : spark(perf.points, perf.goal)}
+    <div class="facts perf-facts">${perf.facts.map(([k, v, tone]) => `<div><small>${esc(t(k))}</small><b class="tnum${tone ? ` ${tone}-text` : ''}">${esc(v)}</b></div>`).join('')}</div>
+    ${perf.bars ? `<div class="perf-bars">${perf.bars.map(([k, v]) => `<div class="stat-row"><span class="small muted">${esc(t(k))}</span><span class="small tnum">${esc(fmt.moneyShort(v))}</span></div>${bar(v, Math.max(...perf.bars.map((b) => b[1])) || 1)}`).join('')}</div>` : spark(perf.points, perf.goal)}
     <div class="perf-foot"><span class="small muted">${esc(t(perf.caption))} · ${esc(t('Sample data'))}</span>
       <button class="btn secondary sm" data-act="time-crunch">${icon('route', 12)} ${esc(t('Re-balance for less time'))}</button>
     </div>

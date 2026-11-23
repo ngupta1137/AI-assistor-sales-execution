@@ -330,7 +330,7 @@ function renderItem(ctx, it, isNext, a, itemIndex) {
       <div><dt>Saw</dt><dd>${esc(t(it.saw, v))}</dd></div>
       <div><dt>Compared</dt><dd>${esc(t(it.compared, v))}</dd></div>
     </dl>
-    <div class="metrics"><span class="num">${esc(valueText)}</span>${it.effort ? `<span>${icon('clock', 14)} ${it.effort} min</span>` : ''}${chipsRow}</div>
+    <div class="metrics"><span class="tnum">${esc(valueText)}</span>${it.effort ? `<span>${icon('clock', 14)} ${it.effort} min</span>` : ''}${chipsRow}</div>
     ${outcomeUi}
     ${exactBox}
     <details class="evi"><summary>Audit record</summary>
