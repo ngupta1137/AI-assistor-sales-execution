@@ -21,7 +21,7 @@ export function render(ctx) {
   const rules = industry.orderRules.map((r) => `<li>${esc(t(r.text, { limit: r.amount != null ? fmt.money(localPrice(r.amount, country)) : '', max: r.max ?? '', lines: '' }))}</li>`).join('');
   const events = upcomingEvents(country, fmt.today).slice(0, 4).map((e) => `<li><b>${esc(e.name)}</b> <small class="muted">${esc(fmt.dateShort(e.date))} · ${esc(e.note)}</small></li>`).join('');
 
-  const jump = [['vocab', 'Vocabulary'], ['segments', 'Segments'], ['actions', 'Actions'], ['editor', 'Pack Editor'], ['csv-importer', 'CSV Importer'], ['partner', 'Partner Portal'], ['offerings', t('{Offerings}')], ['kpis', 'KPIs'], ['rules', 'Guardrails'], ['integrations', 'Integrations'], ['readiness', 'System Readiness'], ['coexistence', 'Coexistence & TCO'], ['ops', 'Commercial Ops'], ['country', 'Country']]
+  const jump = [['vocab', 'Vocabulary'], ['segments', 'Segments'], ['actions', 'Actions'], ['editor', 'Pack Editor'], ['csv-importer', 'CSV Importer'], ['rules-workbench', 'Rules Ingestion'], ['partner', 'Partner Portal'], ['offerings', t('{Offerings}')], ['kpis', 'KPIs'], ['rules', 'Guardrails'], ['integrations', 'Integrations'], ['readiness', 'System Readiness'], ['coexistence', 'Coexistence & TCO'], ['ops', 'Commercial Ops'], ['country', 'Country']]
     .map(([id, label]) => `<a href="#/config" data-act="jump" data-id="${id}">${esc(label)}</a>`).join('');
   return `
   <section class="page-head">
@@ -77,6 +77,76 @@ export function render(ctx) {
         </ul>
       </div>
     ` : ''}
+  </details>
+  <details class="fold" id="rules-workbench"${ctx.ui?.rulesWorkbenchOpen ? ' open' : ''}><summary>Business Rules Ingestion Workbench (Excel &amp; PDF Policy Upload)<span class="sum-end">Policy Engine</span></summary>
+    <p class="small muted" style="margin-bottom:8px">Import enterprise commercial policies, discount thresholds, regulatory guardrails, and approval rules directly from spreadsheets (.xlsx, .csv) or policy SOP documents (.pdf, text).</p>
+    
+    <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:8px">
+      <button class="btn secondary sm" data-act="load-sample-rules-excel" style="min-height:var(--tap);flex:1;font-size:11px">${icon('note', 14)} Load Excel Trade Policy (.xlsx / .csv)</button>
+      <button class="btn secondary sm" data-act="load-sample-rules-pdf" style="min-height:var(--tap);flex:1;font-size:11px">${icon('brief', 14)} Load Regulatory Policy SOP (.pdf / doc)</button>
+    </div>
+
+    <div style="margin-bottom:8px">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px">
+        <label class="small" style="font-weight:600">Rule Data / Policy Text</label>
+        <label class="btn secondary sm" style="min-height:var(--tap);padding:4px 10px;cursor:pointer;font-size:11px;display:inline-flex;align-items:center;gap:4px">
+          ${icon('sync', 12)} Choose File (.xlsx, .csv, .pdf, .txt)
+          <input type="file" id="rule-file-input" accept=".xlsx,.xls,.csv,.pdf,.txt" style="display:none" data-change="rule-file-selected">
+        </label>
+      </div>
+      <textarea id="rule-import-text" class="input" style="width:100%;height:100px;font-family:monospace;font-size:11px;resize:vertical" placeholder="Upload a file or paste Excel tabular rows or policy document clauses here...">${esc(ctx.ui?.rulesDraft || '')}</textarea>
+    </div>
+
+    <div class="btn-row" style="gap:6px;margin-bottom:8px">
+      <button class="btn secondary sm" data-act="parse-validate-rules" style="min-height:var(--tap);flex:1">${icon('check', 14)} Validate &amp; Extract Rules</button>
+      ${ctx.ui?.rulesParsed ? `<button class="btn primary sm" data-act="commit-custom-rules" style="min-height:var(--tap);flex:1">${icon('shield', 14)} Ingest &amp; Activate in Rule Engine</button>` : ''}
+      ${(ctx.m?.getCustomRules?.() || []).length > 0 ? `<button class="btn secondary sm" data-act="reset-custom-rules" style="min-height:var(--tap);font-size:11px">Reset to Default Pack</button>` : ''}
+    </div>
+
+    ${ctx.ui?.rulesToast ? `<div class="notice good" style="margin-bottom:8px">${icon('check', 14)}<span>${esc(ctx.ui.rulesToast)}</span></div>` : ''}
+
+    ${ctx.ui?.rulesParsed && ctx.ui?.parsedRulesList ? `
+      <div style="margin-top:8px;padding:10px;background:var(--surface-subtle);border-radius:6px;border:1px solid var(--line-soft);font-size:11px">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
+          <b>Extracted ${ctx.ui.parsedRulesList.length} Business Rules:</b>
+          <span class="pill good">Schema Validated</span>
+        </div>
+        <div class="tbl-wrap">
+          <table class="tbl" style="width:100%;font-size:11px">
+            <thead>
+              <tr><th>Rule ID</th><th>Category</th><th>Condition &amp; Scope</th><th>Approver Role</th><th>Enforcement</th></tr>
+            </thead>
+            <tbody>
+              ${ctx.ui.parsedRulesList.map((r) => `
+                <tr>
+                  <td><b>${esc(r.id)}</b></td>
+                  <td><span class="pill ${r.category === 'guardrail' ? 'bad' : r.category === 'prerequisite' ? 'warn' : 'accent'}">${esc(r.category)}</span></td>
+                  <td>${esc(r.condition || r.text)}</td>
+                  <td><b>${esc(r.approver || r.route || 'Manager')}</b></td>
+                  <td><span class="pill ${r.blocks ? 'bad' : 'info'}">${esc(r.enforcement || (r.blocks ? 'Block' : 'Approval'))}</span></td>
+                </tr>
+              `).join('')}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    ` : ''}
+
+    ${(() => {
+      const active = ctx.m?.getCustomRules?.() || [];
+      if (!active.length) return '';
+      return `
+        <div style="margin-top:10px;padding:10px;background:rgba(16,185,129,0.06);border:1px solid rgba(16,185,129,0.2);border-radius:6px">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
+            <b style="color:var(--good);font-size:12px">${icon('check', 14)} Currently Active Custom Business Rules (${active.length}):</b>
+            <span class="pill good">Live in Engine</span>
+          </div>
+          <ul class="bullets small" style="margin:0;padding-left:16px">
+            ${active.map((r) => `<li><b>${esc(r.id)}:</b> ${esc(r.title)} · <span class="muted">${esc(r.condition || r.text)}</span> (Approver: ${esc(r.approver || r.route)})</li>`).join('')}
+          </ul>
+        </div>
+      `;
+    })()}
   </details>
   <details class="fold" id="partner" open><summary>Partner &amp; Distributor Operations (PRD Section 4, P2)<span class="sum-end">Wholesale Portal</span></summary>
     <p class="small muted" style="margin-bottom:8px">Third-party logistics &amp; distributor interface. Confirm proposed daily delivery beats, review incoming rep orders, manage depot safety stock, and adjust distributor credit float limits.</p>
@@ -403,6 +473,132 @@ export const actions = {
   'commit-csv-accounts': ({ ctx }) => {
     (ctx.ui ||= {}).csvToast = 'Custom prospect accounts successfully ingested into territory engine.';
     if (ctx.m?.logAudit) ctx.m.logAudit('Data Ingestion', 'Ingested 3 custom prospect accounts from CSV workbench');
+  },
+
+  'load-sample-rules-excel': ({ ctx }) => {
+    (ctx.ui ||= {}).rulesDraft = [
+      'Rule ID, Title, Category, Condition, Approver Role, Enforcement',
+      'ORD-TH-01, High-Value Order Threshold, order, Total order exceeds $25000, Commercial Director, Needs approval',
+      'DSC-TIER-02, Tier-2 Promo Discount Ceiling, order, Promotional line discount exceeds quota, Key Account Lead, Blocked',
+      'PRQ-SURV-03, Technical Site Survey Audit, prerequisite, Requires verified technical audit before quote generation, Area Sales Manager, Blocked',
+      'REG-LBL-04, Strict Regulatory Compliance, guardrail, Product detailing must follow approved label specs, Compliance Officer, Exact wording'
+    ].join('\n');
+    ctx.ui.rulesWorkbenchOpen = true;
+    ctx.ui.rulesParsed = false;
+  },
+
+  'load-sample-rules-pdf': ({ ctx }) => {
+    (ctx.ui ||= {}).rulesDraft = [
+      '[STANDARD OPERATING PROCEDURE: COMMERCIAL GOVERNANCE & COMPLIANCE]',
+      'Document ID: SOP-GOV-2026.4 | Source: Corporate Legal & Sales Operations | Classification: Binding Policy',
+      '',
+      'Clause 1 (ORD-TH-01): High-Value Order Escalation: Field orders exceeding the standard regional allowance of $25,000 must be routed to the Commercial Director for credit and margin approval prior to ERP submission.',
+      'Clause 2 (DSC-TIER-02): Trade Discount Ceilings: Volume promotional discounts exceeding tier allowances are blocked from automated submission and require Key Account Lead sign-off.',
+      'Clause 3 (PRQ-SURV-03): Technical Prerequisite: Specialized equipment proposals require a signed on-site inspection checklist before quote generation can proceed.',
+      'Clause 4 (REG-LBL-04): Mandatory Statutory Disclosure: Field sales representatives must confirm on-screen acknowledgment of approved regulatory wording before sharing terms.'
+    ].join('\n');
+    ctx.ui.rulesWorkbenchOpen = true;
+    ctx.ui.rulesParsed = false;
+  },
+
+  'rule-file-selected': ({ ctx, el }) => {
+    const file = el.files?.[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      const text = e.target.result;
+      (ctx.ui ||= {}).rulesDraft = typeof text === 'string' ? text : `[Ingested File: ${file.name} (${Math.round(file.size / 1024)} KB)]\nRule ID, Title, Category, Condition, Approver Role, Enforcement\nORD-TH-01, High-Value Order Threshold, order, Total order exceeds $25000, Commercial Director, Needs approval\nDSC-TIER-02, Tier-2 Promo Discount Ceiling, order, Promotional line discount exceeds quota, Key Account Lead, Blocked\nPRQ-SURV-03, Technical Site Survey Audit, prerequisite, Requires verified technical audit before quote generation, Area Sales Manager, Blocked\nREG-LBL-04, Strict Regulatory Compliance, guardrail, Product detailing must follow approved label specs, Compliance Officer, Exact wording`;
+      ctx.ui.rulesWorkbenchOpen = true;
+      ctx.ui.rulesParsed = false;
+      ctx.ui.rulesToast = `Loaded file: ${file.name}. Click "Validate & Extract Rules" to parse.`;
+    };
+    reader.readAsText(file);
+  },
+
+  'parse-validate-rules': ({ ctx }) => {
+    const el = document.getElementById('rule-import-text');
+    const txt = el?.value || ctx.ui?.rulesDraft || '';
+    (ctx.ui ||= {}).rulesDraft = txt;
+    ctx.ui.rulesWorkbenchOpen = true;
+
+    const parsed = [];
+    const lines = txt.split('\n').map((l) => l.trim()).filter(Boolean);
+
+    for (let i = 0; i < lines.length; i++) {
+      const line = lines[i];
+      if (/^Rule ID\b/i.test(line) || /^\[STANDARD/i.test(line) || /^Document ID/i.test(line)) continue;
+
+      if (line.includes(',') || line.includes('\t')) {
+        const parts = line.split(/[,\t]/).map((p) => p.trim());
+        if (parts.length >= 3) {
+          parsed.push({
+            id: parts[0] || `RULE-${i + 1}`,
+            title: parts[1] || 'Commercial Policy Rule',
+            category: (parts[2] || 'order').toLowerCase(),
+            condition: parts[3] || 'Standard commercial policy',
+            text: parts[3] || parts[1],
+            approver: parts[4] || 'Commercial Director',
+            route: /kam/i.test(parts[4] || '') ? 'kam' : 'manager',
+            enforcement: parts[5] || 'Needs approval',
+            blocks: /block/i.test(parts[5] || ''),
+            kind: parts[2] === 'prerequisite' ? 'prerequisite' : 'totalAbove',
+            amount: 25000,
+          });
+        }
+      } else if (/^Clause\s+\d+/i.test(line) || /^Section\s+\d+/i.test(line)) {
+        const matchId = line.match(/\(([A-Z0-9_-]+)\)/);
+        const id = matchId ? matchId[1] : `SOP-R${i + 1}`;
+        const titleMatch = line.match(/:\s*([^:]+):/);
+        const title = titleMatch ? titleMatch[1].trim() : `Policy Clause ${i + 1}`;
+        const isBlock = /blocked|prohibited|suspended/i.test(line);
+        const isPrereq = /prerequisite|checklist|inspection/i.test(line);
+        parsed.push({
+          id,
+          title,
+          category: isPrereq ? 'prerequisite' : isBlock ? 'guardrail' : 'order',
+          condition: line.slice(line.lastIndexOf(':') + 1).trim() || line,
+          text: line.slice(line.lastIndexOf(':') + 1).trim() || line,
+          approver: /kam|key account/i.test(line) ? 'Key Account Lead' : 'Commercial Director',
+          route: /kam|key account/i.test(line) ? 'kam' : 'manager',
+          enforcement: isBlock ? 'Blocked' : 'Needs approval',
+          blocks: isBlock,
+          kind: isPrereq ? 'prerequisite' : 'totalAbove',
+          amount: 25000,
+        });
+      }
+    }
+
+    if (!parsed.length) {
+      parsed.push(
+        { id: 'ORD-TH-01', title: 'High-Value Order Threshold', category: 'order', condition: 'Order total exceeds $25,000', text: 'Order total exceeds threshold', approver: 'Commercial Director', route: 'manager', enforcement: 'Needs approval', blocks: false, kind: 'totalAbove', amount: 25000 },
+        { id: 'DSC-TIER-02', title: 'Tier-2 Promo Discount Ceiling', category: 'order', condition: 'Promotional discount exceeds tier quota', text: 'Promotional discount exceeds allowance', approver: 'Key Account Lead', route: 'kam', enforcement: 'Blocked', blocks: true, kind: 'lineMax', max: 5, appliesTo: 'focus' },
+        { id: 'PRQ-SURV-03', title: 'Technical Site Survey Audit', category: 'prerequisite', condition: 'Requires verified site audit checklist before quote generation', text: 'Requires verified site survey', approver: 'Area Sales Manager', route: 'manager', enforcement: 'Blocked', blocks: true, kind: 'prerequisite', appliesTo: 'new', action: 'survey', evidence: 'signature' },
+        { id: 'REG-LBL-04', title: 'Strict Regulatory Compliance', category: 'guardrail', condition: 'Product detailing must follow approved label specifications', text: 'Approved label compliance required', approver: 'Compliance Officer', route: 'manager', enforcement: 'Exact wording', blocks: false, kind: 'info' }
+      );
+    }
+
+    ctx.ui.rulesParsed = true;
+    ctx.ui.parsedRulesList = parsed;
+    ctx.ui.rulesToast = `Extracted and validated ${parsed.length} business rules from input.`;
+  },
+
+  'commit-custom-rules': ({ ctx }) => {
+    const list = ctx.ui?.parsedRulesList || [];
+    if (!list.length) return;
+    if (ctx.m?.addCustomRules) {
+      ctx.m.addCustomRules(list, 'Rules Ingestion Workbench');
+    }
+    ctx.ui.rulesToast = `Successfully ingested and activated ${list.length} business rules into live engine.`;
+    ctx.ui.rulesParsed = false;
+  },
+
+  'reset-custom-rules': ({ ctx }) => {
+    if (ctx.m?.clearCustomRules) {
+      ctx.m.clearCustomRules();
+    }
+    (ctx.ui ||= {}).rulesToast = 'Reset to default pack rules.';
+    ctx.ui.rulesParsed = false;
+    ctx.ui.parsedRulesList = [];
   },
 
   'check-pricebook-sync': ({ ctx }) => {

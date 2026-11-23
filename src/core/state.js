@@ -24,6 +24,7 @@ function newSession() {
     gapBacklog: [],     // [{ id, sourceId, title, accountName, reason, note, owner, ageDays, demand, claimed }]
     exactWordingRead: {},// ruleId -> true
     retiredRules: {},   // ruleId -> { approver, reason, at }
+    customRules: [],    // Ingested business rules from Excel/PDF workbench
     forcedCase: null,   // { name, outcome, targetId } for Try a case (G11)
     audit: [],         // { at, actor, text } newest first
     seq: 0,
@@ -147,7 +148,10 @@ export function createModel(ctx) {
   const orderRules = (accountId) => {
     const lines = orderLines(accountId);
     const total = lines.reduce((sum, l) => sum + l.total, 0);
-    return industry.orderRules.map((r) => {
+    const packRules = industry.orderRules || [];
+    const customOrderRules = (s.customRules || []).filter((r) => r.kind || r.category === 'order');
+    const combinedRules = [...packRules, ...customOrderRules];
+    return combinedRules.map((r) => {
       let triggered = false;
       let detail = {};
       if (r.kind === 'totalAbove') {
@@ -382,6 +386,17 @@ export function createModel(ctx) {
     log(data.rep?.name || 'Field Rep', `Read exact wording for policy rule "${rule.title || rule.id}" (${rule.version || 'v2.4'})`);
   };
 
+  const addCustomRules = (rules, source = 'Excel/PDF Ingestion') => {
+    s.customRules = [...(s.customRules || []), ...rules];
+    log(data.manager?.name || 'Commercial Ops', `Ingested ${rules.length} custom business rules from ${source}`);
+  };
+  const getCustomRules = () => s.customRules || [];
+  const clearCustomRules = () => {
+    const count = (s.customRules || []).length;
+    s.customRules = [];
+    log(data.manager?.name || 'Commercial Ops', `Cleared ${count} custom business rules; restored default pack policy`);
+  };
+
   const retireRule = (ruleId, { approver, reason }) => {
     s.retiredRules[ruleId] = { approver, reason, at: nowMinutes() };
     const r = industry.governance?.rules?.find((x) => x.id === ruleId) || { id: ruleId, title: ruleId };
@@ -433,5 +448,6 @@ export function createModel(ctx) {
     selfStats, exceptions, acknowledge, decideException, agentStopped, toggleAgent, closedToday, toggleClosed, logAudit, audit: () => s.audit,
     ruleForItem, itemOutcome, resolveClarify, refreshStale, flagRecommendation, getFlag, isExactWordingRead, readExactWording,
     retireRule, isRuleRetired, getGapBacklog, claimGap, setForcedCase, getForcedCase, clearForcedCase, createException,
+    addCustomRules, getCustomRules, clearCustomRules,
   };
 }

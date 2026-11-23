@@ -421,7 +421,7 @@ function shell(ctx, name, result) {
   const nav = NAV[ctx.persona].map(([id, label, ic]) => {
     const firstBrief = ctx.m.nextAccount(null)?.accountId || data.planned[0].accountId;
     const href = id === 'brief' ? `#/brief/${firstBrief}` : `#/${id}`;
-    const active = name === id || (id === 'brief' && ['brief', 'action', 'order', 'complete'].includes(name)) || (id === 'today' && ['account', 'route', 'ask'].includes(name)) || (id === 'config' && (name === 'problems' || (name === 'system' && !NAV[ctx.persona].some(([n]) => n === 'system')))) || (id === 'sales' && name === 'sales');
+    const active = name === id || (id === 'brief' && ['brief', 'action', 'order', 'complete'].includes(name)) || (id === 'today' && ['account', 'route', 'ask'].includes(name)) || (id === 'config' && (name === 'problems' || name === 'domains' || (name === 'system' && !NAV[ctx.persona].some(([n]) => n === 'system')))) || (id === 'sales' && name === 'sales');
     const displayLabel = tr(label, ctx.lang || 'en');
     return `<a class="tab${active ? ' on' : ''}" href="${href}" data-nav="${id}"${active ? ' aria-current="page"' : ''}><span class="tab-ic">${icon(ic, 22)}</span><span>${esc(displayLabel)}</span></a>`;
   }).join('');

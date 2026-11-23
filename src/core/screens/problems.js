@@ -75,6 +75,14 @@ export function render(ctx) {
     <p class="muted">${esc(t(`Six problems ${industry.name.toLowerCase()} field teams describe, and the capability that answers each one.`))}</p>
   </section>
   ${cards}
+  <section class="card" id="domain-profiles-link" style="margin-top:var(--s4)">
+    <div class="section-head">
+      <h2>${esc(t('Industry domain deep dive'))}</h2>
+      <span class="pill info">${esc(t('20 verticals'))}</span>
+    </div>
+    <p class="small muted" style="margin-bottom:12px">${esc(t('Explore authentic route-to-market channels, frontline friction, decision trees and operational workflows across all 20 verticals.'))}</p>
+    <a class="btn secondary sm" href="#/domains" style="min-height:var(--tap);width:100%">${icon('brief', 14)} ${esc(t('Open 20-industry domain explorer'))} ${icon('chevron', 14)}</a>
+  </section>
   <section class="card" id="pilot-framework" style="margin-top:var(--s4)">
     <div class="section-head">
       <h2>90-Day matched-control pilot framework</h2>
