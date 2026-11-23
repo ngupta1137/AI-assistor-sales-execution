@@ -152,15 +152,24 @@ function applyTheme(ctx) {
   const pick = app.ui.setup?.industry && !ctx ? findIndustry(app.ui.setup.industry)?.accent : null;
   const raw = (app.config?.color && ctx ? app.config.color : ctx?.industry.accent || pick) || '#334155';
   const accent = readableAccent(raw);
+  const rgb = accent.replace('#', '').match(/../g).map((x) => parseInt(x, 16));
   const root = document.documentElement.style;
+  const isDark = typeof window !== 'undefined' && window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
   root.setProperty('--accent-raw', raw);
   root.setProperty('--accent', accent);
-  root.setProperty('--accent-hover', mix(accent, '#000000', 0.1));
-  root.setProperty('--accent-pressed', mix(accent, '#000000', 0.2));
-  root.setProperty('--accent-soft', mix(accent, '#ffffff', 0.92));
-  root.setProperty('--accent-line', mix(accent, '#ffffff', 0.7));
-  root.setProperty('--surface-subtle', mix(accent, '#ffffff', 0.97));
-  root.setProperty('--surface-inset', mix(accent, '#ffffff', 0.93));
+  root.setProperty('--accent-hover', mix(accent, isDark ? '#ffffff' : '#000000', 0.12));
+  root.setProperty('--accent-pressed', mix(accent, isDark ? '#ffffff' : '#000000', 0.22));
+  if (isDark) {
+    root.setProperty('--accent-soft', `rgba(${rgb[0]}, ${rgb[1]}, ${rgb[2]}, 0.22)`);
+    root.setProperty('--accent-line', `rgba(${rgb[0]}, ${rgb[1]}, ${rgb[2]}, 0.45)`);
+    root.setProperty('--surface-subtle', mix(accent, '#1E293B', 0.90));
+    root.setProperty('--surface-inset', mix(accent, '#0F172A', 0.88));
+  } else {
+    root.setProperty('--accent-soft', mix(accent, '#ffffff', 0.92));
+    root.setProperty('--accent-line', mix(accent, '#ffffff', 0.7));
+    root.setProperty('--surface-subtle', mix(accent, '#ffffff', 0.97));
+    root.setProperty('--surface-inset', mix(accent, '#ffffff', 0.93));
+  }
 }
 
 /** Remembers the focused control so a re-render does not drop keyboard focus. */
@@ -218,6 +227,15 @@ export function render() {
 function renderActingAsBar(ctx) {
   const roleKey = roleKeyOf(ctx.persona);
   const roleTitle = titleFor(ctx.industry, ctx.persona);
+  if (ctx.app?.ui?.actingAsDismissed) {
+    return `<div class="acting-as-bar dismissed" style="background:var(--surface-subtle);border-bottom:1px solid var(--line-soft);padding:2px var(--s4);font-size:11px;display:flex;align-items:center;justify-content:space-between">
+      <span class="muted" style="display:inline-flex;align-items:center;gap:6px">
+        <span style="font-weight:600;color:var(--ink)">${esc(roleTitle)}</span>
+        <span>· permissions active</span>
+      </span>
+      <button class="btn text sm" data-act="restore-acting-as" aria-label="Show role details" style="min-height:var(--tap);min-width:var(--tap);padding:0 8px;font-size:11px;text-decoration:underline">Show role details</button>
+    </div>`;
+  }
   const allowed = ctx.industry.governance?.rights?.actions?.[roleKey] || [];
   const allActions = [...new Set(Object.values(ctx.industry.governance?.rights?.actions || {}).flat())];
   const forbidden = allActions.filter((a) => !allowed.includes(a));
@@ -262,21 +280,22 @@ function renderActingAsBar(ctx) {
   };
   const canText = allowed.slice(0, 3).map((a) => actionLabels[a] || a.replace(/_/g, " ")).join(", ");
   const cannotText = forbidden.slice(0, 3).map((a) => actionLabels[a] || a.replace(/_/g, " ")).join(", ");
-  return `<div class="acting-as-bar" style="background:var(--surface-subtle);border-bottom:1px solid var(--line-soft);padding:6px var(--s4);font-size:11px;display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap">
-    <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap">
+  return `<div class="acting-as-bar" style="background:var(--surface-subtle);border-bottom:1px solid var(--line-soft);padding:4px var(--s4);font-size:11px;display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap">
+    <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;flex:1">
       <span style="font-weight:600;color:var(--ink)">You are ${esc(roleTitle)}.</span>
       <span class="muted">You can: ${esc(canText || "view assigned views")}.</span>
       <span class="muted">You cannot: ${esc(cannotText || "modify governance rules")}.</span>
     </div>
-    <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap">
+    <div style="display:flex;align-items:center;gap:4px;flex-wrap:wrap">
       <div class="font-stepper" style="display:inline-flex;align-items:center;gap:2px">
         <button class="seg sm ${(ctx.app?.textSize || 'sm') === 'sm' ? 'on' : ''}" data-act="set-text-size" data-size="sm" title="Standard text size" style="min-height:var(--tap);min-width:var(--tap);font-size:11px">A</button>
         <button class="seg sm ${ctx.app?.textSize === 'md' ? 'on' : ''}" data-act="set-text-size" data-size="md" title="Large text size" style="min-height:var(--tap);min-width:var(--tap);font-size:13px">A+</button>
         <button class="seg sm ${ctx.app?.textSize === 'lg' ? 'on' : ''}" data-act="set-text-size" data-size="lg" title="Extra large text size" style="min-height:var(--tap);min-width:var(--tap);font-size:15px">A++</button>
       </div>
-      <button class="btn text sm" data-act="toggle-simple-view" style="min-height:var(--tap);min-width:var(--tap);display:inline-flex;align-items:center;padding:0 8px;font-size:11px;text-decoration:underline">${ctx.app?.simpleView ? 'Full view' : 'Simple view'}</button>
-      <button class="btn text sm" data-act="open-guide" style="min-height:var(--tap);min-width:var(--tap);display:inline-flex;align-items:center;padding:0 8px;font-size:11px;text-decoration:underline">How this works</button>
-      <button class="btn text sm" data-act="open-rights-matrix" style="min-height:var(--tap);min-width:var(--tap);display:inline-flex;align-items:center;padding:0 8px;font-size:11px;text-decoration:underline">See all rights</button>
+      <button class="btn text sm" data-act="toggle-simple-view" style="min-height:var(--tap);min-width:var(--tap);display:inline-flex;align-items:center;padding:0 6px;font-size:11px;text-decoration:underline">${ctx.app?.simpleView ? 'Full view' : 'Simple view'}</button>
+      <button class="btn text sm" data-act="open-guide" style="min-height:var(--tap);min-width:var(--tap);display:inline-flex;align-items:center;padding:0 6px;font-size:11px;text-decoration:underline">How this works</button>
+      <button class="btn text sm" data-act="open-rights-matrix" style="min-height:var(--tap);min-width:var(--tap);display:inline-flex;align-items:center;padding:0 6px;font-size:11px;text-decoration:underline">See all rights</button>
+      <button class="icon-btn sm" data-act="dismiss-acting-as" aria-label="Dismiss banner" title="Dismiss banner" style="min-height:var(--tap);min-width:var(--tap)">${icon('x', 14)}</button>
     </div>
   </div>`;
 }
@@ -421,7 +440,7 @@ function shell(ctx, name, result) {
   const nav = NAV[ctx.persona].map(([id, label, ic]) => {
     const firstBrief = ctx.m.nextAccount(null)?.accountId || data.planned[0].accountId;
     const href = id === 'brief' ? `#/brief/${firstBrief}` : `#/${id}`;
-    const active = name === id || (id === 'brief' && ['brief', 'action', 'order', 'complete'].includes(name)) || (id === 'today' && ['account', 'route', 'ask'].includes(name)) || (id === 'config' && (name === 'problems' || (name === 'system' && !NAV[ctx.persona].some(([n]) => n === 'system')))) || (id === 'sales' && name === 'sales');
+    const active = name === id || (id === 'brief' && ['brief', 'action', 'order', 'complete'].includes(name)) || (id === 'today' && ['account', 'route', 'ask'].includes(name)) || (id === 'config' && (name === 'problems' || name === 'domains' || (name === 'system' && !NAV[ctx.persona].some(([n]) => n === 'system')))) || (id === 'sales' && name === 'sales');
     const displayLabel = tr(label, ctx.lang || 'en');
     return `<a class="tab${active ? ' on' : ''}" href="${href}" data-nav="${id}"${active ? ' aria-current="page"' : ''}><span class="tab-ic">${icon(ic, 22)}</span><span>${esc(displayLabel)}</span></a>`;
   }).join('');
@@ -448,6 +467,8 @@ const rbacActions = {
   "open-rights-matrix": ({ app }) => { (app.ui ||= {}).rightsOpen = true; },
   "close-rights-matrix": ({ app }) => { if (app.ui) app.ui.rightsOpen = false; },
   "dismiss-denial": ({ app }) => { app.deniedNotice = null; },
+  "dismiss-acting-as": ({ app }) => { (app.ui ||= {}).actingAsDismissed = true; },
+  "restore-acting-as": ({ app }) => { if (app.ui) app.ui.actingAsDismissed = false; },
 };
 function handle(e, type) {
   const el = e.target.closest(`[data-${type}]`);
@@ -473,6 +494,13 @@ export function start() {
   if (LIVE_ENABLED && /^https:\/\//.test(qs.get('live') || '')) app.liveEndpoint = qs.get('live');
   if (app.config && !location.hash) writeUrl(`#/${HOME[app.config.persona]}`);
   window.addEventListener('hashchange', () => { app.ui = { ...app.ui, panel: null }; render(); document.getElementById('screen')?.scrollTo(0, 0); });
+  if (typeof window !== 'undefined' && window.matchMedia) {
+    window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => {
+      const c = app.config ? buildContext(app.config.industryId, app.config.countryId) : null;
+      applyTheme(c);
+      render();
+    });
+  }
   document.addEventListener('click', (e) => handle(e, 'act'));
   document.addEventListener('change', (e) => handle(e, 'change'));
   // Drafts (notes, questions) are captured on every keystroke without a re-render, so nothing typed is lost.

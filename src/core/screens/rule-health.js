@@ -22,7 +22,20 @@ function sparkline(trend = [88, 90, 89, 93, 91, 94]) {
 
 export function render(ctx) {
   const { t, m, industry, country, ui } = ctx;
-  const rules = industry.governance?.rules || [];
+  const custom = m.getCustomRules ? m.getCustomRules() : [];
+  const rules = [...(industry.governance?.rules || []), ...custom.map((cr) => ({
+    id: cr.id,
+    title: cr.title,
+    status: 'Healthy',
+    owner: cr.approver || 'Commercial Ops',
+    approver: cr.approver || 'Commercial Ops',
+    version: 'v1.0 (Custom)',
+    ingested: true,
+    acceptanceRate: 95,
+    overrideRate: 5,
+    flagsCount: 0,
+    trend: [92, 93, 94, 95, 95, 96],
+  }))];
   const readiness = industry.governance?.readiness || [];
   const readyCount = readiness.filter((r) => r.ready).length;
   const totalCount = readiness.length;
@@ -95,9 +108,16 @@ export function render(ctx) {
   ${ui?.ruleToast ? `<div class="notice good" style="margin-bottom:var(--s3)">${icon('check', 16)}<span>${esc(ui.ruleToast)}</span></div>` : ''}
 
   <section class="page-head">
-    <span class="eyebrow">${esc(industry.name)} · Market Governance</span>
-    <h1>Rule Health &amp; Policy Lifecycle</h1>
-    <p class="small muted">Continuous monitoring of policy rules, acceptance trends, override frequencies, and authorized lifecycle retirement.</p>
+    <div style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:8px">
+      <div>
+        <span class="eyebrow">${esc(industry.name)} · Market Governance</span>
+        <h1>Rule Health &amp; Policy Lifecycle</h1>
+        <p class="small muted">Continuous monitoring of policy rules, acceptance trends, override frequencies, and authorized lifecycle retirement.</p>
+      </div>
+      <a class="btn secondary sm" href="#/config" data-act="jump" data-id="rules-workbench" style="min-height:var(--tap);display:inline-flex;align-items:center;gap:6px">
+        ${icon('upload', 14)} Ingest Rules (Excel / PDF)
+      </a>
+    </div>
   </section>
 
   <!-- G8 Readiness Banner -->

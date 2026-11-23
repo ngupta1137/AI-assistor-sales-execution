@@ -353,6 +353,7 @@ function renderItem(ctx, it, isNext, a, itemIndex) {
 
 export function render(ctx, [accountId]) {
   const BF = briefFrame(ctx.industry);
+  const OBJ = BF.objectives.includes(ctx.ui?.callObjective) ? ctx.ui.callObjective : BF.objectives[0];
   const W = wording(ctx.industry);
   const { t, fmt, data, m, ui } = ctx;
   const p = m.plannedFor(accountId) || data.planned[0];
@@ -478,49 +479,42 @@ export function render(ctx, [accountId]) {
     <h1>${esc(a.name)}</h1>
     <p class="small muted">${esc(typeLine(t, a))} · ${esc(a.area)} · Tier ${a.tier}</p>
     <p class="small">${esc(fmt.time(p.start))} · ${a.visitMinutes} min · ${esc(contact.name)}, ${esc(t(contact.role))}</p>
-    <div style="margin-top:10px;padding:8px 10px;background:var(--surface-subtle);border-radius:var(--radius-sm);border:1px solid var(--line-soft)">
+    <div style="margin-top:6px;padding:6px 10px;background:var(--surface-subtle);border-radius:var(--radius-sm);border:1px solid var(--line-soft)">
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px">
-        <small style="font-weight:600">Primary call objective:</small>
-        ${pill(t(BF.objectives.includes(ui.callObjective) ? ui.callObjective : BF.objectives[0]), 'good')}
+        <small style="font-weight:600">${esc(t('Objective'))}: ${pill(t(OBJ), 'good')}</small>
+        <span class="small muted">${a.visitMinutes} min planned</span>
       </div>
-      <div class="seg-ctl" role="group" aria-label="Call objective" style="margin-top:4px">
-        ${BF.objectives.map((o, i) => `<button class="seg ${(BF.objectives.includes(ui.callObjective) ? ui.callObjective : BF.objectives[0]) === o ? 'on' : ''}" data-act="set-objective" data-obj="${esc(o)}" style="min-height:var(--tap);min-width:var(--tap)">${esc(t(o))}</button>`).join('')}
-      </div>
-    </div>
-    <!-- Commercial Shared Constraints Verification Strip -->
-    <div style="margin-top:10px;padding:8px 10px;background:var(--surface-subtle);border-radius:var(--radius-sm);border:1px solid var(--line-soft)">
-      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
-        <small style="font-weight:600;display:flex;align-items:center;gap:4px">
-          ${icon('shield', 14)} Commercial constraints verified
-        </small>
-        ${pill('All constraints passed', 'good')}
-      </div>
-      <div class="facts" style="grid-template-columns:repeat(auto-fit,minmax(70px,1fr));margin-bottom:4px">
-        ${BF.constraints.map(([k, v], i) => `<div><small>${esc(t(k))}</small><b${i < 3 ? ' class="good-text"' : ''}>${esc(t(v))}</b></div>`).join('')}
-      </div>
-      <p class="small muted" style="margin:0;font-size:11px">${esc(t(BF.constraintNote))}</p>
-    </div>
-
-    
-    <!-- Multi-Role Visit Coordination Hub -->
-    <div class="card tight" style="margin-top:8px;background:var(--surface-subtle);border:1px solid var(--line-soft)">
-      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px">
-        <b>${esc(t(BF.coordTitle))}</b>
-        ${pill('Synchronized', 'good')}
-      </div>
-      <p class="small muted" style="margin:0 0 6px 0;font-size:11px">${esc(t(BF.coordNote))}</p>
-      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(95px,1fr));gap:4px;font-size:11px">
-        ${BF.coord.map(([k, v], i) => `<div style="padding:4px 6px;background:var(--surface);border-radius:4px;border:1px solid var(--line-soft)">
-          <span class="muted">${esc(t(k))}:</span>
-          <b style="display:block"${i === 0 ? ' class="good-text"' : i === 1 ? ' style="display:block;color:var(--accent)"' : ''}>${esc(t(v))}</b>
-        </div>`).join('')}
+      <div class="seg-ctl" role="group" aria-label="${esc(t('Call objective'))}">
+        ${BF.objectives.map((o) => `<button class="seg ${OBJ === o ? 'on' : ''}" data-act="set-objective" data-obj="${esc(o)}" style="min-height:var(--tap);min-width:var(--tap)">${esc(t(o))}</button>`).join('')}
       </div>
     </div>
 
-    <!-- Rapid In-Visit Blitz Mode Bar -->
-    <div style="margin-top:8px;display:flex;justify-content:space-between;align-items:center;gap:8px">
-      <button class="btn ${ui.blitzMode ? 'primary' : 'secondary'} sm" data-act="toggle-blitz" style="min-height:var(--tap);flex:1;display:flex;align-items:center;justify-content:center;gap:6px">
-        ${icon('clock', 14)} ${ui.blitzMode ? 'Exit Rapid Blitz Mode' : 'Rapid In-Visit Blitz Mode (45s)'}
+    <details class="fold" id="brief-checks" style="margin-top:6px">
+      <summary>
+        <span style="display:inline-flex;align-items:center;gap:4px">${icon('shield', 14)} ${esc(t('Checks and coordination'))}</span>
+        <span class="sum-end">${pill(t('All passed · Synced'), 'good')}</span>
+      </summary>
+      <div class="fold-body">
+        <div class="facts check-grid">
+          ${BF.constraints.map(([k, v], i) => `<div><small>${esc(t(k))}</small><b${i < 3 ? ' class="good-text"' : ''}>${esc(t(v))}</b></div>`).join('')}
+        </div>
+        <p class="small muted">${esc(t(BF.constraintNote))}</p>
+        <p class="eyebrow">${esc(t(BF.coordTitle))}</p>
+        <p class="small muted">${esc(t(BF.coordNote))}</p>
+        <div class="coord-grid">
+          ${BF.coord.map(([k, v], i) => `<div><span class="muted">${esc(t(k))}</span><b${i === 0 ? ' class="good-text"' : ''}>${esc(t(v))}</b></div>`).join('')}
+        </div>
+      </div>
+    </details>
+
+    <div style="margin-top:6px;display:flex;gap:6px;flex-wrap:wrap">
+      ${ui.accountAbsentRescheduled ? `
+        <div class="notice good" style="flex:1">${icon('check', 14)}<span><b>${esc(t('Rescheduled.'))}</b> ${esc(t('Score protected.'))}</span></div>
+        ${ui.rescheduleChainWarning ? `<div class="notice warn">${icon('shield', 14)}<span><b>${esc(t('Second reschedule:'))}</b> ${esc(t('needs {manager} approval.'))}</span></div>`
+          : `<button class="btn text sm" data-act="try-second-reschedule" data-id="${a.id}" style="min-height:var(--tap)">${esc(t('Need to reschedule again?'))}</button>`}
+      ` : `<button class="btn secondary sm" data-act="record-absent" data-id="${a.id}" style="min-height:var(--tap);flex:1">${icon('clock', 12)} ${esc(t('{Contact} away: reschedule'))}</button>`}
+      <button class="btn ${ui.blitzMode ? 'primary' : 'secondary'} sm" data-act="toggle-blitz" style="min-height:var(--tap);flex:1">
+        ${icon('clock', 12)} ${ui.blitzMode ? esc(t('Exit quick mode')) : esc(t('Quick mode (45s)'))}
       </button>
     </div>
     ${ui.blitzMode ? `

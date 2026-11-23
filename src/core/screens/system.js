@@ -10,10 +10,11 @@ import {
   exOf, flowPhase, flowVars, signals, conflicts, archetypeOf, readiness, cycleDays,
 } from '../execution/model.js';
 import { roles, DEPENDS } from '../execution/roles.js';
+import { render as renderDomains } from './domains.js';
 
 const TABS = [
   ['overview', 'Overview'], ['journey', 'Journey'], ['flows', 'Flows'], ['day', 'A day'],
-  ['activation', 'Activation'], ['scorecard', 'Scorecard'], ['more', 'Trust and lifecycle'],
+  ['activation', 'Activation'], ['scorecard', 'Scorecard'], ['domains', 'Domain deep dive'], ['more', 'Trust and lifecycle'],
 ];
 
 const DEFAULT_READY = { history: 12, master: 95, evidence: 'manual', partner: 'weekly', plan: true, geo: true, app: true };
@@ -487,7 +488,7 @@ function more(ctx) {
 export function render(ctx, args = []) {
   const { t } = ctx;
   const tab = TABS.some(([id]) => id === args[0]) ? args[0] : 'overview';
-  const body = { overview, journey, flows, day, activation, scorecard, more }[tab](ctx, args[1]);
+  const body = { overview, journey, flows, day, activation, scorecard, more, domains: (c, a) => renderDomains(c, a ? [a] : [c.industry.id]) }[tab](ctx, args[1]);
   return `
   <section class="page-head" data-tab="${tab}">
     <h1>${esc(t('Execution system'))}</h1>
