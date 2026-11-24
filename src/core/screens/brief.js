@@ -489,55 +489,6 @@ export function render(ctx, [accountId]) {
     <span class="eyebrow">${esc(t('{Visit} brief'))}</span>
     <h1>${esc(a.name)}</h1>
     <p class="head-meta">${esc(fmt.time(p.start))} · ${a.visitMinutes} min · ${esc(contact.name)}, ${esc(t(contact.role))} · ${esc(t('Tier {tier}', { tier: a.tier }))}</p>
-    <div class="seg-ctl objective-seg" role="group" aria-label="${esc(t('Call objective'))}">
-      ${BF.objectives.map((o) => `<button class="seg ${OBJ === o ? 'on' : ''}" data-act="set-objective" data-obj="${esc(o)}" aria-pressed="${OBJ === o}">${esc(t(o))}</button>`).join('')}
-    </div>
-    <div class="tool-row" role="group" aria-label="${esc(t('{Visit} tools'))}">
-      ${ui.accountAbsentRescheduled ? '' : `<button class="tool-chip" data-act="record-absent" data-id="${a.id}">${icon('clock', 14)} ${esc(t('{Contact} away'))}</button>`}
-      <button class="tool-chip${ui.blitzMode ? ' on' : ''}" data-act="toggle-blitz" aria-pressed="${!!ui.blitzMode}">${icon('clock', 14)} ${ui.blitzMode ? esc(t('Exit quick mode')) : esc(t('Quick mode'))}</button>
-      <button class="tool-chip" data-act="open-deck">${icon('screen', 14)} ${esc(t('Pitch mode'))}</button>
-      <button class="tool-chip" data-act="open-collateral">${icon('brief', 14)} ${esc(t('Collateral'))}</button>
-      <a class="tool-chip" href="#/account/${a.id}">${icon('note', 14)} ${esc(t('{Account} 360'))}</a>
-    </div>
-    ${ui.accountAbsentRescheduled ? `<div class="notice good">${icon('check', 14)}<span><b>${esc(t('Rescheduled.'))}</b> ${esc(t('Score protected.'))}</span>
-      ${ui.rescheduleChainWarning ? `</div><div class="notice warn">${icon('shield', 14)}<span><b>${esc(t('Second reschedule:'))}</b> ${esc(t('needs {manager} approval.'))}</span></div>` : `<button class="btn text sm" data-act="try-second-reschedule" data-id="${a.id}">${esc(t('Again?'))}</button></div>`}` : ''}
-    <details class="fold" id="brief-checks" style="margin-top:6px">
-      <summary>
-        <span style="display:inline-flex;align-items:center;gap:4px">${icon('shield', 14)} ${esc(t('Checks and coordination'))}</span>
-        <span class="sum-end">${pill(t('All passed · Synced'), 'good')}</span>
-      </summary>
-      <div class="fold-body">
-        <div class="facts check-grid">
-          ${BF.constraints.map(([k, v], i) => `<div><small>${esc(t(k))}</small><b${i < 3 ? ' class="good-text"' : ''}>${esc(t(v))}</b></div>`).join('')}
-        </div>
-        <p class="small muted">${esc(t(BF.constraintNote))}</p>
-        <p class="eyebrow">${esc(t(BF.coordTitle))}</p>
-        <p class="small muted">${esc(t(BF.coordNote))}</p>
-        <div class="coord-grid">
-          ${BF.coord.map(([k, v], i) => `<div><span class="muted">${esc(t(k))}</span><b${i === 0 ? ' class="good-text"' : ''}>${esc(t(v))}</b></div>`).join('')}
-        </div>
-      </div>
-    </details>
-
-    ${ui.blitzMode ? `
-      <div class="card tight" style="margin-top:8px;border:2px solid var(--accent);background:var(--accent-soft)">
-        <div class="section-head" style="margin-bottom:4px">
-          <b style="color:var(--ink)">Rapid execution priority</b>
-          ${pill('Highest feasible yield', 'good')}
-        </div>
-        <p class="small" style="margin-bottom:8px">${esc(t('For a rushed {contact}: one verified action and a quick {order}.'))}</p>
-        <small class="muted" style="display:block;margin-bottom:8px;font-size:10px">Supervisory threshold: Reps exceeding 25% Blitz mode over 14 days flagged for territory coaching review.</small>
-        <div style="padding:6px 8px;background:var(--surface);border-radius:4px;margin-bottom:8px;border:1px solid var(--line-soft)">
-          <b>${esc(t(items[0]?.title || 'Core Priority Action', items[0]?.vars))}</b>
-          <div class="small muted">${esc(t('{short} availability verified', { short: W.sourceShort }))} · Estimated upside: ${esc(fmt.money(items[0]?.value || 500))}</div>
-        </div>
-        <div class="btn-row" style="gap:6px">
-          <a class="btn primary sm" href="#/action/${items[0]?.id || ''}" style="min-height:var(--tap);flex:1;display:flex;align-items:center;justify-content:center">Execute priority action</a>
-          <a class="btn secondary sm" href="#/order/${a.id}" style="min-height:var(--tap);flex:1;display:flex;align-items:center;justify-content:center">Quick reorder</a>
-        </div>
-      </div>
-    ` : ''}
-
   </section>
 
   <div class="adaptive-grid brief-grid">
@@ -562,6 +513,64 @@ export function render(ctx, [accountId]) {
       </div>
     </div>
 
+    <div class="grid-secondary">
+      <div class="card tight" style="margin-bottom:var(--s2)">
+        <div class="section-head" style="margin-bottom:6px">
+          <b>${esc(t('Call objective'))}</b>
+          ${pill(OBJ, 'good')}
+        </div>
+        <div class="seg-ctl objective-seg" role="group" aria-label="${esc(t('Call objective'))}">
+          ${BF.objectives.map((o) => `<button class="seg ${OBJ === o ? 'on' : ''}" data-act="set-objective" data-obj="${esc(o)}" aria-pressed="${OBJ === o}">${esc(t(o))}</button>`).join('')}
+        </div>
+      </div>
+
+      <div class="tool-row" role="group" aria-label="${esc(t('{Visit} tools'))}" style="margin-bottom:var(--s2)">
+        ${ui.accountAbsentRescheduled ? '' : `<button class="tool-chip" data-act="record-absent" data-id="${a.id}">${icon('clock', 14)} ${esc(t('{Contact} away'))}</button>`}
+        <button class="tool-chip${ui.blitzMode ? ' on' : ''}" data-act="toggle-blitz" aria-pressed="${!!ui.blitzMode}">${icon('clock', 14)} ${ui.blitzMode ? esc(t('Exit quick mode')) : esc(t('Quick mode'))}</button>
+        <button class="tool-chip" data-act="open-deck">${icon('screen', 14)} ${esc(t('Pitch mode'))}</button>
+        <button class="tool-chip" data-act="open-collateral">${icon('brief', 14)} ${esc(t('Collateral'))}</button>
+        <a class="tool-chip" href="#/account/${a.id}">${icon('note', 14)} ${esc(t('{Account} 360'))}</a>
+      </div>
+      ${ui.accountAbsentRescheduled ? `<div class="notice good" style="margin-bottom:var(--s2)">${icon('check', 14)}<span><b>${esc(t('Rescheduled.'))}</b> ${esc(t('Score protected.'))}</span>
+        ${ui.rescheduleChainWarning ? `</div><div class="notice warn">${icon('shield', 14)}<span><b>${esc(t('Second reschedule:'))}</b> ${esc(t('needs {manager} approval.'))}</span></div>` : `<button class="btn text sm" data-act="try-second-reschedule" data-id="${a.id}">${esc(t('Again?'))}</button></div>`}` : ''}
+
+      <details class="fold" id="brief-checks" style="margin-bottom:var(--s2)"${['tablet', 'desktop'].includes(ctx.app?.vp) ? ' open' : ''}>
+        <summary>
+          <span style="display:inline-flex;align-items:center;gap:4px">${icon('shield', 14)} ${esc(t('Checks and coordination'))}</span>
+          <span class="sum-end">${pill(t('All passed · Synced'), 'good')}</span>
+        </summary>
+        <div class="fold-body">
+          <div class="facts check-grid">
+            ${BF.constraints.map(([k, v], i) => `<div><small>${esc(t(k))}</small><b${i < 3 ? ' class="good-text"' : ''}>${esc(t(v))}</b></div>`).join('')}
+          </div>
+          <p class="small muted">${esc(t(BF.constraintNote))}</p>
+          <p class="eyebrow">${esc(t(BF.coordTitle))}</p>
+          <p class="small muted">${esc(t(BF.coordNote))}</p>
+          <div class="coord-grid">
+            ${BF.coord.map(([k, v], i) => `<div><span class="muted">${esc(t(k))}</span><b${i === 0 ? ' class="good-text"' : ''}>${esc(t(v))}</b></div>`).join('')}
+          </div>
+        </div>
+      </details>
+
+      ${ui.blitzMode ? `
+        <div class="card tight" style="margin-bottom:var(--s2);border:2px solid var(--accent);background:var(--accent-soft)">
+          <div class="section-head" style="margin-bottom:4px">
+            <b style="color:var(--ink)">Rapid execution priority</b>
+            ${pill('Highest feasible yield', 'good')}
+          </div>
+          <p class="small" style="margin-bottom:8px">${esc(t('For a rushed {contact}: one verified action and a quick {order}.'))}</p>
+          <small class="muted" style="display:block;margin-bottom:8px;font-size:10px">Supervisory threshold: Reps exceeding 25% Blitz mode over 14 days flagged for territory coaching review.</small>
+          <div style="padding:6px 8px;background:var(--surface);border-radius:4px;margin-bottom:8px;border:1px solid var(--line-soft)">
+            <b>${esc(t(items[0]?.title || 'Core Priority Action', items[0]?.vars))}</b>
+            <div class="small muted">${esc(t('{short} availability verified', { short: W.sourceShort }))} · Estimated upside: ${esc(fmt.money(items[0]?.value || 500))}</div>
+          </div>
+          <div class="btn-row" style="gap:6px">
+            <a class="btn primary sm" href="#/action/${items[0]?.id || ''}" style="min-height:var(--tap);flex:1;display:flex;align-items:center;justify-content:center">Execute priority action</a>
+            <a class="btn secondary sm" href="#/order/${a.id}" style="min-height:var(--tap);flex:1;display:flex;align-items:center;justify-content:center">Quick reorder</a>
+          </div>
+        </div>
+      ` : ''}
+    </div>
   </div>
   <p class="foot-note">Rule-based scoring on generated data. Confidence describes the rules, not a chance of a sale.</p>`;
 }

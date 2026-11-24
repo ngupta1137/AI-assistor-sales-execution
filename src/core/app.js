@@ -263,6 +263,23 @@ export function render() {
   afterRender(app);
 }
 
+function screenTitleFor(ctx, name) {
+  const titles = {
+    today: ctx.t("Today's Schedule"),
+    brief: ctx.t('Visit Brief'),
+    action: ctx.t('Action Execution'),
+    order: ctx.t('{Order} Draft Builder'),
+    account: ctx.t('{Account} 360'),
+    route: ctx.t('Route Plan'),
+    ask: ctx.t('Ask AI Assistant'),
+    complete: ctx.t('Visit Sign-off'),
+    sales: ctx.t('Sales Pipeline'),
+    config: ctx.t('Governance Rules'),
+    system: ctx.t('System Telemetry'),
+  };
+  return titles[name] || ctx.t('Workspace');
+}
+
 function updateStageToolbar(app, stage) {
   let bar = document.getElementById('stage-vp-bar');
   if (!bar) {
@@ -274,6 +291,12 @@ function updateStageToolbar(app, stage) {
     stage.prepend(bar);
   }
   const vp = app.vp || 'phone';
+  const vpSlot = document.getElementById('appbar-vp-slot');
+  if (vp === 'desktop' && vpSlot) {
+    if (bar.parentElement !== vpSlot) vpSlot.appendChild(bar);
+  } else {
+    if (bar.parentElement !== stage) stage.prepend(bar);
+  }
   bar.innerHTML = `
     <button class="stage-vp-btn ${vp === 'phone' ? 'active' : ''}" data-act="set-vp" data-vp="phone" aria-pressed="${vp === 'phone'}" title="Mobile View (390px field phone frame)">
       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="2" width="14" height="20" rx="2" ry="2"/><line x1="12" y1="18" x2="12.01" y2="18"/></svg>
@@ -443,9 +466,14 @@ function shell(ctx, name, result) {
   return `
   <div class="app" data-region="app" data-screen="${name}">
     <header class="appbar">
-      <button class="logo" id="logo" aria-label="AI Assistor home">
-        <span class="mark">${icon(ctx.industry.icon, 18)}</span><span class="brand">AI Assistor</span>
-      </button>
+      <div class="appbar-left">
+        <button class="logo" id="logo" aria-label="AI Assistor home">
+          <span class="mark">${icon(ctx.industry.icon, 18)}</span><span class="brand">AI Assistor</span>
+        </button>
+        <span class="crumb-sep" aria-hidden="true">/</span>
+        <span class="crumb-screen">${esc(screenTitleFor(ctx, name))}</span>
+      </div>
+      <div class="appbar-vp-slot" id="appbar-vp-slot"></div>
       <span class="bar-tools">
         <button class="icon-btn bar-tool" id="theme-toggle" data-act="toggle-theme" aria-label="${isDarkTheme() ? 'Switch to light mode' : 'Switch to dark mode'}" title="${isDarkTheme() ? 'Light mode' : 'Dark mode'}">${icon(isDarkTheme() ? 'sun' : 'moon', 18)}</button>
         ${demoToolButtons(app, ctx)}
@@ -454,13 +482,35 @@ function shell(ctx, name, result) {
     </header>${actingAsBar}${deniedHtml}${app.offline ? `<div class="offline-strip" id="offline-strip">${icon('sync', 16)} <span>${esc(offlineText)}</span><button class="pill-btn sm" data-act="toggle-offline" style="margin-left:auto;background:rgba(255,255,255,0.2);color:#fff;min-height:var(--tap);display:inline-flex;align-items:center">${esc(goOnlineText)}</button></div>` : ''}${prepared}
     <main class="screen" id="screen" data-region="screen">${out}</main>
     ${dock ? `<div class="dock" data-region="dock">${dock}</div>` : ''}
-    <nav class="tabs" aria-label="Main">${nav}</nav>
+    <nav class="tabs" aria-label="Main">
+      <div class="sidebar-brand-header">
+        <button class="sidebar-brand-btn" data-act="go-home" aria-label="AI Assistor home">
+          <span class="mark mark-brand">${icon(ctx.industry.icon, 20)}</span>
+          <div class="sidebar-brand-text">
+            <span class="sidebar-brand-title">AI Assistor</span>
+            <span class="sidebar-brand-sub">GOVERNED SALES EXECUTION</span>
+          </div>
+        </button>
+        <div class="sidebar-industry-pill">${esc(ctx.industry.name)} · ${esc(ctx.country.id)}</div>
+      </div>
+      <div class="sidebar-section-title">WORKSPACE</div>
+      <div class="sidebar-nav-list">${nav}</div>
+      <div class="sidebar-footer">
+        <button class="sidebar-foot-item" data-act="open-guide" aria-label="Architecture and policy guide">
+          ${icon('info', 16)}<span>How this works</span>
+        </button>
+        <button class="sidebar-foot-item" data-act="open-rights-matrix" aria-label="Governance rights matrix">
+          ${icon('shield', 16)}<span>Governance & Rights</span>
+        </button>
+      </div>
+    </nav>
   </div>`;
 }
 
 // ---- Events ----------------------------------------------------------------
 
 const rbacActions = {
+  "go-home": ({ app, api }) => { api.navigate("#/" + (HOME[app.config?.persona] || "today")); },
   "open-rights-matrix": ({ app }) => { (app.ui ||= {}).rightsOpen = true; },
   "close-rights-matrix": ({ app }) => { if (app.ui) app.ui.rightsOpen = false; },
   "dismiss-denial": ({ app }) => { app.deniedNotice = null; },
