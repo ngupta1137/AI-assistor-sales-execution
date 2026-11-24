@@ -16,7 +16,7 @@ export default {
   name: 'Solar and home energy',
   tagline: 'Installers, electrical wholesalers and home builders',
   icon: 'sun',
-  accent: '#A16207',
+  accent: '#7F6118',
   vocab: {
     account: 'partner', accounts: 'partners',
     contact: 'technical buyer', contacts: 'technical buyers',

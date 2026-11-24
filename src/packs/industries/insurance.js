@@ -16,7 +16,7 @@ export default {
   name: 'Insurance distribution',
   tagline: 'Independent agencies, brokers and branch partners',
   icon: 'shield',
-  accent: '#1E3A8A',
+  accent: '#2C4A80',
   vocab: {
     account: 'agency', accounts: 'agencies',
     contact: 'principal', contacts: 'principals',

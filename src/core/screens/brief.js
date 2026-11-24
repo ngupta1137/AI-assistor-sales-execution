@@ -192,7 +192,7 @@ function renderItem(ctx, it, isNext, a, itemIndex) {
 
   let outcomeUi = '';
   if (outcome === 'clarify') {
-    const cq = ctx.industry.governance?.clarifyQuestions?.[0] || { q: 'Clarify execution format before proceeding', chips: ['Standard visit', 'Priority audit', 'Follow-up call'] };
+    const cq = pickClarify(ctx.industry.governance?.clarifyQuestions || [], it) || { q: 'Clarify execution format before proceeding', chips: ['Standard visit', 'Priority audit', 'Follow-up call'] };
     const qText = ctx.t(cq.q || cq.question || 'Clarify execution format before proceeding');
     const chips = cq.chips || cq.options || ['Standard visit', 'Priority audit', 'Follow-up call'];
     outcomeUi = `<div class="gov-outcome clarify" style="margin:8px 0;padding:10px;border-left:3px solid var(--accent);background:var(--surface-subtle);border-radius:var(--radius-sm)">
@@ -211,7 +211,7 @@ function renderItem(ctx, it, isNext, a, itemIndex) {
       <div class="next-step-line" style="margin-top:8px;font-size:11px;color:var(--muted)"><b>Next step:</b> Capture required field evidence to unlock automated recommendation.</div>
     </div>`;
   } else if (outcome === 'conflict') {
-    const otherRule = ctx.industry.governance?.rules?.[1] || { title: 'Standard category quota distribution', owner: 'Field Operations Lead' };
+    const otherRule = (ctx.industry.governance?.rules || []).find((r) => r.id !== rule.id) || { title: 'Standard category quota distribution', owner: 'Field Operations Lead' };
     outcomeUi = `<div class="gov-outcome conflict" style="margin:8px 0;padding:10px;border-left:3px solid var(--line-warn, #f59e0b);background:var(--surface-subtle);border-radius:var(--radius-sm)">
       <div style="font-weight:600;font-size:12px;margin-bottom:4px;color:var(--ink)">Policy conflict detected</div>
       <p class="small" style="margin-bottom:6px">${esc(ctx.t('Two approved rules disagree on this {account}. The system never picks between conflicting policies:'))}</p>
@@ -243,6 +243,13 @@ function renderItem(ctx, it, isNext, a, itemIndex) {
       <div class="small muted">Routed to: <b>${esc(ctx.industry.governance?.rights?.legalApprover || 'Legal Counsel')}</b></div>
       <div class="next-step-line" style="margin-top:8px;font-size:11px;color:var(--muted)"><b>Next step:</b> Awaiting sign-off from named legal approver before field presentation.</div>
     </div>`;
+  }
+
+  // One open question at a time: the item in focus shows its full box, the others a one-line status.
+  const OUTCOME_LINE = { clarify: 'Needs clarification', evidence: 'Needs a photo or note', conflict: 'Two rules disagree', stale: 'Data is stale', role: 'Not allowed for this role', compliance: 'Waiting for compliance sign-off' };
+  const focused = ui.focusItem ? ui.focusItem === it.id : isNext;
+  if (outcomeUi && !focused) {
+    outcomeUi = `<button class="outcome-line ${outcome}" data-act="focus-item" data-id="${it.id}">${icon(outcome === 'stale' ? 'sync' : 'flag', 14)}<span>${esc(t(OUTCOME_LINE[outcome] || 'Needs attention'))}</span><span class="outcome-open">${esc(t('Resolve'))}</span></button>`;
   }
 
   // G7 Exact wording box
@@ -326,21 +333,33 @@ function renderItem(ctx, it, isNext, a, itemIndex) {
   return `<article class="item ${state}${isNext ? ' next' : ''}" id="item-${it.id}" data-item="${it.id}" data-kind="${it.kind}" data-state="${state}">
     <div class="item-head">${agentTag(it.agent)}${confBadge(it.confidence)}${it.overBudget ? pill('If time allows', 'muted') : ''}<span class="state">${pill(stateLabel[0], stateLabel[1])}</span></div>
     <div class="item-title"><span class="rank">${lead}</span><h3>${esc(t(it.title, v))}</h3></div>
-    <dl class="evi-grid">
-      <div><dt>Saw</dt><dd>${esc(t(it.saw, v))}</dd></div>
-      <div><dt>Compared</dt><dd>${esc(t(it.compared, v))}</dd></div>
-    </dl>
-    <div class="metrics"><span class="tnum">${esc(valueText)}</span>${it.effort ? `<span>${icon('clock', 14)} ${it.effort} min</span>` : ''}${chipsRow}</div>
     ${outcomeUi}
     ${exactBox}
-    <details class="evi"><summary>Audit record</summary>
-      ${recordKept}
-    </details>
-    ${flagHtml}
-    ${ctx.app?.simpleView ? `<div style="margin-top:6px"><button class="btn secondary sm talk-mgr-btn" data-act="talk-to-manager" data-id="${it.id}" style="min-height:var(--tap);display:inline-flex;align-items:center;gap:4px">${icon('team', 14)} Talk to my manager</button></div>` : ''}
+    ${ctx.app?.simpleView ? `<div style="margin-top:6px"><button class="btn secondary sm talk-mgr-btn" data-act="talk-to-manager" data-id="${it.id}">${esc(t('Talk to my {manager}'))}</button></div>` : ''}
     ${controls}
     ${open && !paused && !d ? sheet(ctx, it, open) : ''}
+    <details class="item-more"><summary><span class="item-meta"><span class="tnum">${esc(valueText)}</span>${it.effort ? `<span>${icon('clock', 13)} ${it.effort} min</span>` : ''}</span><span class="why">${esc(t('Why this'))}</span></summary>
+      <dl class="evi-grid">
+        <div><dt>Saw</dt><dd>${esc(t(it.saw, v))}</dd></div>
+        <div><dt>Compared</dt><dd>${esc(t(it.compared, v))}</dd></div>
+      </dl>
+      <div class="item-more-row">${chipsRow}</div>
+      ${flagHtml}
+      ${recordKept}
+    </details>
   </article>`;
+}
+
+/** The clarification question that fits this item: delivery timing for the order draft, display format for
+ * display or promotion actions, the evidence policy for anything else. Falls back to the pack's first question. */
+function pickClarify(qs, it) {
+  if (!qs.length) return null;
+  const by = (re) => qs.find((q) => re.test(`${q.id} ${q.q || q.question || ''}`));
+  const txt = `${it.defId || ''} ${it.title || ''}`;
+  return (it.kind === 'order' && by(/order|deliver|schedul|timing/i))
+    || (/display|promo|endcap|feature|placement|visib|merch|planogram|fixture/i.test(txt) && by(/placement|display|format/i))
+    || by(/camera|photo|evidence|attest/i)
+    || qs[0];
 }
 
 export function render(ctx, [accountId]) {
@@ -467,17 +486,21 @@ export function render(ctx, [accountId]) {
   ${ui.briefToast ? `<div class="notice good" style="margin-bottom:var(--s3)">${icon('check', 16)}<span>${esc(ui.briefToast)}</span></div>` : ''}
   <a class="back" href="#/today">${icon('back', 18)} ${esc(t('Today'))}</a>
   <section class="brief-head">
-    <span class="eyebrow">${esc(t('{Visit} brief'))} · prepared overnight</span>
+    <span class="eyebrow">${esc(t('{Visit} brief'))}</span>
     <h1>${esc(a.name)}</h1>
-    <p class="small muted">${esc(typeLine(t, a))} · ${esc(a.area)} · Tier ${a.tier}</p>
-    <p class="small">${esc(fmt.time(p.start))} · ${a.visitMinutes} min · ${esc(contact.name)}, ${esc(t(contact.role))}</p>
-    <div style="margin-top:6px;padding:6px 10px;background:var(--surface-subtle);border-radius:var(--radius-sm);border:1px solid var(--line-soft)">
-      <span class="eyebrow">${esc(t('Call objective'))}</span>
-      <div class="seg-ctl" role="group" aria-label="${esc(t('Call objective'))}">
-        ${BF.objectives.map((o) => `<button class="seg ${OBJ === o ? 'on' : ''}" data-act="set-objective" data-obj="${esc(o)}" style="min-height:var(--tap);min-width:var(--tap)">${esc(t(o))}</button>`).join('')}
-      </div>
+    <p class="head-meta">${esc(fmt.time(p.start))} · ${a.visitMinutes} min · ${esc(contact.name)}, ${esc(t(contact.role))} · ${esc(t('Tier {tier}', { tier: a.tier }))}</p>
+    <div class="seg-ctl objective-seg" role="group" aria-label="${esc(t('Call objective'))}">
+      ${BF.objectives.map((o) => `<button class="seg ${OBJ === o ? 'on' : ''}" data-act="set-objective" data-obj="${esc(o)}" aria-pressed="${OBJ === o}">${esc(t(o))}</button>`).join('')}
     </div>
-
+    <div class="tool-row" role="group" aria-label="${esc(t('{Visit} tools'))}">
+      ${ui.accountAbsentRescheduled ? '' : `<button class="tool-chip" data-act="record-absent" data-id="${a.id}">${icon('clock', 14)} ${esc(t('{Contact} away'))}</button>`}
+      <button class="tool-chip${ui.blitzMode ? ' on' : ''}" data-act="toggle-blitz" aria-pressed="${!!ui.blitzMode}">${icon('clock', 14)} ${ui.blitzMode ? esc(t('Exit quick mode')) : esc(t('Quick mode'))}</button>
+      <button class="tool-chip" data-act="open-deck">${icon('screen', 14)} ${esc(t('Pitch mode'))}</button>
+      <button class="tool-chip" data-act="open-collateral">${icon('brief', 14)} ${esc(t('Collateral'))}</button>
+      <a class="tool-chip" href="#/account/${a.id}">${icon('note', 14)} ${esc(t('{Account} 360'))}</a>
+    </div>
+    ${ui.accountAbsentRescheduled ? `<div class="notice good">${icon('check', 14)}<span><b>${esc(t('Rescheduled.'))}</b> ${esc(t('Score protected.'))}</span>
+      ${ui.rescheduleChainWarning ? `</div><div class="notice warn">${icon('shield', 14)}<span><b>${esc(t('Second reschedule:'))}</b> ${esc(t('needs {manager} approval.'))}</span></div>` : `<button class="btn text sm" data-act="try-second-reschedule" data-id="${a.id}">${esc(t('Again?'))}</button></div>`}` : ''}
     <details class="fold" id="brief-checks" style="margin-top:6px">
       <summary>
         <span style="display:inline-flex;align-items:center;gap:4px">${icon('shield', 14)} ${esc(t('Checks and coordination'))}</span>
@@ -496,16 +519,6 @@ export function render(ctx, [accountId]) {
       </div>
     </details>
 
-    <div style="margin-top:6px;display:flex;gap:6px;flex-wrap:wrap">
-      ${ui.accountAbsentRescheduled ? `
-        <div class="notice good" style="flex:1">${icon('check', 14)}<span><b>${esc(t('Rescheduled.'))}</b> ${esc(t('Score protected.'))}</span></div>
-        ${ui.rescheduleChainWarning ? `<div class="notice warn">${icon('shield', 14)}<span><b>${esc(t('Second reschedule:'))}</b> ${esc(t('needs {manager} approval.'))}</span></div>`
-          : `<button class="btn text sm" data-act="try-second-reschedule" data-id="${a.id}" style="min-height:var(--tap)">${esc(t('Need to reschedule again?'))}</button>`}
-      ` : `<button class="btn secondary sm" data-act="record-absent" data-id="${a.id}" style="min-height:var(--tap);flex:1">${icon('clock', 12)} ${esc(t('{Contact} away: reschedule'))}</button>`}
-      <button class="btn ${ui.blitzMode ? 'primary' : 'secondary'} sm" data-act="toggle-blitz" style="min-height:var(--tap);flex:1">
-        ${icon('clock', 12)} ${ui.blitzMode ? esc(t('Exit quick mode')) : esc(t('Quick mode (45s)'))}
-      </button>
-    </div>
     ${ui.blitzMode ? `
       <div class="card tight" style="margin-top:8px;border:2px solid var(--accent);background:var(--accent-soft)">
         <div class="section-head" style="margin-bottom:4px">
@@ -544,31 +557,11 @@ export function render(ctx, [accountId]) {
 
       <div class="btn-row">
         ${c.pending > 0 ? `<button class="btn secondary block" data-act="approve-all" data-id="${a.id}">Approve all remaining (${c.pending})</button>` : ''}
-        <a class="btn secondary" style="flex:1" href="#/account/${a.id}">${esc(t('{Account} 360'))}</a>
         <a class="btn secondary" style="flex:1" href="#/order/${a.id}">${esc(t('Open {order}'))}</a>
         <a class="btn primary block" href="#/complete/${a.id}" id="finish-visit">${esc(t('Finish {visit}'))}</a>
       </div>
     </div>
 
-    <div class="grid-secondary">
-      <div class="card tight brief-context-card" style="margin-bottom:var(--s3)">
-        <div class="section-head" style="margin-bottom:6px">
-          <b>Commercial context</b>
-          ${pill('Active', 'good')}
-        </div>
-        <div class="facts" style="grid-template-columns:repeat(2,minmax(0,1fr));gap:6px;margin-bottom:8px">
-          <div><small>Planned visit</small><b>${a.visitMinutes} min</b></div>
-          <div><small>Tier</small><b>Tier ${a.tier}</b></div>
-          <div><small>Lead contact</small><b>${esc(contact.name)}</b></div>
-          <div><small>Role</small><b>${esc(t(contact.role))}</b></div>
-        </div>
-        <div style="display:flex;flex-direction:column;gap:6px">
-          <button class="btn secondary sm" data-act="open-deck" style="min-height:var(--tap);width:100%">${icon('screen', 16)} In-call pitch mode</button>
-          <button class="btn secondary sm" data-act="open-collateral" style="min-height:var(--tap);width:100%">${icon('brief', 16)} Sales collateral</button>
-          <a class="btn secondary sm" href="#/account/${a.id}" style="min-height:var(--tap);display:flex;align-items:center;justify-content:center">${icon('note', 16)} ${esc(t('{Account} 360'))}</a>
-        </div>
-      </div>
-    </div>
   </div>
   <p class="foot-note">Rule-based scoring on generated data. Confidence describes the rules, not a chance of a sale.</p>`;
 }
@@ -589,6 +582,7 @@ const currentNote = (ctx, id) => {
 };
 
 export const actions = {
+  'focus-item': ({ ctx, data }) => { (ctx.ui ||= {}).focusItem = data.id; },
   'open-rule-drawer': ({ ctx, data }) => { (ctx.ui ||= {}).ruleDrawerOpen = { id: data.id, ruleId: data.rule }; },
   'close-rule-drawer': ({ ctx }) => { (ctx.ui ||= {}).ruleDrawerOpen = null; },
   'open-flag-sheet': ({ ctx, data }) => { (ctx.ui ||= {}).flagSheet = { id: data.id, reason: '', note: '' }; },

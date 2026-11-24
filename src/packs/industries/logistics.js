@@ -16,7 +16,7 @@ export default {
   name: 'Logistics and courier services',
   tagline: 'E-commerce sellers, SMEs and distributors',
   icon: 'route',
-  accent: '#991B1B',
+  accent: '#963333',
   vocab: {
     account: 'shipper', accounts: 'shippers',
     contact: 'dispatcher', contacts: 'dispatchers',

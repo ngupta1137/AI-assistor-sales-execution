@@ -14,6 +14,7 @@ import { initials } from './ui.js';
 import { SCREENS, ACTIONS } from './screens/index.js';
 import { renderPresenter, renderNotes, presenterActions } from './presenter.js';
 import { renderSyncModal, syncActions } from './telemetry.js';
+export { rolePanel } from './role-panel.js';
 import { renderAssistant, syncContext, afterRender, onKeydown, newAssistantState } from './assistant/ui.js';
 import { LIVE_ENABLED } from './assistant/provider.js';
 import { PERSONAS, HOME, NAV, roleKey as roleKeyOf, titleFor, personFor, validPersona } from './personas.js';
@@ -166,14 +167,13 @@ function applyTheme(ctx) {
   if (isDark) {
     root.setProperty('--accent-soft', `rgba(${rgb[0]}, ${rgb[1]}, ${rgb[2]}, 0.22)`);
     root.setProperty('--accent-line', `rgba(${rgb[0]}, ${rgb[1]}, ${rgb[2]}, 0.45)`);
-    root.setProperty('--surface-subtle', mix(accent, '#1E293B', 0.90));
-    root.setProperty('--surface-inset', mix(accent, '#0F172A', 0.88));
   } else {
-    root.setProperty('--accent-soft', mix(accent, '#ffffff', 0.92));
+    root.setProperty('--accent-soft', mix(accent, '#ffffff', 0.91));
     root.setProperty('--accent-line', mix(accent, '#ffffff', 0.7));
-    root.setProperty('--surface-subtle', mix(accent, '#ffffff', 0.97));
-    root.setProperty('--surface-inset', mix(accent, '#ffffff', 0.93));
   }
+  // Surfaces stay neutral; the industry color is for actions, selection and status only.
+  root.removeProperty('--surface-subtle');
+  root.removeProperty('--surface-inset');
 }
 
 /** Remembers the focused control so a re-render does not drop keyboard focus. */
@@ -260,83 +260,6 @@ function updateStageToolbar(app, stage) {
   `;
 }
 
-function renderActingAsBar(ctx) {
-  const roleKey = roleKeyOf(ctx.persona);
-  const roleTitle = titleFor(ctx.industry, ctx.persona);
-  if (ctx.app?.ui?.actingAsDismissed) {
-    return `<div class="acting-as-bar dismissed">
-      <button class="aa-chip" data-act="restore-acting-as" aria-label="Show role details">${icon('shield', 12)}<span>${esc(roleTitle)}</span><span class="muted">· permissions active</span></button>
-      <div class="vp-stepper" role="group" aria-label="Device viewport mode" style="display:inline-flex;align-items:center;gap:2px;margin-left:auto">
-        <button class="seg sm ${(ctx.app?.vp || 'phone') === 'phone' ? 'on' : ''}" data-act="set-vp" data-vp="phone" title="Mobile view (Phone)" style="min-height:var(--tap);min-width:var(--tap);font-size:11px">Mobile</button>
-        <button class="seg sm ${ctx.app?.vp === 'tablet' ? 'on' : ''}" data-act="set-vp" data-vp="tablet" title="Tablet view (iPad)" style="min-height:var(--tap);min-width:var(--tap);font-size:11px">Tablet</button>
-        <button class="seg sm ${ctx.app?.vp === 'desktop' ? 'on' : ''}" data-act="set-vp" data-vp="desktop" title="Web view (Desktop)" style="min-height:var(--tap);min-width:var(--tap);font-size:11px">Web</button>
-      </div>
-    </div>`;
-  }
-  const allowed = ctx.industry.governance?.rights?.actions?.[roleKey] || [];
-  const allActions = [...new Set(Object.values(ctx.industry.governance?.rights?.actions || {}).flat())];
-  const forbidden = allActions.filter((a) => !allowed.includes(a));
-  const actionLabels = {
-    approve_brief: "approve visit briefs",
-    assign_retention_visit: "assign retention visits",
-    approve_tier_change: "approve tier changes",
-    release_offer_targets: "release offer targets",
-    include_held_account: "include a held-back account",
-    confirm_route: "confirm routes",
-    receive_orders: "receive orders",
-    share_invoices: "share invoice data",
-    choose_integration: "choose the integration model",
-    switch_capabilities: "switch capabilities on or off",
-    set_season: "turn seasonal events on",
-    size_value_case: "size the value case",
-    adjust_brief: "adjust suggestions",
-    override_brief: "override recommendations",
-    flag_recommendation: "flag policy rules",
-    refresh_stale: "refresh stale data",
-    log_evidence: "record field evidence",
-    request_clarification: "resolve clarify chips",
-    approve_exception: "approve supervisor exceptions",
-    rebalance_route: "rebalance territory routes",
-    review_coaching: "review rep coaching",
-    retire_rule: "retire obsolete rules",
-    acknowledge_readiness: "sign off readiness items",
-    approve_claim: "approve damage claims",
-    tune_jbp: "tune joint business plans",
-    export_charter: "export key account charters",
-    request_credit_review: "request credit line reviews",
-    approve_rebate: "approve tier rebates",
-    publish_policy: "publish new policies",
-    update_eval_bar: "update quality pass bars",
-    claim_gap: "claim backlog gap tickets",
-    confirm_term: "confirm local trade terms",
-    execute_raw_write: "execute raw database writes",
-    export_audit: "export immutable audit logs",
-    replay_decision: "replay past decisions step by step",
-    override_release_gate: "override release gates",
-    sign_off_qbr: "sign off executive QBR decks",
-  };
-  const canText = allowed.slice(0, 3).map((a) => actionLabels[a] || a.replace(/_/g, " ")).join(", ");
-  const cannotText = forbidden.slice(0, 3).map((a) => actionLabels[a] || a.replace(/_/g, " ")).join(", ");
-  return `<div class="acting-as-bar">
-    <p class="aa-text">${icon('shield', 12)} <b>Acting as ${esc(roleTitle)}.</b> <span class="muted">Can ${esc(canText || "view assigned views")}. Cannot ${esc(cannotText || "modify governance rules")}.</span></p>
-    <div class="aa-tools">
-      <div class="vp-stepper" role="group" aria-label="Device viewport mode" style="display:inline-flex;align-items:center;gap:2px">
-        <button class="seg sm ${(ctx.app?.vp || 'phone') === 'phone' ? 'on' : ''}" data-act="set-vp" data-vp="phone" title="Mobile view (Phone)" style="min-height:var(--tap);min-width:var(--tap);font-size:11px">Mobile</button>
-        <button class="seg sm ${ctx.app?.vp === 'tablet' ? 'on' : ''}" data-act="set-vp" data-vp="tablet" title="Tablet view (iPad)" style="min-height:var(--tap);min-width:var(--tap);font-size:11px">Tablet</button>
-        <button class="seg sm ${ctx.app?.vp === 'desktop' ? 'on' : ''}" data-act="set-vp" data-vp="desktop" title="Web view (Desktop)" style="min-height:var(--tap);min-width:var(--tap);font-size:11px">Web</button>
-      </div>
-      <span class="font-stepper" role="group" aria-label="Text size">
-        <button class="seg sm ${(ctx.app?.textSize || 'sm') === 'sm' ? 'on' : ''}" data-act="set-text-size" data-size="sm" title="Standard text size">A</button>
-        <button class="seg sm ${ctx.app?.textSize === 'md' ? 'on' : ''}" data-act="set-text-size" data-size="md" title="Large text size">A+</button>
-        <button class="seg sm ${ctx.app?.textSize === 'lg' ? 'on' : ''}" data-act="set-text-size" data-size="lg" title="Extra large text size">A++</button>
-      </span>
-      <button class="btn text sm" data-act="toggle-simple-view">${ctx.app?.simpleView ? 'Full view' : 'Simple view'}</button>
-      <button class="btn text sm" data-act="open-guide">How this works</button>
-      <button class="btn text sm" data-act="open-rights-matrix">All rights</button>
-      <button class="icon-btn sm" data-act="dismiss-acting-as" aria-label="Minimize role banner" title="Minimize">${icon('x', 14)}</button>
-    </div>
-  </div>`;
-}
 
 function renderRightsModal(app, ctx) {
   if (!app?.ui?.rightsOpen || !ctx) return "";
@@ -466,7 +389,7 @@ function shell(ctx, name, result) {
   }
   const dock = typeof result === 'string' ? '' : result.dock || '';
   const user = personFor(ctx, ctx.persona);
-  const actingAsBar = renderActingAsBar(ctx);
+  const actingAsBar = '';
   const deniedHtml = app.deniedNotice ? `
     <div class="notice warn" role="alert" style="margin:var(--s2) var(--s4) var(--s3);display:flex;align-items:center;gap:8px">
       ${icon('shield', 18)}
