@@ -16,7 +16,7 @@ export default {
   name: 'Agri inputs',
   tagline: 'Agri dealers, cooperatives and farmers',
   icon: 'sprout',
-  accent: '#4F7A28',
+  accent: '#4A8118',
   aliases: ['agriculture', 'agrinputs'],
   vocab: {
     account: 'customer', accounts: 'customers',

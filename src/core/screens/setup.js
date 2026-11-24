@@ -50,7 +50,7 @@ export function render({ app, INDUSTRIES, COUNTRIES, buildContext }) {
         <h1>AI Assistor Sales Execution</h1>
         <p class="muted small">${esc(tr("Plans each rep's day, ranks what to do in every visit, and shows what happened. Choose a scenario.", activeLang))}</p>
         <span><span class="sample-tag">${esc(tr('All names are fictional.', activeLang))}</span></span>
-        <p class="small" style="margin-top:8px"><a href="#/domains" style="display:inline-flex;align-items:center;gap:4px;color:var(--accent);text-decoration:none">${icon('brief', 14)} <span>${esc(tr('Explore 20 Industry Domain Profiles', activeLang))}</span></a></p>
+        <p class="small" style="margin-top:8px"><a href="#/domains" style="display:inline-flex;align-items:center;gap:4px;color:var(--accent-ink);text-decoration:none">${icon('brief', 14)} <span>${esc(tr('Explore 20 Industry Domain Profiles', activeLang))}</span></a></p>
       </header>
       ${app.notice ? `<div class="notice warn">${icon('flag', 18)}<span>${esc(app.notice)}</span></div>` : ''}
       <section><h2 class="setup-step">${esc(tr('Language', activeLang))}</h2><div class="chips" role="radiogroup" aria-label="Language">${languages}</div></section>

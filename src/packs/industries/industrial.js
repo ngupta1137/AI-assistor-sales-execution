@@ -16,7 +16,7 @@ export default {
   name: 'Industrial supplies',
   tagline: 'Plants, machine shops, contractors and facilities teams',
   icon: 'config',
-  accent: '#2F55A0',
+  accent: '#1B74DA',
   vocab: {
     account: 'site', accounts: 'sites',
     contact: 'maintenance lead', contacts: 'maintenance leads',

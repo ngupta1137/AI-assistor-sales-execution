@@ -54,6 +54,10 @@ export function rolePanel(ctx) {
   return `<section class="card role-panel" id="role-panel">
     <p class="small"><b>${icon('shield', 14)} Acting as ${esc(roleTitle)}.</b></p>
     <p class="small muted">Can ${esc(canText || 'view assigned views')}. Cannot ${esc(cannotText || 'modify governance rules')}.</p>
+    <div class="role-tools" role="group" aria-label="Theme">
+      <span class="small muted">Theme</span>
+      <span class="font-stepper">${[['light', 'Light'], ['dark', 'Dark'], ['system', 'System']].map(([k, l]) => `<button class="seg sm ${(ctx.app?.theme || 'system') === k ? 'on' : ''}" data-act="set-theme" data-theme="${k}" aria-pressed="${(ctx.app?.theme || 'system') === k}">${l}</button>`).join('')}</span>
+    </div>
     <div class="role-tools">
       <span class="font-stepper" role="group" aria-label="Text size">
         <button class="seg sm ${(ctx.app?.textSize || 'sm') === 'sm' ? 'on' : ''}" data-act="set-text-size" data-size="sm" title="Standard text size">A</button>

@@ -169,7 +169,7 @@ export function renderVisitTrace(ctx) {
     <div class="card tight" style="margin:0 0 12px 0;background:var(--surface-subtle)">
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
         <span style="font-weight:600;font-size:12px">Visit Time Budget Window:</span>
-        <b style="font-size:14px;color:var(--accent)">${timeBudget} minutes</b>
+        <b style="font-size:14px;color:var(--accent-ink)">${timeBudget} minutes</b>
       </div>
       <input type="range" min="15" max="90" step="5" value="${timeBudget}" data-change="set-trace-time" data-input="set-trace-time" style="width:100%;height:var(--tap);cursor:pointer">
       <div style="display:flex;justify-content:space-between;font-size:10px;color:var(--muted);margin-top:2px">
@@ -207,7 +207,7 @@ export function renderVisitTrace(ctx) {
       ${toolCalls.map((tc, idx) => `
         <div class="card tight" style="margin:0;font-size:11px">
           <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:2px">
-            <b>${idx + 1}. tool: <code style="color:var(--accent)">${tc.tool}</code></b>
+            <b>${idx + 1}. tool: <code style="color:var(--accent-ink)">${tc.tool}</code></b>
             <span class="good-text">${tc.status} (${tc.latency}ms)</span>
           </div>
           <div class="muted">${tc.agent} · ${tc.tokens} tokens · ${tc.cost}</div>
@@ -327,7 +327,7 @@ export function renderToolsCatalog(ctx) {
         <tbody>
           ${tools.map((t) => `
             <tr style="border-bottom:1px solid var(--line-soft)">
-              <td style="padding:6px 4px"><code style="color:var(--accent);font-weight:600">${esc(t.name)}</code></td>
+              <td style="padding:6px 4px"><code style="color:var(--accent-ink);font-weight:600">${esc(t.name)}</code></td>
               <td style="padding:6px 4px">${esc(t.agent)}</td>
               <td style="padding:6px 4px"><span class="pill sm ${t.type === 'Write' ? 'warn' : 'info'}">${esc(t.type)}</span></td>
               <td style="padding:6px 4px">${esc(t.perm)}</td>
@@ -388,7 +388,7 @@ export function renderFeatureProfile(ctx) {
     <div class="card tight" style="margin:0 0 12px 0;background:var(--surface-subtle)">
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px">
         <span style="font-weight:600;font-size:12px">Stale Data Threshold:</span>
-        <b style="font-size:13px;color:var(--accent)">${threshold} days</b>
+        <b style="font-size:13px;color:var(--accent-ink)">${threshold} days</b>
       </div>
       <input type="range" min="1" max="30" step="1" value="${threshold}" data-change="set-stale-threshold" data-input="set-stale-threshold" style="width:100%;height:var(--tap);cursor:pointer">
       <div style="display:flex;justify-content:space-between;font-size:10px;color:var(--muted);margin-top:2px">
@@ -460,7 +460,7 @@ export function renderMemoryTimeline(ctx) {
     <div class="card tight" style="margin:0 0 12px 0;background:var(--surface-subtle)">
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px">
         <span style="font-weight:600;font-size:12px">Memory Expiry Retention Window:</span>
-        <b style="font-size:13px;color:var(--accent)">${expiryWindow} days</b>
+        <b style="font-size:13px;color:var(--accent-ink)">${expiryWindow} days</b>
       </div>
       <input type="range" min="30" max="180" step="15" value="${expiryWindow}" data-change="set-mem-expiry" data-input="set-mem-expiry" style="width:100%;height:var(--tap);cursor:pointer">
       <div style="display:flex;justify-content:space-between;font-size:10px;color:var(--muted);margin-top:2px">

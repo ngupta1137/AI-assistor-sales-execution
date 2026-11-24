@@ -415,7 +415,7 @@ export function render(ctx, [accountId]) {
               <text x="295" y="80" font-size="8" font-weight="700" fill="var(--accent)">W5 (MTD)</text>
             </svg>
             <div style="display:flex;justify-content:space-between;font-size:10px;color:var(--muted);margin-top:4px">
-              <span><span style="color:var(--accent)">●</span> ${wt(W.flowOut)}</span>
+              <span><span style="color:var(--accent-ink)">●</span> ${wt(W.flowOut)}</span>
               <span><span style="color:var(--muted)">---</span> ${wt(W.flowIn)}</span>
               <span class="good-text">${wt(W.physical ? 'Low stock-out risk' : 'Within capacity')}</span>
             </div>
@@ -475,7 +475,7 @@ export function render(ctx, [accountId]) {
               <text x="295" y="88" font-size="8" font-weight="700" fill="var(--good)" text-anchor="middle">Month 3 (QTD)</text>
             </svg>
             <div style="display:flex;justify-content:space-between;font-size:10px;color:var(--muted);margin-top:4px">
-              <span><span style="color:var(--accent)">●</span> ${wt(W.flowOut)}: ${esc(fmt.moneyShort(a.current * 3.8))}</span>
+              <span><span style="color:var(--accent-ink)">●</span> ${wt(W.flowOut)}: ${esc(fmt.moneyShort(a.current * 3.8))}</span>
               <span><span style="color:var(--muted)">---</span> ${wt('Commitment')}: ${esc(fmt.moneyShort(a.potential * 4))}</span>
               <span class="good-text">On track for Tier 1 rebate</span>
             </div>

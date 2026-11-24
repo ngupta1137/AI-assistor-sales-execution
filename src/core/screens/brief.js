@@ -256,7 +256,7 @@ function renderItem(ctx, it, isNext, a, itemIndex) {
   let exactBox = '';
   if (outcome === 'suggest' && isExact && !exactRead) {
     exactBox = `<div class="exact-wording-box" style="margin:8px 0;padding:8px 10px;border:2px solid var(--accent);border-radius:var(--radius-sm);background:var(--surface)">
-      <div style="font-weight:600;font-size:11px;color:var(--accent);margin-bottom:4px;display:flex;align-items:center;gap:4px">
+      <div style="font-weight:600;font-size:11px;color:var(--accent-ink);margin-bottom:4px;display:flex;align-items:center;gap:4px">
         ${icon('shield', 14)} Approved wording: read before you act
       </div>
       <blockquote style="margin:0 0 6px 0;font-size:11px;font-style:italic;line-height:1.4">

@@ -216,7 +216,7 @@ export function render(ctx) {
           <tr><td><b>Shared Constraint Solver</b></td><td>Dynamic 5-decision reactive recomputation</td><td><span class="pill good sm">BUILT</span></td><td>Deterministic event-driven constraint engine</td></tr>
           <tr><td><b>Multi-Tier Entity Model</b></td><td>${esc(t('Payer, site and who fulfills it ({source})', { source: wording(industry).source }))}</td><td><span class="pill good sm">BUILT</span></td><td>Commercial account data structure</td></tr>
           <tr><td><b>Offline State Machine</b></td><td>Provisional reservation tokens &amp; outbox</td><td><span class="pill good sm">BUILT</span></td><td>Client-side state machine with durability check</td></tr>
-          <tr><td><b>ERP Middleware Gateway</b></td><td>SAP S/4HANA BAPI/IDoc dedupe table</td><td><span class="pill info sm">DESIGNED</span></td><td>API specification &amp; compensating flows</td></tr>
+          <tr><td><b>ERP Middleware Gateway</b></td><td>ERP idempotent dedupe table</td><td><span class="pill info sm">DESIGNED</span></td><td>API specification &amp; compensating flows</td></tr>
           <tr><td><b>Enterprise Identity</b></td><td>Microsoft Entra ID, Okta SAML 2.0 / OIDC</td><td><span class="pill info sm">DESIGNED</span></td><td>SSO &amp; RBAC architectural specification</td></tr>
           <tr><td><b>SCIM 2.0 &amp; CMEK</b></td><td>Automated user provisioning &amp; cloud KMS</td><td><span class="pill warn sm">PROPOSED</span></td><td>Target enterprise cloud topology</td></tr>
           <tr><td><b>SOC 2 / ISO 27001</b></td><td>Third-party examination &amp; attestation</td><td><span class="pill warn sm">PROPOSED</span></td><td>Target audit program for enterprise pilot</td></tr>
@@ -259,7 +259,7 @@ export function render(ctx) {
   </details>
   
   <details class="fold" id="coexistence"><summary>Enterprise Coexistence &amp; TCO Architecture<span class="sum-end">Overlay Strategy</span></summary>
-    <p class="small muted" style="margin-bottom:8px"><b>The Commercial Wedge:</b> AI Assistor operates as an intelligence overlay on existing Salesforce Consumer Goods Cloud, StayinFront, or Veeva installations with zero rip-and-replace disruption.</p>
+    <p class="small muted" style="margin-bottom:8px"><b>The Commercial Wedge:</b> AI Assistor runs as a layer on top of the field CRM you already have, so nothing is replaced.</p>
     
     <div class="tbl-wrap" style="margin-bottom:8px">
       <table class="tbl" style="width:100%;font-size:12px">
@@ -321,7 +321,7 @@ export function render(ctx) {
   <details class="fold" id="pricebook" open><summary>ERP Master Price Book &amp; Catalog Versioning<span class="sum-end">Verified</span></summary>
     <p class="small muted" style="margin-bottom:8px">Global enterprise pricing schedules, currency conversion tables, and real-time synchronization checksums.</p>
     <div class="facts" style="grid-template-columns:repeat(auto-fit,minmax(80px,1fr));margin-bottom:10px">
-      <div><small>Price book</small><b>SAP-PB-2026.4</b></div>
+      <div><small>Price book</small><b>PB-2026.4</b></div>
       <div><small>Revision</small><b>Rev 14.8.2</b></div>
       <div><small>Checksum</small><b>SHA-256 Valid</b></div>
       <div><small>Active lines</small><b>${data.offerings ? data.offerings.length : 18} catalog lines</b></div>
@@ -412,7 +412,7 @@ export const actions = {
       '   - Works Council Safe Mode (BetrVG 87 / French CSE telemetry anonymization)',
       '',
       '   [DESIGNED - Technical Contracts & Integration Specifications]:',
-      '   - SAP S/4HANA Idempotent Middleware Dedupe Contract (BAPI_SALESORDER_CREATEFROMDAT2)',
+      '   - ERP idempotent middleware dedupe contract (BAPI_SALESORDER_CREATEFROMDAT2)',
       '   - Client reservation UUIDs preventing duplicate order postings on replay',
       '   - Compensating flows for depot stock oversell, credit hold, and price drift',
       '   - OIDC / SAML 2.0 federated identity and RBAC role matrix specification',
@@ -425,7 +425,7 @@ export const actions = {
       '',
       '2. TRANSACTION INTEGRITY & COMPENSATING FLOWS',
       '   - Offline orders are provisional reservation tokens (#RES-...) pending ERP acceptance.',
-      '   - Replay protection: Middleware dedupe table checked before BAPI commit.',
+      '   - Replay protection: Middleware dedupe table checked before the ERP commit.',
       '   - Compensating resolution flows for depot stockouts (substitute/split) and credit holds.',
       '   - Credit notes cannot be auto-posted by reps: Central AR approval required.',
       '',
@@ -609,8 +609,8 @@ export const actions = {
   },
 
   'check-pricebook-sync': ({ ctx }) => {
-    (ctx.ui ||= {}).pricebookToast = 'ERP Master Price Book SAP-PB-2026.4 is up to date. Checksum verified.';
-    if (ctx.m?.logAudit) ctx.m.logAudit('ERP Master', 'Verified Price Book SAP-PB-2026.4 checksum with central catalog service');
+    (ctx.ui ||= {}).pricebookToast = 'ERP Master Price Book PB-2026.4 is up to date. Checksum verified.';
+    if (ctx.m?.logAudit) ctx.m.logAudit('ERP Master', 'Verified Price Book PB-2026.4 checksum with central catalog service');
   },
   'logout-setup': ({ api }) => { api.navigate('#/setup'); return 'nav'; },
   jump: ({ data }) => { const el = document.getElementById(data.id); if (el) { el.open = true; el.scrollIntoView({ block: 'start' }); } return false; },

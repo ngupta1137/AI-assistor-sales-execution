@@ -256,7 +256,7 @@ export function render(ctx) {
           <tbody>
             ${goldenCases.map((gc) => `
               <tr style="border-bottom:1px solid var(--line-soft)">
-                <td style="padding:6px 4px"><code style="color:var(--accent);font-weight:600">${esc(gc.id)}</code></td>
+                <td style="padding:6px 4px"><code style="color:var(--accent-ink);font-weight:600">${esc(gc.id)}</code></td>
                 <td style="padding:6px 4px">${esc(gc.cap)}</td>
                 <td style="padding:6px 4px">${esc(gc.desc)}</td>
                 <td style="padding:6px 4px"><b>${esc(gc.expected)}</b></td>
@@ -431,7 +431,7 @@ export function render(ctx) {
           <tbody>
             ${failures.map((f) => `
               <tr style="border-bottom:1px solid var(--line-soft)">
-                <td style="padding:6px 4px"><code style="color:var(--accent);font-weight:600">${esc(f.id)}</code></td>
+                <td style="padding:6px 4px"><code style="color:var(--accent-ink);font-weight:600">${esc(f.id)}</code></td>
                 <td style="padding:6px 4px">${esc(f.cap)}</td>
                 <td style="padding:6px 4px">${esc(f.symptom)}</td>
                 <td style="padding:6px 4px">${esc(f.cause)}</td>
