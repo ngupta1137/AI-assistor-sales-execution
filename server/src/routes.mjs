@@ -1,14 +1,22 @@
 import { globalStore } from './store.mjs';
-import { signJwt, verifyJwt } from './auth.mjs';
+import { signJwt, verifyJwt, generateSamlMetadata, parseSamlResponse, verifyScimToken } from './auth.mjs';
 
 function json(res, statusCode, data) {
   res.writeHead(statusCode, {
     'Content-Type': 'application/json',
     'Access-Control-Allow-Origin': '*',
     'Access-Control-Allow-Headers': 'Content-Type, Authorization, X-Tenant-ID',
-    'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
+    'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS, PATCH',
   });
   res.end(JSON.stringify(data));
+}
+
+function xml(res, statusCode, data) {
+  res.writeHead(statusCode, {
+    'Content-Type': 'application/xml',
+    'Access-Control-Allow-Origin': '*',
+  });
+  res.end(data);
 }
 
 function parseAuth(req) {
@@ -68,6 +76,180 @@ export async function handleApiRoute(req, res, url, body) {
         tenantId: user.tenantId,
       },
     });
+  }
+
+  // 2b. Auth: SAML 2.0 SP Metadata
+  if (method === 'GET' && path === '/api/v1/auth/saml/metadata') {
+    return xml(res, 200, generateSamlMetadata());
+  }
+
+  // 2c. Auth: SAML 2.0 Assertion Consumer Service (ACS)
+  if (method === 'POST' && path === '/api/v1/auth/saml/acs') {
+    const samlResponse = body?.SAMLResponse || body?.samlResponse || '';
+    const parsed = parseSamlResponse(samlResponse);
+    if (!parsed) {
+      return json(res, 400, { error: 'Invalid or missing SAML assertion' });
+    }
+    const tenantId = body?.tenantId || 'tenant-acme-global';
+    let user = globalStore.getUserByEmail(parsed.email, tenantId);
+    if (!user) {
+      user = globalStore.createOrUpdateUser(tenantId, {
+        email: parsed.email,
+        fullName: parsed.fullName,
+        role: parsed.role,
+      });
+    }
+    const token = signJwt({
+      sub: user.id,
+      tenantId: user.tenantId,
+      email: user.email,
+      role: user.role,
+      name: user.fullName,
+      authMethod: 'saml2',
+    });
+    return json(res, 200, {
+      token,
+      user,
+      idpSession: true,
+    });
+  }
+
+  // 2d. Auth: OIDC Token Exchange
+  if (method === 'POST' && path === '/api/v1/auth/oidc/token') {
+    const { code, tenantId = 'tenant-acme-global' } = body || {};
+    if (!code) {
+      return json(res, 400, { error: 'Authorization code required' });
+    }
+    const mockUser = globalStore.getUserByEmail('rep@acme.com', tenantId);
+    const token = signJwt({
+      sub: mockUser?.id || 'usr-oidc-101',
+      tenantId,
+      email: mockUser?.email || 'rep@acme.com',
+      role: mockUser?.role || 'rep',
+      name: mockUser?.fullName || 'Federated OIDC User',
+      authMethod: 'oidc',
+    });
+    return json(res, 200, {
+      access_token: token,
+      id_token: token,
+      token_type: 'Bearer',
+      expires_in: 86400,
+    });
+  }
+
+  // 2e. SCIM 2.0 Core Endpoints (RFC 7643 / RFC 7644)
+  if (path.startsWith('/api/v1/scim/v2')) {
+    const authHeader = req.headers['authorization'] || '';
+    const scimToken = authHeader.replace(/^Bearer\s+/i, '');
+    const scimSession = verifyScimToken(scimToken) || parseAuth(req);
+    if (!scimSession) {
+      return json(res, 401, {
+        schemas: ['urn:ietf:params:scim:api:messages:2.0:Error'],
+        detail: 'Valid SCIM Bearer token required',
+        status: '401',
+      });
+    }
+    const tenantId = scimSession.tenantId || 'tenant-acme-global';
+
+    if (method === 'GET' && path === '/api/v1/scim/v2/Schemas') {
+      return json(res, 200, {
+        schemas: ['urn:ietf:params:scim:api:messages:2.0:ListResponse'],
+        totalResults: 1,
+        Resources: [{
+          id: 'urn:ietf:params:scim:schemas:core:2.0:User',
+          name: 'User',
+          description: 'Core User Schema',
+        }],
+      });
+    }
+
+    if (method === 'GET' && path === '/api/v1/scim/v2/Users') {
+      const users = globalStore.getAllUsers(tenantId);
+      const resources = users.map((u) => ({
+        schemas: ['urn:ietf:params:scim:schemas:core:2.0:User'],
+        id: u.id,
+        userName: u.email,
+        name: { formatted: u.fullName },
+        emails: [{ value: u.email, primary: true }],
+        active: u.status === 'active',
+        roles: [{ value: u.role }],
+      }));
+      return json(res, 200, {
+        schemas: ['urn:ietf:params:scim:api:messages:2.0:ListResponse'],
+        totalResults: resources.length,
+        itemsPerPage: resources.length,
+        startIndex: 1,
+        Resources: resources,
+      });
+    }
+
+    if (method === 'POST' && path === '/api/v1/scim/v2/Users') {
+      const email = body?.userName || body?.emails?.[0]?.value || 'user@company.com';
+      const fullName = body?.name?.formatted || body?.displayName || email;
+      const role = body?.roles?.[0]?.value || 'rep';
+      const user = globalStore.createOrUpdateUser(tenantId, {
+        email,
+        fullName,
+        role,
+        active: body?.active !== false,
+      });
+      return json(res, 201, {
+        schemas: ['urn:ietf:params:scim:schemas:core:2.0:User'],
+        id: user.id,
+        userName: user.email,
+        name: { formatted: user.fullName },
+        active: user.status === 'active',
+        roles: [{ value: user.role }],
+      });
+    }
+
+    const userMatch = path.match(/^\/api\/v1\/scim\/v2\/Users\/([^/]+)$/);
+    if (userMatch) {
+      const userId = userMatch[1];
+      if (method === 'GET') {
+        const u = globalStore.getUserById(userId);
+        if (!u || u.tenantId !== tenantId) {
+          return json(res, 404, {
+            schemas: ['urn:ietf:params:scim:api:messages:2.0:Error'],
+            detail: 'User not found',
+            status: '404',
+          });
+        }
+        return json(res, 200, {
+          schemas: ['urn:ietf:params:scim:schemas:core:2.0:User'],
+          id: u.id,
+          userName: u.email,
+          name: { formatted: u.fullName },
+          active: u.status === 'active',
+          roles: [{ value: u.role }],
+        });
+      }
+      if (method === 'PATCH' || method === 'PUT') {
+        const active = body?.active ?? (body?.Operations?.find((o) => o.path === 'active')?.value !== false);
+        let u;
+        if (active === false) {
+          u = globalStore.deactivateUser(tenantId, userId);
+        } else {
+          u = globalStore.getUserById(userId);
+          if (u) u.status = 'active';
+        }
+        if (!u) {
+          return json(res, 404, {
+            schemas: ['urn:ietf:params:scim:api:messages:2.0:Error'],
+            detail: 'User not found',
+            status: '404',
+          });
+        }
+        return json(res, 200, {
+          schemas: ['urn:ietf:params:scim:schemas:core:2.0:User'],
+          id: u.id,
+          userName: u.email,
+          name: { formatted: u.fullName },
+          active: u.status === 'active',
+          roles: [{ value: u.role }],
+        });
+      }
+    }
   }
 
   // Authenticated Context for all subsequent routes

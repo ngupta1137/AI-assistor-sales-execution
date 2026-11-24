@@ -246,6 +246,44 @@ export class EnterpriseStore {
     this.auditLogs.push(entry);
     return entry;
   }
+
+  // SCIM 2.0 User Provisioning
+  getAllUsers(tenantId) {
+    const list = [];
+    for (const u of this.users.values()) {
+      if (!tenantId || u.tenantId === tenantId) list.push(u);
+    }
+    return list;
+  }
+
+  getUserById(userId) {
+    return this.users.get(userId) || null;
+  }
+
+  createOrUpdateUser(tenantId, data) {
+    const existing = this.getUserByEmail(data.email, tenantId);
+    const id = existing?.id || data.id || `usr-${crypto.randomUUID().slice(0, 8)}`;
+    const user = {
+      id,
+      tenantId: tenantId || 'tenant-acme-global',
+      email: data.email,
+      fullName: data.fullName || data.name?.formatted || data.email,
+      role: data.role || 'rep',
+      status: data.active !== false ? 'active' : 'inactive',
+      updatedAt: new Date().toISOString(),
+      createdAt: existing?.createdAt || new Date().toISOString(),
+    };
+    this.users.set(id, user);
+    return user;
+  }
+
+  deactivateUser(tenantId, userId) {
+    const u = this.users.get(userId);
+    if (!u || u.tenantId !== tenantId) return null;
+    u.status = 'inactive';
+    u.updatedAt = new Date().toISOString();
+    return u;
+  }
 }
 
 export const globalStore = new EnterpriseStore();

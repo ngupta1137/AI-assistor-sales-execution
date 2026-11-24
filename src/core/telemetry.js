@@ -391,6 +391,7 @@ export function renderSyncModal(app, ctx) {
             <div class="muted">territory.read: ALL · order.create: AUTHORIZED · pricing.override: SUPERVISED</div>
           </div>
           <button class="btn secondary sm" data-act="rotate-sso-token" style="min-height:var(--tap);width:100%">${icon('shield', 14)} Rotate security token &amp; re-authenticate</button>
+          <button class="btn primary sm" data-act="open-security-console" style="min-height:var(--tap);width:100%;margin-top:6px">${icon('shield', 14)} Open Enterprise Security &amp; Legal Console</button>
           ${app.ui?.ssoToast ? `<div class="notice good" style="margin-top:8px">${icon('check', 14)}<span>${esc(app.ui.ssoToast)}</span></div>` : ''}
         </section>
       ` : ''}
