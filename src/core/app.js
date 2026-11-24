@@ -306,6 +306,11 @@ function screenTitleFor(ctx, name) {
     sales: ctx.t('Sales Pipeline'),
     config: ctx.t('Governance Rules'),
     system: ctx.t('System Telemetry'),
+    'coaching-scorecard': ctx.t('Joint-Visit Coaching Scorecard'),
+    'dsd-reconciliation': ctx.t('DSD Route Settlement'),
+    'sample-custody': ctx.t('Sample & Chain-of-Custody Log'),
+    'display-audit': ctx.t('Display & Vision Audit'),
+    'trade-promotions': ctx.t('Trade Promotions & Schemes'),
   };
   return titles[name] || ctx.t('Workspace');
 }

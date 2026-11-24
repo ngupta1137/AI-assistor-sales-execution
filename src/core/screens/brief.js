@@ -550,6 +550,8 @@ export function render(ctx, [accountId]) {
         <button class="tool-chip${ui.blitzMode ? ' on' : ''}" data-act="toggle-blitz" aria-pressed="${!!ui.blitzMode}">${icon('clock', 14)} ${ui.blitzMode ? esc(t('Exit quick mode')) : esc(t('Quick mode'))}</button>
         <button class="tool-chip" data-act="open-deck">${icon('screen', 14)} ${esc(t('Pitch mode'))}</button>
         <button class="tool-chip" data-act="open-collateral">${icon('brief', 14)} ${esc(t('Collateral'))}</button>
+        <a class="tool-chip" href="#/display-audit">${icon('camera', 14)} ${esc(t('Vision Audit'))}</a>
+        <a class="tool-chip" href="#/sample-custody">${icon('box', 14)} ${esc(t('Sample Log'))}</a>
         <a class="tool-chip" href="#/account/${a.id}">${icon('note', 14)} ${esc(t('{Account} 360'))}</a>
       </div>
       ${ui.accountAbsentRescheduled ? `<div class="notice good" style="margin-bottom:var(--s2)">${icon('check', 14)}<span><b>${esc(t('Rescheduled.'))}</b> ${esc(t('Score protected.'))}</span>

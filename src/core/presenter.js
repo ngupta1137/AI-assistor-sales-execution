@@ -84,6 +84,11 @@ export function renderPresenter(app, ctx, { INDUSTRIES, COUNTRIES, PERSONAS, sha
         <button class="btn secondary" data-act="open-eb2b-portal">${icon('bag', 20)}Customer eB2B portal preview</button>
         <button class="btn secondary" data-act="open-district-modal">${icon('team', 20)}District territory rebalancer</button>
         <button class="btn secondary" data-act="open-security-console">${icon('shield', 20)}Enterprise security and legal console</button>
+        <button class="btn secondary" data-act="open-coaching-scorecard">${icon('note', 20)}Joint-visit coaching scorecard</button>
+        <button class="btn secondary" data-act="open-dsd-reconciliation">${icon('route', 20)}DSD route and cash settlement</button>
+        <button class="btn secondary" data-act="open-sample-custody">${icon('box', 20)}Regulated sample custody log</button>
+        <button class="btn secondary" data-act="open-display-audit">${icon('camera', 20)}Display and planogram vision audit</button>
+        <button class="btn secondary" data-act="open-trade-promotions">${icon('target', 20)}Trade promotions and scheme calculator</button>
         <button class="btn secondary" data-act="toggle-works-council">${icon('shield', 20)}${app.worksCouncilMode ? 'Disable' : 'Enable'} Works Council mode</button>
         <button class="btn secondary" data-act="p-setup">${icon('config', 20)}Open setup screen</button>
         ${configured ? `<hr>${app.confirmReset
@@ -208,4 +213,9 @@ export const presenterActions = {
     return 'nav';
   },
   'p-setup': ({ app, api }) => { app.presenterOpen = false; api.navigate('#/setup'); return 'nav'; },
+  'open-coaching-scorecard': ({ app, api }) => { app.presenterOpen = false; api.navigate('#/coaching-scorecard'); return 'nav'; },
+  'open-dsd-reconciliation': ({ app, api }) => { app.presenterOpen = false; api.navigate('#/dsd-reconciliation'); return 'nav'; },
+  'open-sample-custody': ({ app, api }) => { app.presenterOpen = false; api.navigate('#/sample-custody'); return 'nav'; },
+  'open-display-audit': ({ app, api }) => { app.presenterOpen = false; api.navigate('#/display-audit'); return 'nav'; },
+  'open-trade-promotions': ({ app, api }) => { app.presenterOpen = false; api.navigate('#/trade-promotions'); return 'nav'; },
 };

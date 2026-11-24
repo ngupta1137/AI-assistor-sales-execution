@@ -99,7 +99,7 @@ export function renderWorksCouncilCard(app, ctx) {
         <span style="font-size:12px;font-weight:700;color:var(--ink)">German Works Council (Betriebsrat) Privacy Mode:</span>
         ${active ? pill('Active · BetrVG &sect; 87 Compliant', 'good') : pill('Standard Mode', 'muted')}
       </div>
-      <button class="btn ${active ? 'primary' : 'secondary'} sm" data-act="toggle-works-council" style="min-height:28px;font-size:11px">
+      <button class="btn ${active ? 'primary' : 'secondary'} sm" data-act="toggle-works-council" style="min-height:44px;min-width:44px;font-size:11px;padding:6px 12px">
         ${icon('shield', 14)} ${active ? 'Disable Works Council Mode' : 'Enable Works Council Mode'}
       </button>
     </div>
@@ -111,7 +111,7 @@ export function renderWorksCouncilCard(app, ctx) {
     </p>
 
     <div style="display:flex;justify-content:flex-end;margin-top:4px">
-      <button class="btn text sm" data-act="download-works-council-statement" style="font-size:11px;padding:0;color:var(--accent-ink)">
+      <button class="btn text sm" data-act="download-works-council-statement" style="min-height:44px;min-width:44px;font-size:11px;padding:6px 12px;color:var(--accent-ink)">
         ${icon('note', 12)} Download Works Council &amp; GDPR Privacy Statement (Markdown)
       </button>
     </div>

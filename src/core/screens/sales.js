@@ -53,6 +53,15 @@ function route(ctx) {
     <p class="muted">${esc(t('{n} short {visits}. The {order} leads; one or two actions fit each {visit}.', { n: stops.length }))}${ex.partner ? ' ' + esc(t('{Orders} go to the {partner}.', { partner: ex.partner })) : ''}</p></section>
   ${fieldNoticesLite(ctx)}
   <section class="card tight" id="sales-summary"><div class="facts"><div><small>${esc(t('Stops'))}</small><b>${stops.length}</b></div><div><small>${esc(t('{Orders} sent'))}</small><b id="sales-sent">${sent}</b></div><div><small>${esc(t('New {accounts}'))}</small><b>${news.length}</b></div></div></section>
+  <div style="margin:10px 0;padding:8px 10px;background:var(--surface);border:1px solid var(--line);border-radius:6px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px">
+    <div>
+      <b style="font-size:11px">DSD Shift &amp; Route Settlement:</b>
+      <span class="small muted" style="display:block;font-size:10px">Reconcile vehicle load inventory, damage returns, and cash collections.</span>
+    </div>
+    <a href="#/dsd-reconciliation" class="btn secondary sm" style="min-height:44px;min-width:44px;padding:6px 12px;font-size:11px;display:inline-flex;align-items:center;gap:4px">
+      ${icon('route', 14)} Open Shift Settlement
+    </a>
+  </div>
   <ol class="group list" id="sales-route">${rows}</ol>
   <a class="btn secondary block" href="#/sales/new" id="add-new" style="min-height:var(--tap);margin-top:var(--s3)">${icon('pin', 18)} ${esc(t('Add a new {account} found today'))}</a>
   ${news.length ? `<section class="card" id="new-list"><h2>${esc(t('New {accounts} you added'))}</h2><ul class="bullets small">${news.map((n) => `<li><a class="tap-link" href="#/sales/new/${n.id}"><b>${esc(n.name)}</b></a> ${esc(t('Stage {s} of 6: {stage}', { s: n.stage, stage: t(LIFE[n.stage - 1]) }))}</li>`).join('')}</ul></section>` : ''}

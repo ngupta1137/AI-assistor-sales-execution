@@ -178,11 +178,11 @@ export function renderChannelRtmBar(app, ctx) {
         <span style="font-size:11px;font-weight:600;color:var(--ink-secondary)">Trade Channel:</span>
         <small class="muted" style="font-size:10px">${esc(ch.summary)}</small>
       </div>
-      <div class="seg-ctl" role="group" aria-label="Trade Channel Selector" style="display:flex;gap:4px">
-        <button class="seg ${currentChannel === 'modern' ? 'on' : ''}" data-act="switch-channel" data-channel="modern" style="min-height:30px;flex:1;font-size:11px;font-weight:600;border-radius:4px">
+      <div class="seg-ctl" role="group" aria-label="Trade Channel Selector" style="display:flex;gap:6px">
+        <button class="seg ${currentChannel === 'modern' ? 'on' : ''}" data-act="switch-channel" data-channel="modern" style="min-height:44px;min-width:44px;flex:1;font-size:11px;font-weight:600;border-radius:4px">
           ${icon('brief', 14)} Modern Trade (MT)
         </button>
-        <button class="seg ${currentChannel === 'traditional' ? 'on' : ''}" data-act="switch-channel" data-channel="traditional" style="min-height:30px;flex:1;font-size:11px;font-weight:600;border-radius:4px">
+        <button class="seg ${currentChannel === 'traditional' ? 'on' : ''}" data-act="switch-channel" data-channel="traditional" style="min-height:44px;min-width:44px;flex:1;font-size:11px;font-weight:600;border-radius:4px">
           ${icon('route', 14)} Traditional Trade (TT)
         </button>
       </div>
@@ -195,19 +195,19 @@ export function renderChannelRtmBar(app, ctx) {
         <small class="muted" style="font-size:10px">${esc(rtm.fulfillmentMode)}</small>
       </div>
       <div style="display:flex;gap:4px;flex-wrap:wrap">
-        <button class="btn ${currentRtm === 'dsd' ? 'primary' : 'secondary'} sm" data-act="switch-rtm" data-rtm="dsd" style="min-height:28px;flex:1;font-size:10px;padding:3px 6px">
+        <button class="btn ${currentRtm === 'dsd' ? 'primary' : 'secondary'} sm" data-act="switch-rtm" data-rtm="dsd" style="min-height:44px;min-width:48px;flex:1 1 48px;font-size:10px;padding:4px 6px">
           DSD
         </button>
-        <button class="btn ${currentRtm === 'non_dsd' ? 'primary' : 'secondary'} sm" data-act="switch-rtm" data-rtm="non_dsd" style="min-height:28px;flex:1;font-size:10px;padding:3px 6px">
+        <button class="btn ${currentRtm === 'non_dsd' ? 'primary' : 'secondary'} sm" data-act="switch-rtm" data-rtm="non_dsd" style="min-height:44px;min-width:48px;flex:1 1 48px;font-size:10px;padding:4px 6px">
           Non-DSD
         </button>
-        <button class="btn ${currentRtm === 'distributor' ? 'primary' : 'secondary'} sm" data-act="switch-rtm" data-rtm="distributor" style="min-height:28px;flex:1;font-size:10px;padding:3px 6px">
+        <button class="btn ${currentRtm === 'distributor' ? 'primary' : 'secondary'} sm" data-act="switch-rtm" data-rtm="distributor" style="min-height:44px;min-width:48px;flex:1 1 48px;font-size:10px;padding:4px 6px">
           Distributor
         </button>
-        <button class="btn ${currentRtm === 'direct' ? 'primary' : 'secondary'} sm" data-act="switch-rtm" data-rtm="direct" style="min-height:28px;flex:1;font-size:10px;padding:3px 6px">
+        <button class="btn ${currentRtm === 'direct' ? 'primary' : 'secondary'} sm" data-act="switch-rtm" data-rtm="direct" style="min-height:44px;min-width:48px;flex:1 1 48px;font-size:10px;padding:4px 6px">
           Direct
         </button>
-        <button class="btn ${currentRtm === 'eb2b' ? 'primary' : 'secondary'} sm" data-act="switch-rtm" data-rtm="eb2b" style="min-height:28px;flex:1;font-size:10px;padding:3px 6px">
+        <button class="btn ${currentRtm === 'eb2b' ? 'primary' : 'secondary'} sm" data-act="switch-rtm" data-rtm="eb2b" style="min-height:44px;min-width:48px;flex:1 1 48px;font-size:10px;padding:4px 6px">
           eB2B
         </button>
       </div>

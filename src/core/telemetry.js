@@ -238,7 +238,7 @@ export function renderSyncModal(app, ctx) {
             <div>
               <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px">
                 <small style="font-weight:600">Inbound Master Data Feed (Cloud &rarr; Field Edge):</small>
-                <button class="btn secondary sm" data-act="test-gw-inbound" style="font-size:11px;min-height:28px">
+                <button class="btn secondary sm" data-act="test-gw-inbound" style="font-size:11px;min-height:44px;min-width:44px;padding:6px 12px">
                   ${icon('sync', 12)} Test Inbound Delta
                 </button>
               </div>
@@ -248,7 +248,7 @@ export function renderSyncModal(app, ctx) {
             <div>
               <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px">
                 <small style="font-weight:600">Outbound Transaction Webhook (Field Edge &rarr; Cloud):</small>
-                <button class="btn secondary sm" data-act="test-gw-outbound" style="font-size:11px;min-height:28px">
+                <button class="btn secondary sm" data-act="test-gw-outbound" style="font-size:11px;min-height:44px;min-width:44px;padding:6px 12px">
                   ${icon('check', 12)} Test Order Webhook
                 </button>
               </div>
@@ -266,8 +266,8 @@ export function renderSyncModal(app, ctx) {
               Dispatch real-time HTTP POST webhooks to any external HTTPS URL (e.g. Webhook.site, Zapier, or customer staging).
             </p>
             <div style="display:flex;gap:4px;margin-bottom:6px">
-              <input type="url" id="live-webhook-url" class="input" style="flex:1;font-size:11px;padding:4px 6px" placeholder="https://webhook.site/your-unique-endpoint" value="${esc(app.ui?.webhookUrl || '')}" data-change="set-webhook-url">
-              <button class="btn primary sm" data-act="dispatch-live-webhook" style="min-height:28px;font-size:11px">
+              <input type="url" id="live-webhook-url" class="input" style="flex:1;font-size:11px;padding:4px 6px;min-height:44px" placeholder="https://webhook.site/your-unique-endpoint" value="${esc(app.ui?.webhookUrl || '')}" data-change="set-webhook-url">
+              <button class="btn primary sm" data-act="dispatch-live-webhook" style="min-height:44px;min-width:44px;font-size:11px;padding:6px 12px">
                 ${icon('sync', 12)} Send Live Webhook
               </button>
             </div>
