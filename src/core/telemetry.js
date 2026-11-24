@@ -7,6 +7,7 @@ import { PERSONA_INFO, personasFor, personFor } from './personas.js';
 import { getDataProvider, setDataProvider, CustomerDataProvider, SyntheticDataProvider, RemoteApiDataProvider } from './data/data-provider.js';
 import { getTenantManager } from './tenant/tenant-config.js';
 import { getSession } from './state.js';
+import { renderConnectorHub, crmConnectorActions } from './connectors/crm-erp.js';
 
 export const SAMPLE_POC_CLIENT = {
   tenantId: 'client-poc-01',
@@ -237,7 +238,7 @@ export function renderSyncModal(app, ctx) {
             <div>
               <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px">
                 <small style="font-weight:600">Inbound Master Data Feed (Cloud &rarr; Field Edge):</small>
-                <button class="btn secondary sm" data-act="test-gw-inbound" style="font-size:11px;min-height:28px">
+                <button class="btn secondary sm" data-act="test-gw-inbound" style="font-size:11px;min-height:44px;min-width:44px;padding:6px 12px">
                   ${icon('sync', 12)} Test Inbound Delta
                 </button>
               </div>
@@ -247,7 +248,7 @@ export function renderSyncModal(app, ctx) {
             <div>
               <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px">
                 <small style="font-weight:600">Outbound Transaction Webhook (Field Edge &rarr; Cloud):</small>
-                <button class="btn secondary sm" data-act="test-gw-outbound" style="font-size:11px;min-height:28px">
+                <button class="btn secondary sm" data-act="test-gw-outbound" style="font-size:11px;min-height:44px;min-width:44px;padding:6px 12px">
                   ${icon('check', 12)} Test Order Webhook
                 </button>
               </div>
@@ -265,8 +266,8 @@ export function renderSyncModal(app, ctx) {
               Dispatch real-time HTTP POST webhooks to any external HTTPS URL (e.g. Webhook.site, Zapier, or customer staging).
             </p>
             <div style="display:flex;gap:4px;margin-bottom:6px">
-              <input type="url" id="live-webhook-url" class="input" style="flex:1;font-size:11px;padding:4px 6px" placeholder="https://webhook.site/your-unique-endpoint" value="${esc(app.ui?.webhookUrl || '')}" data-change="set-webhook-url">
-              <button class="btn primary sm" data-act="dispatch-live-webhook" style="min-height:28px;font-size:11px">
+              <input type="url" id="live-webhook-url" class="input" style="flex:1;font-size:11px;padding:4px 6px;min-height:44px" placeholder="https://webhook.site/your-unique-endpoint" value="${esc(app.ui?.webhookUrl || '')}" data-change="set-webhook-url">
+              <button class="btn primary sm" data-act="dispatch-live-webhook" style="min-height:44px;min-width:44px;font-size:11px;padding:6px 12px">
                 ${icon('sync', 12)} Send Live Webhook
               </button>
             </div>
@@ -275,6 +276,9 @@ export function renderSyncModal(app, ctx) {
                 ${esc(app.ui.webhookLog)}
               </div>` : ''}
           </div>
+
+          <!-- Enterprise CRM & ERP Schema Mapper Hub -->
+          ${renderConnectorHub(app, ctx)}
 
           ${app.ui?.gwToast ? `<div class="notice good" style="margin-top:10px">${icon('check', 14)}<span>${esc(app.ui.gwToast)}</span></div>` : ''}
         </section>
@@ -387,6 +391,7 @@ export function renderSyncModal(app, ctx) {
             <div class="muted">territory.read: ALL · order.create: AUTHORIZED · pricing.override: SUPERVISED</div>
           </div>
           <button class="btn secondary sm" data-act="rotate-sso-token" style="min-height:var(--tap);width:100%">${icon('shield', 14)} Rotate security token &amp; re-authenticate</button>
+          <button class="btn primary sm" data-act="open-security-console" style="min-height:var(--tap);width:100%;margin-top:6px">${icon('shield', 14)} Open Enterprise Security &amp; Legal Console</button>
           ${app.ui?.ssoToast ? `<div class="notice good" style="margin-top:8px">${icon('check', 14)}<span>${esc(app.ui.ssoToast)}</span></div>` : ''}
         </section>
       ` : ''}
@@ -691,6 +696,7 @@ export const syncActions = {
   'download-poc-full-json': ({ ctx }) => {
     exportPocFullJson(ctx);
   },
+  ...crmConnectorActions,
   'toggle-offline': ({ app, ctx }) => {
     app.offline = !app.offline;
     if (app.offline) {

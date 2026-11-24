@@ -24,7 +24,21 @@ import * as kam from './kam.js';
 import * as partner from './partner.js';
 import * as exec from './exec.js';
 import * as domains from './domains.js';
+import * as coachingScorecard from './coaching-scorecard.js';
+import * as dsdReconciliation from './dsd-reconciliation.js';
+import * as sampleCustody from './sample-custody.js';
+import * as displayAudit from './display-audit.js';
+import * as tradePromotions from './trade-promotions.js';
 
-export const SCREENS = { setup, today, brief, account, action, order, complete, manager, agents, config, problems, route, ask, companion, 'rule-health': ruleHealth, 'audit-trail': auditTrail, quality, pm, system, sales, health, kam, partner, exec, domains };
+export const SCREENS = {
+  setup, today, brief, account, action, order, complete, manager, agents, config, problems,
+  route, ask, companion, 'rule-health': ruleHealth, 'audit-trail': auditTrail, quality, pm,
+  system, sales, health, kam, partner, exec, domains,
+  'coaching-scorecard': coachingScorecard,
+  'dsd-reconciliation': dsdReconciliation,
+  'sample-custody': sampleCustody,
+  'display-audit': displayAudit,
+  'trade-promotions': tradePromotions,
+};
 
 export const ACTIONS = Object.assign({}, ...Object.values(SCREENS).map((s) => s.actions || {}));

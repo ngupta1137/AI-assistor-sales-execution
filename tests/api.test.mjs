@@ -150,6 +150,83 @@ async function run() {
     ok(dataBatchSync.status === 'synced', 'Batch sync status is synced');
     ok(dataBatchSync.reconciled.decisionsCreated === 1, 'Batch sync reconciled 1 decision');
 
+    // 11. SAML 2.0 Identity Federation
+    const resSamlMeta = await fetch(`${BASE_URL}/auth/saml/metadata`);
+    ok(resSamlMeta.status === 200, 'SAML metadata returns 200 OK');
+    const samlXml = await resSamlMeta.text();
+    ok(samlXml.includes('<md:EntityDescriptor') && samlXml.includes('AssertionConsumerService'), 'Returns valid SAML SP XML metadata');
+
+    const mockSamlResponse = Buffer.from(`
+      <saml2p:Response xmlns:saml2p="urn:oasis:names:tc:SAML:2.0:protocol" xmlns:saml2="urn:oasis:names:tc:SAML:2.0:assertion">
+        <saml2:Assertion>
+          <saml2:Subject>
+            <saml2:NameID>saml.rep@enterprise.corp</saml2:NameID>
+          </saml2:Subject>
+          <saml2:AttributeStatement>
+            <saml2:Attribute Name="displayName"><saml2:AttributeValue>Federated Rep</saml2:AttributeValue></saml2:Attribute>
+            <saml2:Attribute Name="role"><saml2:AttributeValue>rep</saml2:AttributeValue></saml2:Attribute>
+          </saml2:AttributeStatement>
+        </saml2:Assertion>
+      </saml2p:Response>
+    `).toString('base64');
+
+    const resSamlAcs = await fetch(`${BASE_URL}/auth/saml/acs`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ SAMLResponse: mockSamlResponse, tenantId: 'tenant-acme-global' }),
+    });
+    ok(resSamlAcs.status === 200, 'SAML ACS login returns 200 OK');
+    const dataSamlAcs = await resSamlAcs.json();
+    ok(typeof dataSamlAcs.token === 'string', 'SAML ACS returns valid JWT session token');
+    ok(dataSamlAcs.user.email === 'saml.rep@enterprise.corp', 'SAML assertion parsed correct user identity');
+
+    // 12. OIDC Token Exchange
+    const resOidc = await fetch(`${BASE_URL}/auth/oidc/token`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ code: 'auth_code_mock_9921', tenantId: 'tenant-acme-global' }),
+    });
+    ok(resOidc.status === 200, 'OIDC token exchange returns 200 OK');
+    const dataOidc = await resOidc.json();
+    ok(typeof dataOidc.access_token === 'string' && typeof dataOidc.id_token === 'string', 'OIDC returns access_token and id_token');
+
+    // 13. SCIM 2.0 User Provisioning & Lifecycle (RFC 7644)
+    const scimHeaders = {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer scim_token_secret_admin_9182`,
+    };
+
+    const resScimSchemas = await fetch(`${BASE_URL}/scim/v2/Schemas`, { headers: scimHeaders });
+    ok(resScimSchemas.status === 200, 'SCIM Schemas endpoint returns 200 OK');
+
+    const resScimCreate = await fetch(`${BASE_URL}/scim/v2/Users`, {
+      method: 'POST',
+      headers: scimHeaders,
+      body: JSON.stringify({
+        userName: 'scim.user@enterprise.corp',
+        displayName: 'SCIM Provisioned Representative',
+        roles: [{ value: 'rep' }],
+        active: true,
+      }),
+    });
+    ok(resScimCreate.status === 201, 'SCIM Create User returns 201 Created');
+    const dataScimUser = await resScimCreate.json();
+    ok(dataScimUser.id && dataScimUser.userName === 'scim.user@enterprise.corp', 'SCIM user successfully provisioned');
+
+    const resScimList = await fetch(`${BASE_URL}/scim/v2/Users`, { headers: scimHeaders });
+    ok(resScimList.status === 200, 'SCIM Users list returns 200 OK');
+    const dataScimList = await resScimList.json();
+    ok(dataScimList.totalResults >= 3, 'SCIM Users list reflects newly provisioned user');
+
+    const resScimDeactivate = await fetch(`${BASE_URL}/scim/v2/Users/${dataScimUser.id}`, {
+      method: 'PATCH',
+      headers: scimHeaders,
+      body: JSON.stringify({ active: false }),
+    });
+    ok(resScimDeactivate.status === 200, 'SCIM User deprovisioning returns 200 OK');
+    const dataDeactivated = await resScimDeactivate.json();
+    ok(dataDeactivated.active === false, 'SCIM user active status updated to false');
+
     console.log(`Enterprise REST API: All ${passed} assertions passed cleanly.`);
   } finally {
     await new Promise((resolve) => server.close(resolve));

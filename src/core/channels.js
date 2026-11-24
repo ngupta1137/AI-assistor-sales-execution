@@ -2,7 +2,8 @@
 // TRADE CHANNELS & ROUTE-TO-MARKET (RTM) ARCHETYPES
 // ==============================================================================
 // Configurable trade channels (Modern Trade vs Traditional Trade) and RTM
-// archetypes (DSD, Non-DSD, Distributor-Led, Direct, eB2B) for holistic sales execution.
+// archetypes (DSD, Non-DSD, Distributor-Led, Direct, eB2B) dynamically adapted
+// across all 21 industry packs via runtime segment and execution mappings.
 // ==============================================================================
 
 import { esc, icon } from './ui.js';
@@ -24,7 +25,7 @@ export const CHANNELS = {
     name: 'Traditional Trade',
     short: 'TT',
     badge: 'Traditional Trade (TT)',
-    summary: 'Independent neighborhood accounts, route distribution, high call frequency, and spot fulfillment',
+    summary: 'Independent accounts, route distribution, high call frequency, and spot fulfillment',
     kpis: ['Cash Recovery', 'Counter Visibility', 'Visit Speed', 'Replenishment Rate'],
     commercialTerms: 'Payment on Delivery / Weekly Credit',
     stopTag: 'Route Stop',
@@ -90,12 +91,63 @@ export const RTM_ARCHETYPES = {
   },
 };
 
-export function getChannel(id) {
-  return CHANNELS[id] || CHANNELS.modern;
+/**
+ * Returns the channel definition, tailored dynamically for the active industry pack.
+ */
+export function getChannel(id, ctx) {
+  const base = CHANNELS[id] || CHANNELS.modern;
+  if (!ctx?.industry) return base;
+
+  const ex = ctx.industry.execution || {};
+  const segs = ctx.industry.segments || [];
+  const activeIds = id === 'modern' ? (ex.consultative || []) : (ex.orderLed || []);
+  const matchingSegs = segs.filter((s) => activeIds.includes(s.id));
+  const segLabel = matchingSegs.map((s) => s.name).join(' & ');
+
+  if (!segLabel) return base;
+
+  return {
+    ...base,
+    badge: `${base.short} (${segLabel})`,
+    segmentNames: segLabel,
+    summary: id === 'modern'
+      ? `Organized accounts (${segLabel}), centralized agreements, and Joint Business Planning`
+      : `Independent accounts (${segLabel}), route distribution, high call frequency, and spot fulfillment`,
+    focusArea: id === 'modern'
+      ? `Agreements with ${segLabel}, space execution, scheduled delivery windows`
+      : `Replenishment for ${segLabel}, visibility, cash collection, credit check`,
+  };
 }
 
-export function getRtm(id) {
-  return RTM_ARCHETYPES[id] || RTM_ARCHETYPES.dsd;
+/**
+ * Returns the RTM archetype definition, tailored dynamically for the active industry pack.
+ */
+export function getRtm(id, ctx) {
+  const base = RTM_ARCHETYPES[id] || RTM_ARCHETYPES.dsd;
+  if (!ctx?.industry) return base;
+
+  const ex = ctx.industry.execution || {};
+  const f = ex.fulfillment || {};
+  const partnerTitle = ex.partner || 'Partner';
+  const source = f.sourceShort || 'Central Supply';
+
+  if (id === 'distributor') {
+    return {
+      ...base,
+      fulfillmentMode: `${partnerTitle} Delivery`,
+      fulfillmentDetails: `Secondary booking routed to authorized ${partnerTitle} for scheduled route delivery.`,
+    };
+  }
+
+  if (id === 'non_dsd') {
+    return {
+      ...base,
+      fulfillmentMode: `${source} Dispatch`,
+      fulfillmentDetails: `Pre-sales order booked and dispatched from ${f.source || source} in 24-48 hours.`,
+    };
+  }
+
+  return base;
 }
 
 /**
@@ -105,8 +157,8 @@ export function getRtm(id) {
 export function renderChannelRtmBar(app, ctx) {
   const currentChannel = app.config?.channel || 'modern';
   const currentRtm = app.config?.rtm || 'dsd';
-  const ch = getChannel(currentChannel);
-  const rtm = getRtm(currentRtm);
+  const ch = getChannel(currentChannel, ctx);
+  const rtm = getRtm(currentRtm, ctx);
 
   return `
   <section class="card channel-rtm-bar" style="margin:0 0 10px 0;padding:10px 12px;background:var(--surface);border:1px solid var(--line);border-radius:8px">
@@ -126,11 +178,11 @@ export function renderChannelRtmBar(app, ctx) {
         <span style="font-size:11px;font-weight:600;color:var(--ink-secondary)">Trade Channel:</span>
         <small class="muted" style="font-size:10px">${esc(ch.summary)}</small>
       </div>
-      <div class="seg-ctl" role="group" aria-label="Trade Channel Selector" style="display:flex;gap:4px">
-        <button class="seg ${currentChannel === 'modern' ? 'on' : ''}" data-act="switch-channel" data-channel="modern" style="min-height:30px;flex:1;font-size:11px;font-weight:600;border-radius:4px">
+      <div class="seg-ctl" role="group" aria-label="Trade Channel Selector" style="display:flex;gap:6px">
+        <button class="seg ${currentChannel === 'modern' ? 'on' : ''}" data-act="switch-channel" data-channel="modern" style="min-height:44px;min-width:44px;flex:1;font-size:11px;font-weight:600;border-radius:4px">
           ${icon('brief', 14)} Modern Trade (MT)
         </button>
-        <button class="seg ${currentChannel === 'traditional' ? 'on' : ''}" data-act="switch-channel" data-channel="traditional" style="min-height:30px;flex:1;font-size:11px;font-weight:600;border-radius:4px">
+        <button class="seg ${currentChannel === 'traditional' ? 'on' : ''}" data-act="switch-channel" data-channel="traditional" style="min-height:44px;min-width:44px;flex:1;font-size:11px;font-weight:600;border-radius:4px">
           ${icon('route', 14)} Traditional Trade (TT)
         </button>
       </div>
@@ -143,19 +195,19 @@ export function renderChannelRtmBar(app, ctx) {
         <small class="muted" style="font-size:10px">${esc(rtm.fulfillmentMode)}</small>
       </div>
       <div style="display:flex;gap:4px;flex-wrap:wrap">
-        <button class="btn ${currentRtm === 'dsd' ? 'primary' : 'secondary'} sm" data-act="switch-rtm" data-rtm="dsd" style="min-height:28px;flex:1;font-size:10px;padding:3px 6px">
+        <button class="btn ${currentRtm === 'dsd' ? 'primary' : 'secondary'} sm" data-act="switch-rtm" data-rtm="dsd" style="min-height:44px;min-width:48px;flex:1 1 48px;font-size:10px;padding:4px 6px">
           DSD
         </button>
-        <button class="btn ${currentRtm === 'non_dsd' ? 'primary' : 'secondary'} sm" data-act="switch-rtm" data-rtm="non_dsd" style="min-height:28px;flex:1;font-size:10px;padding:3px 6px">
+        <button class="btn ${currentRtm === 'non_dsd' ? 'primary' : 'secondary'} sm" data-act="switch-rtm" data-rtm="non_dsd" style="min-height:44px;min-width:48px;flex:1 1 48px;font-size:10px;padding:4px 6px">
           Non-DSD
         </button>
-        <button class="btn ${currentRtm === 'distributor' ? 'primary' : 'secondary'} sm" data-act="switch-rtm" data-rtm="distributor" style="min-height:28px;flex:1;font-size:10px;padding:3px 6px">
+        <button class="btn ${currentRtm === 'distributor' ? 'primary' : 'secondary'} sm" data-act="switch-rtm" data-rtm="distributor" style="min-height:44px;min-width:48px;flex:1 1 48px;font-size:10px;padding:4px 6px">
           Distributor
         </button>
-        <button class="btn ${currentRtm === 'direct' ? 'primary' : 'secondary'} sm" data-act="switch-rtm" data-rtm="direct" style="min-height:28px;flex:1;font-size:10px;padding:3px 6px">
+        <button class="btn ${currentRtm === 'direct' ? 'primary' : 'secondary'} sm" data-act="switch-rtm" data-rtm="direct" style="min-height:44px;min-width:48px;flex:1 1 48px;font-size:10px;padding:4px 6px">
           Direct
         </button>
-        <button class="btn ${currentRtm === 'eb2b' ? 'primary' : 'secondary'} sm" data-act="switch-rtm" data-rtm="eb2b" style="min-height:28px;flex:1;font-size:10px;padding:3px 6px">
+        <button class="btn ${currentRtm === 'eb2b' ? 'primary' : 'secondary'} sm" data-act="switch-rtm" data-rtm="eb2b" style="min-height:44px;min-width:48px;flex:1 1 48px;font-size:10px;padding:4px 6px">
           eB2B
         </button>
       </div>

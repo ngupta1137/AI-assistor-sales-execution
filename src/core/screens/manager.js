@@ -292,6 +292,15 @@ export function render(ctx) {
     <small style="display:block">Estimated opportunity addressed comes from completed actions. It is not booked sales.</small></details>
   <details class="fold" id="coaching"><summary>Coaching prompts</summary>
     <p class="small muted">From patterns in overrides and blocked actions. For conversations, not a leaderboard.</p>
+    <div style="margin:8px 0;padding:8px 10px;background:var(--surface-subtle);border-radius:6px;border:1px solid var(--line);display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:6px">
+      <div>
+        <b style="font-size:11px">Joint-Visit Accompaniment:</b>
+        <span class="small muted" style="display:block;font-size:10px">Evaluate rep interactions on-site using the structured coaching rubric.</span>
+      </div>
+      <a href="#/coaching-scorecard" class="btn secondary sm" style="min-height:44px;min-width:44px;padding:6px 12px;font-size:11px;display:inline-flex;align-items:center;gap:4px">
+        ${icon('note', 14)} Open Coaching Rubric
+      </a>
+    </div>
     <ul class="group">${prompts || '<li class="empty">No patterns yet.</li>'}</ul></details>
   <details class="fold" id="coverage"><summary>Coverage gaps<span class="sum-end">${uncovered.length} tier A</span></summary>
     <p class="small muted">${esc(t(`High-potential {accounts} not visited in ${N} days. The Visit Planner adds them to the next routes.`))}</p>

@@ -134,6 +134,7 @@ export function render(ctx, [accountId]) {
   <div style="display:flex;justify-content:space-between;align-items:center;margin-top:12px;margin-bottom:8px;gap:8px;flex-wrap:wrap">
     <h2 style="margin:0">Suggested lines</h2>
     <div style="display:flex;gap:6px;flex-wrap:wrap">
+      <a class="btn secondary sm" href="#/trade-promotions" style="min-height:var(--tap);display:inline-flex;align-items:center;gap:6px">${icon('target', 16)} Schemes &amp; Promotions</a>
       <button class="btn secondary sm" data-act="toggle-van-stock" data-id="${a.id}" style="min-height:var(--tap);display:inline-flex;align-items:center;gap:6px">${icon('cart', 16)} Vehicle inventory</button>
       <button class="btn secondary sm" data-act="toggle-rma" data-id="${a.id}" style="min-height:var(--tap);display:inline-flex;align-items:center;gap:6px">${icon('wallet', 16)} Returns &amp; RMA</button>
       <button class="btn secondary sm" data-act="toggle-scanner" data-id="${a.id}" style="min-height:var(--tap);display:inline-flex;align-items:center;gap:6px">${icon('scan', 16)} Line scanner</button>

@@ -20,9 +20,9 @@ export function createServer() {
     const host = req.headers.host || `localhost:${PORT}`;
     const url = new URL(req.url, `http://${host}`);
 
-    // 2. Parse JSON body for POST/PUT requests
+    // 2. Parse JSON body for POST/PUT/PATCH requests
     let body = null;
-    if (req.method === 'POST' || req.method === 'PUT') {
+    if (req.method === 'POST' || req.method === 'PUT' || req.method === 'PATCH') {
       try {
         const buffers = [];
         for await (const chunk of req) {
