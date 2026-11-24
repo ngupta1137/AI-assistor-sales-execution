@@ -98,7 +98,7 @@ try {
   await pause(4000);
 
   // SCENE 2: Dynamic Multi-Domain Engine
-  console.log('[Scene 2: 0:45 - 1:20] Setup Screen & 20 Industries x 11 Countries');
+  console.log('[Scene 2: 0:45 - 1:20] Setup Screen & 21 Industries x 11 Countries');
   await page.goto(`http://localhost:${port}/index.html#/setup`, { waitUntil: 'networkidle' });
   await pause(2500);
   // Click Consumer Goods preset
@@ -106,6 +106,15 @@ try {
   await pause(1500);
   await safeClick('button[data-act="setup-start"]');
   await pause(3000);
+
+  // SCENE 2b: Multi-Trade Channel & RTM Engine
+  console.log('[Scene 2b: 1:20 - 1:40] Modern vs Traditional Trade & 5 RTM Archetypes');
+  await safeClick('button[data-act="switch-channel"][data-channel="traditional"]');
+  await pause(1500);
+  await safeClick('button[data-act="switch-rtm"][data-rtm="non_dsd"]');
+  await pause(1500);
+  await safeClick('button[data-act="switch-channel"][data-channel="modern"]');
+  await pause(1500);
 
   // SCENE 3: Frontline Rep Experience (Today -> Brief)
   console.log('[Scene 3: 1:20 - 2:30] Frontline Rep: Today & Visit Brief (7 Outcomes & Governance)');

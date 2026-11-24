@@ -2,7 +2,8 @@
 // TRADE CHANNELS & ROUTE-TO-MARKET (RTM) ARCHETYPES
 // ==============================================================================
 // Configurable trade channels (Modern Trade vs Traditional Trade) and RTM
-// archetypes (DSD, Non-DSD, Distributor-Led, Direct, eB2B) for holistic sales execution.
+// archetypes (DSD, Non-DSD, Distributor-Led, Direct, eB2B) dynamically adapted
+// across all 21 industry packs via runtime segment and execution mappings.
 // ==============================================================================
 
 import { esc, icon } from './ui.js';
@@ -24,7 +25,7 @@ export const CHANNELS = {
     name: 'Traditional Trade',
     short: 'TT',
     badge: 'Traditional Trade (TT)',
-    summary: 'Independent neighborhood accounts, route distribution, high call frequency, and spot fulfillment',
+    summary: 'Independent accounts, route distribution, high call frequency, and spot fulfillment',
     kpis: ['Cash Recovery', 'Counter Visibility', 'Visit Speed', 'Replenishment Rate'],
     commercialTerms: 'Payment on Delivery / Weekly Credit',
     stopTag: 'Route Stop',
@@ -90,12 +91,63 @@ export const RTM_ARCHETYPES = {
   },
 };
 
-export function getChannel(id) {
-  return CHANNELS[id] || CHANNELS.modern;
+/**
+ * Returns the channel definition, tailored dynamically for the active industry pack.
+ */
+export function getChannel(id, ctx) {
+  const base = CHANNELS[id] || CHANNELS.modern;
+  if (!ctx?.industry) return base;
+
+  const ex = ctx.industry.execution || {};
+  const segs = ctx.industry.segments || [];
+  const activeIds = id === 'modern' ? (ex.consultative || []) : (ex.orderLed || []);
+  const matchingSegs = segs.filter((s) => activeIds.includes(s.id));
+  const segLabel = matchingSegs.map((s) => s.name).join(' & ');
+
+  if (!segLabel) return base;
+
+  return {
+    ...base,
+    badge: `${base.short} (${segLabel})`,
+    segmentNames: segLabel,
+    summary: id === 'modern'
+      ? `Organized accounts (${segLabel}), centralized agreements, and Joint Business Planning`
+      : `Independent accounts (${segLabel}), route distribution, high call frequency, and spot fulfillment`,
+    focusArea: id === 'modern'
+      ? `Agreements with ${segLabel}, space execution, scheduled delivery windows`
+      : `Replenishment for ${segLabel}, visibility, cash collection, credit check`,
+  };
 }
 
-export function getRtm(id) {
-  return RTM_ARCHETYPES[id] || RTM_ARCHETYPES.dsd;
+/**
+ * Returns the RTM archetype definition, tailored dynamically for the active industry pack.
+ */
+export function getRtm(id, ctx) {
+  const base = RTM_ARCHETYPES[id] || RTM_ARCHETYPES.dsd;
+  if (!ctx?.industry) return base;
+
+  const ex = ctx.industry.execution || {};
+  const f = ex.fulfillment || {};
+  const partnerTitle = ex.partner || 'Partner';
+  const source = f.sourceShort || 'Central Supply';
+
+  if (id === 'distributor') {
+    return {
+      ...base,
+      fulfillmentMode: `${partnerTitle} Delivery`,
+      fulfillmentDetails: `Secondary booking routed to authorized ${partnerTitle} for scheduled route delivery.`,
+    };
+  }
+
+  if (id === 'non_dsd') {
+    return {
+      ...base,
+      fulfillmentMode: `${source} Dispatch`,
+      fulfillmentDetails: `Pre-sales order booked and dispatched from ${f.source || source} in 24-48 hours.`,
+    };
+  }
+
+  return base;
 }
 
 /**
@@ -105,8 +157,8 @@ export function getRtm(id) {
 export function renderChannelRtmBar(app, ctx) {
   const currentChannel = app.config?.channel || 'modern';
   const currentRtm = app.config?.rtm || 'dsd';
-  const ch = getChannel(currentChannel);
-  const rtm = getRtm(currentRtm);
+  const ch = getChannel(currentChannel, ctx);
+  const rtm = getRtm(currentRtm, ctx);
 
   return `
   <section class="card channel-rtm-bar" style="margin:0 0 10px 0;padding:10px 12px;background:var(--surface);border:1px solid var(--line);border-radius:8px">
