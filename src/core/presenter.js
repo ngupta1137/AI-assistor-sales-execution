@@ -97,6 +97,11 @@ export function renderNotes(app, ctx) {
 }
 
 export const presenterActions = {
+  'p-viewport': ({ value, app, api }) => {
+    app.vp = value;
+    api.syncUrl();
+    api.render();
+  },
   'p-screen-state': ({ value, app, api }) => {
     app.screenState = value;
     api.render();

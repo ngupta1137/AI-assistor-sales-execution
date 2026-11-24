@@ -173,35 +173,41 @@ export function render(ctx) {
     <button class="btn secondary" data-act="open-adhoc" id="open-adhoc">${icon('pin', 18)}${esc(t('Log ad-hoc stop'))}</button>
   </div>
 
-  <section>
-    <div class="section-head"><h2>${esc(t("Today's {accounts}"))}</h2><small>Ranked by estimated opportunity</small></div>
-    <ol class="group list">${rows}</ol>
-  </section>
+  <div class="adaptive-grid today-grid">
+    <div class="grid-primary">
+      <section>
+        <div class="section-head"><h2>${esc(t("Today's {accounts}"))}</h2><small>Ranked by estimated opportunity</small></div>
+        <ol class="group list">${rows}</ol>
+      </section>
+    </div>
 
-  <!-- Performance: every figure is derived from this territory's sample data. -->
-  <section class="card tight perf" id="perf" data-tf="${tf}">
-    <div class="section-head"><h2>${esc(t('Performance'))}</h2>
-      <div class="seg-ctl pill-seg" role="group" aria-label="${esc(t('Timeframe'))}">
-        ${[['daily', 'Daily'], ['weekly', 'Weekly'], ['monthly', 'Monthly']].map(([k, l]) => `<button class="seg ${tf === k ? 'on' : ''}" data-act="set-rep-tf" data-tf="${k}" aria-pressed="${tf === k}">${esc(t(l))}</button>`).join('')}
-      </div>
-    </div>
-    <div class="stat-row" id="mtd"><span class="small muted">${esc(t('Month to date, from source data'))}</span><span class="small"><b class="money">${esc(fmt.moneyShort(tr.achieved))}</b> of ${esc(fmt.moneyShort(tr.target))} · ${pct}%</span></div>
-    ${bar(tr.achieved, tr.target)}
-    <div class="facts perf-facts">${perf.facts.map(([k, v, tone]) => `<div><small>${esc(t(k))}</small><b class="tnum${tone ? ` ${tone}-text` : ''}">${esc(v)}</b></div>`).join('')}</div>
-    ${perf.bars ? `<div class="perf-bars">${perf.bars.map(([k, v]) => `<div class="stat-row"><span class="small muted">${esc(t(k))}</span><span class="small tnum">${esc(fmt.moneyShort(v))}</span></div>${bar(v, Math.max(...perf.bars.map((b) => b[1])) || 1)}`).join('')}</div>` : spark(perf.points, perf.goal)}
-    <div class="perf-foot"><span class="small muted">${esc(t(perf.caption))} · ${esc(t('Sample data'))}</span>
-      <button class="btn secondary sm" data-act="time-crunch">${icon('route', 12)} ${esc(t('Re-balance for less time'))}</button>
-    </div>
-  </section>
+    <div class="grid-secondary">
+      <!-- Performance: every figure is derived from this territory's sample data. -->
+      <section class="card tight perf" id="perf" data-tf="${tf}">
+        <div class="section-head"><h2>${esc(t('Performance'))}</h2>
+          <div class="seg-ctl pill-seg" role="group" aria-label="${esc(t('Timeframe'))}">
+            ${[['daily', 'Daily'], ['weekly', 'Weekly'], ['monthly', 'Monthly']].map(([k, l]) => `<button class="seg ${tf === k ? 'on' : ''}" data-act="set-rep-tf" data-tf="${k}" aria-pressed="${tf === k}">${esc(t(l))}</button>`).join('')}
+          </div>
+        </div>
+        <div class="stat-row" id="mtd"><span class="small muted">${esc(t('Month to date, from source data'))}</span><span class="small"><b class="money">${esc(fmt.moneyShort(tr.achieved))}</b> of ${esc(fmt.moneyShort(tr.target))} · ${pct}%</span></div>
+        ${bar(tr.achieved, tr.target)}
+        <div class="facts perf-facts">${perf.facts.map(([k, v, tone]) => `<div><small>${esc(t(k))}</small><b class="tnum${tone ? ` ${tone}-text` : ''}">${esc(v)}</b></div>`).join('')}</div>
+        ${perf.bars ? `<div class="perf-bars">${perf.bars.map(([k, v]) => `<div class="stat-row"><span class="small muted">${esc(t(k))}</span><span class="small tnum">${esc(fmt.moneyShort(v))}</span></div>${bar(v, Math.max(...perf.bars.map((b) => b[1])) || 1)}`).join('')}</div>` : spark(perf.points, perf.goal)}
+        <div class="perf-foot"><span class="small muted">${esc(t(perf.caption))} · ${esc(t('Sample data'))}</span>
+          <button class="btn secondary sm" data-act="time-crunch">${icon('route', 12)} ${esc(t('Re-balance for less time'))}</button>
+        </div>
+      </section>
 
-  <details class="fold" id="territory">
-    <summary>${esc(t('{Territory}'))}<span class="sum-end">${esc(kpiValue(kpi, tr.headlineKpi.value, fmt))}</span></summary>
-    <div class="facts">
-      <div><small>${esc(t(kpi.label))}</small><b>${esc(kpiValue(kpi, tr.headlineKpi.value, fmt))}</b><small>Target ${esc(kpiValue(kpi, kpi.target, fmt))}</small></div>
-      <div><small>Untapped potential</small><b>${esc(fmt.moneyShort(tr.opportunity))}</b><small>${esc(t(`Across ${data.accounts.length} {accounts}`))}</small></div>
-      ${self.estimated ? `<div class="wide"><small>Estimated opportunity addressed today</small><b>${esc(fmt.moneyShort(self.estimated))}</b><small>An estimate from completed actions. Not booked sales, and not added to the month figure.</small></div>` : ''}
+      <details class="fold" id="territory">
+        <summary>${esc(t('{Territory}'))}<span class="sum-end">${esc(kpiValue(kpi, tr.headlineKpi.value, fmt))}</span></summary>
+        <div class="facts">
+          <div><small>${esc(t(kpi.label))}</small><b>${esc(kpiValue(kpi, tr.headlineKpi.value, fmt))}</b><small>Target ${esc(kpiValue(kpi, kpi.target, fmt))}</small></div>
+          <div><small>Untapped potential</small><b>${esc(fmt.moneyShort(tr.opportunity))}</b><small>${esc(t(`Across ${data.accounts.length} {accounts}`))}</small></div>
+          ${self.estimated ? `<div class="wide"><small>Estimated opportunity addressed today</small><b>${esc(fmt.moneyShort(self.estimated))}</b><small>An estimate from completed actions. Not booked sales, and not added to the month figure.</small></div>` : ''}
+        </div>
+      </details>
     </div>
-  </details>
+  </div>
   <p class="foot-note">Values are generated for this demo.</p>`;
 }
 
