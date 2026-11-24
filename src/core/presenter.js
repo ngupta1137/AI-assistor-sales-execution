@@ -78,6 +78,9 @@ export function renderPresenter(app, ctx, { INDUSTRIES, COUNTRIES, PERSONAS, sha
         <button class="btn secondary" data-act="p-notes">${icon('brief', 20)}${app.notesOpen ? 'Hide' : 'Show'} presenter notes</button>` : ''}
         <button class="btn secondary" data-act="p-assistant" id="p-assistant" aria-pressed="${app.assistantEnabled !== false}">${icon('ask', 20)}Assistant: ${app.assistantEnabled === false ? 'off. Show assistant' : 'on. Hide assistant'}</button>
         ${configured ? `<button class="btn secondary" data-act="p-chat-reset" id="p-chat-reset">${icon('route', 20)}Reset chat</button>` : ''}
+        <button class="btn secondary" data-act="open-csv-mapper">${icon('sync', 20)}Customer CSV column mapper</button>
+        <button class="btn secondary" data-act="open-roi-modal">${icon('brief', 20)}Executive pilot ROI modeler</button>
+        <button class="btn secondary" data-act="toggle-works-council">${icon('shield', 20)}${app.worksCouncilMode ? 'Disable' : 'Enable'} Works Council mode</button>
         <button class="btn secondary" data-act="p-setup">${icon('config', 20)}Open setup screen</button>
         ${configured ? `<hr>${app.confirmReset
     ? `<p class="small">Clear every decision, outcome and ${esc(ctx ? ctx.t('{order}') : 'order')} in ${esc(INDUSTRIES.find((i) => i.id === c.industryId)?.name || '')}, ${esc(COUNTRIES.find((x) => x.id === c.countryId)?.name || '')} and all other scenarios? The demo data itself stays the same.</p>

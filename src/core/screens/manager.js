@@ -3,6 +3,7 @@
 
 import { spark, performance } from './today.js';
 import { esc, icon, pill, initials, bar } from '../ui.js';
+import { renderWorksCouncilCard, maskRepName } from '../works-council.js';
 
 const KIND = { override: ['Override', 'info'], blocked: ['Blocked', 'bad'], approval: ['Pending approval', 'warn'] };
 
@@ -84,11 +85,14 @@ export function render(ctx) {
   const queue = shown.length ? shown.slice(0, EXC_SHOWN).map(excItem).join('') : `<li class="empty">No items need review here.</li>`;
   const queueRest = shown.length > EXC_SHOWN ? `<details class="exc-more"><summary>${esc(t('Show all {n}', { n: shown.length }))}</summary><ul class="group exceptions">${shown.slice(EXC_SHOWN).map(excItem).join('')}</ul></details>` : '';
 
-  const team = reps.map((r) => `<li class="row rep-row">
-    <span class="avatar">${esc(initials(r.name))}</span>
-    <span class="row-main"><b>${esc(r.name)}${r.self ? ' <small>(demo rep)</small>' : ''}</b>
+  const team = reps.map((r) => {
+    const dispName = maskRepName(r.name, ctx.app);
+    return `<li class="row rep-row">
+    <span class="avatar">${esc(initials(dispName))}</span>
+    <span class="row-main"><b>${esc(dispName)}${r.self ? ' <small>(demo rep)</small>' : ''}</b>
       <small>${esc(r.area)} · ${r.done} of ${r.planned} ${esc(t('{visits}'))} · ${r.actionsDone} actions · ${r.overrides} overrides</small></span>
-    <span class="row-end"><b class="money small">${esc(fmt.moneyShort(r.value))}</b><small>est. addressed</small></span></li>`).join('');
+    <span class="row-end"><b class="money small">${esc(fmt.moneyShort(r.value))}</b><small>est. addressed</small></span></li>`;
+  }).join('');
 
   // M4 Coverage: high-potential accounts not visited in N days, counting visits closed in this session.
   const N = 21;
@@ -119,6 +123,7 @@ export function render(ctx) {
 
   return `
   ${ui?.managerToast ? `<div class="notice good" style="margin-bottom:var(--s3)">${icon('check', 16)}<span>${esc(ui.managerToast)}</span></div>` : ''}
+  ${renderWorksCouncilCard(ctx.app || {}, ctx)}
   ${readinessBanner}
   <section class="page-head">
     <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px">
