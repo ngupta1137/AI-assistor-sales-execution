@@ -47,6 +47,8 @@ function readConfig() {
   if (lang && UI_LANGUAGES[lang]) {
     (app.ui ||= {}).lang = lang;
   }
+  const vp = q.get('vp');
+  if (['phone', 'tablet', 'desktop'].includes(vp)) app.vp = vp;
   if ((q.get('industry') || q.get('country')) && (!ind || !ctry)) {
     app.notice = 'That link has an unknown industry or country. Pick one below.';
   }
@@ -68,6 +70,7 @@ function writeUrl(hash) {
   }
   if (app.ui?.lang && app.ui.lang !== 'en') q.set('lang', app.ui.lang);
   if (app.assistantEnabled === false) q.set('assistant', 'off');
+  if (app.vp && app.vp !== 'phone') q.set('vp', app.vp);
   const qs = q.toString();
   const url = `${location.pathname}${qs ? `?${qs}` : ''}${hash ?? location.hash}`;
   history.replaceState(null, '', url);
@@ -81,6 +84,7 @@ export function shareLink() {
   if (c.color) q.set('color', c.color.replace('#', ''));
   if (app.ui?.lang && app.ui.lang !== 'en') q.set('lang', app.ui.lang);
   if (app.assistantEnabled === false) q.set('assistant', 'off');
+  if (app.vp && app.vp !== 'phone') q.set('vp', app.vp);
   return `${location.origin === 'null' ? 'file://' : location.origin}${location.pathname}?${q}`;
 }
 
@@ -216,6 +220,11 @@ export function render() {
   const side = document.getElementById('side');
   if (side) side.innerHTML = renderNotes(app, ctx);
   document.body.classList.toggle('notes-open', app.notesOpen && !!ctx);
+  const stage = document.querySelector('.stage');
+  if (stage) {
+    stage.setAttribute('data-viewport', app.vp || 'phone');
+    updateStageToolbar(app, stage);
+  }
   const scroller = document.getElementById('screen');
   if (scroller && app.scrollTop != null) { scroller.scrollTop = app.scrollTop; app.scrollTop = null; }
   if (scroller && fresh) scroller.classList.add('enter');
@@ -224,12 +233,44 @@ export function render() {
   afterRender(app);
 }
 
+function updateStageToolbar(app, stage) {
+  let bar = document.getElementById('stage-vp-bar');
+  if (!bar) {
+    bar = document.createElement('div');
+    bar.id = 'stage-vp-bar';
+    bar.className = 'stage-vp-bar';
+    bar.setAttribute('role', 'toolbar');
+    bar.setAttribute('aria-label', 'Device viewport mode');
+    stage.prepend(bar);
+  }
+  const vp = app.vp || 'phone';
+  bar.innerHTML = `
+    <button class="stage-vp-btn ${vp === 'phone' ? 'active' : ''}" data-act="set-vp" data-vp="phone" aria-pressed="${vp === 'phone'}" title="Mobile View (390px field phone frame)">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="2" width="14" height="20" rx="2" ry="2"/><line x1="12" y1="18" x2="12.01" y2="18"/></svg>
+      <span>Mobile</span>
+    </button>
+    <button class="stage-vp-btn ${vp === 'tablet' ? 'active' : ''}" data-act="set-vp" data-vp="tablet" aria-pressed="${vp === 'tablet'}" title="Tablet View (768px iPad frame)">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="2" width="16" height="20" rx="2" ry="2"/><line x1="12" y1="18" x2="12.01" y2="18"/></svg>
+      <span>Tablet</span>
+    </button>
+    <button class="stage-vp-btn ${vp === 'desktop' ? 'active' : ''}" data-act="set-vp" data-vp="desktop" aria-pressed="${vp === 'desktop'}" title="Web View (Enterprise portal)">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12.01" y2="21"/></svg>
+      <span>Web</span>
+    </button>
+  `;
+}
+
 function renderActingAsBar(ctx) {
   const roleKey = roleKeyOf(ctx.persona);
   const roleTitle = titleFor(ctx.industry, ctx.persona);
   if (ctx.app?.ui?.actingAsDismissed) {
     return `<div class="acting-as-bar dismissed">
       <button class="aa-chip" data-act="restore-acting-as" aria-label="Show role details">${icon('shield', 12)}<span>${esc(roleTitle)}</span><span class="muted">· permissions active</span></button>
+      <div class="vp-stepper" role="group" aria-label="Device viewport mode" style="display:inline-flex;align-items:center;gap:2px;margin-left:auto">
+        <button class="seg sm ${(ctx.app?.vp || 'phone') === 'phone' ? 'on' : ''}" data-act="set-vp" data-vp="phone" title="Mobile view (Phone)" style="min-height:var(--tap);min-width:var(--tap);font-size:11px">Mobile</button>
+        <button class="seg sm ${ctx.app?.vp === 'tablet' ? 'on' : ''}" data-act="set-vp" data-vp="tablet" title="Tablet view (iPad)" style="min-height:var(--tap);min-width:var(--tap);font-size:11px">Tablet</button>
+        <button class="seg sm ${ctx.app?.vp === 'desktop' ? 'on' : ''}" data-act="set-vp" data-vp="desktop" title="Web view (Desktop)" style="min-height:var(--tap);min-width:var(--tap);font-size:11px">Web</button>
+      </div>
     </div>`;
   }
   const allowed = ctx.industry.governance?.rights?.actions?.[roleKey] || [];
@@ -279,6 +320,11 @@ function renderActingAsBar(ctx) {
   return `<div class="acting-as-bar">
     <p class="aa-text">${icon('shield', 12)} <b>Acting as ${esc(roleTitle)}.</b> <span class="muted">Can ${esc(canText || "view assigned views")}. Cannot ${esc(cannotText || "modify governance rules")}.</span></p>
     <div class="aa-tools">
+      <div class="vp-stepper" role="group" aria-label="Device viewport mode" style="display:inline-flex;align-items:center;gap:2px">
+        <button class="seg sm ${(ctx.app?.vp || 'phone') === 'phone' ? 'on' : ''}" data-act="set-vp" data-vp="phone" title="Mobile view (Phone)" style="min-height:var(--tap);min-width:var(--tap);font-size:11px">Mobile</button>
+        <button class="seg sm ${ctx.app?.vp === 'tablet' ? 'on' : ''}" data-act="set-vp" data-vp="tablet" title="Tablet view (iPad)" style="min-height:var(--tap);min-width:var(--tap);font-size:11px">Tablet</button>
+        <button class="seg sm ${ctx.app?.vp === 'desktop' ? 'on' : ''}" data-act="set-vp" data-vp="desktop" title="Web view (Desktop)" style="min-height:var(--tap);min-width:var(--tap);font-size:11px">Web</button>
+      </div>
       <span class="font-stepper" role="group" aria-label="Text size">
         <button class="seg sm ${(ctx.app?.textSize || 'sm') === 'sm' ? 'on' : ''}" data-act="set-text-size" data-size="sm" title="Standard text size">A</button>
         <button class="seg sm ${ctx.app?.textSize === 'md' ? 'on' : ''}" data-act="set-text-size" data-size="md" title="Large text size">A+</button>
@@ -467,7 +513,7 @@ function handle(e, type) {
   const el = e.target.closest(`[data-${type}]`);
   if (!el) return;
   const name = el.dataset[type];
-  const fn = ACTIONS[name] || presenterActions[name] || syncActions[name] || rbacActions[name] || governanceActions[name] || labActions[name] || (name === 'set-vp' ? (({ app, data, api }) => { app.vp = data.vp; api.render(); }) : null);
+  const fn = ACTIONS[name] || presenterActions[name] || syncActions[name] || rbacActions[name] || governanceActions[name] || labActions[name] || (name === 'set-vp' ? (({ app, data, api }) => { app.vp = data.vp; api.syncUrl(); api.render(); }) : null);
   if (!fn) return;
   if (type === 'act' && el.tagName === 'A') e.preventDefault();
   const ctx = app.config ? buildContext(app.config.industryId, app.config.countryId) : null;

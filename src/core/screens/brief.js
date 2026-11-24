@@ -526,30 +526,49 @@ export function render(ctx, [accountId]) {
     ` : ''}
 
   </section>
-  <div style="display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap">
-    <button class="btn secondary sm" data-act="open-deck" style="flex:1;min-height:var(--tap);min-width:140px">${icon('screen', 16)} In-call pitch mode</button>
-    <button class="btn secondary sm" data-act="open-collateral" style="flex:1;min-height:var(--tap);min-width:140px">${icon('brief', 16)} Sales collateral</button>
-    <a class="btn secondary sm" href="#/account/${a.id}" style="flex:1;min-height:var(--tap);min-width:140px;display:flex;align-items:center;justify-content:center">${icon('note', 16)} ${esc(t('{Account} 360'))}</a>
-  </div>
 
-  <div class="counts tight" id="counts" aria-live="polite">
-    <span data-count="total"><b>${items.length}</b>Total</span>
-    <span data-count="approved"${bump('approved')}><b>${c.approved}</b>Approved</span>
-    <span data-count="adjusted"${bump('adjusted')}><b>${c.adjusted}</b>Adjusted</span>
-    <span data-count="overridden"${bump('overridden')}><b>${c.overridden}</b>Overridden</span>
-    <span data-count="pending"${bump('pending')}><b>${c.pending}</b>To review</span>
-  </div>
-  <p class="small muted tight guard">${esc(t('Reviewing this brief does not submit the {order}.'))}${c.paused ? ` ${c.paused} paused.` : ''}</p>
+  <div class="adaptive-grid brief-grid">
+    <div class="grid-primary">
+      <div class="counts tight" id="counts" aria-live="polite">
+        <span data-count="total"><b>${items.length}</b>Total</span>
+        <span data-count="approved"${bump('approved')}><b>${c.approved}</b>Approved</span>
+        <span data-count="adjusted"${bump('adjusted')}><b>${c.adjusted}</b>Adjusted</span>
+        <span data-count="overridden"${bump('overridden')}><b>${c.overridden}</b>Overridden</span>
+        <span data-count="pending"${bump('pending')}><b>${c.pending}</b>To review</span>
+      </div>
+      <p class="small muted tight guard">${esc(t('Reviewing this brief does not submit the {order}.'))}${c.paused ? ` ${c.paused} paused.` : ''}</p>
 
-  <div class="items tight">${items.map((it, idx) => renderItem(ctx, it, it === firstPending, a, idx)).join('')}</div>
-  ${mergePanel(ctx, a.id)}
-  ${fieldNotices(ctx, a.id)}
+      <div class="items tight">${items.map((it, idx) => renderItem(ctx, it, it === firstPending, a, idx)).join('')}</div>
+      ${mergePanel(ctx, a.id)}
+      ${fieldNotices(ctx, a.id)}
 
-  <div class="btn-row">
-    ${c.pending > 0 ? `<button class="btn secondary block" data-act="approve-all" data-id="${a.id}">Approve all remaining (${c.pending})</button>` : ''}
-    <a class="btn secondary" style="flex:1" href="#/account/${a.id}">${esc(t('{Account} 360'))}</a>
-    <a class="btn secondary" style="flex:1" href="#/order/${a.id}">${esc(t('Open {order}'))}</a>
-    <a class="btn primary block" href="#/complete/${a.id}" id="finish-visit">${esc(t('Finish {visit}'))}</a>
+      <div class="btn-row">
+        ${c.pending > 0 ? `<button class="btn secondary block" data-act="approve-all" data-id="${a.id}">Approve all remaining (${c.pending})</button>` : ''}
+        <a class="btn secondary" style="flex:1" href="#/account/${a.id}">${esc(t('{Account} 360'))}</a>
+        <a class="btn secondary" style="flex:1" href="#/order/${a.id}">${esc(t('Open {order}'))}</a>
+        <a class="btn primary block" href="#/complete/${a.id}" id="finish-visit">${esc(t('Finish {visit}'))}</a>
+      </div>
+    </div>
+
+    <div class="grid-secondary">
+      <div class="card tight brief-context-card" style="margin-bottom:var(--s3)">
+        <div class="section-head" style="margin-bottom:6px">
+          <b>Commercial context</b>
+          ${pill('Active', 'good')}
+        </div>
+        <div class="facts" style="grid-template-columns:repeat(2,minmax(0,1fr));gap:6px;margin-bottom:8px">
+          <div><small>Planned visit</small><b>${a.visitMinutes} min</b></div>
+          <div><small>Tier</small><b>Tier ${a.tier}</b></div>
+          <div><small>Lead contact</small><b>${esc(contact.name)}</b></div>
+          <div><small>Role</small><b>${esc(t(contact.role))}</b></div>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:6px">
+          <button class="btn secondary sm" data-act="open-deck" style="min-height:var(--tap);width:100%">${icon('screen', 16)} In-call pitch mode</button>
+          <button class="btn secondary sm" data-act="open-collateral" style="min-height:var(--tap);width:100%">${icon('brief', 16)} Sales collateral</button>
+          <a class="btn secondary sm" href="#/account/${a.id}" style="min-height:var(--tap);display:flex;align-items:center;justify-content:center">${icon('note', 16)} ${esc(t('{Account} 360'))}</a>
+        </div>
+      </div>
+    </div>
   </div>
   <p class="foot-note">Rule-based scoring on generated data. Confidence describes the rules, not a chance of a sale.</p>`;
 }
