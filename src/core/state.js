@@ -3,10 +3,14 @@
 // industry + country, so switching packs and back keeps the story intact.
 
 import { localPrice } from '../data/generate.js';
+import { getAppStorage } from './storage/storage-adapter.js';
 
 const sessions = new Map();
 
-export function resetSessions() { sessions.clear(); }
+export function resetSessions() {
+  sessions.clear();
+  getAppStorage().clear();
+}
 
 function newSession() {
   return {
@@ -32,8 +36,32 @@ function newSession() {
 }
 
 export function getSession(key) {
-  if (!sessions.has(key)) sessions.set(key, newSession());
-  return sessions.get(key);
+  if (sessions.has(key)) return sessions.get(key);
+  const storage = getAppStorage();
+  const serialized = storage.getItem(`session_${key}`);
+  if (serialized) {
+    try {
+      const parsed = JSON.parse(serialized);
+      sessions.set(key, parsed);
+      return parsed;
+    } catch {
+      // Fallback on parse failure
+    }
+  }
+  const s = newSession();
+  sessions.set(key, s);
+  return s;
+}
+
+export function persistSession(key) {
+  const s = sessions.get(key);
+  if (s) {
+    try {
+      getAppStorage().setItem(`session_${key}`, JSON.stringify(s));
+    } catch {
+      // Ignore serialization issues
+    }
+  }
 }
 
 /** Minutes after midnight, for timestamps shown in the exception queue. */
