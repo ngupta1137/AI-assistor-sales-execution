@@ -138,7 +138,8 @@ export function render(ctx, [accountId]) {
     <div style="display:flex;gap:12px;flex-wrap:wrap;margin:4px 0 6px;font-size:11px;color:var(--muted)">
       <span>${icon('sync', 12)} CRM ID: ACC-${10000 + (a.name.length * 47) % 90000}</span>
       <span>${icon('note', 12)} ERP Master: KNA1-${20000 + (a.name.length * 83) % 90000}</span>
-      <span>${icon('check', 12)} Terms: Approved 30-day</span>
+      <span>${icon('check', 12)} Channel: ${esc(ctx.channelInfo?.short || 'MT')} (${esc(ctx.rtmInfo?.short || 'DSD')})</span>
+      <span>${icon('check', 12)} Terms: ${esc(ctx.channelInfo?.commercialTerms || 'Approved 30-day')}</span>
     </div>
     <p class="small">${esc(a.address)} · Open ${esc(fmt.time(a.hours[0]))} to ${esc(fmt.time(a.hours[1]))} · ${last === 0 ? esc(t('Visited today')) : `last ${esc(t('{visit}'))} ${esc(fmt.daysAgo(last))}`}</p>
     <div style="margin-top:10px">

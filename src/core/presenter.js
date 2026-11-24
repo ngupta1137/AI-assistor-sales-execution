@@ -38,6 +38,19 @@ export function renderPresenter(app, ctx, { INDUSTRIES, COUNTRIES, PERSONAS, sha
         </select></label>
       <label class="field"><span>Persona</span>
         <select data-change="p-persona" id="p-persona">${avail.map((p) => `<option value="${p}"${p === c.persona ? ' selected' : ''}>${personaName[p]}</option>`).join('')}</select></label>
+      <label class="field"><span>Trade channel</span>
+        <select data-change="p-channel" id="p-channel">
+          <option value="modern"${(c.channel || 'modern') === 'modern' ? ' selected' : ''}>Modern Trade (Organized / Key Accounts)</option>
+          <option value="traditional"${c.channel === 'traditional' ? ' selected' : ''}>Traditional Trade (Independent / High Frequency)</option>
+        </select></label>
+      <label class="field"><span>Route-to-Market (RTM)</span>
+        <select data-change="p-rtm" id="p-rtm">
+          <option value="dsd"${(c.rtm || 'dsd') === 'dsd' ? ' selected' : ''}>DSD (Direct Field Delivery)</option>
+          <option value="non_dsd"${c.rtm === 'non_dsd' ? ' selected' : ''}>Non-DSD (Central DC Order Booking)</option>
+          <option value="distributor"${c.rtm === 'distributor' ? ' selected' : ''}>Distributor-Led (Secondary Distribution)</option>
+          <option value="direct"${c.rtm === 'direct' ? ' selected' : ''}>Direct (Enterprise Direct-to-Account)</option>
+          <option value="eb2b"${c.rtm === 'eb2b' ? ' selected' : ''}>eB2B (Digital Assisted Commerce)</option>
+        </select></label>
       <label class="field"><span>Language</span>
         <select data-change="p-language" id="p-language">
           <option value="en"${(app.ui?.lang || 'en') === 'en' ? ' selected' : ''}>English</option>
@@ -65,6 +78,9 @@ export function renderPresenter(app, ctx, { INDUSTRIES, COUNTRIES, PERSONAS, sha
         <button class="btn secondary" data-act="p-notes">${icon('brief', 20)}${app.notesOpen ? 'Hide' : 'Show'} presenter notes</button>` : ''}
         <button class="btn secondary" data-act="p-assistant" id="p-assistant" aria-pressed="${app.assistantEnabled !== false}">${icon('ask', 20)}Assistant: ${app.assistantEnabled === false ? 'off. Show assistant' : 'on. Hide assistant'}</button>
         ${configured ? `<button class="btn secondary" data-act="p-chat-reset" id="p-chat-reset">${icon('route', 20)}Reset chat</button>` : ''}
+        <button class="btn secondary" data-act="open-csv-mapper">${icon('sync', 20)}Customer CSV column mapper</button>
+        <button class="btn secondary" data-act="open-roi-modal">${icon('brief', 20)}Executive pilot ROI modeler</button>
+        <button class="btn secondary" data-act="toggle-works-council">${icon('shield', 20)}${app.worksCouncilMode ? 'Disable' : 'Enable'} Works Council mode</button>
         <button class="btn secondary" data-act="p-setup">${icon('config', 20)}Open setup screen</button>
         ${configured ? `<hr>${app.confirmReset
     ? `<p class="small">Clear every decision, outcome and ${esc(ctx ? ctx.t('{order}') : 'order')} in ${esc(INDUSTRIES.find((i) => i.id === c.industryId)?.name || '')}, ${esc(COUNTRIES.find((x) => x.id === c.countryId)?.name || '')} and all other scenarios? The demo data itself stays the same.</p>
@@ -112,6 +128,20 @@ export const presenterActions = {
   },
   'p-language': ({ app, value, api }) => {
     (app.ui ||= {}).lang = value;
+    api.render();
+  },
+  'p-channel': ({ value, app, api }) => {
+    if (!app.config) return;
+    app.config.channel = value;
+    if (app.cache) app.cache.clear();
+    api.syncUrl();
+    api.render();
+  },
+  'p-rtm': ({ value, app, api }) => {
+    if (!app.config) return;
+    app.config.rtm = value;
+    if (app.cache) app.cache.clear();
+    api.syncUrl();
     api.render();
   },
 

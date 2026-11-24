@@ -22,8 +22,13 @@ import { renderAssistant, syncContext, afterRender, onKeydown, newAssistantState
 import { LIVE_ENABLED } from './assistant/provider.js';
 import { PERSONAS, HOME, NAV, roleKey as roleKeyOf, titleFor, personFor, validPersona } from './personas.js';
 import { UI_LANGUAGES, getActiveLang, isRtl, tr } from './i18n.js';
+import { getChannel, getRtm } from './channels.js';
+import { renderCsvMapperModal, csvMapperActions } from './screens/csv-mapper.js';
+import { renderRoiModal, roiModelerActions } from './screens/roi-modeler.js';
+import { worksCouncilActions } from './works-council.js';
 
 export { PERSONAS, HOME };
+export { getChannel, getRtm } from './channels.js';
 export { getDataProvider, setDataProvider } from './data/data-provider.js';
 export { getTenantManager, setTenantManager } from './tenant/tenant-config.js';
 export { getAuthManager, setAuthManager } from './auth/auth-manager.js';
@@ -63,7 +68,10 @@ function readConfig() {
   if (!ind || !ctry) return null;
   const prepared = (q.get('prepared') || '').slice(0, 40);
   const color = HEX.test(q.get('color') || '') ? `#${q.get('color').replace('#', '')}` : '';
-  return { industryId: ind.id, countryId: ctry.id, persona, prepared, color };
+  const channel = q.get('channel') === 'traditional' ? 'traditional' : 'modern';
+  const rtmParam = q.get('rtm');
+  const rtm = ['dsd', 'non_dsd', 'distributor', 'direct', 'eb2b'].includes(rtmParam) ? rtmParam : 'dsd';
+  return { industryId: ind.id, countryId: ctry.id, persona, prepared, color, channel, rtm };
 }
 
 function writeUrl(hash) {
@@ -75,6 +83,8 @@ function writeUrl(hash) {
     q.set('persona', c.persona);
     if (c.prepared) q.set('prepared', c.prepared);
     if (c.color) q.set('color', c.color.replace('#', ''));
+    if (c.channel && c.channel !== 'modern') q.set('channel', c.channel);
+    if (c.rtm && c.rtm !== 'dsd') q.set('rtm', c.rtm);
   }
   if (app.ui?.lang && app.ui.lang !== 'en') q.set('lang', app.ui.lang);
   if (app.assistantEnabled === false) q.set('assistant', 'off');
@@ -90,6 +100,8 @@ export function shareLink() {
   const q = new URLSearchParams({ industry: c.industryId, country: c.countryId, persona: c.persona });
   if (c.prepared) q.set('prepared', c.prepared);
   if (c.color) q.set('color', c.color.replace('#', ''));
+  if (c.channel) q.set('channel', c.channel);
+  if (c.rtm) q.set('rtm', c.rtm);
   if (app.ui?.lang && app.ui.lang !== 'en') q.set('lang', app.ui.lang);
   if (app.assistantEnabled === false) q.set('assistant', 'off');
   if (app.vp && app.vp !== 'phone') q.set('vp', app.vp);
@@ -99,7 +111,9 @@ export function shareLink() {
 /** Context for one industry + country. Cached so switching back is instant. */
 export function buildContext(industryId, countryId, explicitLang) {
   const lang = explicitLang || app.ui?.lang || getActiveLang(app, countryId);
-  const key = `${industryId}|${countryId}|${lang || 'en'}`;
+  const channel = app.config?.channel || 'modern';
+  const rtm = app.config?.rtm || 'dsd';
+  const key = `${industryId}|${countryId}|${lang || 'en'}|${channel}|${rtm}`;
   if (app.cache.has(key)) return app.cache.get(key);
   const industry = findIndustry(industryId);
   const country = findCountry(countryId);
@@ -108,6 +122,10 @@ export function buildContext(industryId, countryId, explicitLang) {
   const data = getDataProvider().loadTerritory(industry, country, { fmt });
   const rawCtx = { industry, country, t, fmt, data, lang };
   const ctx = getTenantManager().applyTenantOverrides(rawCtx);
+  ctx.channel = channel;
+  ctx.rtm = rtm;
+  ctx.channelInfo = getChannel(channel);
+  ctx.rtmInfo = getRtm(rtm);
   ctx.m = createModel(ctx);
   // Companion data exists only for packs (and countries) that define Companion content.
   ctx.comp = industry.companion && country.publicHolidays ? generateCompanion(ctx) : null;
@@ -254,7 +272,7 @@ export function render() {
   document.body.classList.remove('text-size-sm', 'text-size-md', 'text-size-lg');
   document.body.classList.add(`text-size-${app.textSize || 'sm'}`);
   document.body.classList.toggle('simple-view', !!app.simpleView);
-  root.innerHTML = html + renderAssistant(app, ctx, { name: ctx ? (SCREENS[route.name] && route.name !== 'setup' ? route.name : HOME[ctx.persona]) : 'setup' }) + renderPresenter(app, ctx, { INDUSTRIES, COUNTRIES, PERSONAS, shareLink: shareLink() }) + renderSyncModal(app, ctx) + renderRightsModal(app, ctx) + renderGuideModal(app, ctx) + renderTryCase(app, ctx) + renderLabModal(app, ctx);
+  root.innerHTML = html + renderAssistant(app, ctx, { name: ctx ? (SCREENS[route.name] && route.name !== 'setup' ? route.name : HOME[ctx.persona]) : 'setup' }) + renderPresenter(app, ctx, { INDUSTRIES, COUNTRIES, PERSONAS, shareLink: shareLink() }) + renderSyncModal(app, ctx) + renderRightsModal(app, ctx) + renderGuideModal(app, ctx) + renderTryCase(app, ctx) + renderLabModal(app, ctx) + renderCsvMapperModal(app, ctx) + renderRoiModal(app, ctx);
   const side = document.getElementById('side');
   if (side) side.innerHTML = renderNotes(app, ctx);
   document.body.classList.toggle('notes-open', app.notesOpen && !!ctx);
@@ -526,12 +544,26 @@ const rbacActions = {
   "toggle-theme": ({ app }) => { app.theme = isDarkTheme() ? 'light' : 'dark'; saveTheme(app.theme); applyTheme(app.config ? buildContext(app.config.industryId, app.config.countryId) : null); },
   "dismiss-acting-as": ({ app }) => { (app.ui ||= {}).actingAsDismissed = true; },
   "restore-acting-as": ({ app }) => { if (app.ui) app.ui.actingAsDismissed = false; },
+  "switch-channel": ({ app, data, api }) => {
+    if (!app.config) return;
+    app.config.channel = data.channel;
+    if (app.cache) app.cache.clear();
+    api.syncUrl();
+    api.render();
+  },
+  "switch-rtm": ({ app, data, api }) => {
+    if (!app.config) return;
+    app.config.rtm = data.rtm;
+    if (app.cache) app.cache.clear();
+    api.syncUrl();
+    api.render();
+  },
 };
 function handle(e, type) {
   const el = e.target.closest(`[data-${type}]`);
   if (!el) return;
   const name = el.dataset[type];
-  const fn = ACTIONS[name] || presenterActions[name] || syncActions[name] || rbacActions[name] || governanceActions[name] || labActions[name] || (name === 'set-vp' ? (({ app, data, api }) => { app.vp = data.vp; api.syncUrl(); api.render(); }) : null);
+  const fn = ACTIONS[name] || presenterActions[name] || syncActions[name] || csvMapperActions[name] || roiModelerActions[name] || worksCouncilActions[name] || rbacActions[name] || governanceActions[name] || labActions[name] || (name === 'set-vp' ? (({ app, data, api }) => { app.vp = data.vp; api.syncUrl(); api.render(); }) : null);
   if (!fn) return;
   if (type === 'act' && el.tagName === 'A') e.preventDefault();
   const ctx = app.config ? buildContext(app.config.industryId, app.config.countryId) : null;

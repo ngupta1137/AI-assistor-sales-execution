@@ -1,0 +1,64 @@
+version: '3.8'
+
+services:
+  # 1. Frontend Web Client (PWA)
+  web:
+    image: nginx:alpine
+    container_name: ai-assistor-web
+    restart: unless-stopped
+    ports:
+      - "8080:80"
+    volumes:
+      - ./docs:/usr/share/nginx/html:ro
+      - ./nginx.conf:/etc/nginx/conf.d/default.conf:ro
+    depends_on:
+      - api
+
+  # 2. Enterprise REST API Backend
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: ai-assistor-api
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_ENV=production
+      - PORT=3000
+      - HOST=0.0.0.0
+      - JWT_SECRET=production-secret-change-me-in-vault
+      - DATABASE_URL=postgres://assistor_user:assistor_secret@db:5440/assistor_db
+      - REDIS_URL=redis://cache:6379
+    depends_on:
+      - db
+      - cache
+
+  # 3. PostgreSQL 16 with Row-Level Security
+  db:
+    image: postgres:16-alpine
+    container_name: ai-assistor-db
+    restart: unless-stopped
+    environment:
+      - POSTGRES_DB=assistor_db
+      - POSTGRES_USER=assistor_user
+      - POSTGRES_PASSWORD=assistor_secret
+    ports:
+      - "5440:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+      - ./server/src/db/schema.sql:/docker-entrypoint-initdb.d/01-schema.sql:ro
+
+  # 4. Redis Distributed Session Cache
+  cache:
+    image: redis:7-alpine
+    container_name: ai-assistor-cache
+    restart: unless-stopped
+    ports:
+      - "6380:6379"
+    volumes:
+      - redisdata:/data
+
+volumes:
+  pgdata:
+  redisdata:

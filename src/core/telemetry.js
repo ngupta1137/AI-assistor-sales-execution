@@ -4,7 +4,7 @@ import { rolePanel } from './role-panel.js';
 
 import { esc, icon, pill, initials } from './ui.js';
 import { PERSONA_INFO, personasFor, personFor } from './personas.js';
-import { getDataProvider, setDataProvider, CustomerDataProvider, SyntheticDataProvider } from './data/data-provider.js';
+import { getDataProvider, setDataProvider, CustomerDataProvider, SyntheticDataProvider, RemoteApiDataProvider } from './data/data-provider.js';
 import { getTenantManager } from './tenant/tenant-config.js';
 import { getSession } from './state.js';
 
@@ -255,6 +255,27 @@ export function renderSyncModal(app, ctx) {
             </div>
           </div>
 
+          <!-- Live Real-Time External Webhook Dispatcher -->
+          <div style="margin-top:10px;padding:8px 10px;background:var(--surface-subtle);border:1px solid var(--line);border-radius:6px">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px">
+              <b style="font-size:11px">Live External Webhook Dispatcher:</b>
+              ${app.ui?.webhookStatus ? pill(app.ui.webhookStatus, app.ui.webhookOk ? 'good' : 'warn') : pill('Ready', 'info')}
+            </div>
+            <p class="small muted" style="margin:0 0 6px 0;font-size:10px">
+              Dispatch real-time HTTP POST webhooks to any external HTTPS URL (e.g. Webhook.site, Zapier, or customer staging).
+            </p>
+            <div style="display:flex;gap:4px;margin-bottom:6px">
+              <input type="url" id="live-webhook-url" class="input" style="flex:1;font-size:11px;padding:4px 6px" placeholder="https://webhook.site/your-unique-endpoint" value="${esc(app.ui?.webhookUrl || '')}" data-change="set-webhook-url">
+              <button class="btn primary sm" data-act="dispatch-live-webhook" style="min-height:28px;font-size:11px">
+                ${icon('sync', 12)} Send Live Webhook
+              </button>
+            </div>
+            ${app.ui?.webhookLog ? `
+              <div style="font-size:10px;font-family:monospace;padding:4px 6px;background:var(--surface-inset);border-radius:4px;border:1px solid var(--line-soft);color:var(--ink)">
+                ${esc(app.ui.webhookLog)}
+              </div>` : ''}
+          </div>
+
           ${app.ui?.gwToast ? `<div class="notice good" style="margin-top:10px">${icon('check', 14)}<span>${esc(app.ui.gwToast)}</span></div>` : ''}
         </section>
       ` : ''}
@@ -382,14 +403,20 @@ export function renderSyncModal(app, ctx) {
           </p>
 
           <div class="facts" style="grid-template-columns:repeat(auto-fit,minmax(80px,1fr));margin-bottom:10px">
-            <div><small>Data Provider</small><b>${ctx?.data?.isPoCActive ? 'Customer' : 'Synthetic'}</b></div>
+            <div><small>Data Provider</small><b>${ctx?.data?.isRemoteActive ? 'Cloud API' : ctx?.data?.isPoCActive ? 'Customer' : 'Synthetic'}</b></div>
             <div><small>Storage Layer</small><b class="good-text">Persistent</b></div>
             <div><small>Logged Decisions</small><b>${Object.keys(getSession(ctx?.data?.seedKey || '').decisions || {}).length} records</b></div>
           </div>
 
           <div style="display:flex;flex-direction:column;gap:8px;margin-bottom:12px">
-            <button class="btn primary sm" data-act="load-sample-poc-data" style="min-height:var(--tap);width:100%">
+            <button class="btn primary sm" data-act="open-csv-mapper" style="min-height:var(--tap);width:100%">
+              ${icon('sync', 14)} Launch Visual CSV Column Mapper
+            </button>
+            <button class="btn secondary sm" data-act="load-sample-poc-data" style="min-height:var(--tap);width:100%">
               ${icon('sync', 14)} Load Sample Client PoC Dataset
+            </button>
+            <button class="btn secondary sm" data-act="connect-remote-api" style="min-height:var(--tap);width:100%">
+              ${icon('sync', 14)} Connect Enterprise Cloud API (/api/v1)
             </button>
             <button class="btn secondary sm" data-act="revert-synthetic-data" style="min-height:var(--tap);width:100%">
               ${icon('config', 14)} Revert to Synthetic Demonstration Data
@@ -535,6 +562,51 @@ export const syncActions = {
   'rotate-sso-token': ({ app }) => {
     (app.ui ||= {}).ssoToast = 'Enterprise session token rotated. Cryptographic SHA-256 signature renewed.';
   },
+  'set-webhook-url': ({ app, value }) => {
+    (app.ui ||= {}).webhookUrl = value.trim();
+  },
+  'dispatch-live-webhook': async ({ app, ctx }) => {
+    const inputEl = document.getElementById('live-webhook-url');
+    const url = (inputEl ? inputEl.value : app.ui?.webhookUrl) || 'https://httpbin.org/post';
+    app.ui ||= {};
+    app.ui.webhookUrl = url;
+    const payload = {
+      event: 'order.created',
+      timestamp: new Date().toISOString(),
+      tenantId: ctx?.tenantId || 'acme-global',
+      industry: ctx?.industry?.id || 'cpg',
+      country: ctx?.country?.id || 'US',
+      samplePayload: true,
+      data: {
+        orderId: `ORD-${Date.now().toString().slice(-6)}`,
+        total: 3750,
+        currency: ctx?.country?.currency || 'USD',
+        rep: ctx?.data?.rep?.name || 'Field Representative',
+      },
+    };
+    try {
+      const t0 = Date.now();
+      const res = await fetch(url, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+      });
+      const t1 = Date.now();
+      const latency = Math.round(t1 - t0);
+      app.ui.webhookOk = res.ok;
+      app.ui.webhookStatus = `${res.status} ${res.statusText || 'OK'} (${latency} ms)`;
+      app.ui.webhookLog = `HTTP ${res.status} in ${latency}ms -> ${url}`;
+      app.ui.gwToast = `Live webhook successfully delivered (${res.status} OK in ${latency}ms).`;
+      if (ctx?.m?.logAudit) {
+        ctx.m.logAudit('Live Integration', `Dispatched live HTTP webhook to ${url} (status: ${res.status})`);
+      }
+    } catch (err) {
+      app.ui.webhookOk = false;
+      app.ui.webhookStatus = 'Connection Error';
+      app.ui.webhookLog = `Error dispatching to ${url}: ${err.message}`;
+      app.ui.gwToast = `Webhook dispatch failed: ${err.message}`;
+    }
+  },
 
   'toggle-conflict-sim': ({ app }) => {
     (app.ui ||= {}).conflictSimOpen = !app.ui.conflictSimOpen;
@@ -592,6 +664,15 @@ export const syncActions = {
     app.ui.pocToast = 'Client PoC dataset loaded with 4 accounts and 4 offerings. Session persisted.';
     if (ctx?.m?.logAudit) {
       ctx.m.logAudit('PoC Ingestion', 'Loaded client PoC customer dataset with local storage persistence.');
+    }
+  },
+  'connect-remote-api': ({ app, ctx }) => {
+    const provider = new RemoteApiDataProvider('/api/v1', { tenantId: 'tenant-acme-global' });
+    setDataProvider(provider);
+    if (app.cache) app.cache.clear();
+    app.ui.pocToast = 'Connected to Enterprise Cloud API endpoint (/api/v1).';
+    if (ctx?.m?.logAudit) {
+      ctx.m.logAudit('Cloud Integration', 'Switched data provider to Enterprise Remote API mode (/api/v1).');
     }
   },
   'revert-synthetic-data': ({ app, ctx }) => {

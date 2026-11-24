@@ -6,7 +6,7 @@ import { UI_LANGUAGES, getActiveLang, tr } from '../i18n.js';
 
 export function render({ app, INDUSTRIES, COUNTRIES, buildContext }) {
   const s = app.ui.setup || (app.ui.setup = {
-    industry: app.config?.industryId || '', country: app.config?.countryId || '', persona: app.config?.persona || 'rep', prepared: app.config?.prepared || '', color: app.config?.color || '',
+    industry: app.config?.industryId || '', country: app.config?.countryId || '', persona: app.config?.persona || 'rep', prepared: app.config?.prepared || '', color: app.config?.color || '', channel: app.config?.channel || 'modern', rtm: app.config?.rtm || 'dsd',
   });
   const ready = s.industry && s.country;
   const activeLang = app.ui?.lang || getActiveLang(app, s.country);
@@ -57,6 +57,37 @@ export function render({ app, INDUSTRIES, COUNTRIES, buildContext }) {
       <section><h2 class="setup-step">${esc(tr('Industry', activeLang))}</h2><ul class="choice-list tiles">${tiles}</ul></section>
       <section><h2 class="setup-step">${esc(tr('Country', activeLang))}</h2><div class="chips">${countries}</div></section>
       <section><h2 class="setup-step">${esc(tr('Role', activeLang))}</h2><div class="personas">${personas}</div></section>
+      <section>
+        <h2 class="setup-step">Trade Channel</h2>
+        <div class="chips" role="radiogroup" aria-label="Trade Channel">
+          <button class="chip${(s.channel || 'modern') === 'modern' ? ' on' : ''}" data-act="setup-channel" data-channel="modern" aria-pressed="${(s.channel || 'modern') === 'modern'}">
+            <b>Modern Trade</b><small>Key Accounts · JBP · DC Delivery</small>
+          </button>
+          <button class="chip${s.channel === 'traditional' ? ' on' : ''}" data-act="setup-channel" data-channel="traditional" aria-pressed="${s.channel === 'traditional'}">
+            <b>Traditional Trade</b><small>High Frequency · Cash &amp; Carry</small>
+          </button>
+        </div>
+      </section>
+      <section>
+        <h2 class="setup-step">RTM Archetype</h2>
+        <div class="chips" role="radiogroup" aria-label="RTM Archetype">
+          <button class="chip${(s.rtm || 'dsd') === 'dsd' ? ' on' : ''}" data-act="setup-rtm" data-rtm="dsd" aria-pressed="${(s.rtm || 'dsd') === 'dsd'}">
+            <b>DSD</b><small>Direct Field Delivery</small>
+          </button>
+          <button class="chip${s.rtm === 'non_dsd' ? ' on' : ''}" data-act="setup-rtm" data-rtm="non_dsd" aria-pressed="${s.rtm === 'non_dsd'}">
+            <b>Non-DSD</b><small>Central Warehouse</small>
+          </button>
+          <button class="chip${s.rtm === 'distributor' ? ' on' : ''}" data-act="setup-rtm" data-rtm="distributor" aria-pressed="${s.rtm === 'distributor'}">
+            <b>Distributor</b><small>Secondary Sales</small>
+          </button>
+          <button class="chip${s.rtm === 'direct' ? ' on' : ''}" data-act="setup-rtm" data-rtm="direct" aria-pressed="${s.rtm === 'direct'}">
+            <b>Direct</b><small>Corporate D2A</small>
+          </button>
+          <button class="chip${s.rtm === 'eb2b' ? ' on' : ''}" data-act="setup-rtm" data-rtm="eb2b" aria-pressed="${s.rtm === 'eb2b'}">
+            <b>eB2B</b><small>Digital Assisted</small>
+          </button>
+        </div>
+      </section>
       <details ${s.prepared || s.color ? 'open' : ''}><summary>Prepared for (optional)</summary>
         <label class="field">Prospect name, shown as Prepared for
           <input class="input" type="text" maxlength="40" value="${esc(s.prepared)}" data-change="setup-prepared" id="setup-prepared"></label>
@@ -115,6 +146,8 @@ export const actions = {
   'setup-industry': ({ app, data }) => { app.ui.setup.industry = data.id; },
   'setup-country': ({ app, data }) => { app.ui.setup.country = data.id; },
   'setup-persona': ({ app, data }) => { app.ui.setup.persona = data.id; },
+  'setup-channel': ({ app, data, api }) => { app.ui.setup.channel = data.channel; api.render(); },
+  'setup-rtm': ({ app, data, api }) => { app.ui.setup.rtm = data.rtm; api.render(); },
   'setup-prepared': ({ app, value }) => { app.ui.setup.prepared = value.trim().slice(0, 40); },
   'setup-color': ({ app, value }) => { if (/^#[0-9a-fA-F]{6}$/.test(value)) app.ui.setup.color = value; },
   'setup-color-reset': ({ app }) => { app.ui.setup.color = ''; },
@@ -122,7 +155,15 @@ export const actions = {
     const s = app.ui.setup;
     if (!s.industry || !s.country) return false;
     app.notice = '';
-    api.configure({ industryId: s.industry, countryId: s.country, persona: s.persona, prepared: s.prepared, color: s.color }, { home: true });
+    api.configure({
+      industryId: s.industry,
+      countryId: s.country,
+      persona: s.persona,
+      prepared: s.prepared,
+      color: s.color,
+      channel: s.channel || 'modern',
+      rtm: s.rtm || 'dsd',
+    }, { home: true });
     return 'nav';
   },
 };

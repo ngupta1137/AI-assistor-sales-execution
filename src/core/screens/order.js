@@ -109,6 +109,27 @@ export function render(ctx, [accountId]) {
     <p style="margin-top:8px">${agentTag('order')}</p>
     <p class="small muted" style="margin-top:8px">${esc(t(`Draft with ${lines.length} suggested lines. Change any quantity. Nothing is sent until you submit.`))}</p>
   </section>
+
+  <!-- RTM Archetype & Trade Channel Fulfillment Header -->
+  <div class="card tight" style="margin:10px 0;background:var(--surface-subtle);border-left:3px solid var(--accent);padding:10px 12px">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;flex-wrap:wrap;gap:6px">
+      <div style="display:flex;align-items:center;gap:6px">
+        <span class="badge sm" style="background:var(--accent-tint,#e0f2fe);color:var(--accent-ink,#0369a1);font-weight:700;font-size:11px;padding:2px 6px;border-radius:4px">
+          ${esc(ctx.channelInfo?.badge || 'Modern Trade')}
+        </span>
+        <span class="badge sm" style="background:var(--surface);border:1px solid var(--line);font-weight:700;font-size:11px;padding:2px 6px;border-radius:4px">
+          ${esc(ctx.rtmInfo?.badge || 'DSD')}
+        </span>
+      </div>
+      <span class="good-text" style="font-size:11px;font-weight:600">${esc(ctx.rtmInfo?.orderLeadTime || 'Immediate')}</span>
+    </div>
+    <div style="font-size:12px;font-weight:600;color:var(--ink);margin-bottom:2px">
+      ${esc(ctx.rtmInfo?.fulfillmentMode || 'Off-Truck Delivery')}
+    </div>
+    <div class="small muted" style="font-size:11px;line-height:1.4">
+      ${esc(ctx.rtmInfo?.fulfillmentDetails || '')} · <b>Terms:</b> ${esc(ctx.channelInfo?.commercialTerms || 'Standard Terms')}
+    </div>
+  </div>
   ${stopped && !st.submitted ? `<div class="notice warn">${icon('stop', 18)}<span>${esc(t('Order agent stopped. You can edit this draft. Submission is paused.'))}</span></div>` : ''}
   <div style="display:flex;justify-content:space-between;align-items:center;margin-top:12px;margin-bottom:8px;gap:8px;flex-wrap:wrap">
     <h2 style="margin:0">Suggested lines</h2>
