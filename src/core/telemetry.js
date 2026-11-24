@@ -1,3 +1,4 @@
+import { rolePanel } from './role-panel.js';
 // Enterprise Integration & System Telemetry modal.
 // Bi-Directional CRM & ERP Gateway Simulator, Payload Inspection, Conflict Resolution, Offline Durability & Identity.
 
@@ -74,7 +75,7 @@ export function renderSyncModal(app, ctx) {
     <header class="as-head" style="align-items:center">
       <div>
         <h2 id="sync-title" style="display:flex;align-items:center;gap:8px">
-          ${icon('sync', 20)} Enterprise Integration &amp; Gateway Simulator
+          ${icon('sync', 20)} Profile and integrations
         </h2>
         <small>Bi-directional CRM &amp; ERP synchronization with deterministic conflict resolution</small>
       </div>
@@ -107,7 +108,8 @@ export function renderSyncModal(app, ctx) {
               ${personasFor(ctx.industry).map((p) => `<button class="seg ${ctx.persona === p ? 'on' : ''}" data-act="switch-persona" data-persona="${p}" role="tab" aria-selected="${ctx.persona === p}" style="min-height:var(--tap)">${esc(PERSONA_INFO[p].label)}</button>`).join('')}
             </div>
           </div>
-        </section>`;
+        </section>
+        ${rolePanel(ctx)}`;
       })()}
 
       ${syncSuccess ? `<div class="notice good" role="status">${icon('check', 18)}<span>Simulated sync completed. Sample price books, account balances and inventory refreshed.</span></div>` : ''}

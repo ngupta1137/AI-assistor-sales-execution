@@ -16,7 +16,7 @@ export default {
   name: 'Packaging and print',
   tagline: 'Food and drink makers, retail brands and manufacturers',
   icon: 'scan',
-  accent: '#475569',
+  accent: '#4E5D6C',
   vocab: {
     account: 'converter', accounts: 'converters',
     contact: 'buyer', contacts: 'buyers',

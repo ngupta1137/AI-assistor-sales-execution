@@ -16,7 +16,7 @@ export default {
   name: 'Financial services',
   tagline: 'Merchants, small businesses and agent outlets',
   icon: 'bank',
-  accent: '#155E75',
+  accent: '#1F5F78',
   aliases: ['fs', 'financial', 'banking'],
   vocab: {
     account: 'merchant', accounts: 'merchants',

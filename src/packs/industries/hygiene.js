@@ -16,7 +16,7 @@ export default {
   name: 'Hygiene and cleaning supplies',
   tagline: 'Hotels, offices, care homes and contract cleaners',
   icon: 'bulb',
-  accent: '#086F83',
+  accent: '#1E6F7E',
   vocab: {
     account: 'facility', accounts: 'facilities',
     contact: 'supervisor', contacts: 'supervisors',

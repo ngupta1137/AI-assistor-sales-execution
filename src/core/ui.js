@@ -64,7 +64,7 @@ export function typeLine(t, a) {
 /** Confidence shown once, as icon + label + whole percent. Low confidence is said plainly. */
 export function confBadge(c) {
   const x = confidence(c);
-  return `<span class="conf ${x.tone === 'low' ? 'low' : ''}">${icon(x.tone === 'low' ? 'flag' : 'check', 16)}${x.label} confidence · ${x.pct}%</span>`;
+  return `<span class="conf ${x.tone === 'low' ? 'low' : ''}">${icon(x.tone === 'low' ? 'flag' : 'check', 16)}<span class="conf-long">${x.label} confidence · </span>${x.pct}%</span>`;
 }
 
 export const agentTag = (agentId) => `<span class="agent-tag">${icon('agent', 16)}${esc(AGENT_LABEL[agentId])}</span>`;

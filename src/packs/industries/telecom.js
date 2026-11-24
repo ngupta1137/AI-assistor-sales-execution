@@ -16,7 +16,7 @@ export default {
   name: 'Telecom retail',
   tagline: 'SIM and recharge outlets, franchise stores',
   icon: 'signal',
-  accent: '#BE185D',
+  accent: '#A13D68',
   vocab: {
     account: 'outlet', accounts: 'outlets',
     contact: 'outlet owner', contacts: 'outlet owners',

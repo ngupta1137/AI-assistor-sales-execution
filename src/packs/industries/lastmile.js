@@ -20,7 +20,7 @@ export default {
   tagline: 'Online merchants, small shippers and pickup points',
   icon: 'pin',
   aliases: ['last-mile', 'parcel', 'parcels', 'delivery'],
-  accent: '#9A3412',
+  accent: '#9C4626',
   vocab: {
     account: 'site', accounts: 'sites',
     contact: 'site contact', contacts: 'site contacts',

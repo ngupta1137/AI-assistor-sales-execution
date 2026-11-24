@@ -16,7 +16,7 @@ export default {
   name: 'Consumer electronics',
   tagline: 'Electronics stores and multi-brand outlets',
   icon: 'screen',
-  accent: '#4338CA',
+  accent: '#3F4FA8',
   vocab: {
     account: 'store', accounts: 'stores',
     contact: 'store manager', contacts: 'store managers',

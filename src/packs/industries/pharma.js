@@ -16,7 +16,7 @@ export default {
   name: 'Pharma',
   tagline: 'Hospitals, clinics and pharmacies',
   icon: 'pill',
-  accent: '#6D28D9',
+  accent: '#5B4BA0',
   vocab: {
     account: 'account', accounts: 'accounts',
     contact: 'HCP', contacts: 'HCPs',

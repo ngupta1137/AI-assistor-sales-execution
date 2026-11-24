@@ -93,9 +93,9 @@ export function render(ctx) {
       <span class="rank${p.rank === 1 ? ' first' : ''}">${p.rank}</span>
       <span class="row-main">
         <b>${esc(a.name)}</b>
-        <small>${esc(fmt.time(p.start))} · ${esc(t(a.type))} · ${esc(fmt.distance(p.km))}</small>
-        <span class="row-line"><span class="small">Est. <b class="money">${esc(fmt.moneyShort(p.opportunity))}</b> · ${p.actions.length} actions</span>${status}</span>
+        <small class="tnum">${esc(fmt.time(p.start))} · ${esc(fmt.distance(p.km))} · <span class="money">${esc(fmt.moneyShort(p.opportunity))}</span></small>
       </span>
+      <span class="row-end">${status}</span>
     </a></li>`;
   }).join('');
 
@@ -127,86 +127,71 @@ export function render(ctx) {
   </section>` : '';
 
 
-  const contextBar = !ctx.ui?.contextBarDismissed ? `<div class="context-bar" id="context-bar">
-    <span class="ctx-text"><b>${esc(industry.name)}</b> · ${esc(ctx.country.name)} · ${esc(data.city.name)} · ${esc(t('{Rep}'))}</span>
-    <button class="icon-btn sm" data-act="dismiss-context-bar" aria-label="Dismiss context">${icon('x', 14)}</button>
-  </div>` : '';
-
-  const heroHtml = ctx.ui?.briefsHeroDismissed ? `
-  <section class="hero hero-bar" id="hero-bar">
-    <span class="hero-ic">${icon('agent', 14)}</span>
-    <span class="hero-bar-text"><b>${esc(t('Briefs'))}:</b> ${pending ? esc(t('{n} to review', { n: pending })) : esc(t('Reviewed'))}</span>
-    <a class="btn primary sm" href="#/brief/${nextAcc.id}" id="overnight-banner">${esc(t('Open next'))}${icon('chevron', 14)}</a>
-    <button class="icon-btn sm" data-act="restore-briefs-hero" aria-label="Expand briefs">${icon('chevron', 14)}</button>
-  </section>` : `
-  <section class="hero">
-    <div class="hero-top">
-      <span class="hero-ic">${icon('agent', 22)}</span>
-      <span class="row-main"><b>Briefs ready</b>
-      <small>${esc(t(`${ordered.length} {visit} briefs, ${totalActions} ranked actions, prepared overnight by 3 agents.`))}</small></span>
-      <div style="display:flex;align-items:center;gap:4px;flex:none">
-        ${pill(`${pending} to review`, pending ? 'warn' : 'good')}
-        <button class="icon-btn sm" data-act="dismiss-briefs-hero" aria-label="Dismiss briefs section" title="Dismiss briefs section" style="min-height:var(--tap);min-width:var(--tap);margin:-4px -4px 0 0">${icon('x', 16)}</button>
-      </div>
-    </div>
-    <a class="btn primary block" href="#/brief/${nextAcc.id}" id="overnight-banner">${esc(t(`Open next brief: ${nextAcc.name}`))}${icon('chevron', 18)}</a>
-  </section>`;
-
+  const nextPlan = next || ordered[0];
+  const nextItems = m.briefItems(nextAcc.id);
+  const topAction = nextItems.find((it) => it.kind === 'action');
+  const nc = m.counts(nextAcc.id);
   const tf = ['daily', 'weekly', 'monthly'].includes(ctx.ui?.repTf) ? ctx.ui.repTf : 'daily';
   const perf = performance(ctx, ordered, tf, pct);
   return `${adhocModal}
-  ${contextBar}
-  ${ctx.ui?.todayToast ? `<div class="notice good" style="margin-bottom:var(--s2)">${icon('check', 16)}<span>${esc(ctx.ui.todayToast)}</span></div>` : ''}
-  <section class="page-head">
+  ${ctx.ui?.todayToast ? `<div class="notice good">${icon('check', 16)}<span>${esc(ctx.ui.todayToast)}</span></div>` : ''}
+  <section class="today-head">
+    <span class="eyebrow">${esc(fmt.weekday(today))} ${esc(fmt.dateShort(today))} · ${esc(data.city.name)}</span>
     <h1>${greeting()}, ${esc(data.rep.first)}</h1>
-    <p class="muted">${esc(fmt.weekday(today))} ${esc(fmt.dateShort(today))} · ${esc(data.city.name)} · ${ordered.length} ${esc(t('{visits}'))} planned</p>
+    <p class="head-meta">${done} of ${ordered.length} ${esc(t('{visits}'))} done · ${pending ? esc(t('{n} items to review', { n: pending })) : esc(t('All briefs reviewed'))}</p>
   </section>
 
   ${stopped.length ? `<div class="notice warn">${icon('stop', 18)}<span>${esc(stopped.map((a) => AGENT_LABEL[a.id]).join(', '))} stopped. Its items are paused in every brief.</span></div>` : ''}
 
-  ${heroHtml}
+  <div class="adaptive-grid today-grid">
+  <div class="grid-primary">
+  <section class="focus-card" id="next-up">
+    <div class="focus-top">${pill(t('Next {visit}'), 'accent')}<span class="small muted tnum">${esc(fmt.time(nextPlan.start))} · ${esc(fmt.distance(nextPlan.km))}</span></div>
+    <h2>${esc(nextAcc.name)}</h2>
+    <p class="small muted">${esc(t(nextAcc.type))} · ${esc(t('Tier {tier}', { tier: nextAcc.tier }))} · ${esc(nextAcc.contacts[0].name)}</p>
+    ${topAction ? `<p class="focus-action"><span class="eyebrow">${esc(t('Top action'))}</span>${esc(t(topAction.title, topAction.vars))}</p>` : ''}
+    <a class="btn primary block" href="#/brief/${nextAcc.id}" id="overnight-banner">${nc.pending ? esc(t('Open brief · {n} to review', { n: nc.pending })) : esc(t('Open brief'))}${icon('chevron', 18)}</a>
+  </section>
+
   ${fieldNotices(ctx)}
 
-  <div class="quick quick-3">
-    <a class="btn secondary" href="#/route" id="open-route">${icon('route', 18)}${esc(t('Route plan'))}</a>
-    <a class="btn secondary" href="#/ask" id="open-ask">${icon('ask', 18)}${esc(t('Ask AI'))}</a>
-    <button class="btn secondary" data-act="open-adhoc" id="open-adhoc">${icon('pin', 18)}${esc(t('Log ad-hoc stop'))}</button>
+  <div class="tool-row">
+    <a class="tool-chip" href="#/route" id="open-route">${icon('route', 14)} ${esc(t('Route plan'))}</a>
+    <button class="tool-chip" data-act="open-adhoc" id="open-adhoc">${icon('pin', 14)} ${esc(t('Log ad-hoc stop'))}</button>
   </div>
 
-  <div class="adaptive-grid today-grid">
-    <div class="grid-primary">
-      <section>
-        <div class="section-head"><h2>${esc(t("Today's {accounts}"))}</h2><small>Ranked by estimated opportunity</small></div>
-        <ol class="group list">${rows}</ol>
-      </section>
-    </div>
+  <section class="visits">
+    <div class="section-head"><h2>${esc(t("Today's {visits}"))}</h2><small class="muted">${esc(t('Ranked by opportunity'))}</small></div>
+    <ol class="group list">${rows}</ol>
+  </section>
+  </div>
 
-    <div class="grid-secondary">
-      <!-- Performance: every figure is derived from this territory's sample data. -->
-      <section class="card tight perf" id="perf" data-tf="${tf}">
-        <div class="section-head"><h2>${esc(t('Performance'))}</h2>
-          <div class="seg-ctl pill-seg" role="group" aria-label="${esc(t('Timeframe'))}">
-            ${[['daily', 'Daily'], ['weekly', 'Weekly'], ['monthly', 'Monthly']].map(([k, l]) => `<button class="seg ${tf === k ? 'on' : ''}" data-act="set-rep-tf" data-tf="${k}" aria-pressed="${tf === k}">${esc(t(l))}</button>`).join('')}
-          </div>
-        </div>
-        <div class="stat-row" id="mtd"><span class="small muted">${esc(t('Month to date, from source data'))}</span><span class="small"><b class="money">${esc(fmt.moneyShort(tr.achieved))}</b> of ${esc(fmt.moneyShort(tr.target))} · ${pct}%</span></div>
-        ${bar(tr.achieved, tr.target)}
-        <div class="facts perf-facts">${perf.facts.map(([k, v, tone]) => `<div><small>${esc(t(k))}</small><b class="tnum${tone ? ` ${tone}-text` : ''}">${esc(v)}</b></div>`).join('')}</div>
-        ${perf.bars ? `<div class="perf-bars">${perf.bars.map(([k, v]) => `<div class="stat-row"><span class="small muted">${esc(t(k))}</span><span class="small tnum">${esc(fmt.moneyShort(v))}</span></div>${bar(v, Math.max(...perf.bars.map((b) => b[1])) || 1)}`).join('')}</div>` : spark(perf.points, perf.goal)}
-        <div class="perf-foot"><span class="small muted">${esc(t(perf.caption))} · ${esc(t('Sample data'))}</span>
-          <button class="btn secondary sm" data-act="time-crunch">${icon('route', 12)} ${esc(t('Re-balance for less time'))}</button>
-        </div>
-      </section>
-
-      <details class="fold" id="territory">
-        <summary>${esc(t('{Territory}'))}<span class="sum-end">${esc(kpiValue(kpi, tr.headlineKpi.value, fmt))}</span></summary>
-        <div class="facts">
-          <div><small>${esc(t(kpi.label))}</small><b>${esc(kpiValue(kpi, tr.headlineKpi.value, fmt))}</b><small>Target ${esc(kpiValue(kpi, kpi.target, fmt))}</small></div>
-          <div><small>Untapped potential</small><b>${esc(fmt.moneyShort(tr.opportunity))}</b><small>${esc(t(`Across ${data.accounts.length} {accounts}`))}</small></div>
-          ${self.estimated ? `<div class="wide"><small>Estimated opportunity addressed today</small><b>${esc(fmt.moneyShort(self.estimated))}</b><small>An estimate from completed actions. Not booked sales, and not added to the month figure.</small></div>` : ''}
-        </div>
-      </details>
+  <div class="grid-secondary">
+  <details class="fold" id="perf" data-tf="${tf}"${['tablet', 'desktop'].includes(ctx.app?.vp) ? ' open' : ''}>
+    <summary>${esc(t('Performance'))}<span class="sum-end tnum">${esc(t('{pct}% of month target', { pct }))}</span></summary>
+    <div class="fold-body">
+      <div class="seg-ctl pill-seg" role="group" aria-label="${esc(t('Timeframe'))}">
+        ${[['daily', 'Daily'], ['weekly', 'Weekly'], ['monthly', 'Monthly']].map(([k, l]) => `<button class="seg ${tf === k ? 'on' : ''}" data-act="set-rep-tf" data-tf="${k}" aria-pressed="${tf === k}">${esc(t(l))}</button>`).join('')}
+      </div>
+      <div class="stat-row" id="mtd"><span class="small muted">${esc(t('Month to date, from source data'))}</span><span class="small"><b class="money">${esc(fmt.moneyShort(tr.achieved))}</b> of ${esc(fmt.moneyShort(tr.target))} · ${pct}%</span></div>
+      ${bar(tr.achieved, tr.target)}
+      <div class="facts perf-facts">${perf.facts.map(([k, v, tone]) => `<div><small>${esc(t(k))}</small><b class="tnum${tone ? ` ${tone}-text` : ''}">${esc(v)}</b></div>`).join('')}</div>
+      ${perf.bars ? `<div class="perf-bars">${perf.bars.map(([k, v]) => `<div class="stat-row"><span class="small muted">${esc(t(k))}</span><span class="small tnum">${esc(fmt.moneyShort(v))}</span></div>${bar(v, Math.max(...perf.bars.map((b) => b[1])) || 1)}`).join('')}</div>` : spark(perf.points, perf.goal)}
+      <div class="perf-foot"><span class="small muted">${esc(t(perf.caption))} · ${esc(t('Sample data'))}</span>
+        <button class="btn secondary sm" data-act="time-crunch">${icon('route', 12)} ${esc(t('Re-balance for less time'))}</button>
+      </div>
     </div>
+  </details>
+
+  <details class="fold" id="territory">
+    <summary>${esc(t('{Territory}'))}<span class="sum-end">${esc(kpiValue(kpi, tr.headlineKpi.value, fmt))}</span></summary>
+    <div class="facts">
+      <div><small>${esc(t(kpi.label))}</small><b>${esc(kpiValue(kpi, tr.headlineKpi.value, fmt))}</b><small>Target ${esc(kpiValue(kpi, kpi.target, fmt))}</small></div>
+      <div><small>Untapped potential</small><b>${esc(fmt.moneyShort(tr.opportunity))}</b><small>${esc(t(`Across ${data.accounts.length} {accounts}`))}</small></div>
+      ${self.estimated ? `<div class="wide"><small>Estimated opportunity addressed today</small><b>${esc(fmt.moneyShort(self.estimated))}</b><small>An estimate from completed actions. Not booked sales, and not added to the month total.</small></div>` : ''}
+    </div>
+  </details>
+  </div>
   </div>
   <p class="foot-note">Values are generated for this demo.</p>`;
 }
