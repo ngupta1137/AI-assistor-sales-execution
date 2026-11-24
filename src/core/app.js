@@ -4,6 +4,9 @@ import { renderGuideModal, renderTryCase, governanceActions, demoToolButtons } f
 
 import { INDUSTRIES, COUNTRIES, findIndustry, findCountry } from '../packs/index.js';
 import { generate } from '../data/generate.js';
+import { getDataProvider } from './data/data-provider.js';
+import { getTenantManager } from './tenant/tenant-config.js';
+import { getAuthManager } from './auth/auth-manager.js';
 import { createText, esc } from './text.js';
 import { createFormat } from './format.js';
 import { createModel, resetSessions } from './state.js';
@@ -21,6 +24,10 @@ import { PERSONAS, HOME, NAV, roleKey as roleKeyOf, titleFor, personFor, validPe
 import { UI_LANGUAGES, getActiveLang, isRtl, tr } from './i18n.js';
 
 export { PERSONAS, HOME };
+export { getDataProvider, setDataProvider } from './data/data-provider.js';
+export { getTenantManager, setTenantManager } from './tenant/tenant-config.js';
+export { getAuthManager, setAuthManager } from './auth/auth-manager.js';
+export { getAppStorage, setAppStorage } from './storage/storage-adapter.js';
 
 const app = {
   config: null,        // { industryId, countryId, persona, prepared, color }
@@ -98,8 +105,9 @@ export function buildContext(industryId, countryId, explicitLang) {
   const country = findCountry(countryId);
   const t = createText(industry.vocab, country.spelling, lang);
   const fmt = createFormat(country);
-  const data = generate(industry, country, { fmt });
-  const ctx = { industry, country, t, fmt, data, lang };
+  const data = getDataProvider().loadTerritory(industry, country, { fmt });
+  const rawCtx = { industry, country, t, fmt, data, lang };
+  const ctx = getTenantManager().applyTenantOverrides(rawCtx);
   ctx.m = createModel(ctx);
   // Companion data exists only for packs (and countries) that define Companion content.
   ctx.comp = industry.companion && country.publicHolidays ? generateCompanion(ctx) : null;

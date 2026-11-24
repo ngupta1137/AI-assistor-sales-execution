@@ -4,6 +4,75 @@ import { rolePanel } from './role-panel.js';
 
 import { esc, icon, pill, initials } from './ui.js';
 import { PERSONA_INFO, personasFor, personFor } from './personas.js';
+import { getDataProvider, setDataProvider, CustomerDataProvider, SyntheticDataProvider } from './data/data-provider.js';
+import { getTenantManager } from './tenant/tenant-config.js';
+import { getSession } from './state.js';
+
+export const SAMPLE_POC_CLIENT = {
+  tenantId: 'client-poc-01',
+  clientName: 'Apex Commercial Group',
+  rep: { id: 'rep-101', name: 'Taylor Jordan', target: 85000 },
+  accounts: [
+    {
+      id: 'ACC-001',
+      name: 'Apex Central Complex',
+      segment: 'enterprise',
+      tier: 'A',
+      key: true,
+      geo: { lat: 41.8781, lng: -87.6298 },
+      address: '100 South Michigan Ave',
+      city: 'Chicago',
+      annualValue: 240000,
+      hours: [510, 1080],
+      contacts: [{ name: 'Sarah Connor', role: 'Executive Lead', lead: true }],
+    },
+    {
+      id: 'ACC-002',
+      name: 'Beacon Regional Facility',
+      segment: 'regional',
+      tier: 'B',
+      key: false,
+      geo: { lat: 41.8819, lng: -87.6324 },
+      address: '220 West Wacker Dr',
+      city: 'Chicago',
+      annualValue: 120000,
+      hours: [540, 1020],
+      contacts: [{ name: 'David Evans', role: 'Director', lead: true }],
+    },
+    {
+      id: 'ACC-003',
+      name: 'Crestview Care Group',
+      segment: 'independent',
+      tier: 'A',
+      key: false,
+      geo: { lat: 41.8902, lng: -87.6256 },
+      address: '500 North Michigan Ave',
+      city: 'Chicago',
+      annualValue: 185000,
+      hours: [480, 1020],
+      contacts: [{ name: 'Elena Ramos', role: 'Purchasing Lead', lead: true }],
+    },
+    {
+      id: 'ACC-004',
+      name: 'Downtown Commercial Associates',
+      segment: 'independent',
+      tier: 'C',
+      key: false,
+      geo: { lat: 41.8835, lng: -87.6401 },
+      address: '600 West Adams St',
+      city: 'Chicago',
+      annualValue: 60000,
+      hours: [540, 960],
+      contacts: [{ name: 'James Miller', role: 'Office Manager', lead: true }],
+    },
+  ],
+  offerings: [
+    { id: 'OFF-100', name: 'CardioStat Extended Release', price: 120, unit: 'box', status: 'core', category: 'Therapeutics' },
+    { id: 'OFF-101', name: 'CardioStat Rapid Release', price: 95, unit: 'box', status: 'core', category: 'Therapeutics' },
+    { id: 'OFF-102', name: 'EndoShield Pro Infusion', price: 450, unit: 'vial', status: 'focus', category: 'Advanced Care' },
+    { id: 'OFF-103', name: 'Vascuflow Anti-inflammatory', price: 75, unit: 'pack', status: 'new', category: 'Specialty' },
+  ],
+};
 
 export function renderSyncModal(app, ctx) {
   if (!app.ui || !app.ui.syncModalOpen) return '';
@@ -127,6 +196,9 @@ export function renderSyncModal(app, ctx) {
         </button>
         <button class="seg ${tab === 'security' ? 'on' : ''}" data-act="set-gw-tab" data-tab="security" role="tab" style="min-height:var(--tap)">
           4. Identity &amp; RBAC
+        </button>
+        <button class="seg ${tab === 'poc' ? 'on' : ''}" data-act="set-gw-tab" data-tab="poc" role="tab" style="min-height:var(--tap)">
+          5. Client PoC &amp; Export
         </button>
       </div>
 
@@ -298,6 +370,47 @@ export function renderSyncModal(app, ctx) {
         </section>
       ` : ''}
 
+      <!-- Tab 5: Client PoC & Export -->
+      ${tab === 'poc' ? `
+        <section class="card" style="margin:0">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
+            <b>Client PoC Onboarding &amp; Pilot Exporter</b>
+            ${ctx?.data?.isPoCActive ? pill('Client PoC Active', 'good') : pill('Synthetic Demo', 'muted')}
+          </div>
+          <p class="small muted" style="margin-bottom:8px">
+            Configure client-specific datasets and export complete decision audit logs for pilot evaluation.
+          </p>
+
+          <div class="facts" style="grid-template-columns:repeat(auto-fit,minmax(80px,1fr));margin-bottom:10px">
+            <div><small>Data Provider</small><b>${ctx?.data?.isPoCActive ? 'Customer' : 'Synthetic'}</b></div>
+            <div><small>Storage Layer</small><b class="good-text">Persistent</b></div>
+            <div><small>Logged Decisions</small><b>${Object.keys(getSession(ctx?.data?.seedKey || '').decisions || {}).length} records</b></div>
+          </div>
+
+          <div style="display:flex;flex-direction:column;gap:8px;margin-bottom:12px">
+            <button class="btn primary sm" data-act="load-sample-poc-data" style="min-height:var(--tap);width:100%">
+              ${icon('sync', 14)} Load Sample Client PoC Dataset
+            </button>
+            <button class="btn secondary sm" data-act="revert-synthetic-data" style="min-height:var(--tap);width:100%">
+              ${icon('config', 14)} Revert to Synthetic Demonstration Data
+            </button>
+          </div>
+
+          <div style="border-top:1px solid var(--line-soft);padding-top:10px;margin-top:6px">
+            <b style="font-size:12px;display:block;margin-bottom:4px">Pilot Audit &amp; Activity Export:</b>
+            <div class="btn-row" style="gap:6px">
+              <button class="btn secondary sm" data-act="download-poc-decisions-csv" style="min-height:var(--tap);flex:1;font-size:11px">
+                ${icon('note', 14)} Export Decisions CSV
+              </button>
+              <button class="btn secondary sm" data-act="download-poc-full-json" style="min-height:var(--tap);flex:1;font-size:11px">
+                ${icon('note', 14)} Export Full Session JSON
+              </button>
+            </div>
+          </div>
+          ${app.ui?.pocToast ? `<div class="notice good" style="margin-top:8px">${icon('check', 14)}<span>${esc(app.ui.pocToast)}</span></div>` : ''}
+        </section>
+      ` : ''}
+
       <div class="btn-row" style="margin-top:4px">
         <button class="btn primary" data-act="trigger-sync" style="flex:1">${icon('sync', 18)} Run live sync</button>
         <button class="btn secondary" data-act="download-audit-csv" style="flex:1">${icon('note', 18)} Export audit CSV</button>
@@ -321,6 +434,64 @@ export function exportAuditCsv(ctx) {
   const link = document.createElement('a');
   link.setAttribute('href', url);
   link.setAttribute('download', `sales-execution-audit-log-${new Date().toISOString().slice(0, 10)}.csv`);
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+}
+
+export function exportPocDecisionsCsv(ctx) {
+  if (!ctx || !ctx.m) return;
+  const s = getSession(ctx.data.seedKey);
+  const decisions = s.decisions || {};
+  const headers = ['Action_ID', 'Account_ID', 'Account_Name', 'Status', 'Choice_or_Reason', 'Note', 'Timestamp_Minutes'];
+  const rows = Object.entries(decisions).map(([id, d]) => {
+    let accName = 'Unknown';
+    let accId = 'Unknown';
+    for (const p of ctx.data.planned || []) {
+      const it = (p.brief || []).find((b) => b.id === id);
+      if (it) {
+        accId = it.accountId;
+        accName = ctx.data.byId[it.accountId]?.name || it.accountId;
+        break;
+      }
+    }
+    return [
+      id,
+      accId,
+      `"${String(accName).replace(/"/g, '""')}"`,
+      d.status,
+      `"${String(d.choice || d.reason || '').replace(/"/g, '""')}"`,
+      `"${String(d.note || '').replace(/"/g, '""')}"`,
+      d.at,
+    ];
+  });
+  const csvContent = [headers.join(','), ...rows.map((r) => r.join(','))].join('\r\n');
+  const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement('a');
+  link.setAttribute('href', url);
+  link.setAttribute('download', `poc-field-decisions-${new Date().toISOString().slice(0, 10)}.csv`);
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+}
+
+export function exportPocFullJson(ctx) {
+  if (!ctx || !ctx.data) return;
+  const s = getSession(ctx.data.seedKey);
+  const payload = {
+    exportedAt: new Date().toISOString(),
+    seedKey: ctx.data.seedKey,
+    industry: ctx.industry.id,
+    country: ctx.country.id,
+    rep: ctx.data.rep,
+    sessionState: s,
+  };
+  const blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json;charset=utf-8;' });
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement('a');
+  link.setAttribute('href', url);
+  link.setAttribute('download', `poc-session-full-${ctx.data.seedKey}-${new Date().toISOString().slice(0, 10)}.json`);
   document.body.appendChild(link);
   link.click();
   document.body.removeChild(link);
@@ -408,6 +579,36 @@ export const syncActions = {
   },
   'download-audit-csv': ({ ctx }) => {
     exportAuditCsv(ctx);
+  },
+  'load-sample-poc-data': ({ app, ctx }) => {
+    setDataProvider(new CustomerDataProvider(SAMPLE_POC_CLIENT));
+    const tm = getTenantManager();
+    tm.registerTenant({
+      tenantId: SAMPLE_POC_CLIENT.tenantId,
+      name: SAMPLE_POC_CLIENT.clientName,
+    });
+    tm.setTenant(SAMPLE_POC_CLIENT.tenantId);
+    if (app.cache) app.cache.clear();
+    app.ui.pocToast = 'Client PoC dataset loaded with 4 accounts and 4 offerings. Session persisted.';
+    if (ctx?.m?.logAudit) {
+      ctx.m.logAudit('PoC Ingestion', 'Loaded client PoC customer dataset with local storage persistence.');
+    }
+  },
+  'revert-synthetic-data': ({ app, ctx }) => {
+    setDataProvider(new SyntheticDataProvider());
+    const tm = getTenantManager();
+    tm.setTenant('standard');
+    if (app.cache) app.cache.clear();
+    app.ui.pocToast = 'Reverted to synthetic demonstration data.';
+    if (ctx?.m?.logAudit) {
+      ctx.m.logAudit('PoC Ingestion', 'Reverted data provider to synthetic demonstration mode.');
+    }
+  },
+  'download-poc-decisions-csv': ({ ctx }) => {
+    exportPocDecisionsCsv(ctx);
+  },
+  'download-poc-full-json': ({ ctx }) => {
+    exportPocFullJson(ctx);
   },
   'toggle-offline': ({ app, ctx }) => {
     app.offline = !app.offline;

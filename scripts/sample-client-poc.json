@@ -1,0 +1,150 @@
+{
+  "tenantId": "client-poc-01",
+  "clientName": "Acme Corp",
+  "rep": {
+    "id": "rep-101",
+    "name": "Taylor Jordan",
+    "target": 85000
+  },
+  "accounts": [
+    {
+      "id": "ACC-001",
+      "name": "Apex Health Center",
+      "segment": "enterprise",
+      "tier": "A",
+      "key": true,
+      "geo": {
+        "lat": 41.8781,
+        "lng": -87.6298
+      },
+      "address": "100 South Michigan Ave, Suite 400",
+      "city": "Chicago",
+      "annualValue": 240000,
+      "hours": [
+        510,
+        1080
+      ],
+      "contacts": [
+        {
+          "name": "Dr. Sarah Connor",
+          "role": "Chief Medical Officer",
+          "lead": true
+        },
+        {
+          "name": "Marcus Bell",
+          "role": "Procurement Specialist",
+          "lead": false
+        }
+      ]
+    },
+    {
+      "id": "ACC-002",
+      "name": "Beacon Regional Clinic",
+      "segment": "regional",
+      "tier": "B",
+      "key": false,
+      "geo": {
+        "lat": 41.8819,
+        "lng": -87.6324
+      },
+      "address": "220 West Wacker Dr",
+      "city": "Chicago",
+      "annualValue": 120000,
+      "hours": [
+        540,
+        1020
+      ],
+      "contacts": [
+        {
+          "name": "David Evans",
+          "role": "Practice Director",
+          "lead": true
+        }
+      ]
+    },
+    {
+      "id": "ACC-003",
+      "name": "Crestview Care Group",
+      "segment": "independent",
+      "tier": "A",
+      "key": false,
+      "geo": {
+        "lat": 41.8902,
+        "lng": -87.6256
+      },
+      "address": "500 North Michigan Ave",
+      "city": "Chicago",
+      "annualValue": 185000,
+      "hours": [
+        480,
+        1020
+      ],
+      "contacts": [
+        {
+          "name": "Elena Ramos",
+          "role": "Head of Purchasing",
+          "lead": true
+        }
+      ]
+    },
+    {
+      "id": "ACC-004",
+      "name": "Downtown Medical Associates",
+      "segment": "independent",
+      "tier": "C",
+      "key": false,
+      "geo": {
+        "lat": 41.8835,
+        "lng": -87.6401
+      },
+      "address": "600 West Adams St",
+      "city": "Chicago",
+      "annualValue": 60000,
+      "hours": [
+        540,
+        960
+      ],
+      "contacts": [
+        {
+          "name": "James Miller",
+          "role": "Office Manager",
+          "lead": true
+        }
+      ]
+    }
+  ],
+  "offerings": [
+    {
+      "id": "SKU-100",
+      "name": "CardioStat Extended Release 50mg",
+      "price": 120,
+      "unit": "box",
+      "status": "core",
+      "category": "Cardiovascular"
+    },
+    {
+      "id": "SKU-101",
+      "name": "CardioStat Rapid Release 25mg",
+      "price": 95,
+      "unit": "box",
+      "status": "core",
+      "category": "Cardiovascular"
+    },
+    {
+      "id": "SKU-102",
+      "name": "EndoShield Pro Immuno-Infusion",
+      "price": 450,
+      "unit": "vial",
+      "status": "focus",
+      "category": "Immunology"
+    },
+    {
+      "id": "SKU-103",
+      "name": "Vascuflow Anti-inflammatory 10mg",
+      "price": 75,
+      "unit": "pack",
+      "status": "new",
+      "category": "Vascular"
+    }
+  ]
+}
