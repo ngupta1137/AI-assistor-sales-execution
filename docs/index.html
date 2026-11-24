@@ -266,9 +266,10 @@ details[open] > summary::after { transform: rotate(-135deg); }
 @keyframes bump { from { background: var(--accent-soft); } to { background: transparent; } }
 @keyframes rise { from { transform: translateY(3px); } to { transform: none; } }
 .items { display: flex; flex-direction: column; gap: 6px; }
-.item { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius-sm); padding: 8px 10px; display: flex; flex-direction: column; gap: 6px; box-shadow: var(--shadow-1); }
-.item.next { box-shadow: inset 3px 0 0 var(--accent), var(--shadow-1); }
-.item.paused { background: var(--surface-subtle); }
+.item { background: var(--surface); border: 1px solid var(--line); border-left: 3px solid var(--accent); border-radius: var(--radius-sm); padding: 8px 12px; display: flex; flex-direction: column; gap: 6px; box-shadow: var(--shadow-1); }
+.item.next { border-left: 4px solid var(--accent); box-shadow: 0 2px 8px -2px rgba(15, 118, 110, 0.2), var(--shadow-1); }
+.item.paused { background: var(--surface-subtle); border-left-color: var(--muted); }
+.hero.compact { background: var(--surface); border: 1px solid var(--line); box-shadow: var(--shadow-1); }
 .item-head { display: flex; align-items: center; gap: var(--s2); flex-wrap: wrap; }
 .item-head .state { margin-left: auto; }
 .item-title { display: flex; gap: var(--s2); align-items: flex-start; }
@@ -1674,41 +1675,46 @@ body.text-size-lg {
     <span class="ctx-text"><b>${i(r.name)}</b> · ${i(e.country.name)} · ${i(s.city.name)} · ${i(t("{Rep}"))}</span>
     <button class="icon-btn sm" data-act="dismiss-context-bar" aria-label="Dismiss context">${m("x",14)}</button>
   </div>`,P=e.ui?.briefsHeroDismissed?`
-  <section class="hero hero-bar" id="hero-bar">
+  <section class="hero hero-bar" id="hero-bar" style="margin-bottom:var(--s2)">
     <span class="hero-ic">${m("agent",14)}</span>
     <span class="hero-bar-text"><b>${i(t("Briefs"))}:</b> ${d?i(t("{n} to review",{n:d})):i(t("Reviewed"))}</span>
-    <a class="btn primary sm" href="#/brief/${g.id}" id="overnight-banner">${i(t("Open next"))}${m("chevron",14)}</a>
-    <button class="icon-btn sm" data-act="restore-briefs-hero" aria-label="Expand briefs">${m("chevron",14)}</button>
+    <a class="btn primary sm" href="#/brief/${g.id}" id="overnight-banner" style="min-height:var(--tap);display:inline-flex;align-items:center;padding:0 12px">${i(t("Open next"))}${m("chevron",14)}</a>
+    <button class="icon-btn sm" data-act="restore-briefs-hero" aria-label="Expand briefs" style="min-height:var(--tap);min-width:var(--tap)">${m("chevron",14)}</button>
   </section>`:`
-  <section class="hero">
-    <div class="hero-top">
-      <span class="hero-ic">${m("agent",22)}</span>
-      <span class="row-main"><b>Briefs ready</b>
-      <small>${i(t(`${l.length} {visit} briefs, ${c} ranked actions, prepared overnight by 3 agents.`))}</small></span>
-      <div style="display:flex;align-items:center;gap:4px;flex:none">
-        ${v(`${d} to review`,d?"warn":"good")}
-        <button class="icon-btn sm" data-act="dismiss-briefs-hero" aria-label="Dismiss briefs section" title="Dismiss briefs section" style="min-height:var(--tap);min-width:var(--tap);margin:-4px -4px 0 0">${m("x",16)}</button>
-      </div>
+  <section class="hero compact" id="hero-bar" style="margin-bottom:var(--s2);padding:6px 12px;display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap;border-radius:var(--radius-sm)">
+    <div style="display:flex;align-items:center;gap:8px;flex:1;min-width:220px">
+      <span class="hero-ic" style="width:28px;height:28px;display:grid;place-items:center;flex-shrink:0">${m("agent",18)}</span>
+      <span class="row-main" style="line-height:1.2">
+        <b style="font-size:13px;color:var(--ink)">Briefs ready</b>
+        <small style="display:block;color:var(--muted);font-size:11px">${l.length} ${i(t("{visits}"))} · ${c} actions</small>
+      </span>
+      ${v(`${d} to review`,d?"warn":"good")}
     </div>
-    <a class="btn primary block" href="#/brief/${g.id}" id="overnight-banner">${i(t(`Open next brief: ${g.name}`))}${m("chevron",18)}</a>
+    <div style="display:flex;align-items:center;gap:6px">
+      <a class="btn primary sm" href="#/brief/${g.id}" id="overnight-banner" style="min-height:var(--tap);display:inline-flex;align-items:center;gap:4px;padding:0 12px;font-size:12px;font-weight:600">
+        <span>${i(t(`Open next brief: ${g.name}`))}</span>${m("chevron",14)}
+      </a>
+      <button class="icon-btn sm" data-act="dismiss-briefs-hero" aria-label="Dismiss briefs section" title="Dismiss briefs section" style="min-height:var(--tap);min-width:var(--tap)">${m("x",16)}</button>
+    </div>
   </section>`,k=["daily","weekly","monthly"].includes(e.ui?.repTf)?e.ui.repTf:"daily",N=la(e,l,k,$);return`${F}
   ${E}
   ${e.ui?.todayToast?`<div class="notice good" style="margin-bottom:var(--s2)">${m("check",16)}<span>${i(e.ui.todayToast)}</span></div>`:""}
-  <section class="page-head">
-    <h1>${El()}, ${i(s.rep.first)}</h1>
-    <p class="muted">${i(a.weekday(o))} ${i(a.dateShort(o))} · ${i(s.city.name)} · ${l.length} ${i(t("{visits}"))} planned</p>
+  <section class="page-head" style="margin-bottom:var(--s2);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px">
+    <div>
+      <h1 style="font-size:18px;margin:0;line-height:1.2">${El()}, ${i(s.rep.first)}</h1>
+      <p class="muted small" style="margin:2px 0 0">${i(a.weekday(o))} ${i(a.dateShort(o))} · ${i(s.city.name)} · ${l.length} ${i(t("{visits}"))} planned</p>
+    </div>
+    <div class="quick quick-inline" style="display:flex;gap:6px;margin:0">
+      <a class="btn secondary sm" href="#/route" id="open-route" style="min-height:var(--tap);min-width:var(--tap);display:inline-flex;align-items:center;gap:4px;padding:0 10px;font-size:12px">${m("route",16)}<span>${i(t("Route plan"))}</span></a>
+      <a class="btn secondary sm" href="#/ask" id="open-ask" style="min-height:var(--tap);min-width:var(--tap);display:inline-flex;align-items:center;gap:4px;padding:0 10px;font-size:12px">${m("ask",16)}<span>${i(t("Ask AI"))}</span></a>
+      <button class="btn secondary sm" data-act="open-adhoc" id="open-adhoc" style="min-height:var(--tap);min-width:var(--tap);display:inline-flex;align-items:center;gap:4px;padding:0 10px;font-size:12px">${m("pin",16)}<span>${i(t("Log ad-hoc stop"))}</span></button>
+    </div>
   </section>
 
   ${f.length?`<div class="notice warn">${m("stop",18)}<span>${i(f.map(_=>Ye[_.id]).join(", "))} stopped. Its items are paused in every brief.</span></div>`:""}
 
   ${P}
   ${ra(e)}
-
-  <div class="quick quick-3">
-    <a class="btn secondary" href="#/route" id="open-route">${m("route",18)}${i(t("Route plan"))}</a>
-    <a class="btn secondary" href="#/ask" id="open-ask">${m("ask",18)}${i(t("Ask AI"))}</a>
-    <button class="btn secondary" data-act="open-adhoc" id="open-adhoc">${m("pin",18)}${i(t("Log ad-hoc stop"))}</button>
-  </div>
 
   <div class="adaptive-grid today-grid">
     <div class="grid-primary">
@@ -2038,67 +2044,19 @@ body.text-size-lg {
       <button class="btn secondary block" data-act="close-deck" style="min-height:var(--tap);margin-top:4px">Exit presentation mode</button>
     </div>
   </section>`:"";return`${x}${F}${zl(e)}${Hl(e)}
-  ${d.briefToast?`<div class="notice good" style="margin-bottom:var(--s3)">${m("check",16)}<span>${i(d.briefToast)}</span></div>`:""}
-  <a class="back" href="#/today">${m("back",18)} ${i(r("Today"))}</a>
-  <section class="brief-head">
-    <span class="eyebrow">${i(r("{Visit} brief"))} · prepared overnight</span>
-    <h1>${i(h.name)}</h1>
-    <p class="small muted">${i(Zt(r,h))} · ${i(h.area)} · Tier ${h.tier}</p>
-    <p class="small">${i(o.time(u.start))} · ${h.visitMinutes} min · ${i(f.name)}, ${i(r(f.role))}</p>
-    <div style="margin-top:6px;padding:6px 10px;background:var(--surface-subtle);border-radius:var(--radius-sm);border:1px solid var(--line-soft)">
-      <span class="eyebrow">${i(r("Call objective"))}</span>
-      <div class="seg-ctl" role="group" aria-label="${i(r("Call objective"))}">
-        ${a.objectives.map(E=>`<button class="seg ${s===E?"on":""}" data-act="set-objective" data-obj="${i(E)}" style="min-height:var(--tap);min-width:var(--tap)">${i(r(E))}</button>`).join("")}
-      </div>
+  ${d.briefToast?`<div class="notice good" style="margin-bottom:var(--s2)">${m("check",16)}<span>${i(d.briefToast)}</span></div>`:""}
+
+  <header class="brief-top-bar" style="display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap;margin-bottom:var(--s2)">
+    <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+      <a class="back" href="#/today" style="margin:0;min-height:var(--tap);display:inline-flex;align-items:center">${m("back",18)} ${i(r("Today"))}</a>
+      <h1 style="font-size:18px;margin:0;line-height:1.2">${i(h.name)}</h1>
+      ${v(`Tier ${h.tier}`,"info")}
+      <span class="small muted" style="font-size:11px">${i(Zt(r,h))} · ${i(h.area)}</span>
     </div>
-
-    <details class="fold" id="brief-checks" style="margin-top:6px">
-      <summary>
-        <span style="display:inline-flex;align-items:center;gap:4px">${m("shield",14)} ${i(r("Checks and coordination"))}</span>
-        <span class="sum-end">${v(r("All passed · Synced"),"good")}</span>
-      </summary>
-      <div class="fold-body">
-        <div class="facts check-grid">
-          ${a.constraints.map(([E,P],k)=>`<div><small>${i(r(E))}</small><b${k<3?' class="good-text"':""}>${i(r(P))}</b></div>`).join("")}
-        </div>
-        <p class="small muted">${i(r(a.constraintNote))}</p>
-        <p class="eyebrow">${i(r(a.coordTitle))}</p>
-        <p class="small muted">${i(r(a.coordNote))}</p>
-        <div class="coord-grid">
-          ${a.coord.map(([E,P],k)=>`<div><span class="muted">${i(r(E))}</span><b${k===0?' class="good-text"':""}>${i(r(P))}</b></div>`).join("")}
-        </div>
-      </div>
-    </details>
-
-    <div style="margin-top:6px;display:flex;gap:6px;flex-wrap:wrap">
-      ${d.accountAbsentRescheduled?`
-        <div class="notice good" style="flex:1">${m("check",14)}<span><b>${i(r("Rescheduled."))}</b> ${i(r("Score protected."))}</span></div>
-        ${d.rescheduleChainWarning?`<div class="notice warn">${m("shield",14)}<span><b>${i(r("Second reschedule:"))}</b> ${i(r("needs {manager} approval."))}</span></div>`:`<button class="btn text sm" data-act="try-second-reschedule" data-id="${h.id}" style="min-height:var(--tap)">${i(r("Need to reschedule again?"))}</button>`}
-      `:`<button class="btn secondary sm" data-act="record-absent" data-id="${h.id}" style="min-height:var(--tap);flex:1">${m("clock",12)} ${i(r("{Contact} away: reschedule"))}</button>`}
-      <button class="btn ${d.blitzMode?"primary":"secondary"} sm" data-act="toggle-blitz" style="min-height:var(--tap);flex:1">
-        ${m("clock",12)} ${d.blitzMode?i(r("Exit quick mode")):i(r("Quick mode (45s)"))}
-      </button>
+    <div class="small muted" style="font-size:11px;display:flex;align-items:center;gap:6px">
+      <span>${i(o.time(u.start))} · ${h.visitMinutes} min · ${i(f.name)} (${i(r(f.role))})</span>
     </div>
-    ${d.blitzMode?`
-      <div class="card tight" style="margin-top:8px;border:2px solid var(--accent);background:var(--accent-soft)">
-        <div class="section-head" style="margin-bottom:4px">
-          <b style="color:var(--ink)">Rapid execution priority</b>
-          ${v("Highest feasible yield","good")}
-        </div>
-        <p class="small" style="margin-bottom:8px">${i(r("For a rushed {contact}: one verified action and a quick {order}."))}</p>
-        <small class="muted" style="display:block;margin-bottom:8px;font-size:10px">Supervisory threshold: Reps exceeding 25% Blitz mode over 14 days flagged for territory coaching review.</small>
-        <div style="padding:6px 8px;background:var(--surface);border-radius:4px;margin-bottom:8px;border:1px solid var(--line-soft)">
-          <b>${i(r(y[0]?.title||"Core Priority Action",y[0]?.vars))}</b>
-          <div class="small muted">${i(r("{short} availability verified",{short:n.sourceShort}))} · Estimated upside: ${i(o.money(y[0]?.value||500))}</div>
-        </div>
-        <div class="btn-row" style="gap:6px">
-          <a class="btn primary sm" href="#/action/${y[0]?.id||""}" style="min-height:var(--tap);flex:1;display:flex;align-items:center;justify-content:center">Execute priority action</a>
-          <a class="btn secondary sm" href="#/order/${h.id}" style="min-height:var(--tap);flex:1;display:flex;align-items:center;justify-content:center">Quick reorder</a>
-        </div>
-      </div>
-    `:""}
-
-  </section>
+  </header>
 
   <div class="adaptive-grid brief-grid">
     <div class="grid-primary">
@@ -2124,7 +2082,67 @@ body.text-size-lg {
     </div>
 
     <div class="grid-secondary">
-      <div class="card tight brief-context-card" style="margin-bottom:var(--s3)">
+      <!-- Call Objective -->
+      <div class="card tight" style="margin-bottom:var(--s2);padding:8px 10px">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
+          <b style="font-size:12px">${i(r("Call objective"))}</b>
+          ${v(s,"good")}
+        </div>
+        <div class="seg-ctl" role="group" aria-label="${i(r("Call objective"))}">
+          ${a.objectives.map(E=>`<button class="seg ${s===E?"on":""}" data-act="set-objective" data-obj="${i(E)}" style="min-height:var(--tap);min-width:var(--tap);font-size:11px">${i(r(E))}</button>`).join("")}
+        </div>
+      </div>
+
+      <!-- Commercial Constraints and Coordination Fold -->
+      <details class="fold" id="brief-checks" style="margin-bottom:var(--s2)">
+        <summary>
+          <span style="display:inline-flex;align-items:center;gap:4px">${m("shield",14)} ${i(r("Checks and coordination"))}</span>
+          <span class="sum-end">${v(r("All passed · Synced"),"good")}</span>
+        </summary>
+        <div class="fold-body">
+          <div class="facts check-grid">
+            ${a.constraints.map(([E,P],k)=>`<div><small>${i(r(E))}</small><b${k<3?' class="good-text"':""}>${i(r(P))}</b></div>`).join("")}
+          </div>
+          <p class="small muted">${i(r(a.constraintNote))}</p>
+          <p class="eyebrow">${i(r(a.coordTitle))}</p>
+          <p class="small muted">${i(r(a.coordNote))}</p>
+          <div class="coord-grid">
+            ${a.coord.map(([E,P],k)=>`<div><span class="muted">${i(r(E))}</span><b${k===0?' class="good-text"':""}>${i(r(P))}</b></div>`).join("")}
+          </div>
+        </div>
+      </details>
+
+      <!-- Execution Exceptions & Blitz Mode -->
+      <div style="margin-bottom:var(--s2);display:flex;gap:6px;flex-wrap:wrap">
+        ${d.accountAbsentRescheduled?`
+          <div class="notice good" style="flex:1">${m("check",14)}<span><b>${i(r("Rescheduled."))}</b> ${i(r("Score protected."))}</span></div>
+          ${d.rescheduleChainWarning?`<div class="notice warn">${m("shield",14)}<span><b>${i(r("Second reschedule:"))}</b> ${i(r("needs {manager} approval."))}</span></div>`:`<button class="btn text sm" data-act="try-second-reschedule" data-id="${h.id}" style="min-height:var(--tap)">${i(r("Need to reschedule again?"))}</button>`}
+        `:`<button class="btn secondary sm" data-act="record-absent" data-id="${h.id}" style="min-height:var(--tap);flex:1">${m("clock",12)} ${i(r("{Contact} away: reschedule"))}</button>`}
+        <button class="btn ${d.blitzMode?"primary":"secondary"} sm" data-act="toggle-blitz" style="min-height:var(--tap);flex:1">
+          ${m("clock",12)} ${d.blitzMode?i(r("Exit quick mode")):i(r("Quick mode (45s)"))}
+        </button>
+      </div>
+      ${d.blitzMode?`
+        <div class="card tight" style="margin-bottom:var(--s2);border:2px solid var(--accent);background:var(--accent-soft)">
+          <div class="section-head" style="margin-bottom:4px">
+            <b style="color:var(--ink)">Rapid execution priority</b>
+            ${v("Highest feasible yield","good")}
+          </div>
+          <p class="small" style="margin-bottom:8px">${i(r("For a rushed {contact}: one verified action and a quick {order}."))}</p>
+          <small class="muted" style="display:block;margin-bottom:8px;font-size:10px">Supervisory threshold: Reps exceeding 25% Blitz mode over 14 days flagged for territory coaching review.</small>
+          <div style="padding:6px 8px;background:var(--surface);border-radius:4px;margin-bottom:8px;border:1px solid var(--line-soft)">
+            <b>${i(r(y[0]?.title||"Core Priority Action",y[0]?.vars))}</b>
+            <div class="small muted">${i(r("{short} availability verified",{short:n.sourceShort}))} · Estimated upside: ${i(o.money(y[0]?.value||500))}</div>
+          </div>
+          <div class="btn-row" style="gap:6px">
+            <a class="btn primary sm" href="#/action/${y[0]?.id||""}" style="min-height:var(--tap);flex:1;display:flex;align-items:center;justify-content:center">Execute priority action</a>
+            <a class="btn secondary sm" href="#/order/${h.id}" style="min-height:var(--tap);flex:1;display:flex;align-items:center;justify-content:center">Quick reorder</a>
+          </div>
+        </div>
+      `:""}
+
+      <!-- Commercial Context & Collateral -->
+      <div class="card tight brief-context-card" style="margin-bottom:var(--s2)">
         <div class="section-head" style="margin-bottom:6px">
           <b>Commercial context</b>
           ${v("Active","good")}

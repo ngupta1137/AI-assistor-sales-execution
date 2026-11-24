@@ -464,68 +464,19 @@ export function render(ctx, [accountId]) {
   </section>` : '';
 
   return `${collateralModal}${deckModal}${renderRuleDrawer(ctx)}${renderFlagSheet(ctx)}
-  ${ui.briefToast ? `<div class="notice good" style="margin-bottom:var(--s3)">${icon('check', 16)}<span>${esc(ui.briefToast)}</span></div>` : ''}
-  <a class="back" href="#/today">${icon('back', 18)} ${esc(t('Today'))}</a>
-  <section class="brief-head">
-    <span class="eyebrow">${esc(t('{Visit} brief'))} · prepared overnight</span>
-    <h1>${esc(a.name)}</h1>
-    <p class="small muted">${esc(typeLine(t, a))} · ${esc(a.area)} · Tier ${a.tier}</p>
-    <p class="small">${esc(fmt.time(p.start))} · ${a.visitMinutes} min · ${esc(contact.name)}, ${esc(t(contact.role))}</p>
-    <div style="margin-top:6px;padding:6px 10px;background:var(--surface-subtle);border-radius:var(--radius-sm);border:1px solid var(--line-soft)">
-      <span class="eyebrow">${esc(t('Call objective'))}</span>
-      <div class="seg-ctl" role="group" aria-label="${esc(t('Call objective'))}">
-        ${BF.objectives.map((o) => `<button class="seg ${OBJ === o ? 'on' : ''}" data-act="set-objective" data-obj="${esc(o)}" style="min-height:var(--tap);min-width:var(--tap)">${esc(t(o))}</button>`).join('')}
-      </div>
+  ${ui.briefToast ? `<div class="notice good" style="margin-bottom:var(--s2)">${icon('check', 16)}<span>${esc(ui.briefToast)}</span></div>` : ''}
+
+  <header class="brief-top-bar" style="display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap;margin-bottom:var(--s2)">
+    <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+      <a class="back" href="#/today" style="margin:0;min-height:var(--tap);display:inline-flex;align-items:center">${icon('back', 18)} ${esc(t('Today'))}</a>
+      <h1 style="font-size:18px;margin:0;line-height:1.2">${esc(a.name)}</h1>
+      ${pill(`Tier ${a.tier}`, 'info')}
+      <span class="small muted" style="font-size:11px">${esc(typeLine(t, a))} · ${esc(a.area)}</span>
     </div>
-
-    <details class="fold" id="brief-checks" style="margin-top:6px">
-      <summary>
-        <span style="display:inline-flex;align-items:center;gap:4px">${icon('shield', 14)} ${esc(t('Checks and coordination'))}</span>
-        <span class="sum-end">${pill(t('All passed · Synced'), 'good')}</span>
-      </summary>
-      <div class="fold-body">
-        <div class="facts check-grid">
-          ${BF.constraints.map(([k, v], i) => `<div><small>${esc(t(k))}</small><b${i < 3 ? ' class="good-text"' : ''}>${esc(t(v))}</b></div>`).join('')}
-        </div>
-        <p class="small muted">${esc(t(BF.constraintNote))}</p>
-        <p class="eyebrow">${esc(t(BF.coordTitle))}</p>
-        <p class="small muted">${esc(t(BF.coordNote))}</p>
-        <div class="coord-grid">
-          ${BF.coord.map(([k, v], i) => `<div><span class="muted">${esc(t(k))}</span><b${i === 0 ? ' class="good-text"' : ''}>${esc(t(v))}</b></div>`).join('')}
-        </div>
-      </div>
-    </details>
-
-    <div style="margin-top:6px;display:flex;gap:6px;flex-wrap:wrap">
-      ${ui.accountAbsentRescheduled ? `
-        <div class="notice good" style="flex:1">${icon('check', 14)}<span><b>${esc(t('Rescheduled.'))}</b> ${esc(t('Score protected.'))}</span></div>
-        ${ui.rescheduleChainWarning ? `<div class="notice warn">${icon('shield', 14)}<span><b>${esc(t('Second reschedule:'))}</b> ${esc(t('needs {manager} approval.'))}</span></div>`
-          : `<button class="btn text sm" data-act="try-second-reschedule" data-id="${a.id}" style="min-height:var(--tap)">${esc(t('Need to reschedule again?'))}</button>`}
-      ` : `<button class="btn secondary sm" data-act="record-absent" data-id="${a.id}" style="min-height:var(--tap);flex:1">${icon('clock', 12)} ${esc(t('{Contact} away: reschedule'))}</button>`}
-      <button class="btn ${ui.blitzMode ? 'primary' : 'secondary'} sm" data-act="toggle-blitz" style="min-height:var(--tap);flex:1">
-        ${icon('clock', 12)} ${ui.blitzMode ? esc(t('Exit quick mode')) : esc(t('Quick mode (45s)'))}
-      </button>
+    <div class="small muted" style="font-size:11px;display:flex;align-items:center;gap:6px">
+      <span>${esc(fmt.time(p.start))} · ${a.visitMinutes} min · ${esc(contact.name)} (${esc(t(contact.role))})</span>
     </div>
-    ${ui.blitzMode ? `
-      <div class="card tight" style="margin-top:8px;border:2px solid var(--accent);background:var(--accent-soft)">
-        <div class="section-head" style="margin-bottom:4px">
-          <b style="color:var(--ink)">Rapid execution priority</b>
-          ${pill('Highest feasible yield', 'good')}
-        </div>
-        <p class="small" style="margin-bottom:8px">${esc(t('For a rushed {contact}: one verified action and a quick {order}.'))}</p>
-        <small class="muted" style="display:block;margin-bottom:8px;font-size:10px">Supervisory threshold: Reps exceeding 25% Blitz mode over 14 days flagged for territory coaching review.</small>
-        <div style="padding:6px 8px;background:var(--surface);border-radius:4px;margin-bottom:8px;border:1px solid var(--line-soft)">
-          <b>${esc(t(items[0]?.title || 'Core Priority Action', items[0]?.vars))}</b>
-          <div class="small muted">${esc(t('{short} availability verified', { short: W.sourceShort }))} · Estimated upside: ${esc(fmt.money(items[0]?.value || 500))}</div>
-        </div>
-        <div class="btn-row" style="gap:6px">
-          <a class="btn primary sm" href="#/action/${items[0]?.id || ''}" style="min-height:var(--tap);flex:1;display:flex;align-items:center;justify-content:center">Execute priority action</a>
-          <a class="btn secondary sm" href="#/order/${a.id}" style="min-height:var(--tap);flex:1;display:flex;align-items:center;justify-content:center">Quick reorder</a>
-        </div>
-      </div>
-    ` : ''}
-
-  </section>
+  </header>
 
   <div class="adaptive-grid brief-grid">
     <div class="grid-primary">
@@ -551,7 +502,68 @@ export function render(ctx, [accountId]) {
     </div>
 
     <div class="grid-secondary">
-      <div class="card tight brief-context-card" style="margin-bottom:var(--s3)">
+      <!-- Call Objective -->
+      <div class="card tight" style="margin-bottom:var(--s2);padding:8px 10px">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
+          <b style="font-size:12px">${esc(t('Call objective'))}</b>
+          ${pill(OBJ, 'good')}
+        </div>
+        <div class="seg-ctl" role="group" aria-label="${esc(t('Call objective'))}">
+          ${BF.objectives.map((o) => `<button class="seg ${OBJ === o ? 'on' : ''}" data-act="set-objective" data-obj="${esc(o)}" style="min-height:var(--tap);min-width:var(--tap);font-size:11px">${esc(t(o))}</button>`).join('')}
+        </div>
+      </div>
+
+      <!-- Commercial Constraints and Coordination Fold -->
+      <details class="fold" id="brief-checks" style="margin-bottom:var(--s2)">
+        <summary>
+          <span style="display:inline-flex;align-items:center;gap:4px">${icon('shield', 14)} ${esc(t('Checks and coordination'))}</span>
+          <span class="sum-end">${pill(t('All passed · Synced'), 'good')}</span>
+        </summary>
+        <div class="fold-body">
+          <div class="facts check-grid">
+            ${BF.constraints.map(([k, v], i) => `<div><small>${esc(t(k))}</small><b${i < 3 ? ' class="good-text"' : ''}>${esc(t(v))}</b></div>`).join('')}
+          </div>
+          <p class="small muted">${esc(t(BF.constraintNote))}</p>
+          <p class="eyebrow">${esc(t(BF.coordTitle))}</p>
+          <p class="small muted">${esc(t(BF.coordNote))}</p>
+          <div class="coord-grid">
+            ${BF.coord.map(([k, v], i) => `<div><span class="muted">${esc(t(k))}</span><b${i === 0 ? ' class="good-text"' : ''}>${esc(t(v))}</b></div>`).join('')}
+          </div>
+        </div>
+      </details>
+
+      <!-- Execution Exceptions & Blitz Mode -->
+      <div style="margin-bottom:var(--s2);display:flex;gap:6px;flex-wrap:wrap">
+        ${ui.accountAbsentRescheduled ? `
+          <div class="notice good" style="flex:1">${icon('check', 14)}<span><b>${esc(t('Rescheduled.'))}</b> ${esc(t('Score protected.'))}</span></div>
+          ${ui.rescheduleChainWarning ? `<div class="notice warn">${icon('shield', 14)}<span><b>${esc(t('Second reschedule:'))}</b> ${esc(t('needs {manager} approval.'))}</span></div>`
+            : `<button class="btn text sm" data-act="try-second-reschedule" data-id="${a.id}" style="min-height:var(--tap)">${esc(t('Need to reschedule again?'))}</button>`}
+        ` : `<button class="btn secondary sm" data-act="record-absent" data-id="${a.id}" style="min-height:var(--tap);flex:1">${icon('clock', 12)} ${esc(t('{Contact} away: reschedule'))}</button>`}
+        <button class="btn ${ui.blitzMode ? 'primary' : 'secondary'} sm" data-act="toggle-blitz" style="min-height:var(--tap);flex:1">
+          ${icon('clock', 12)} ${ui.blitzMode ? esc(t('Exit quick mode')) : esc(t('Quick mode (45s)'))}
+        </button>
+      </div>
+      ${ui.blitzMode ? `
+        <div class="card tight" style="margin-bottom:var(--s2);border:2px solid var(--accent);background:var(--accent-soft)">
+          <div class="section-head" style="margin-bottom:4px">
+            <b style="color:var(--ink)">Rapid execution priority</b>
+            ${pill('Highest feasible yield', 'good')}
+          </div>
+          <p class="small" style="margin-bottom:8px">${esc(t('For a rushed {contact}: one verified action and a quick {order}.'))}</p>
+          <small class="muted" style="display:block;margin-bottom:8px;font-size:10px">Supervisory threshold: Reps exceeding 25% Blitz mode over 14 days flagged for territory coaching review.</small>
+          <div style="padding:6px 8px;background:var(--surface);border-radius:4px;margin-bottom:8px;border:1px solid var(--line-soft)">
+            <b>${esc(t(items[0]?.title || 'Core Priority Action', items[0]?.vars))}</b>
+            <div class="small muted">${esc(t('{short} availability verified', { short: W.sourceShort }))} · Estimated upside: ${esc(fmt.money(items[0]?.value || 500))}</div>
+          </div>
+          <div class="btn-row" style="gap:6px">
+            <a class="btn primary sm" href="#/action/${items[0]?.id || ''}" style="min-height:var(--tap);flex:1;display:flex;align-items:center;justify-content:center">Execute priority action</a>
+            <a class="btn secondary sm" href="#/order/${a.id}" style="min-height:var(--tap);flex:1;display:flex;align-items:center;justify-content:center">Quick reorder</a>
+          </div>
+        </div>
+      ` : ''}
+
+      <!-- Commercial Context & Collateral -->
+      <div class="card tight brief-context-card" style="margin-bottom:var(--s2)">
         <div class="section-head" style="margin-bottom:6px">
           <b>Commercial context</b>
           ${pill('Active', 'good')}

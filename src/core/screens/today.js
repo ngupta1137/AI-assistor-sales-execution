@@ -133,23 +133,27 @@ export function render(ctx) {
   </div>` : '';
 
   const heroHtml = ctx.ui?.briefsHeroDismissed ? `
-  <section class="hero hero-bar" id="hero-bar">
+  <section class="hero hero-bar" id="hero-bar" style="margin-bottom:var(--s2)">
     <span class="hero-ic">${icon('agent', 14)}</span>
     <span class="hero-bar-text"><b>${esc(t('Briefs'))}:</b> ${pending ? esc(t('{n} to review', { n: pending })) : esc(t('Reviewed'))}</span>
-    <a class="btn primary sm" href="#/brief/${nextAcc.id}" id="overnight-banner">${esc(t('Open next'))}${icon('chevron', 14)}</a>
-    <button class="icon-btn sm" data-act="restore-briefs-hero" aria-label="Expand briefs">${icon('chevron', 14)}</button>
+    <a class="btn primary sm" href="#/brief/${nextAcc.id}" id="overnight-banner" style="min-height:var(--tap);display:inline-flex;align-items:center;padding:0 12px">${esc(t('Open next'))}${icon('chevron', 14)}</a>
+    <button class="icon-btn sm" data-act="restore-briefs-hero" aria-label="Expand briefs" style="min-height:var(--tap);min-width:var(--tap)">${icon('chevron', 14)}</button>
   </section>` : `
-  <section class="hero">
-    <div class="hero-top">
-      <span class="hero-ic">${icon('agent', 22)}</span>
-      <span class="row-main"><b>Briefs ready</b>
-      <small>${esc(t(`${ordered.length} {visit} briefs, ${totalActions} ranked actions, prepared overnight by 3 agents.`))}</small></span>
-      <div style="display:flex;align-items:center;gap:4px;flex:none">
-        ${pill(`${pending} to review`, pending ? 'warn' : 'good')}
-        <button class="icon-btn sm" data-act="dismiss-briefs-hero" aria-label="Dismiss briefs section" title="Dismiss briefs section" style="min-height:var(--tap);min-width:var(--tap);margin:-4px -4px 0 0">${icon('x', 16)}</button>
-      </div>
+  <section class="hero compact" id="hero-bar" style="margin-bottom:var(--s2);padding:6px 12px;display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap;border-radius:var(--radius-sm)">
+    <div style="display:flex;align-items:center;gap:8px;flex:1;min-width:220px">
+      <span class="hero-ic" style="width:28px;height:28px;display:grid;place-items:center;flex-shrink:0">${icon('agent', 18)}</span>
+      <span class="row-main" style="line-height:1.2">
+        <b style="font-size:13px;color:var(--ink)">Briefs ready</b>
+        <small style="display:block;color:var(--muted);font-size:11px">${ordered.length} ${esc(t('{visits}'))} · ${totalActions} actions</small>
+      </span>
+      ${pill(`${pending} to review`, pending ? 'warn' : 'good')}
     </div>
-    <a class="btn primary block" href="#/brief/${nextAcc.id}" id="overnight-banner">${esc(t(`Open next brief: ${nextAcc.name}`))}${icon('chevron', 18)}</a>
+    <div style="display:flex;align-items:center;gap:6px">
+      <a class="btn primary sm" href="#/brief/${nextAcc.id}" id="overnight-banner" style="min-height:var(--tap);display:inline-flex;align-items:center;gap:4px;padding:0 12px;font-size:12px;font-weight:600">
+        <span>${esc(t(`Open next brief: ${nextAcc.name}`))}</span>${icon('chevron', 14)}
+      </a>
+      <button class="icon-btn sm" data-act="dismiss-briefs-hero" aria-label="Dismiss briefs section" title="Dismiss briefs section" style="min-height:var(--tap);min-width:var(--tap)">${icon('x', 16)}</button>
+    </div>
   </section>`;
 
   const tf = ['daily', 'weekly', 'monthly'].includes(ctx.ui?.repTf) ? ctx.ui.repTf : 'daily';
@@ -157,21 +161,22 @@ export function render(ctx) {
   return `${adhocModal}
   ${contextBar}
   ${ctx.ui?.todayToast ? `<div class="notice good" style="margin-bottom:var(--s2)">${icon('check', 16)}<span>${esc(ctx.ui.todayToast)}</span></div>` : ''}
-  <section class="page-head">
-    <h1>${greeting()}, ${esc(data.rep.first)}</h1>
-    <p class="muted">${esc(fmt.weekday(today))} ${esc(fmt.dateShort(today))} · ${esc(data.city.name)} · ${ordered.length} ${esc(t('{visits}'))} planned</p>
+  <section class="page-head" style="margin-bottom:var(--s2);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px">
+    <div>
+      <h1 style="font-size:18px;margin:0;line-height:1.2">${greeting()}, ${esc(data.rep.first)}</h1>
+      <p class="muted small" style="margin:2px 0 0">${esc(fmt.weekday(today))} ${esc(fmt.dateShort(today))} · ${esc(data.city.name)} · ${ordered.length} ${esc(t('{visits}'))} planned</p>
+    </div>
+    <div class="quick quick-inline" style="display:flex;gap:6px;margin:0">
+      <a class="btn secondary sm" href="#/route" id="open-route" style="min-height:var(--tap);min-width:var(--tap);display:inline-flex;align-items:center;gap:4px;padding:0 10px;font-size:12px">${icon('route', 16)}<span>${esc(t('Route plan'))}</span></a>
+      <a class="btn secondary sm" href="#/ask" id="open-ask" style="min-height:var(--tap);min-width:var(--tap);display:inline-flex;align-items:center;gap:4px;padding:0 10px;font-size:12px">${icon('ask', 16)}<span>${esc(t('Ask AI'))}</span></a>
+      <button class="btn secondary sm" data-act="open-adhoc" id="open-adhoc" style="min-height:var(--tap);min-width:var(--tap);display:inline-flex;align-items:center;gap:4px;padding:0 10px;font-size:12px">${icon('pin', 16)}<span>${esc(t('Log ad-hoc stop'))}</span></button>
+    </div>
   </section>
 
   ${stopped.length ? `<div class="notice warn">${icon('stop', 18)}<span>${esc(stopped.map((a) => AGENT_LABEL[a.id]).join(', '))} stopped. Its items are paused in every brief.</span></div>` : ''}
 
   ${heroHtml}
   ${fieldNotices(ctx)}
-
-  <div class="quick quick-3">
-    <a class="btn secondary" href="#/route" id="open-route">${icon('route', 18)}${esc(t('Route plan'))}</a>
-    <a class="btn secondary" href="#/ask" id="open-ask">${icon('ask', 18)}${esc(t('Ask AI'))}</a>
-    <button class="btn secondary" data-act="open-adhoc" id="open-adhoc">${icon('pin', 18)}${esc(t('Log ad-hoc stop'))}</button>
-  </div>
 
   <div class="adaptive-grid today-grid">
     <div class="grid-primary">
