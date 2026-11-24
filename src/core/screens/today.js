@@ -143,6 +143,8 @@ export function render(ctx) {
 
   ${stopped.length ? `<div class="notice warn">${icon('stop', 18)}<span>${esc(stopped.map((a) => AGENT_LABEL[a.id]).join(', '))} stopped. Its items are paused in every brief.</span></div>` : ''}
 
+  <div class="adaptive-grid today-grid">
+  <div class="grid-primary">
   <section class="focus-card" id="next-up">
     <div class="focus-top">${pill(t('Next {visit}'), 'accent')}<span class="small muted tnum">${esc(fmt.time(nextPlan.start))} · ${esc(fmt.distance(nextPlan.km))}</span></div>
     <h2>${esc(nextAcc.name)}</h2>
@@ -162,8 +164,10 @@ export function render(ctx) {
     <div class="section-head"><h2>${esc(t("Today's {visits}"))}</h2><small class="muted">${esc(t('Ranked by opportunity'))}</small></div>
     <ol class="group list">${rows}</ol>
   </section>
+  </div>
 
-  <details class="fold" id="perf" data-tf="${tf}">
+  <div class="grid-secondary">
+  <details class="fold" id="perf" data-tf="${tf}"${['tablet', 'desktop'].includes(ctx.app?.vp) ? ' open' : ''}>
     <summary>${esc(t('Performance'))}<span class="sum-end tnum">${esc(t('{pct}% of month target', { pct }))}</span></summary>
     <div class="fold-body">
       <div class="seg-ctl pill-seg" role="group" aria-label="${esc(t('Timeframe'))}">
@@ -187,6 +191,8 @@ export function render(ctx) {
       ${self.estimated ? `<div class="wide"><small>Estimated opportunity addressed today</small><b>${esc(fmt.moneyShort(self.estimated))}</b><small>An estimate from completed actions. Not booked sales, and not added to the month total.</small></div>` : ''}
     </div>
   </details>
+  </div>
+  </div>
   <p class="foot-note">Values are generated for this demo.</p>`;
 }
 

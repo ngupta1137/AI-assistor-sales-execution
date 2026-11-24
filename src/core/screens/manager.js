@@ -45,7 +45,7 @@ export function render(ctx) {
     ` : ''}
   </section>`;
 
-  const queue = shown.length ? shown.map((e) => {
+  const excItem = (e) => {
     const [label, tone] = KIND[e.kind];
     const reason = t(e.reason, { limit: e.ruleVars?.limit != null ? fmt.money(e.ruleVars.limit) : '', max: '', lines: '' });
 
@@ -79,7 +79,10 @@ export function render(ctx) {
                   </div>`}</div>`;
       })()}
     </li>`;
-  }).join('') : `<li class="empty">No items need review here.</li>`;
+  };
+  const EXC_SHOWN = 3;
+  const queue = shown.length ? shown.slice(0, EXC_SHOWN).map(excItem).join('') : `<li class="empty">No items need review here.</li>`;
+  const queueRest = shown.length > EXC_SHOWN ? `<details class="exc-more"><summary>${esc(t('Show all {n}', { n: shown.length }))}</summary><ul class="group exceptions">${shown.slice(EXC_SHOWN).map(excItem).join('')}</ul></details>` : '';
 
   const team = reps.map((r) => `<li class="row rep-row">
     <span class="avatar">${esc(initials(r.name))}</span>
@@ -278,22 +281,13 @@ export function render(ctx) {
       ${[['all', 'All'], ['manager', `To ${t('{manager}')}`], ['kam', `To ${t('{kam}')}`]].map(([id, label]) => `<button class="seg${filter === id ? ' on' : ''}" data-act="ex-filter" data-id="${id}" role="tab" aria-selected="${filter === id}">${esc(label)}</button>`).join('')}
     </div>
     <ul class="group exceptions">${queue}</ul>
+    ${queueRest}
   </section>
   <details class="fold" id="team"><summary>Team<span class="sum-end">${reps.length}</span></summary><ul class="group">${team}</ul>
     <small style="display:block">Estimated opportunity addressed comes from completed actions. It is not booked sales.</small></details>
   <details class="fold" id="coaching"><summary>Coaching prompts</summary>
     <p class="small muted">From patterns in overrides and blocked actions. For conversations, not a leaderboard.</p>
     <ul class="group">${prompts || '<li class="empty">No patterns yet.</li>'}</ul></details>
-  <details class="fold" id="benchmarks" open><summary>Regional performance benchmark<span class="sum-end">Top quartile</span></summary>
-    <p class="small muted" style="margin-bottom:8px">District execution metrics benchmarked against regional commercial organization averages.</p>
-    <div class="facts" style="grid-template-columns:repeat(auto-fit,minmax(80px,1fr))">
-      <div><small>Call pace</small><b class="good-text">5.2 / day</b><small>Avg: 4.5</small></div>
-      <div><small>AI adherence</small><b class="good-text">88.4%</b><small>Avg: 78.1%</small></div>
-      <div><small>Whitespace win</small><b class="good-text">34.2%</b><small>Avg: 26.5%</small></div>
-      <div><small>Rank</small><b class="good-text">#2 of 14</b><small>districts</small></div>
-    </div>
-    <button class="btn secondary sm" data-act="send-team-recognition" style="min-height:var(--tap);width:100%;margin-top:10px">${icon('bulb', 14)} Dispatch district recognition announcement</button>
-  </details>
   <details class="fold" id="coverage"><summary>Coverage gaps<span class="sum-end">${uncovered.length} tier A</span></summary>
     <p class="small muted">${esc(t(`High-potential {accounts} not visited in ${N} days. The Visit Planner adds them to the next routes.`))}</p>
     <ul class="group">${coverage}</ul></details>

@@ -573,21 +573,21 @@ details.evi > summary { min-height: var(--tap); }
   .stage[data-viewport="phone"] .phone {
     width: 402px;
     max-width: 100%;
-    height: min(874px, calc(100dvh - 64px));
+    height: min(874px, calc(100dvh - 80px));
     border-radius: 28px;
     transition: width var(--motion-base) var(--ease-standard);
   }
   .stage[data-viewport="tablet"] .phone {
     width: 768px;
     max-width: 100%;
-    height: min(960px, calc(100dvh - 64px));
+    height: min(960px, calc(100dvh - 80px));
     border-radius: 24px;
     transition: width var(--motion-base) var(--ease-standard);
   }
   .stage[data-viewport="desktop"] .phone {
     width: 100%;
     max-width: 1260px;
-    height: calc(100dvh - 64px);
+    height: calc(100dvh - 80px);
     border-radius: 16px;
     border: 1px solid var(--line);
     transition: width var(--motion-base) var(--ease-standard);
@@ -932,3 +932,18 @@ body.text-size-lg {
 .outcome-line .outcome-open { margin-left: auto; color: var(--accent); }
 .item-more > summary { justify-content: space-between; color: var(--muted); font-weight: 500; }
 .item-more > summary .why { margin-left: auto; color: var(--accent); font-weight: 600; }
+.seg-ctl { flex-wrap: nowrap; overflow-x: auto; scrollbar-width: none; }
+.seg-ctl::-webkit-scrollbar { display: none; }
+.seg-ctl .seg { flex: 1 0 auto; white-space: nowrap; }
+.exc-more { margin-top: 8px; }
+.exc-more > summary { min-height: var(--tap); display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 600; color: var(--accent); cursor: pointer; list-style: none; border: 1px solid var(--line); border-radius: var(--radius-md); background: var(--surface); }
+.exc-more[open] > summary { margin-bottom: 8px; }
+
+.adaptive-grid > .grid-primary, .adaptive-grid > .grid-secondary { display: flex; flex-direction: column; gap: 14px; min-width: 0; }
+.adaptive-grid { display: flex; flex-direction: column; gap: 14px; }
+@media (min-width: 760px) {
+  .stage:not([data-viewport="tablet"]):not([data-viewport="desktop"]) .who-text { display: none; }
+  .stage[data-viewport="tablet"] .screen > *, .stage[data-viewport="desktop"] .screen > * { max-width: 1080px; margin-left: auto; margin-right: auto; }
+  .stage[data-viewport="tablet"] .adaptive-grid.brief-grid, .stage[data-viewport="desktop"] .adaptive-grid.brief-grid { grid-template-columns: minmax(0, 1fr); max-width: 760px; }
+  .stage[data-viewport="tablet"] .brief-head, .stage[data-viewport="desktop"] .brief-head { max-width: 760px; }
+}

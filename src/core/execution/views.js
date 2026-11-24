@@ -16,8 +16,10 @@ export function foundationCard(ctx, accountId) {
   const sg = signals(ctx)[accountId];
   const forRep = ctx.persona === 'rep';
   const offersOff = exOf(industry).offers.mode === 'off';
-  return `<section class="card" id="acc-foundation" data-risk="${sg.risk.band}" data-offer="${sg.offer.decision}">
-    <div class="section-head"><h2>${esc(t('Foundation signals'))}</h2>${pill(t('Sample data'), 'muted')}</div>
+  return `<details class="fold" id="acc-foundation" data-risk="${sg.risk.band}" data-offer="${sg.offer.decision}">
+    <summary>${esc(t('Foundation signals'))}<span class="sum-end">${pill(t('Risk {band}', { band: t(sg.risk.band) }), TONE[sg.risk.band])}</span></summary>
+    <div class="fold-body">
+    <p class="small muted">${esc(t('Sample data'))}</p>
     <div class="signals-grid">
       <div data-sig="tier"><small class="muted">${esc(t(CAPS.tiering.name))}</small><b>${esc(t('Tier {tier}', { tier: a.tier }))}</b><span class="small">${esc(t('{cluster}. Due every {d} days', { cluster: t(sg.cluster), d: sg.cycle }))}</span></div>
       <div data-sig="retention"><small class="muted">${esc(t(CAPS.retention.name))}</small><b>${pill(t('{band} · {score}', { band: t(sg.risk.band), score: sg.risk.score }), TONE[sg.risk.band])}</b></div>
@@ -40,7 +42,8 @@ export function foundationCard(ctx, accountId) {
     ${forRep ? `<p class="small muted">${esc(t('Foundation scores are a {manager} view. They decide where your {visits} go; you see their effect in the ranked brief.'))}</p>` : ''}
     ${offersOff ? '' : `<p class="small muted">${esc(t('Offers come only from the approved plan. The agent never creates terms.'))}</p>`}
     <a class="btn secondary sm" href="#/system" style="min-height:var(--tap)">${esc(t('How the eight capabilities work'))} ${icon('chevron', 14)}</a>
-  </section>`;
+    </div>
+  </details>`;
 }
 
 /** How the orchestrator merged eight capabilities into this one brief. */
