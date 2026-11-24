@@ -7,6 +7,7 @@ import { PERSONA_INFO, personasFor, personFor } from './personas.js';
 import { getDataProvider, setDataProvider, CustomerDataProvider, SyntheticDataProvider, RemoteApiDataProvider } from './data/data-provider.js';
 import { getTenantManager } from './tenant/tenant-config.js';
 import { getSession } from './state.js';
+import { renderConnectorHub, crmConnectorActions } from './connectors/crm-erp.js';
 
 export const SAMPLE_POC_CLIENT = {
   tenantId: 'client-poc-01',
@@ -275,6 +276,9 @@ export function renderSyncModal(app, ctx) {
                 ${esc(app.ui.webhookLog)}
               </div>` : ''}
           </div>
+
+          <!-- Enterprise CRM & ERP Schema Mapper Hub -->
+          ${renderConnectorHub(app, ctx)}
 
           ${app.ui?.gwToast ? `<div class="notice good" style="margin-top:10px">${icon('check', 14)}<span>${esc(app.ui.gwToast)}</span></div>` : ''}
         </section>
@@ -691,6 +695,7 @@ export const syncActions = {
   'download-poc-full-json': ({ ctx }) => {
     exportPocFullJson(ctx);
   },
+  ...crmConnectorActions,
   'toggle-offline': ({ app, ctx }) => {
     app.offline = !app.offline;
     if (app.offline) {

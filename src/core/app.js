@@ -26,6 +26,9 @@ import { getChannel, getRtm } from './channels.js';
 import { renderCsvMapperModal, csvMapperActions } from './screens/csv-mapper.js';
 import { renderRoiModal, roiModelerActions } from './screens/roi-modeler.js';
 import { worksCouncilActions } from './works-council.js';
+import { renderPackStudioModal, packStudioActions } from './screens/pack-studio.js';
+import { renderEb2bPortalModal, eb2bPortalActions } from './screens/eb2b-portal.js';
+import { renderDistrictRollupModal, districtRollupActions } from './screens/district-rollup.js';
 
 export { PERSONAS, HOME };
 export { getChannel, getRtm } from './channels.js';
@@ -272,7 +275,7 @@ export function render() {
   document.body.classList.remove('text-size-sm', 'text-size-md', 'text-size-lg');
   document.body.classList.add(`text-size-${app.textSize || 'sm'}`);
   document.body.classList.toggle('simple-view', !!app.simpleView);
-  root.innerHTML = html + renderAssistant(app, ctx, { name: ctx ? (SCREENS[route.name] && route.name !== 'setup' ? route.name : HOME[ctx.persona]) : 'setup' }) + renderPresenter(app, ctx, { INDUSTRIES, COUNTRIES, PERSONAS, shareLink: shareLink() }) + renderSyncModal(app, ctx) + renderRightsModal(app, ctx) + renderGuideModal(app, ctx) + renderTryCase(app, ctx) + renderLabModal(app, ctx) + renderCsvMapperModal(app, ctx) + renderRoiModal(app, ctx);
+  root.innerHTML = html + renderAssistant(app, ctx, { name: ctx ? (SCREENS[route.name] && route.name !== 'setup' ? route.name : HOME[ctx.persona]) : 'setup' }) + renderPresenter(app, ctx, { INDUSTRIES, COUNTRIES, PERSONAS, shareLink: shareLink() }) + renderSyncModal(app, ctx) + renderRightsModal(app, ctx) + renderGuideModal(app, ctx) + renderTryCase(app, ctx) + renderLabModal(app, ctx) + renderCsvMapperModal(app, ctx) + renderRoiModal(app, ctx) + renderPackStudioModal(app, ctx) + renderEb2bPortalModal(app, ctx) + renderDistrictRollupModal(app, ctx);
   const side = document.getElementById('side');
   if (side) side.innerHTML = renderNotes(app, ctx);
   document.body.classList.toggle('notes-open', app.notesOpen && !!ctx);
@@ -563,7 +566,7 @@ function handle(e, type) {
   const el = e.target.closest(`[data-${type}]`);
   if (!el) return;
   const name = el.dataset[type];
-  const fn = ACTIONS[name] || presenterActions[name] || syncActions[name] || csvMapperActions[name] || roiModelerActions[name] || worksCouncilActions[name] || rbacActions[name] || governanceActions[name] || labActions[name] || (name === 'set-vp' ? (({ app, data, api }) => { app.vp = data.vp; api.syncUrl(); api.render(); }) : null);
+  const fn = ACTIONS[name] || presenterActions[name] || syncActions[name] || csvMapperActions[name] || roiModelerActions[name] || worksCouncilActions[name] || packStudioActions[name] || eb2bPortalActions[name] || districtRollupActions[name] || rbacActions[name] || governanceActions[name] || labActions[name] || (name === 'set-vp' ? (({ app, data, api }) => { app.vp = data.vp; api.syncUrl(); api.render(); }) : null);
   if (!fn) return;
   if (type === 'act' && el.tagName === 'A') e.preventDefault();
   const ctx = app.config ? buildContext(app.config.industryId, app.config.countryId) : null;

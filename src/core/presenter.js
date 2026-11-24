@@ -80,6 +80,9 @@ export function renderPresenter(app, ctx, { INDUSTRIES, COUNTRIES, PERSONAS, sha
         ${configured ? `<button class="btn secondary" data-act="p-chat-reset" id="p-chat-reset">${icon('route', 20)}Reset chat</button>` : ''}
         <button class="btn secondary" data-act="open-csv-mapper">${icon('sync', 20)}Customer CSV column mapper</button>
         <button class="btn secondary" data-act="open-roi-modal">${icon('brief', 20)}Executive pilot ROI modeler</button>
+        <button class="btn secondary" data-act="open-pack-studio">${icon('config', 20)}No-code pack and rule studio</button>
+        <button class="btn secondary" data-act="open-eb2b-portal">${icon('bag', 20)}Customer eB2B portal preview</button>
+        <button class="btn secondary" data-act="open-district-modal">${icon('team', 20)}District territory rebalancer</button>
         <button class="btn secondary" data-act="toggle-works-council">${icon('shield', 20)}${app.worksCouncilMode ? 'Disable' : 'Enable'} Works Council mode</button>
         <button class="btn secondary" data-act="p-setup">${icon('config', 20)}Open setup screen</button>
         ${configured ? `<hr>${app.confirmReset
