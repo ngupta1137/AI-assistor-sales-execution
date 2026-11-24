@@ -52,7 +52,7 @@ export function renderPresenter(app, ctx, { INDUSTRIES, COUNTRIES, PERSONAS, sha
         <label class="field"><span>Brand accent theme</span></label>
         <div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:4px">
           <button class="btn secondary sm" data-act="p-color-swatch" data-color="#1E3A8A" style="min-height:var(--tap);flex:1;font-size:11px">Navy</button>
-          <button class="btn secondary sm" data-act="p-color-swatch" data-color="#065F46" style="min-height:var(--tap);flex:1;font-size:11px">Emerald</button>
+          <button class="btn secondary sm" data-act="p-color-swatch" data-color="#1E5E2E" style="min-height:var(--tap);flex:1;font-size:11px">Emerald</button>
           <button class="btn secondary sm" data-act="p-color-swatch" data-color="#991B1B" style="min-height:var(--tap);flex:1;font-size:11px">Crimson</button>
           <button class="btn secondary sm" data-act="p-color-swatch" data-color="#334155" style="min-height:var(--tap);flex:1;font-size:11px">Slate</button>
         </div>

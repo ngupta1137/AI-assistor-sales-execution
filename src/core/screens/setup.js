@@ -61,14 +61,14 @@ export function render({ app, INDUSTRIES, COUNTRIES, buildContext }) {
         <label class="field">Prospect name, shown as Prepared for
           <input class="input" type="text" maxlength="40" value="${esc(s.prepared)}" data-change="setup-prepared" id="setup-prepared"></label>
         <label class="color-row"><span>Accent</span>
-          <input type="color" value="${esc(s.color || (INDUSTRIES.find((i) => i.id === s.industry)?.accent || '#334155'))}" data-change="setup-color" id="setup-color">
+          <input type="color" value="${esc(s.color || (INDUSTRIES.find((i) => i.id === s.industry)?.accent || '#1E5E2E'))}" data-change="setup-color" id="setup-color">
           ${s.color ? '<button class="btn secondary sm" data-act="setup-color-reset">Use industry default</button>' : ''}
         </label>
                 <div style="margin-top:8px">
           <small class="muted" style="font-weight:600;display:block;margin-bottom:4px">Enterprise brand swatches:</small>
           <div style="display:flex;gap:6px;flex-wrap:wrap">
             <button class="btn secondary sm" data-act="preset-brand" data-color="#1E3A8A" style="min-height:var(--tap);flex:1;font-size:11px">Navy</button>
-            <button class="btn secondary sm" data-act="preset-brand" data-color="#065F46" style="min-height:var(--tap);flex:1;font-size:11px">Emerald</button>
+            <button class="btn secondary sm" data-act="preset-brand" data-color="#1E5E2E" style="min-height:var(--tap);flex:1;font-size:11px">Emerald</button>
             <button class="btn secondary sm" data-act="preset-brand" data-color="#991B1B" style="min-height:var(--tap);flex:1;font-size:11px">Crimson</button>
             <button class="btn secondary sm" data-act="preset-brand" data-color="#334155" style="min-height:var(--tap);flex:1;font-size:11px">Slate</button>
             <button class="btn secondary sm" data-act="preset-brand" data-color="#581C87" style="min-height:var(--tap);flex:1;font-size:11px">Plum</button>

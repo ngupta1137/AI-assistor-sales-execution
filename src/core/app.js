@@ -154,7 +154,7 @@ function mix(hex, other, amount) {
 
 function applyTheme(ctx) {
   const pick = app.ui.setup?.industry && !ctx ? findIndustry(app.ui.setup.industry)?.accent : null;
-  const raw = (app.config?.color && ctx ? app.config.color : ctx?.industry.accent || pick) || '#334155';
+  const raw = (app.config?.color && ctx ? app.config.color : ctx?.industry.accent || pick) || '#1E5E2E';
   const accent = readableAccent(raw);
   const rgb = accent.replace('#', '').match(/../g).map((x) => parseInt(x, 16));
   const root = document.documentElement.style;
