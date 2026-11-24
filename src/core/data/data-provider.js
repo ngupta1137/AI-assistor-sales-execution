@@ -46,11 +46,54 @@ export class CustomerDataProvider extends BaseDataProvider {
   }
 
   loadTerritory(industry, country, options = {}) {
-    if (this.clientData && this.clientData.accounts && this.clientData.accounts.length > 0) {
-      return this.clientData;
+    const baseline = generate(industry, country, options);
+    if (!this.clientData || !Array.isArray(this.clientData.accounts) || this.clientData.accounts.length === 0) {
+      return baseline;
     }
-    // Fall back to synthetic data if customer dataset is not yet populated
-    return generate(industry, country, options);
+
+    const clientAccounts = this.clientData.accounts.map((acc, idx) => {
+      const base = baseline.accounts[idx % baseline.accounts.length] || {};
+      return {
+        ...base,
+        id: acc.id || `ACC-${idx + 1}`,
+        name: acc.name || `Client Account ${idx + 1}`,
+        tier: acc.tier || 'B',
+        key: !!acc.key,
+        annualValue: acc.annualValue || 100000,
+        current: acc.current || Math.round((acc.annualValue || 100000) * 0.7),
+        whiteSpace: acc.whiteSpace || Math.round((acc.annualValue || 100000) * 0.3),
+        address: acc.address || `${100 + idx * 10} Main St`,
+        geo: acc.geo || base.geo,
+        hours: acc.hours || base.hours || [540, 1020],
+        contacts: acc.contacts || base.contacts,
+      };
+    });
+
+    const byId = {};
+    for (const a of clientAccounts) byId[a.id] = a;
+
+    // Adapt planned stops to use client accounts
+    const planned = baseline.planned.map((p, idx) => {
+      const mappedAcc = clientAccounts[idx % clientAccounts.length];
+      const brief = (p.brief || []).map((b) => ({ ...b, accountId: mappedAcc.id }));
+      const actions = (p.actions || []).map((a) => ({ ...a, accountId: mappedAcc.id }));
+      return {
+        ...p,
+        accountId: mappedAcc.id,
+        brief,
+        actions,
+      };
+    });
+
+    return {
+      ...baseline,
+      rep: this.clientData.rep ? { ...baseline.rep, ...this.clientData.rep } : baseline.rep,
+      accounts: clientAccounts,
+      byId,
+      planned,
+      isPoCActive: true,
+      clientName: this.clientData.clientName || 'Client PoC',
+    };
   }
 }
 
