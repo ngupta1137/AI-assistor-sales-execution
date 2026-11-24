@@ -4,6 +4,7 @@
 import { esc, icon, pill, bar, kpiValue, AGENT_LABEL } from '../ui.js';
 import { wording } from '../wording.js';
 import { fieldNotices } from '../execution/views.js';
+import { renderChannelRtmBar } from '../channels.js';
 
 function greeting() {
   const h = new Date().getHours();
@@ -82,6 +83,9 @@ export function render(ctx) {
   const self = m.selfStats();
   const pct = Math.round((tr.achieved / tr.target) * 100);
 
+  const chShort = ctx.channelInfo?.short || 'MT';
+  const rtmShort = ctx.rtmInfo?.short || 'DSD';
+
   const rows = ordered.map((p) => {
     const a = data.byId[p.accountId];
     const c = m.counts(p.accountId);
@@ -93,7 +97,7 @@ export function render(ctx) {
       <span class="rank${p.rank === 1 ? ' first' : ''}">${p.rank}</span>
       <span class="row-main">
         <b>${esc(a.name)}</b>
-        <small class="tnum">${esc(fmt.time(p.start))} · ${esc(fmt.distance(p.km))} · <span class="money">${esc(fmt.moneyShort(p.opportunity))}</span></small>
+        <small class="tnum">${esc(fmt.time(p.start))} · ${esc(fmt.distance(p.km))} · <span class="money">${esc(fmt.moneyShort(p.opportunity))}</span> · <span style="font-weight:600;color:var(--accent-ink)">${esc(chShort)} · ${esc(rtmShort)}</span></small>
       </span>
       <span class="row-end">${status}</span>
     </a></li>`;
@@ -166,12 +170,18 @@ export function render(ctx) {
 
   ${stopped.length ? `<div class="notice warn">${icon('stop', 18)}<span>${esc(stopped.map((a) => AGENT_LABEL[a.id]).join(', '))} stopped. Its items are paused in every brief.</span></div>` : ''}
 
+  ${renderChannelRtmBar(ctx.app || { config: { channel: ctx.channel, rtm: ctx.rtm } }, ctx)}
+
   <div class="adaptive-grid today-grid">
   <div class="grid-primary">
   <section class="focus-card" id="next-up">
     <div class="focus-top">${pill(t('Next {visit}'), 'accent')}<span class="small muted tnum">${esc(fmt.time(nextPlan.start))} · ${esc(fmt.distance(nextPlan.km))}</span></div>
     <h2>${esc(nextAcc.name)}</h2>
     <p class="small muted">${esc(t(nextAcc.type))} · ${esc(t('Tier {tier}', { tier: nextAcc.tier }))} · ${esc(nextAcc.contacts[0].name)}</p>
+    <div style="margin:6px 0;padding:6px 8px;background:var(--surface-subtle);border-radius:4px;border:1px solid var(--line-soft);font-size:11px">
+      <b style="color:var(--accent-ink)">${esc(ctx.channelInfo?.badge || 'Modern Trade')} · ${esc(ctx.rtmInfo?.badge || 'DSD')}:</b>
+      <div class="muted">${esc(ctx.channelInfo?.focusArea || '')} · ${esc(ctx.rtmInfo?.fulfillmentDetails || '')}</div>
+    </div>
     ${topAction ? `<p class="focus-action"><span class="eyebrow">${esc(t('Top action'))}</span>${esc(t(topAction.title, topAction.vars))}</p>` : ''}
     <a class="btn primary block" href="#/brief/${nextAcc.id}" id="overnight-banner">${nc.pending ? esc(t('Open brief · {n} to review', { n: nc.pending })) : esc(t('Open brief'))}${icon('chevron', 18)}</a>
   </section>

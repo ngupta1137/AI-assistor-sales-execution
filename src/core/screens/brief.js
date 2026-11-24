@@ -489,6 +489,17 @@ export function render(ctx, [accountId]) {
     <span class="eyebrow">${esc(t('{Visit} brief'))}</span>
     <h1>${esc(a.name)}</h1>
     <p class="head-meta">${esc(fmt.time(p.start))} · ${a.visitMinutes} min · ${esc(contact.name)}, ${esc(t(contact.role))} · ${esc(t('Tier {tier}', { tier: a.tier }))}</p>
+    <div style="display:flex;gap:6px;margin-top:6px;flex-wrap:wrap">
+      <span class="badge sm" style="background:var(--accent-tint,#e0f2fe);color:var(--accent-ink,#0369a1);font-weight:600;font-size:10px;padding:2px 6px;border-radius:4px">
+        ${esc(ctx.channelInfo?.badge || 'Modern Trade')}
+      </span>
+      <span class="badge sm" style="background:var(--surface-subtle);border:1px solid var(--line);font-size:10px;padding:2px 6px;border-radius:4px">
+        ${esc(ctx.rtmInfo?.badge || 'DSD')}
+      </span>
+      <span class="badge sm" style="font-size:10px;color:var(--muted)">
+        ${esc(ctx.rtmInfo?.fulfillmentMode || 'Off-Truck Delivery')}
+      </span>
+    </div>
   </section>
 
   <div class="adaptive-grid brief-grid">
@@ -501,6 +512,16 @@ export function render(ctx, [accountId]) {
         <span data-count="pending"${bump('pending')}><b>${c.pending}</b>To review</span>
       </div>
       <p class="small muted tight guard">${esc(t('Reviewing this brief does not submit the {order}.'))}${c.paused ? ` ${c.paused} paused.` : ''}</p>
+
+      <div class="card tight" style="margin:8px 0;background:var(--surface-subtle);border-left:3px solid var(--accent);padding:8px 10px">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:2px">
+          <b style="font-size:11px;color:var(--accent-ink)">${esc(ctx.channelInfo?.name || 'Modern Trade')} Priority:</b>
+          <small class="muted" style="font-size:10px">${esc(ctx.rtmInfo?.orderLeadTime || 'Immediate')}</small>
+        </div>
+        <div class="small muted" style="font-size:11px;line-height:1.4">
+          ${esc(ctx.channelInfo?.focusArea || '')}. ${esc(ctx.rtmInfo?.fulfillmentDetails || '')}
+        </div>
+      </div>
 
       <div class="items tight">${items.map((it, idx) => renderItem(ctx, it, it === firstPending, a, idx)).join('')}</div>
       ${mergePanel(ctx, a.id)}
