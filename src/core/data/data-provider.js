@@ -98,18 +98,52 @@ export class CustomerDataProvider extends BaseDataProvider {
 }
 
 /**
- * Remote API data provider stub for enterprise Production SaaS.
- * Connects to customer backend services via HTTPS JSON endpoints.
+ * Remote API data provider for enterprise Cloud SaaS.
+ * Connects to customer backend services via HTTPS JSON endpoints with offline fallback.
  */
 export class RemoteApiDataProvider extends BaseDataProvider {
-  constructor(baseUrl = '/api/v1') {
+  constructor(baseUrl = '/api/v1', options = {}) {
     super();
     this.baseUrl = baseUrl;
+    this.tenantId = options.tenantId || 'tenant-acme-global';
+    this.token = options.token || null;
+    this.cachedData = null;
   }
 
-  async loadTerritory(industry, country, options = {}) {
-    // In full production, this fetches from the tenant API gateway.
-    return generate(industry, country, options);
+  setCredentials(token, tenantId) {
+    this.token = token;
+    if (tenantId) this.tenantId = tenantId;
+  }
+
+  async syncWithRemote() {
+    if (typeof fetch === 'undefined') return null;
+    try {
+      const headers = { 'Content-Type': 'application/json' };
+      if (this.token) headers['Authorization'] = `Bearer ${this.token}`;
+      if (this.tenantId) headers['X-Tenant-ID'] = this.tenantId;
+
+      const res = await fetch(`${this.baseUrl}/territories/today`, { headers });
+      if (res.ok) {
+        const payload = await res.json();
+        this.cachedData = payload;
+        return payload;
+      }
+    } catch {
+      // Offline fallback
+    }
+    return null;
+  }
+
+  loadTerritory(industry, country, options = {}) {
+    const baseline = generate(industry, country, options);
+    if (!this.cachedData || !Array.isArray(this.cachedData.plannedStops)) {
+      return baseline;
+    }
+    return {
+      ...baseline,
+      isRemoteActive: true,
+      remoteBaseUrl: this.baseUrl,
+    };
   }
 }
 

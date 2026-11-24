@@ -1,0 +1,14 @@
+{
+  "name": "ai-assistor-sales-backend",
+  "version": "1.0.0",
+  "description": "Multi-Tenant Enterprise REST API for AI Assistor Sales Execution",
+  "type": "module",
+  "main": "src/server.mjs",
+  "scripts": {
+    "start": "node src/server.mjs",
+    "test": "node ../tests/api.test.mjs"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}

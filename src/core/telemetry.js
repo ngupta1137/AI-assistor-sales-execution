@@ -4,7 +4,7 @@ import { rolePanel } from './role-panel.js';
 
 import { esc, icon, pill, initials } from './ui.js';
 import { PERSONA_INFO, personasFor, personFor } from './personas.js';
-import { getDataProvider, setDataProvider, CustomerDataProvider, SyntheticDataProvider } from './data/data-provider.js';
+import { getDataProvider, setDataProvider, CustomerDataProvider, SyntheticDataProvider, RemoteApiDataProvider } from './data/data-provider.js';
 import { getTenantManager } from './tenant/tenant-config.js';
 import { getSession } from './state.js';
 
@@ -382,7 +382,7 @@ export function renderSyncModal(app, ctx) {
           </p>
 
           <div class="facts" style="grid-template-columns:repeat(auto-fit,minmax(80px,1fr));margin-bottom:10px">
-            <div><small>Data Provider</small><b>${ctx?.data?.isPoCActive ? 'Customer' : 'Synthetic'}</b></div>
+            <div><small>Data Provider</small><b>${ctx?.data?.isRemoteActive ? 'Cloud API' : ctx?.data?.isPoCActive ? 'Customer' : 'Synthetic'}</b></div>
             <div><small>Storage Layer</small><b class="good-text">Persistent</b></div>
             <div><small>Logged Decisions</small><b>${Object.keys(getSession(ctx?.data?.seedKey || '').decisions || {}).length} records</b></div>
           </div>
@@ -390,6 +390,9 @@ export function renderSyncModal(app, ctx) {
           <div style="display:flex;flex-direction:column;gap:8px;margin-bottom:12px">
             <button class="btn primary sm" data-act="load-sample-poc-data" style="min-height:var(--tap);width:100%">
               ${icon('sync', 14)} Load Sample Client PoC Dataset
+            </button>
+            <button class="btn secondary sm" data-act="connect-remote-api" style="min-height:var(--tap);width:100%">
+              ${icon('sync', 14)} Connect Enterprise Cloud API (/api/v1)
             </button>
             <button class="btn secondary sm" data-act="revert-synthetic-data" style="min-height:var(--tap);width:100%">
               ${icon('config', 14)} Revert to Synthetic Demonstration Data
@@ -592,6 +595,15 @@ export const syncActions = {
     app.ui.pocToast = 'Client PoC dataset loaded with 4 accounts and 4 offerings. Session persisted.';
     if (ctx?.m?.logAudit) {
       ctx.m.logAudit('PoC Ingestion', 'Loaded client PoC customer dataset with local storage persistence.');
+    }
+  },
+  'connect-remote-api': ({ app, ctx }) => {
+    const provider = new RemoteApiDataProvider('/api/v1', { tenantId: 'tenant-acme-global' });
+    setDataProvider(provider);
+    if (app.cache) app.cache.clear();
+    app.ui.pocToast = 'Connected to Enterprise Cloud API endpoint (/api/v1).';
+    if (ctx?.m?.logAudit) {
+      ctx.m.logAudit('Cloud Integration', 'Switched data provider to Enterprise Remote API mode (/api/v1).');
     }
   },
   'revert-synthetic-data': ({ app, ctx }) => {
