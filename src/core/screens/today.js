@@ -141,6 +141,29 @@ export function render(ctx) {
     <p class="head-meta">${done} of ${ordered.length} ${esc(t('{visits}'))} done · ${pending ? esc(t('{n} items to review', { n: pending })) : esc(t('All briefs reviewed'))}</p>
   </section>
 
+  <section class="kpi-strip" aria-label="Executive territory summary">
+    <div class="kpi-card">
+      <div class="kpi-head"><span class="kpi-label">${esc(t("Today's {visits}"))}</span>${pending ? pill(t('{n} to review', { n: pending }), 'warn') : pill(t('All reviewed'), 'good')}</div>
+      <div class="kpi-num">${ordered.length} <small>${esc(t('planned'))}</small></div>
+      <div class="kpi-meta">${totalActions} ${esc(t('actions'))} · ${done} ${esc(t('completed'))}</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-head"><span class="kpi-label">${esc(t('Planned opportunity'))}</span>${pill(t('Estimated'), 'accent')}</div>
+      <div class="kpi-num money">${esc(fmt.moneyShort(ordered.reduce((s, p) => s + p.opportunity, 0)))}</div>
+      <div class="kpi-meta">${esc(t("Across today's scheduled journey"))}</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-head"><span class="kpi-label">${esc(t('Quota pace (MTD)'))}</span>${pct >= 100 ? pill(t('On track'), 'good') : pill(t('Pacing'), 'accent')}</div>
+      <div class="kpi-num">${pct}% <small>MTD</small></div>
+      <div class="kpi-meta">${esc(fmt.moneyShort(tr.achieved))} of ${esc(fmt.moneyShort(tr.target))} ${esc(t('target'))}</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-head"><span class="kpi-label">${esc(t('Field AI agents'))}</span>${stopped.length ? pill(t('{n} stopped', { n: stopped.length }), 'warn') : pill(t('Active'), 'good')}</div>
+      <div class="kpi-num">${data.agents.length - stopped.length} <small>${esc(t('synced'))}</small></div>
+      <div class="kpi-meta">${esc(t('Overnight briefs ready'))}</div>
+    </div>
+  </section>
+
   ${stopped.length ? `<div class="notice warn">${icon('stop', 18)}<span>${esc(stopped.map((a) => AGENT_LABEL[a.id]).join(', '))} stopped. Its items are paused in every brief.</span></div>` : ''}
 
   <div class="adaptive-grid today-grid">
