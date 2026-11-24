@@ -16,7 +16,7 @@ export default {
   name: 'Foodservice distribution',
   tagline: 'Restaurants, hotels, caterers and canteens',
   icon: 'home',
-  accent: '#2D7457',
+  accent: '#198559',
   vocab: {
     account: 'venue', accounts: 'venues',
     contact: 'buyer', contacts: 'buyers',

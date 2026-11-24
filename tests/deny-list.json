@@ -41,7 +41,7 @@
   "Pepsi",
   "PepsiCo",
   "Nestle",
-  "Nestlé",
+  "Nestl\u00e9",
   "Unilever",
   "Procter",
   "Colgate",
@@ -75,7 +75,7 @@
   "Mastercard",
   "Paytm",
   "PhonePe",
-  "Itaú",
+  "Ita\u00fa",
   "Bradesco",
   "Santander",
   "HSBC",
@@ -160,6 +160,16 @@
   "Cengage",
   "Amcor",
   "WestRock",
-  "Smurfit"
+  "Smurfit",
+  "SAP",
+  "Salesforce",
+  "Veeva",
+  "StayinFront",
+  "Dynamics 365",
+  "S/4HANA",
+  "Oracle",
+  "HubSpot",
+  "NetSuite",
+  "Workday",
+  "BAPI"
 ]
-

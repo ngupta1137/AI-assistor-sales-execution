@@ -153,13 +153,39 @@ function mix(hex, other, amount) {
   return `#${a.map((v, i) => Math.round(v * (1 - amount) + b[i] * amount).toString(16).padStart(2, '0')).join('')}`;
 }
 
+/** Light, dark or follow the system. Remembered per browser; the page works without storage. */
+const THEMES = ['light', 'dark', 'system'];
+function loadTheme() {
+  try { const v = localStorage.getItem('aia-theme'); return THEMES.includes(v) ? v : 'system'; } catch { return 'system'; }
+}
+function saveTheme(v) { try { localStorage.setItem('aia-theme', v); } catch { /* storage blocked: keep it for this session */ } }
+export function isDarkTheme() {
+  const t = app.theme || 'system';
+  if (t !== 'system') return t === 'dark';
+  return typeof window !== 'undefined' && !!window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+}
+function contrastOn(hex, bg) {
+  const lum = (h) => { const [r, g, b] = h.replace('#', '').match(/../g).map((x) => parseInt(x, 16) / 255).map((v) => (v <= 0.03928 ? v / 12.92 : ((v + 0.055) / 1.055) ** 2.4)); return 0.2126 * r + 0.7152 * g + 0.0722 * b; };
+  const a = lum(hex), b = lum(bg);
+  return (Math.max(a, b) + 0.05) / (Math.min(a, b) + 0.05);
+}
+/** Lightest step of the accent toward white that still meets the contrast target on the given background. */
+function towardWhite(hex, bg, target, maxStep) {
+  // Light background: the color already passes, keep it. Dark background: the smallest lift that passes keeps the most color.
+  if (contrastOn(hex, bg) >= target) return hex;
+  for (let i = 1; i <= maxStep; i++) { const c = mix(hex, '#ffffff', i / 20); if (contrastOn(c, bg) >= target) return c; }
+  return mix(hex, '#ffffff', maxStep / 20);
+}
+
 function applyTheme(ctx) {
   const pick = app.ui.setup?.industry && !ctx ? findIndustry(app.ui.setup.industry)?.accent : null;
   const raw = (app.config?.color && ctx ? app.config.color : ctx?.industry.accent || pick) || '#334155';
   const accent = readableAccent(raw);
   const rgb = accent.replace('#', '').match(/../g).map((x) => parseInt(x, 16));
   const root = document.documentElement.style;
-  const isDark = typeof window !== 'undefined' && window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+  const t = app.theme || 'system';
+  if (t === 'system') document.documentElement.removeAttribute('data-theme'); else document.documentElement.setAttribute('data-theme', t);
+  const isDark = isDarkTheme();
   root.setProperty('--accent-raw', raw);
   root.setProperty('--accent', accent);
   root.setProperty('--accent-hover', mix(accent, isDark ? '#ffffff' : '#000000', 0.12));
@@ -171,6 +197,10 @@ function applyTheme(ctx) {
     root.setProperty('--accent-soft', mix(accent, '#ffffff', 0.91));
     root.setProperty('--accent-line', mix(accent, '#ffffff', 0.7));
   }
+  // Accent as text or icon: same as the fill in light mode; lifted until it reads on the dark surface.
+  root.setProperty('--accent-ink', isDark ? towardWhite(accent, '#1A1E1C', 4.5, 16) : accent);
+  // Brighter tint for small highlights (stripes, icons): 3:1 against the surface.
+  root.setProperty('--accent-tint', isDark ? towardWhite(accent, '#1A1E1C', 3, 12) : (() => { let c = accent; for (let i = 1; i <= 8; i++) { const n = mix(accent, '#ffffff', i / 20); if (contrastOn(n, '#ffffff') >= 3) c = n; else break; } return c; })());
   // Surfaces stay neutral; the industry color is for actions, selection and status only.
   root.removeProperty('--surface-subtle');
   root.removeProperty('--surface-inset');
@@ -257,6 +287,8 @@ function updateStageToolbar(app, stage) {
       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12.01" y2="21"/></svg>
       <span>Web</span>
     </button>
+    <span class="stage-sep" aria-hidden="true"></span>
+    ${[['light', 'sun', 'Light'], ['dark', 'moon', 'Dark'], ['system', 'screen', 'System']].map(([k, ic, l]) => `<button class="stage-vp-btn ${(app.theme || 'system') === k ? 'active' : ''}" data-act="set-theme" data-theme="${k}" aria-pressed="${(app.theme || 'system') === k}" title="${l} theme">${icon(ic, 14)}<span>${l}</span></button>`).join('')}
   `;
 }
 
@@ -414,7 +446,10 @@ function shell(ctx, name, result) {
       <button class="logo" id="logo" aria-label="AI Assistor home">
         <span class="mark">${icon(ctx.industry.icon, 18)}</span><span class="brand">AI Assistor</span>
       </button>
-      ${demoToolButtons(app, ctx)}
+      <span class="bar-tools">
+        <button class="icon-btn bar-tool" id="theme-toggle" data-act="toggle-theme" aria-label="${isDarkTheme() ? 'Switch to light mode' : 'Switch to dark mode'}" title="${isDarkTheme() ? 'Light mode' : 'Dark mode'}">${icon(isDarkTheme() ? 'sun' : 'moon', 18)}</button>
+        ${demoToolButtons(app, ctx)}
+      </span>
       <button class="who" data-act="open-sync-modal" aria-haspopup="dialog" aria-label="Enterprise sync telemetry and user profile"><span class="who-text"><b>${esc(user.name)}</b><small><span class="sync-dot ${app.offline ? 'offline' : ''}" aria-hidden="true"></span> ${app.offline ? 'Offline' : esc(t(user.title))}</small></span><span class="avatar" aria-hidden="true">${esc(initials(user.name))}</span></button>
     </header>${actingAsBar}${deniedHtml}${app.offline ? `<div class="offline-strip" id="offline-strip">${icon('sync', 16)} <span>${esc(offlineText)}</span><button class="pill-btn sm" data-act="toggle-offline" style="margin-left:auto;background:rgba(255,255,255,0.2);color:#fff;min-height:var(--tap);display:inline-flex;align-items:center">${esc(goOnlineText)}</button></div>` : ''}${prepared}
     <main class="screen" id="screen" data-region="screen">${out}</main>
@@ -429,6 +464,8 @@ const rbacActions = {
   "open-rights-matrix": ({ app }) => { (app.ui ||= {}).rightsOpen = true; },
   "close-rights-matrix": ({ app }) => { if (app.ui) app.ui.rightsOpen = false; },
   "dismiss-denial": ({ app }) => { app.deniedNotice = null; },
+  "set-theme": ({ app, data }) => { app.theme = THEMES.includes(data.theme) ? data.theme : 'system'; saveTheme(app.theme); applyTheme(app.config ? buildContext(app.config.industryId, app.config.countryId) : null); },
+  "toggle-theme": ({ app }) => { app.theme = isDarkTheme() ? 'light' : 'dark'; saveTheme(app.theme); applyTheme(app.config ? buildContext(app.config.industryId, app.config.countryId) : null); },
   "dismiss-acting-as": ({ app }) => { (app.ui ||= {}).actingAsDismissed = true; },
   "restore-acting-as": ({ app }) => { if (app.ui) app.ui.actingAsDismissed = false; },
 };
@@ -456,8 +493,10 @@ export function start() {
   if (LIVE_ENABLED && /^https:\/\//.test(qs.get('live') || '')) app.liveEndpoint = qs.get('live');
   if (app.config && !location.hash) writeUrl(`#/${HOME[app.config.persona]}`);
   window.addEventListener('hashchange', () => { app.ui = { ...app.ui, panel: null }; render(); document.getElementById('screen')?.scrollTo(0, 0); });
+  app.theme = THEMES.includes(qs.get('theme')) ? qs.get('theme') : loadTheme();
   if (typeof window !== 'undefined' && window.matchMedia) {
     window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => {
+      if ((app.theme || 'system') !== 'system') return;
       const c = app.config ? buildContext(app.config.industryId, app.config.countryId) : null;
       applyTheme(c);
       render();

@@ -16,7 +16,7 @@ export default {
   name: 'Building materials and paints',
   tagline: 'Dealers, hardware stores, contractors and projects',
   icon: 'roller',
-  accent: '#A84D26',
+  accent: '#B65B35',
   aliases: ['paints', 'paint', 'buildingmaterials'],
   vocab: {
     account: 'customer', accounts: 'customers',

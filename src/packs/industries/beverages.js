@@ -16,7 +16,7 @@ export default {
   name: 'Beverages and alcohol',
   tagline: 'Bars, restaurants, hotels and liquor stores',
   icon: 'glass',
-  accent: '#9C5418',
+  accent: '#AB6021',
   vocab: {
     account: 'outlet', accounts: 'outlets',
     contact: 'outlet manager', contacts: 'outlet managers',

@@ -16,7 +16,7 @@ export default {
   name: 'Consumer goods',
   tagline: 'Supermarkets, convenience stores and independent shops',
   icon: 'cart',
-  accent: '#1F6F6A',
+  accent: '#18817A',
   vocab: {
     account: 'store', accounts: 'stores',
     contact: 'store manager', contacts: 'store managers',

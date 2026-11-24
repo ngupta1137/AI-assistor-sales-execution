@@ -16,7 +16,7 @@ export default {
   name: 'Apparel and footwear',
   tagline: 'Department stores, boutiques and online sellers',
   icon: 'heart',
-  accent: '#8E3B73',
+  accent: '#C73D9A',
   vocab: {
     account: 'retailer', accounts: 'retailers',
     contact: 'buyer', contacts: 'buyers',

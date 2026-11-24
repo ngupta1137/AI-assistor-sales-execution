@@ -16,7 +16,7 @@ export default {
   name: 'Medical devices',
   tagline: 'Hospitals, surgery centers and labs',
   icon: 'pulse',
-  accent: '#2667A0',
+  accent: '#2578C1',
   vocab: {
     account: 'account', accounts: 'accounts',
     contact: 'stakeholder', contacts: 'stakeholders',

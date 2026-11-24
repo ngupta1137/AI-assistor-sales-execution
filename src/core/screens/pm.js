@@ -212,7 +212,7 @@ export function render(ctx) {
       <div class="card tight" style="margin:0 0 12px 0;background:var(--surface-subtle)">
         <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px">
           <span style="font-weight:600;font-size:12px">Review threshold:</span>
-          <b style="font-size:13px;color:var(--accent)">${reviewThresh} percentage points below mean</b>
+          <b style="font-size:13px;color:var(--accent-ink)">${reviewThresh} percentage points below mean</b>
         </div>
         <input type="range" min="5" max="25" step="1" value="${reviewThresh}" data-change="set-pm-bias-thresh" style="width:100%;height:var(--tap);cursor:pointer">
         <span class="small muted" style="font-size:10px">Overall market acceptance mean: <b>${meanAccept}%</b>. Flag trigger: &lt;${meanAccept - reviewThresh}%.</span>

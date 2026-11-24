@@ -16,7 +16,7 @@ export default {
   name: 'Auto parts',
   tagline: 'Workshops, parts retailers and fleets',
   icon: 'wrench',
-  accent: '#5B5753',
+  accent: '#8F6E4D',
   aliases: ['auto', 'automotive'],
   vocab: {
     account: 'account', accounts: 'accounts',

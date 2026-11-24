@@ -16,7 +16,7 @@ export default {
   name: 'School and education supplies',
   tagline: 'Schools, training providers and bookshops',
   icon: 'book',
-  accent: '#5A3E8C',
+  accent: '#8858DF',
   vocab: {
     account: 'institution', accounts: 'institutions',
     contact: 'educator', contacts: 'educators',

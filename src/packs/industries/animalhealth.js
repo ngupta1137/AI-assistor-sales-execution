@@ -16,7 +16,7 @@ export default {
   name: 'Animal health',
   tagline: 'Vet clinics, livestock farms and pet stores',
   icon: 'pulse',
-  accent: '#2F6B4F',
+  accent: '#198553',
   vocab: {
     account: 'practice', accounts: 'practices',
     contact: 'practitioner', contacts: 'practitioners',

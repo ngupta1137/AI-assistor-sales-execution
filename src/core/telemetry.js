@@ -10,7 +10,7 @@ export function renderSyncModal(app, ctx) {
   const lastSync = app.ui.lastSyncTime || '4 minutes ago';
   const syncSuccess = app.ui.syncJustRan;
   const tab = app.ui.gwTab || 'connectors';
-  const connector = app.ui.gwConnector || 'salesforce';
+  const connector = app.ui.gwConnector || 'fieldcrm';
 
   // Sample payload models keyed by active connector and scenario
   const getPayloads = () => {
@@ -21,10 +21,10 @@ export function renderSyncModal(app, ctx) {
     const accId = acc ? acc.id : 'ACC-01';
 
     const inbound = {
-      source: connector === 'salesforce' ? 'Salesforce Consumer Goods Cloud (REST v58.0)'
-        : connector === 'veeva' ? 'Veeva CRM / Vault Life Sciences (v24.1)'
-        : connector === 'dynamics' ? 'Microsoft Dynamics 365 Sales (Dataverse OData v9.2)'
-        : 'SAP S/4HANA Enterprise ERP (OData v4 BAPI)',
+      source: connector === 'fieldcrm' ? 'Field CRM (REST)'
+        : connector === 'lscrm' ? 'Life-sciences CRM (REST)'
+        : connector === 'bizcrm' ? 'Business CRM (OData)'
+        : 'ERP (OData)',
       endpoint: '/api/v2/master/delta?since=2026-11-22T08:00:00Z',
       status: '200 OK',
       timestamp: new Date().toISOString(),
@@ -46,8 +46,8 @@ export function renderSyncModal(app, ctx) {
     };
 
     const outbound = {
-      target: connector === 'sap' ? 'SAP S/4HANA Sales Order Gateway (BAPI_SALESORDER_CREATEFROMDAT2)'
-        : connector === 'veeva' ? 'Veeva Call Activity & Sample Drop Ingestion'
+      target: connector === 'erp' ? 'ERP sales order API'
+        : connector === 'lscrm' ? 'Life-sciences CRM call activity API'
         : 'CRM Field Activity Webhook (POST /api/v2/orders/batch)',
       status: '201 Created',
       idempotencyKey: `IDEMP-${Date.now()}-8821`,
@@ -56,11 +56,11 @@ export function renderSyncModal(app, ctx) {
       payload: {
         accountId: accId,
         accountName: accName,
-        totalEstimatedValue: ctx ? ctx.m.order(accId)?.total || 1420 : 1420,
+        totalEstimatedValue: ctx && accId ? ctx.m.orderLines(accId).reduce((t, l) => t + (l.total || 0), 0) : 0,
         submissionMode: app.offline ? 'Offline Outbox (AES-256)' : 'Online REST',
         gpsCoordinates: { lat: acc?.geo?.lat ?? 41.8781, lng: acc?.geo?.lng ?? -87.6298 },
         auditReceiptHash: 'sha256-e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855',
-        orderLinesCount: ctx ? ctx.m.order(accId)?.lines?.length || 3 : 3
+        orderLinesCount: ctx && accId ? ctx.m.orderLines(accId).length : 0
       }
     };
 
@@ -139,17 +139,17 @@ export function renderSyncModal(app, ctx) {
           </div>
 
           <div class="seg-ctl" role="group" aria-label="Connector selector" style="margin-bottom:12px;flex-wrap:wrap">
-            <button class="seg ${connector === 'salesforce' ? 'on' : ''}" data-act="set-gw-connector" data-conn="salesforce" style="min-height:var(--tap);flex:1;font-size:11px">
-              Salesforce CGC
+            <button class="seg ${connector === 'fieldcrm' ? 'on' : ''}" data-act="set-gw-connector" data-conn="fieldcrm" style="min-height:var(--tap);flex:1;font-size:11px">
+              Field CRM
             </button>
-            <button class="seg ${connector === 'veeva' ? 'on' : ''}" data-act="set-gw-connector" data-conn="veeva" style="min-height:var(--tap);flex:1;font-size:11px">
-              Veeva Vault CRM
+            <button class="seg ${connector === 'lscrm' ? 'on' : ''}" data-act="set-gw-connector" data-conn="lscrm" style="min-height:var(--tap);flex:1;font-size:11px">
+              Life-sciences CRM
             </button>
-            <button class="seg ${connector === 'dynamics' ? 'on' : ''}" data-act="set-gw-connector" data-conn="dynamics" style="min-height:var(--tap);flex:1;font-size:11px">
-              Microsoft Dynamics
+            <button class="seg ${connector === 'bizcrm' ? 'on' : ''}" data-act="set-gw-connector" data-conn="bizcrm" style="min-height:var(--tap);flex:1;font-size:11px">
+              Business CRM
             </button>
-            <button class="seg ${connector === 'sap' ? 'on' : ''}" data-act="set-gw-connector" data-conn="sap" style="min-height:var(--tap);flex:1;font-size:11px">
-              SAP S/4HANA ERP
+            <button class="seg ${connector === 'erp' ? 'on' : ''}" data-act="set-gw-connector" data-conn="erp" style="min-height:var(--tap);flex:1;font-size:11px">
+              ERP
             </button>
           </div>
 
@@ -209,7 +209,7 @@ export function renderSyncModal(app, ctx) {
                   <tr style="border-bottom:2px solid var(--line);text-align:left">
                     <th style="padding:6px">Field Name</th>
                     <th style="padding:6px;background:var(--info-bg)">Local Device (Offline Queue)</th>
-                    <th style="padding:6px;background:var(--good-bg)">Cloud Master (SAP S/4HANA)</th>
+                    <th style="padding:6px;background:var(--good-bg)">Cloud master (ERP)</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -333,10 +333,10 @@ export const syncActions = {
   'set-gw-connector': ({ app, data, ctx }) => {
     const ui = app.ui ||= {};
     ui.gwConnector = data.conn;
-    const name = data.conn === 'salesforce' ? 'Salesforce CGC'
-      : data.conn === 'veeva' ? 'Veeva Vault CRM'
-      : data.conn === 'dynamics' ? 'Microsoft Dynamics 365'
-      : 'SAP S/4HANA ERP';
+    const name = data.conn === 'fieldcrm' ? 'Field CRM'
+      : data.conn === 'lscrm' ? 'Life-sciences CRM'
+      : data.conn === 'bizcrm' ? 'Business CRM'
+      : 'ERP';
     ui.gwToast = `Switched gateway adapter to ${name}. Protocol: OAuth 2.0 / OData v4.`;
     if (ctx?.m?.logAudit) {
       ctx.m.logAudit('Gateway Adapter', `Switched active connector to ${name}`);

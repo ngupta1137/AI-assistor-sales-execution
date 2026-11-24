@@ -418,7 +418,8 @@ Guardrails: offers are off in pharma, medical devices, insurance, animal health 
 | Extensibility | Adding an industry or country = adding one pack file, no screen code changes |
 | Quality | No console errors; every screen works in all 231 industry-country combinations |
 | Confidentiality | No real company names, logos, data or internal terms from any employer |
-| Accessibility | Readable contrast, tap targets of at least 44 px |
+| Accessibility | Readable contrast (accent fills at least 4.5:1 with white text; accent text lifted to 4.5:1 on dark surfaces), tap targets of at least 44 px |
+| Theme | Light, dark or follow the system. Switch in the app bar, the profile sheet and the stage bar; remembered per browser |
 
 ## 13. Prototype acceptance criteria
 
